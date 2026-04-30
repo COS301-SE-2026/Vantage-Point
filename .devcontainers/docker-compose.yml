@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  # The Python/FastAPI environment
+  app:
+    image: mcr.microsoft.com/devcontainers/python:3.12
+    volumes:
+      - ..:/workspaces:cached
+    # Keeps the container running so you can code inside it
+    command: sleep infinity
+    environment:
+      # This points Python to the 'db' service below
+      DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
+
+  # The PostgreSQL Database
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: riot_user
+      POSTGRES_PASSWORD: riot_password
+      POSTGRES_DB: riot_db
+    # Persistent storage: data stays even if you stop the container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

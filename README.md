@@ -32,9 +32,24 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 | **Backend** | FastAPI (Python) | Data processing, vector calculations, API rate limiting, ML inference |
 | **Frontend** | React | Interactive dashboard |
 | | D3.js | Coordinate-accurate map overlays |
+| | Tailwind CSS | Utility-first styling with custom-built UI components. |
 | **Database** | PostgreSQL | Match histories and spatial benchmarks |
 | **Data Science** | Pandas | Data manipulation |
 | | Scikit-learn | K-Nearest Neighbors for finding winning snapshots |
 | | Random Forest | Risk prediction models |
 | | K-Means | Map clustering and area identification |
 | **Infrastructure** | AWS (S3, Lambda) | Serverless data fetching and storage |
+| **Environment** | Dev Containers | Standardized Docker development environments |
+| **Testing Framework** | pytest, Vitest + React Testing Library | |
+| **Package Manager** | pip + npm | |
+
+## Branching Strategy
+To ensure a stable and collaborative development workflow, the following strategy is utilized:
+- `main`: The production-ready branch. Contains only thoroughly tested and reviewed code.
+- `dev`: The primary integration branch. All feature branches merge here first.
+- `<domain>/<feature>`: Temporary branches used for developing new features and bug fixes (e.g., `frontend/login_page`, `backend/API_fixes`).
+
+## 📚 Documentation
+
+- **[Backend Development Guide](backend/DEVELOPMENT.md)** - Setup, testing, API development
+- **[Frontend Development Guide](frontend/DEVELOPMENT.md)** - Setup, components, styling
