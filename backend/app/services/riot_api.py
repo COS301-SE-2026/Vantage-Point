@@ -18,7 +18,10 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str):
         if response.status_code == 200:
             return response.json().get("puuid")
         elif response.status_code == 429:
-            print("⚠️ Rate limit hit! Slow down.")
+            print("Rate limit hit!")
         elif response.status_code == 404:
-            print("❌ Player not found.")
+            print("Player not found.")
         return None
+
+#Neo : I created this for the purpose of testing the Riot API connection 
+# needs to be actually made for it using the MATCH V5 Api

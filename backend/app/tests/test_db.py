@@ -9,7 +9,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_async_engine(DATABASE_URL, echo=True) # echo=True shows the raw SQL
 
 async def test_database_logic():
-    print("🛠️ Starting Database Lab...")
+    print("Starting Database Lab (lets hope this works)")
 
     async with engine.begin() as conn:
         #This wipes the DB can test the creation logic
@@ -39,7 +39,7 @@ async def test_database_logic():
         result = await session.execute(statement)
         summoner = result.scalar_one()
         
-        print(f"✅ Found Summoner: {summoner.game_name}#{summoner.tag_line} (PUUID: {summoner.puuid})")
+        print(f"Found Summoner: {summoner.game_name}#{summoner.tag_line} (PUUID: {summoner.puuid})")
 
 if __name__ == "__main__":
     asyncio.run(test_database_logic())
