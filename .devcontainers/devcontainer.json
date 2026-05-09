@@ -1,23 +1,33 @@
 {
   "name": "Vantage Point",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11-node:18",
+  // 'image' and 'dockerComposeFile' are mutually exclusive — don't use both.
+  // @NeoMachabaUP  : i am still figuring out how this differs dockerfile to a focus on dev container, but for now we are using docker compose to build the dev container and run the app in it.
   "dockerComposeFile": "docker-compose.yml",
+  // dockerComposeFile tells VS Code to use Compose instead of building a single container.
   "service": "app",
+  "workspaceFolder": "/workspaces/Vantage-Point",
 
   "customizations": {
     "vscode": {
       "extensions": [
+        // for Python development
         "ms-python.python",
+        "njpwerner.autodocstring",
+        // frontend development
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "njpwerner.autodocstring",
+        // database tools; Microsoft maintained PostgreSQL extension 
+        "ms-ossdata.vscode-postgresql",
+        // Misc ; WE need to better describe these extensions and why we need them in the README
         "tamasfe.even-better-toml",
-        "ms-azuretools.vscode-docker",
-        "ckolkman.vscode-postgres"
+        "ms-azuretools.vscode-docker"
       ]
     }
   },
 
+  // 8000 = FastAPI, 5173 = Vite, 5432 = Postgres (for DBeaver or the VS Code extension on the host)
+  // @NeoMachabaUP : we are using 3000 for the frontend, but we can change this if we want to use 5173 instead. I just wanted to avoid confusion with the default Vite port.
+  // @NeoMachabaUP : @Vele189 could you have a look here please
   "forwardPorts": [8000, 3000, 5432],
   "postCreateCommand": "bash .devcontainer/post-create.sh"
 
