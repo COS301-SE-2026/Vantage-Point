@@ -1,6 +1,7 @@
 # Backend
 backend/venv/
 backend/__pycache__/
+backend/app/database/__pycache__/
 backend/*.pyc
 backend/.env
 
