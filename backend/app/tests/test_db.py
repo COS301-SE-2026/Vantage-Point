@@ -1,8 +1,10 @@
 import asyncio
 import os
-from sqlmodel import SQLModel, create_engine, Session, select
+from sqlmodel import SQLModel, select #removed create_engine and Session because we are using the async versions now
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from main import Summoners, Champions, Participants, Matches  # Import models
+
+# Models now live in database/models.py — import from there, not from main.
+from app.database.models import Champions, Summoners, Matches, Participants
 
 #Setup Connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -21,6 +23,9 @@ async def test_database_logic():
     async with AsyncSession(engine) as session:
         #Inserts a Mock Data
         print("Inserting Mock Data...")
+        # Jhin's actual Riot champion_id is 202 — using a real value here
+        # means this mock data would be valid if imported alongside real API data.
+        # @NeoMachabaUP : There is no Jhin that we know of
         test_champ = Champions(champion_id=202, name="Jhin", tags="Marksman")
         test_summoner = Summoners(
             puuid="test_puuid_123", 
@@ -40,6 +45,10 @@ async def test_database_logic():
         summoner = result.scalar_one()
         
         print(f"Found Summoner: {summoner.game_name}#{summoner.tag_line} (PUUID: {summoner.puuid})")
+
+        print("--- Test complete ---")
+        # TODO: add FK constraint tests (Participants referencing Matches/Summoners/Champions)
+        # once the match history fetching logic is in place.
 
 if __name__ == "__main__":
     asyncio.run(test_database_logic())
