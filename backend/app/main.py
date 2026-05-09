@@ -21,7 +21,7 @@ load_dotenv()
 app = FastAPI(title="Vantage Point Backend")
 
 # Get the URL from the docker-compose environment variable
-# poinmts to the db service not localhost hopfully, this should only work inside the container.
+# points to the db service not localhost hopfully, this should only work inside the container.
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_async_engine(DATABASE_URL)
 
