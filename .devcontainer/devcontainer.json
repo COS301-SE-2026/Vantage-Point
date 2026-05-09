@@ -5,7 +5,7 @@
   "dockerComposeFile": "docker-compose.yml",
   // dockerComposeFile tells VS Code to use Compose instead of building a single container.
   "service": "app",
-  "workspaceFolder": "/workspaces/Vantage-Point",
+  "workspaceFolder": "/workspaces",
 
   "customizations": {
     "vscode": {

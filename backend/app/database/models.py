@@ -1,5 +1,4 @@
 from typing import List, Optional
-from backend.app.main import Participants
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
