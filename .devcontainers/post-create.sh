@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /workspace/backend
+cd /workspaces/backend
 source venv/bin/activate
 pip install -r requirements.txt
 
