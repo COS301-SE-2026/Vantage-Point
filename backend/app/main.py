@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Vantage Point Backend")
 
+
 # CORS for frontend
 app.add_middleware(
     CORSMiddleware,
@@ -12,13 +13,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "Vantage Point API running"}
 
+
 @app.get("/health")
 async def health():
     return {"status": "Vantage Point Backend running healthy"}
+
 
 @app.post("/api/test")
 async def test_endpoint(data: dict):

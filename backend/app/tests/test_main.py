@@ -5,7 +5,6 @@ Tests basic FastAPI application functionality and response schemas.
 No database or external API calls required.
 """
 
-import pytest
 from fastapi import status
 
 
@@ -91,11 +90,7 @@ class TestTestEndpoint:
 
     def test_test_endpoint_with_complex_data(self, client):
         """Test that POST /api/test handles complex nested data."""
-        payload = {
-            "nested": {"key": "value"},
-            "array": [1, 2, 3],
-            "string": "test"
-        }
+        payload = {"nested": {"key": "value"}, "array": [1, 2, 3], "string": "test"}
         response = client.post("/api/test", json=payload)
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

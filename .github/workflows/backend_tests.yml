@@ -27,10 +27,10 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Format check with Black
-        run: cd backend && black --check app tests
+        run: cd backend && black --check app
 
       - name: Lint with Ruff
-        run: cd backend && ruff check app tests
+        run: cd backend && ruff check app
 
   test:
     name: Unit Tests and Coverage
@@ -51,12 +51,7 @@ jobs:
       - name: Run tests with coverage
         run: cd backend && pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term
 
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: backend/htmlcov/
-          retention-days: 30
+
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3

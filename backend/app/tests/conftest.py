@@ -8,7 +8,6 @@ allowing tests to run while the database is still being set up.
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import MagicMock, AsyncMock
-
 from app.main import app
 
 
@@ -33,7 +32,7 @@ def test_user_data():
     return {
         "username": "testuser",
         "email": "test@example.com",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
 
 
@@ -49,7 +48,7 @@ def test_user_response():
         "id": 1,
         "username": "testuser",
         "email": "test@example.com",
-        "created_at": "2024-01-15T10:30:00Z"
+        "created_at": "2024-01-15T10:30:00Z",
     }
 
 
@@ -64,7 +63,7 @@ def test_match_data():
     return {
         "match_id": "NA1_123456789",
         "summoner_name": "TestPlayer",
-        "coordinates": [[500, 600], [550, 650], [600, 700]]
+        "coordinates": [[500, 600], [550, 650], [600, 700]],
     }
 
 
@@ -80,7 +79,7 @@ def test_match_response():
         "id": 1,
         "match_id": "NA1_123456789",
         "user_id": 1,
-        "created_at": "2024-01-15T10:30:00Z"
+        "created_at": "2024-01-15T10:30:00Z",
     }
 
 
