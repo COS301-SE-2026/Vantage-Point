@@ -27,12 +27,11 @@ def test_user_data():
     Provide sample user data for testing user-related endpoints.
 
     Returns:
-        dict: User data with username, email, and password
+        dict: User data with username, email
     """
     return {
         "username": "testuser",
         "email": "test@example.com",
-        "password": "SecurePass123!",
     }
 
 
