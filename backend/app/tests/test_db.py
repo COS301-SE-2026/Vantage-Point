@@ -1,8 +1,8 @@
 import asyncio
 import os
-from sqlmodel import SQLModel, create_engine, Session, select
+from sqlmodel import SQLModel, select
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from main import Summoners, Champions, Participants, Matches  # Import models
+from main import Summoners, Champions  # Import models
 
 # Setup Connection
 DATABASE_URL = os.getenv("DATABASE_URL")
