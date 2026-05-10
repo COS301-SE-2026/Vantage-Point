@@ -51,7 +51,12 @@ jobs:
       - name: Run tests with coverage
         run: cd backend && pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term
 
-
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: backend/htmlcov/
+          retention-days: 30
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
