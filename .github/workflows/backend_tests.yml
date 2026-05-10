@@ -58,9 +58,10 @@ jobs:
           path: backend/htmlcov/
           retention-days: 30
 
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
-        with:
-          file: ./backend/coverage.xml
-          flags: backend
-          fail_ci_if_error: true
+      # Limit reached - Renenable when codecov limit is lifted
+      # - name: Upload to Codecov
+      #   uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
+      #   with:
+      #     file: ./backend/coverage.xml
+      #     flags: backend
+      #     fail_ci_if_error: true
