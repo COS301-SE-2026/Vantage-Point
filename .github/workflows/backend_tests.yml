@@ -59,7 +59,7 @@ jobs:
           retention-days: 30
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
         with:
           file: ./backend/coverage.xml
           flags: backend
