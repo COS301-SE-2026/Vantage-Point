@@ -1,18 +1,45 @@
 # Backend
-backend/venv/
-backend/__pycache__/
-backend/*.pyc
-backend/.env
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+backend/.coverage
+htmlcov/
+backend/app/tests/fixtures/
+backend/app/tests/integration/
 
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/.env
+# Virtual Environment
+venv/
+env/
+.venv
+
+# Environment Variables
+.env
+.env.local
 
 # IDE
 .vscode/
-.DS_Store
+.idea/
 *.swp
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/build/
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
+
+# Build
+build/
+dist/
+
+# Other
+.postman
