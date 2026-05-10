@@ -52,14 +52,14 @@ jobs:
         run: cd backend && pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: backend/htmlcov/
           retention-days: 30
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@a12ed752fd3cb4b995c79410dd1b7988dbd59f36
+        uses: codecov/codecov-action@v3
         with:
           file: ./backend/coverage.xml
           flags: backend
