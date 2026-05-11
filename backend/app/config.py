@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     aws_region: str = "eu-west-1"
     cognito_user_pool_id: str = ""
     cognito_client_id: str = ""
+    cognito_client_secret: str = ""
 
     # ============ Server Configuration ============
     debug: bool = True
