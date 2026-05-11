@@ -37,5 +37,5 @@
   // @NeoMachabaUP : @Vele189 could you have a look here please
   "forwardPorts": [8000, 3000, 5432, 5173],
   "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh",
-  "postStartCommand": "/bin/bash /workspaces/.devcontainer/start-frontend.sh"  
+  "postStartCommand": "/bin/bash /workspaces/.devcontainer/start-services.sh"  
 }
