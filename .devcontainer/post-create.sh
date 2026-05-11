@@ -12,6 +12,8 @@ pip install -r requirements.txt
 cd /workspaces/frontend
 npm install
 
-npm run dev
+# npm run dev
+# being run in the postStartCommand in devcontainer.json, so we don't need to run it here. 
+# This allows the frontend server to start up after the container is fully ready, which can help avoid issues with the database not being ready yet when the backend tries to start.
  
 echo "post-create.sh complete"

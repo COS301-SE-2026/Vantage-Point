@@ -35,8 +35,7 @@
   // 8000 = FastAPI, 5173 = Vite, 5432 = Postgres (for DBeaver or the VS Code extension on the host)
   // @NeoMachabaUP : we are using 3000 for the frontend, but we can change this if we want to use 5173 instead. I just wanted to avoid confusion with the default Vite port.
   // @NeoMachabaUP : @Vele189 could you have a look here please
-  "forwardPorts": [8000, 3000, 5432],
-  "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh"
-
-  
+  "forwardPorts": [8000, 3000, 5432, 5173],
+  "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh",
+  "postStartCommand": "/bin/bash /workspaces/.devcontainer/start-frontend.sh"  
 }
