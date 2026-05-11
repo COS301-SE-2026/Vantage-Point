@@ -51,11 +51,13 @@ async def on_startup():
 
 @app.get("/")
 async def root():
-    return {"message": "Vantage Point API running", "db_status": "Ready"}
+    return {"message": "Vantage Point API running"}
+
 
 @app.get("/health")
 async def health():
     return {"status": "Vantage Point Backend running healthy"}
+
 
 @app.post("/api/test")
 async def test_endpoint(data: dict):
