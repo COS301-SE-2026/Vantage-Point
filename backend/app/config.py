@@ -1,16 +1,20 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
-from typing import Optional
+from typing import List, Optional
 
 class Settings(BaseSettings):
     """Application settings loaded from .env file"""
     
     # ============ Riot API Configuration ============
-    # need to change region later on chosen region. For now just use this. As regionhas affect
-    riot_api_key: str
+    riot_api_key: str = ""
     riot_region: str = "americas"
     riot_platform: str = "na1"
     
+    # ============ AWS Cognito Configuration ============
+    aws_region: str = "eu-west-1"
+    cognito_user_pool_id: str = ""
+    cognito_client_id: str = ""
+
     # ============ Server Configuration ============
     debug: bool = True
     host: str = "0.0.0.0"
@@ -29,20 +33,18 @@ class Settings(BaseSettings):
     use_redis: bool = False
     
     # ============ CORS Configuration ============
-    allowed_origins: list = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"]
+    allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"]
     
     # ============ Logging ============
     log_level: str = "INFO"
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_file_encoding="utf-8", 
+        case_sensitive=False,
+        extra="ignore"
+    )
 
 @lru_cache()
 def get_settings() -> Settings:
-    """
-    Returns cached settings instance.
-    Using lru_cache ensures settings are loaded only once.
-    """
     return Settings()

@@ -1,27 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware # <-- Added this
-
-from app.config import get_settings 
+from app.config import get_settings
 from app.api.routes import router
 
 settings = get_settings()
-limiter = Limiter(key_func=get_remote_address)
+app = FastAPI(title="Vantage Point Backend")
 
-app = FastAPI(
-    title="League of Legends Spatial Analytics API",
-    version="1.0.0"
-)
 
-# --- Rate Limiting Setup ---
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-app.add_middleware(SlowAPIMiddleware) # <-- Added this
-
-# --- CORS ---
+# CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
@@ -30,9 +16,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Routes (Included only ONCE) ---
 app.include_router(router, prefix="/api")
 
-@app.get("/health", tags=["Health"])
-async def health_check():
-    return {"status": "healthy", "region": settings.riot_region}
+@app.get("/")
+async def root():
+    return {"message": "Vantage Point API running"}
+
+
+@app.get("/health")
+async def health():
+    return {"status": "Vantage Point Backend running healthy"}
+
+
+@app.post("/api/test")
+async def test_endpoint(data: dict):
+    print(f"Test endpoint called with data: {data}")
+    return {"received": data, "message": "Test successful"}
