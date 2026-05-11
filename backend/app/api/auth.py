@@ -5,26 +5,35 @@ from fastapi.security import OAuth2PasswordBearer
 from app.config import get_settings
 
 settings = get_settings()
-# This looks for "Authorization: Bearer <token>" in the header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Cache keys to avoid hitting AWS on every single request
-JWKS_CACHE = None
+jwks_cache = None
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    global JWKS_CACHE
+    global jwks_cache
+    issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
+    url = f"{issuer}/.well-known/jwks.json"
+
     try:
-        if not JWKS_CACHE:
-            url = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}/.well-known/jwks.json"
+        if jwks_cache is None:
             async with httpx.AsyncClient() as client:
                 response = await client.get(url)
-                JWKS_CACHE = response.json()
+            jwks_cache = response.json()
 
+        # 2. Decode and verify the token
         payload = jwt.decode(
-            token, JWKS_CACHE, algorithms=["RS256"],
+            token, jwks_cache, algorithms=["RS256"],
             audience=settings.cognito_client_id,
-            issuer=f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
+            issuer=issuer
         )
-        return payload.get("sub") # Return the Cognito User ID
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Token")
+
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Token missing subject")
+        
+        return str(user_id) # Return the Cognito User ID
+    except JWTError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not validate credentials: {str(e)}",
+                            headers={"WWW-Authenticate": "Bearer"},
+                            )
