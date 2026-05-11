@@ -49,7 +49,30 @@ To ensure a stable and collaborative development workflow, the following strateg
 - `dev`: The primary integration branch. All feature branches merge here first.
 - `<domain>/<feature>`: Temporary branches used for developing new features and bug fixes (e.g., `frontend/login_page`, `backend/API_fixes`).
 
-## 📚 Documentation
+## CI/CD Pipeline
 
-- **[Backend Development Guide](backend/DEVELOPMENT.md)** - Setup, testing, API development
-- **[Frontend Development Guide](frontend/DEVELOPMENT.md)** - Setup, components, styling
+**Testing Strategy: SANDWICH** - Quality checks → Unit tests → Integration tests
+
+| Level | Backend | Frontend | When | Purpose |
+|-------|---------|----------|------|---------|
+| **Level 1: Quality Gate** | Ruff, Black, MyPy | ESLint, Prettier | First (fails fast) | Catch style & format issues |
+| **Level 2: Unit Tests** | Services, schemas, utils | Components, hooks, services | After quality | Test individual functions |
+| **Level 3: Integration** | API endpoints + database | Full user workflows | Last | Validate end-to-end flows |
+
+### Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **Backend Tests** | Push/PR to main, dev | Unit tests, linting, coverage |
+| **Frontend Tests** | Push/PR to main, dev | Unit tests, linting, build |
+| **Integration Tests** | Push/PR to main, dev | Full stack E2E tests |
+| **Security Checks** | Weekly + on demand | Dependency & vulnerability scan |
+| **Code Quality** | Push/PR to main, dev | Coverage reports & analysis |
+| **Deploy** | Push to main | Deploy to production |
+
+See [CI/CD Documentation](.github/workflows/README.md) for detailed setup.
+
+## Documentation
+
+- **[Backend Development Guide](backend/README.md)** - Setup, testing, API development
+- **[Frontend Development Guide](frontend/README.md)** - Setup, components, styling
