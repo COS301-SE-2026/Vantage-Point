@@ -11,5 +11,7 @@ pip install -r requirements.txt
 # Frontend — install Node dependencies
 cd /workspaces/frontend
 npm install
+
+npm run dev
  
 echo "post-create.sh complete"

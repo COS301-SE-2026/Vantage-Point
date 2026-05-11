@@ -6,6 +6,12 @@
   // dockerComposeFile tells VS Code to use Compose instead of building a single container.
   "service": "app",
   "workspaceFolder": "/workspaces",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
 
   "customizations": {
     "vscode": {
@@ -17,7 +23,8 @@
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         // database tools; Microsoft maintained PostgreSQL extension 
-        "ms-ossdata.vscode-postgresql",
+        //"ms-ossdata.vscode-postgresql", not working currently so using alt
+	      "ckolkman.vscode-postgres",
         // Misc ; WE need to better describe these extensions and why we need them in the README
         "tamasfe.even-better-toml",
         "ms-azuretools.vscode-docker"
@@ -29,7 +36,7 @@
   // @NeoMachabaUP : we are using 3000 for the frontend, but we can change this if we want to use 5173 instead. I just wanted to avoid confusion with the default Vite port.
   // @NeoMachabaUP : @Vele189 could you have a look here please
   "forwardPorts": [8000, 3000, 5432],
-  "postCreateCommand": "bash .devcontainer/post-create.sh"
+  "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh"
 
   
 }
