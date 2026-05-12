@@ -92,3 +92,19 @@ async def logout_user(access_token: str):
         return {"status": "success", "message": "Logged out from all devices"}
     except ClientError as e:
         return {"error": str(e)}
+    
+async def revoke_refresh_token(refresh_token: str):
+    """
+    Revokes a specific refresh token and its associated access tokens.
+    """
+    try:
+        client.revoke_token(
+            Token=refresh_token,
+            ClientId=settings.cognito_client_id,
+            ClientSecret=settings.cognito_client_secret,
+            # SecretHash is NOT needed for revoke_token, 
+            # but ClientSecret IS if your client has one
+        )
+        return {"status": "success", "message": "Refresh token revoked."}
+    except ClientError as e:
+        return {"error": str(e)}
