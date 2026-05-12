@@ -1,6 +1,8 @@
 import os
 import httpx
 from dotenv import load_dotenv
+from app.config import get_settings
+from fastapi import HTTPException
 
 load_dotenv()
 
@@ -8,7 +10,7 @@ API_KEY = os.getenv("RIOT_API_KEY")
 # Riot ID lookups use regional routing (americas, europe, asia)
 BASE_URL = "https://americas.api.riotgames.com"
 
-
+class RiotService:
 async def get_puuid_by_riot_id(game_name: str, tag_line: str):
     url = f"{BASE_URL}/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
     headers = {"X-Riot-Token": API_KEY}
