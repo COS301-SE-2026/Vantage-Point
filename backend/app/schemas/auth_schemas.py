@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar, Optional, List
 from datetime import datetime
 
 # ============ Request Models ============
@@ -112,3 +112,15 @@ class RefreshTokenPayload(BaseModel):
     exp: int
     iat: int
     type: str = "refresh"
+
+class PlayerSummary(BaseModel):
+    most_played_character: str
+    common_mistakes: List[str]
+    avg_kda: str
+    win_rate: str
+
+class ProfileResponse(BaseModel):
+    uuid: str
+    username: str
+    total_matches: int
+    player_summary: PlayerSummary
