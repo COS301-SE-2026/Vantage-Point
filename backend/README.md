@@ -1,6 +1,20 @@
 # Backend Development Guide
 
-## Setup
+## File Structure
+```
+backend/
+├── app/
+│   ├── api/              # API routes (v1)
+│   ├── services/         # Business logic
+│   ├── models/           # SQLModel schemas
+│   ├── tests/            # Unit & integration tests
+│   ├── utils/            # Logging, helpers
+│   └── main.py           # App entry point
+├── requirements-dev.txt
+└── README.md
+```
+
+## Manual Setup
 ```sh
 cd backend
 
@@ -8,147 +22,146 @@ cd backend
 python3.11 -m venv venv
 source venv/bin/activate  # macOS/Linux
 # or
-venv\Scripts\activate  # Windows
+venv\Scripts\activate     # Windows
 
 # 2. Install dependencies
 pip install -r requirements-dev.txt
 
 # 3. Create .env file
 cp .env.example .env
-# Edit .env with your config
 ```
 
-### Visit:
-- App: `http://localhost:5173`
+## Running Locally
+```sh
+# Start development server with auto-reload
+uvicorn app.main:app --reload
+```
+
+### Access:
 - API: `http://localhost:8000`
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-Testing
-
-```bash
+## Testing
+```sh
 # Run all tests
 pytest
 
 # Run with coverage
 pytest --cov=app
 
+# Run with coverage and generate HTML report
+pytest --cov=app --cov-report=html
+
 # Run specific test file
-pytest tests/test_auth.py
+pytest app/tests/test_main.py
 
 # Run specific test
-pytest tests/test_auth.py::test_user_registration
+pytest app/tests/test_main.py::TestTestEndpoint
 
 # Run with verbose output
 pytest -v
 
+# Run only unit tests
+pytest -m unit
+
 # Run only integration tests
 pytest -m integration
 
-# Watch for changes (if using pytest-watch)
-ptw
+# Run only slow tests
+pytest -m slow
+
+# Run only async tests
+pytest -m asyncio
 ```
 
-## Code Quality
-
+## Code Quality & Formatting
 ```bash
-# Format code
-black app tests
+# Format check
+black --check app
 
-# Lint
-ruff check app tests
+# Format code
+black app
+
+# Lint check
+ruff check app
+
+# Fix lint issues
+ruff check app --fix
 
 # Type checking
 mypy app
 ```
 
-## API Development Workflow
-
-1. **Define Schema** (Pydantic)
-   ```python
-   # app/database/schemas.py
-   class UserSchema(BaseModel):
-       username: str
-       email: str
-   ```
-
-2. **Create Database Model** (SQLAlchemy)
-   ```python
-   # app/database/models.py
-   class User(Base):
-       id = Column(Integer, primary_key=True)
-       username = Column(String, unique=True)
-   ```
-
-3. **Implement Service Logic**
-   ```python
-   # app/services/auth_service.py
-   async def register_user(user_data: UserSchema):
-       # Business logic here
-   ```
-
-4. **Create API Endpoint**
-   ```python
-   # app/api/v1/auth.py
-   @router.post("/register")
-   async def register(user: UserSchema, db: Session = Depends(get_db)):
-       return await auth_service.register_user(user)
-   ```
-
-5. **Write Tests**
-   ```python
-   # tests/test_auth.py
-   def test_user_registration(client):
-       response = client.post("/api/v1/register", json=user_data)
-       assert response.status_code == 201
-   ```
-
-## External API Integration (Riot API)
-
-```python
-# app/services/riot_api.py
-class RiotAPIClient:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.base_url = "https://americas.api.riotgames.com"
-    
-    async def fetch_matches(self, puuid: str):
-        """Fetch match IDs from Riot API"""
-        # Implementation
-    
-    async def fetch_match_timeline(self, match_id: str):
-        """Get detailed match data"""
-        # Implementation
+## Environment Variables
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/vantage_point
+RIOT_API_KEY=your_riot_api_key
+LOG_LEVEL=DEBUG
+DEBUG=true
+SECRET_KEY=your-secret-key
 ```
 
-## Database Migrations (if using Alembic)
-
-```bash
-# Create migration
-alembic revision --autogenerate -m "Add user table"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
+Access in code:
+```python
+import os
+api_key = os.getenv("RIOT_API_KEY")
 ```
 
 ## Debugging
-
-Enable logging in `app/utils/logger.py`:
+Enable logging in your code:
 
 ```python
 import logging
 logger = logging.getLogger(__name__)
+
 logger.debug("Debug message")
 logger.info("Info message")
+logger.warning("Warning message")
 logger.error("Error message")
 ```
 
-## Performance Tips
+Configure in `app/utils/logger.py`:
+```python
+import logging
 
-- Use async/await for I/O operations
-- Cache Riot API responses
-- Paginate large result sets
-- Use database indexes on frequently queried columns
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+```
+
+## Performance Tips
+- Use `async`/`await` for I/O operations
+- Cache Riot API responses to minimize external requests
+- Paginate large result sets with limit/offset
+- Add database indexes on frequently queried columns
+- Use connection pooling for database connections
+
+## Adding New Features
+1. Create service logic in `app/services/`
+2. Define models in `app/models/`
+3. Create endpoints in `app/api/v1/`
+4. Write tests in `app/tests/`
+5. Include router in `app/main.py`
+6. Run quality checks and tests locally
+7. Open PR with test coverage info
+
+## Git Workflow
+```sh
+# 1. Create feature branch
+git checkout -b backend/feature-name
+
+# 2. Make changes and test locally
+black app && ruff check app --fix && mypy app && pytest
+
+# 3. Commit with descriptive message
+git add .
+git commit -m "feat: Add new endpoint for spatial analysis"
+
+# 4. Push branch
+git push origin backend/feature-name
+
+# 5. Create PR on GitHub
+# Link related issues and add test coverage info
+```

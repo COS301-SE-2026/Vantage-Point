@@ -30,9 +30,14 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | **Backend** | FastAPI (Python) | Data processing, vector calculations, API rate limiting, ML inference |
+| | Black | Code formatting |
+| | Ruff | Linting and code analysis |
+| | MyPy | Type checking |
 | **Frontend** | React | Interactive dashboard |
 | | D3.js | Coordinate-accurate map overlays |
-| | Tailwind CSS | Utility-first styling with custom-built UI components. |
+| | Tailwind CSS | Utility-first styling with custom-built UI components |
+| | ESLint | Code quality and linting |
+| | Prettier | Code formatting |
 | **Database** | PostgreSQL | Match histories and spatial benchmarks |
 | **Data Science** | Pandas | Data manipulation |
 | | Scikit-learn | K-Nearest Neighbors for finding winning snapshots |
@@ -40,8 +45,47 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 | | K-Means | Map clustering and area identification |
 | **Infrastructure** | AWS (S3, Lambda) | Serverless data fetching and storage |
 | **Environment** | Dev Containers | Standardized Docker development environments |
-| **Testing Framework** | pytest, Vitest + React Testing Library | |
-| **Package Manager** | pip + npm | |
+| **Testing Framework** | pytest | Backend unit and integration tests |
+| | Vitest + React Testing Library | Frontend unit and component tests |
+| **Security** | pip-audit | Python dependency vulnerability scanning |
+| | npm audit | JavaScript dependency vulnerability scanning |
+| **Code Quality** | SonarQube | Code analysis and quality metrics |
+| **Package Manager** | pip + npm | Python and JavaScript dependency management |
+
+
+---
+
+## Project Structure
+```
+Vantage-Point/
+├── backend/              # FastAPI server
+│   ├── app/
+│   │   ├── api/          # API routes (v1)
+│   │   ├── services/     # Business logic
+│   │   ├── models/       # SQLModel schemas
+│   │   ├── tests/        # Unit & integration tests
+│   │   ├── utils/        # Logging, helpers
+│   │   └── main.py       # App entry point
+│   ├── requirements-dev.txt
+│   └── README.md         # Backend guide
+│
+├── frontend/             # React + Vite + Tailwind
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── pages/        # Page components
+│   │   ├── assets/       # Images, fonts (bundled)
+│   │   ├── __tests__/    # Vitest tests
+│   │   ├── utils/        # Helpers, services
+│   │   └── App.jsx       # Entry component
+│   ├── public/           # Static files (favicon, manifest)
+│   ├── package.json
+│   └── README.md         # Frontend guide
+│
+├── .github/
+│   └── workflows/        # GitHub Actions CI/CD
+│
+└── README.md             # Main project guide
+```
 
 ## Branching Strategy
 To ensure a stable and collaborative development workflow, the following strategy is utilized:
