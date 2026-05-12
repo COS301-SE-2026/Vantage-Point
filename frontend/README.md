@@ -1,8 +1,22 @@
 # Frontend Development Guide
 
-## Setup
+## File Structure
+```
+frontend/
+├── src/
+│   ├── components/       # React components
+│   ├── pages/            # Page components
+│   ├── assets/           # Images, fonts (bundled)
+│   ├── utils/            # Helpers, services
+│   ├── __tests__/        # Vitest tests
+│   └── App.jsx           # Entry component
+├── public/               # Static files (favicon, manifest)
+├── package.json
+└── README.md
+```
 
-```bash
+## Manual Setup
+```sh
 cd frontend
 
 # 1. Install dependencies
@@ -13,43 +27,27 @@ cp .env.example .env
 ```
 
 ## Running Locally
-
-```bash
+```sh
+# Start development server
 npm run dev
 ```
 
-Visit `http://localhost:5173`
-
-## File Organization
-
-### `public/` vs `src/assets/`
-
-**public/:**
-- Static files that DON'T need bundling
-- Served as-is (no webpack processing)
-- Use for: favicon, robots.txt, manifest.json
-- Don't process/minify these files
-
-**src/assets/:**
-- Images, fonts that get bundled with code
-- Webpack/Vite optimizes them
-- Can import directly in code: `import logo from '@/assets/logo.png'`
+### Access:
+- `http://localhost:5173`
 
 ## Testing
-
-```bash
+```sh
 # Run tests
 npm run test
 
-# Watch mode
+# Watch mode (auto-rerun on changes)
 npm run test:watch
 
-# Coverage
+# Generate coverage report
 npm run test:coverage
 ```
 
-## Testing Components
-
+### Example Test
 ```jsx
 // src/__tests__/components/Dashboard.test.jsx
 import { render, screen } from '@testing-library/react'
@@ -63,39 +61,26 @@ describe('Dashboard', () => {
 })
 ```
 
-## Linting & Formatting
-
+## Code Quality & Formatting
 ```sh
 # Check for issues
 npm run lint
 
 # Format code (check only)
 npm run format:check
-# Format code
+
+# Format code (apply changes)
 npm run format
 
 # Production build
 npm run build
 ```
 
-## Testing
-
-```sh
-# Run tests
-npm run test
-
-# Watch mode
-npm run test:watch
-
-# Coverage
-npm run test:coverage
-```
-
 ## Environment Variables
-
 ```env
 VITE_API_URL=http://localhost:8000
 VITE_API_TIMEOUT=10000
+VITE_ENABLE_DEBUG=true
 ```
 
 Access in code:
@@ -103,25 +88,54 @@ Access in code:
 const apiUrl = import.meta.env.VITE_API_URL
 ```
 
+### Asset Organization
+- **`public/`** – Static files served as-is (favicon, robots.txt, manifest.json). No processing or minification.
+- **`src/assets/`** – Images and fonts bundled with code. Vite optimizes them. Import directly: `import logo from '@/assets/logo.png'`
+
+## Debugging
+**Browser DevTools:**
+1. Open DevTools (F12)
+2. Console: Check for errors/warnings
+3. React DevTools: Inspect component tree
+4. Network: Monitor API calls
+
+**Logging in Code:**
+```javascript
+console.log('Debug:', value)
+console.error('Error occurred:', error)
+console.warn('Warning:', message)
+```
+
+## Performance Tips
+- Lazy-load components with `React.lazy()` for route splitting
+- Memoize expensive calculations with `useMemo()`
+- Prevent unnecessary re-renders with `React.memo()` and `useCallback()`
+- Compress images before deployment
+- Use virtual scrolling for long lists
+
+## Adding New Features
+1. Create component in `src/components/` (or `src/pages/` for pages)
+2. Add hooks in `src/utils/hooks/` if needed
+3. Write tests in `src/__tests__/`
+4. Import and use in parent component
+5. Run lint and tests locally
+6. Open PR with test coverage info
+
 ## Git Workflow
+```sh
+# 1. Create feature branch
+git checkout -b frontend/feature-name
 
-```bash
-# Feature branch
-git checkout -b frontend/map-overlay
+# 2. Make changes and test locally
+npm run format && npm run lint && npm run test
 
-# Make changes, test locally
-npm run dev
-npm run lint
-npm run format:check # or npm run format
-npm run test
-npm run test:coverage
-npm run build
-
-# Commit
+# 3. Commit with descriptive message
 git add .
-git commit -m "Add interactive map overlay with D3.js"
+git commit -m "feat: Add interactive map overlay with D3.js"
 
-# Push
-git push origin frontend/map-overlay
+# 4. Push branch
+git push origin frontend/feature-name
 
-# Create PR on GitHub
+# 5. Create PR on GitHub
+# Link related issues and add test coverage info
+```
