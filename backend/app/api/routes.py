@@ -45,7 +45,7 @@ async def confirm(data: UserConfirm):
 
 @router.post("/auth/logout")
 async def logout(
-    token_data: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]
+    token_data: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ):
     # Extracts the raw string credentials from the FastAPI HTTPBearer object
     # needed for Cognito's global_sign_out
@@ -59,7 +59,7 @@ async def logout(
 
 @router.get("/profile", response_model=ProfileResponse)
 async def get_profile(
-    current_user: Annotated[str, Depends(get_current_user)]
+    current_user: Annotated[str, Depends(get_current_user)],
 ) -> ProfileResponse:
     """
     Retrieves the authenticated user's profile.
