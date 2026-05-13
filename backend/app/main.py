@@ -3,8 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, select
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from typing import List, Optional
 from dotenv import load_dotenv
+# from typing import List, Optional
+# above commit commited out as import not used but will be used later
 
 # (Make sure riot_api.py is in backend/app/services/)
 # (make sure models.py is in backend/app/database/ )
