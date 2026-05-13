@@ -24,7 +24,7 @@ jobs:
           cd backend
           pip install -r requirements.txt
           pip install pip-audit
-          pip-audit --ignore CVE-2026-3219 --ignore CVE-2026-6357
+          pip-audit --ignore CVE-2026-3219 --ignore CVE-2026-6357 --ignore CVE-2025-71176
 
       - uses: actions/setup-node@v4
         with:

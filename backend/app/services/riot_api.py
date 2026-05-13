@@ -4,23 +4,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_api_key = os.getenv("RIOT_API_KEY")
-assert _api_key is not None, "RIOT_API_KEY environment variable is not set"
-API_KEY: str = _api_key
+API_KEY: str | None = os.getenv("RIOT_API_KEY")
 
 # Riot ID lookups use regional routing (americas, europe, asia)
 BASE_URL = "https://americas.api.riotgames.com"
 
 
-async def get_puuid_by_riot_id(game_name: str, tag_line: str):
+async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
+    """Get PUUID by Riot ID (game name + tag)."""
+    if not API_KEY:
+        raise ValueError("RIOT_API_KEY environment variable is not set")
+
     url = f"{BASE_URL}/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
-    headers = {"X-Riot-Token": API_KEY}
+    headers: dict[str, str] = {"X-Riot-Token": API_KEY}
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url, headers=headers)
 
         if response.status_code == 200:
-            return response.json().get("puuid")
+            puuid: str | None = response.json().get("puuid")
+            return puuid
         elif response.status_code == 429:
             print("Rate limit hit!")
         elif response.status_code == 404:
