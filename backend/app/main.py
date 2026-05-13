@@ -24,6 +24,14 @@ app = FastAPI(title="Vantage Point Backend")
 # Get the URL from the docker-compose environment variable
 # points to the db service not localhost hopfully, this should only work inside the container.
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+
+    print(
+        "DATABASE_URL not set. Using default local Postgres URL for development/ Testing."
+    )
+    DATABASE_URL = (
+        "postgresql+asyncpg://postgres:password@localhost:5432/vantage_point_db"
+    )
 engine = create_async_engine(DATABASE_URL)
 
 # CORS for frontend
