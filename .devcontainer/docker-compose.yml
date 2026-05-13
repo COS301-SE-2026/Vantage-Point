@@ -5,6 +5,10 @@ services:
     image: mcr.microsoft.com/devcontainers/python:3.12
     volumes:
       - ..:/workspaces:cached
+      - pip-cache:/home/vscode/.cache/pip        
+      # persists pip download cache
+      - npm-cache:/home/vscode/.npm       
+      # persists npm download cache
     # Keeps the container running so you can code inside it
     command: sleep infinity
     environment:
@@ -14,6 +18,7 @@ services:
       - "5173:5173" # Vite (frontend)
       - "8000:8000" # FastAPI (backend)
       - "3000:3000" # Frontend (React)
+      #WE Can remove 3000 if we are not using React, keeping it here for now as it is in the techstack that we use it
 
   # The PostgreSQL Database
   db:
@@ -31,3 +36,5 @@ services:
 
 volumes:
   postgres_data:
+  pip-cache:    # pip will reuse downloaded wheels instead of fetching them again
+  npm-cache:    # npm will reuse downloaded packages instead of fetching them again

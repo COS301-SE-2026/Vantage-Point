@@ -1,12 +1,17 @@
 {
+  // ANCHOR - script must have LF line endings to work in the container, so make sure to configure your editor to use LF for this file. IT SHOULD NOT BE CRLF.
   "name": "Vantage Point",
+  // dockerComposeFile tells VS Code to use Compose instead of building a single container.
   // 'image' and 'dockerComposeFile' are mutually exclusive — don't use both.
   // @NeoMachabaUP  : i am still figuring out how this differs dockerfile to a focus on dev container, but for now we are using docker compose to build the dev container and run the app in it.
+
+   // services (app + db). A standalone Dockerfile would only give you one container.
   "dockerComposeFile": "docker-compose.yml",
-  // dockerComposeFile tells VS Code to use Compose instead of building a single container.
   "service": "app",
   "workspaceFolder": "/workspaces",
   
+  // Features are pre-built install scripts that layer on top of the base image.
+  // Node is not included in the Python base image so we add it here.
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22"
@@ -32,9 +37,8 @@
     }
   },
 
-  // 8000 = FastAPI, 5173 = Vite, 5432 = Postgres (for DBeaver or the VS Code extension on the host)
+  // 8000 = FastAPI Backend , 5173 = Vite frontend dev server, 5432 = Postgres (for DBeaver or the VS Code extension on the host)
   // @NeoMachabaUP : we are using 3000 for the frontend, but we can change this if we want to use 5173 instead. I just wanted to avoid confusion with the default Vite port.
-  // @NeoMachabaUP : @Vele189 could you have a look here please
   "forwardPorts": [8000, 3000, 5432, 5173],
   "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh",
   "postStartCommand": "/bin/bash /workspaces/.devcontainer/start-services.sh"  
