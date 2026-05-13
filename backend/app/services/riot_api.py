@@ -17,8 +17,8 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
         raise ValueError("RIOT_API_KEY environment variable is not set")
 
     # Safely encode user inputs
-    safe_game_name = quote(game_name, safe='')
-    safe_tag_line = quote(tag_line, safe='')
+    safe_game_name = quote(game_name, safe="")
+    safe_tag_line = quote(tag_line, safe="")
 
     url = f"{BASE_URL}/riot/account/v1/accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
     headers: dict[str, str] = {"X-Riot-Token": API_KEY}
