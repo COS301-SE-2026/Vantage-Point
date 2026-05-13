@@ -4,7 +4,7 @@ from sqlmodel import SQLModel, select #removed create_engine and Session because
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 # Models now live in database/models.py — import from there, not from main.
-from app.database.models import Champions, Summoners, Matches, Participants
+from app.database.models import Champions, GameAccounts, Matches, Participants, UserGameAccounts, Users
 
 #Setup Connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -27,24 +27,25 @@ async def test_database_logic():
         # means this mock data would be valid if imported alongside real API data.
         # @NeoMachabaUP : There is no Jhin that we know of
         test_champ = Champions(champion_id=202, name="Jhin", tags="Marksman")
-        test_summoner = Summoners(
-            puuid="test_puuid_123", 
+        test_game_account = GameAccounts(
+            puuid="test_puuid_123",
+            game = "league_of_legends", 
             game_name="TheFast", 
             tag_line="4444", 
-            summoner_level=100
+            gameAccounts_level=100
         )
         
         session.add(test_champ)
-        session.add(test_summoner)
+        session.add(test_game_account)
         await session.commit()
 
         #Tests Retrieval
         print("Testing Retrieval...")
-        statement = select(Summoners).where(Summoners.game_name == "TheFast")
+        statement = select(GameAccounts).where(GameAccounts.game_name == "TheFast")
         result = await session.execute(statement)
-        summoner = result.scalar_one()
+        game_account = result.scalar_one()
         
-        print(f"Found Summoner: {summoner.game_name}#{summoner.tag_line} (PUUID: {summoner.puuid})")
+        print(f"Found Game Account: {game_account.game_name}#{game_account.tag_line} (PUUID: {game_account.puuid})")
 
         print("--- Test complete ---")
         # TODO: add FK constraint tests (Participants referencing Matches/Summoners/Champions)
