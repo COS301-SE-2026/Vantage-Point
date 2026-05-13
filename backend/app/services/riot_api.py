@@ -4,7 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv("RIOT_API_KEY")
+_api_key = os.getenv("RIOT_API_KEY")
+assert _api_key is not None, "RIOT_API_KEY environment variable is not set"
+API_KEY: str = _api_key
+
 # Riot ID lookups use regional routing (americas, europe, asia)
 BASE_URL = "https://americas.api.riotgames.com"
 
