@@ -12,6 +12,29 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 
 ---
 
+## The F.R.O.S.N Team
+*Pending team picture*
+
+| Name | Picture | Role |
+|------|---------|------|
+| Fabio Berrino | *Pending picture* | Scrum Master and DevOps Engineer |
+| Shaun Marx | *Pending picture* | Backend Developer |
+| Vele Ndamulelo | *Pending picture* | Frontend Developer |
+| Neo Machaba | *Pending picture* | Database Manager |
+| Ophelia Greyling | *Pending picture* | AI/ML Developer |
+
+## Team Roles
+
+| Role | Responsibility |
+|------|-----------------|
+| **Scrum Master and DevOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration |
+| **Backend Developer** | API design, ORM setup, ML model integration, FastAPI development, Match-v5 API Integration |
+| **Frontend Developer** | UI/UX design, component architecture, performance optimization, React + D3.js implementation |
+| **Database Manager** | Database schema design, query optimization, data integrity, PostgreSQL management |
+| **AI/ML Developer** | Machine learning model development, data science pipeline, model training and optimization |
+
+---
+
 ## Key Features
 
 | Feature | Description |
@@ -30,9 +53,14 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | **Backend** | FastAPI (Python) | Data processing, vector calculations, API rate limiting, ML inference |
+| | Black | Code formatting |
+| | Ruff | Linting and code analysis |
+| | MyPy | Type checking |
 | **Frontend** | React | Interactive dashboard |
 | | D3.js | Coordinate-accurate map overlays |
-| | Tailwind CSS | Utility-first styling with custom-built UI components. |
+| | Tailwind CSS | Utility-first styling with custom-built UI components |
+| | ESLint | Code quality and linting |
+| | Prettier | Code formatting |
 | **Database** | PostgreSQL | Match histories and spatial benchmarks |
 | **Data Science** | Pandas | Data manipulation |
 | | Scikit-learn | K-Nearest Neighbors for finding winning snapshots |
@@ -40,8 +68,46 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 | | K-Means | Map clustering and area identification |
 | **Infrastructure** | AWS (S3, Lambda) | Serverless data fetching and storage |
 | **Environment** | Dev Containers | Standardized Docker development environments |
-| **Testing Framework** | pytest, Vitest + React Testing Library | |
-| **Package Manager** | pip + npm | |
+| **Testing Framework** | pytest | Backend unit and integration tests |
+| | Vitest + React Testing Library | Frontend unit and component tests |
+| **Security** | pip-audit | Python dependency vulnerability scanning |
+| | npm audit | JavaScript dependency vulnerability scanning |
+| **Code Quality** | SonarQube | Code analysis and quality metrics |
+| **Package Manager** | pip + npm | Python and JavaScript dependency management |
+
+---
+
+## Project Structure
+```
+Vantage-Point/
+├── backend/              # FastAPI server
+│   ├── app/
+│   │   ├── api/          # API routes (v1)
+│   │   ├── services/     # Business logic
+│   │   ├── models/       # SQLModel schemas
+│   │   ├── tests/        # Unit & integration tests
+│   │   ├── utils/        # Logging, helpers
+│   │   └── main.py       # App entry point
+│   ├── requirements-dev.txt
+│   └── README.md         # Backend guide
+│
+├── frontend/             # React + Vite + Tailwind
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── pages/        # Page components
+│   │   ├── assets/       # Images, fonts (bundled)
+│   │   ├── __tests__/    # Vitest tests
+│   │   ├── utils/        # Helpers, services
+│   │   └── App.jsx       # Entry component
+│   ├── public/           # Static files (favicon, manifest)
+│   ├── package.json
+│   └── README.md         # Frontend guide
+│
+├── .github/
+│   └── workflows/        # GitHub Actions CI/CD
+│
+└── README.md             # Main project guide
+```
 
 ## Branching Strategy
 To ensure a stable and collaborative development workflow, the following strategy is utilized:
@@ -70,9 +136,10 @@ To ensure a stable and collaborative development workflow, the following strateg
 | **Code Quality** | Push/PR to main, dev | Coverage reports & analysis |
 | **Deploy** | Push to main | Deploy to production |
 
-See [CI/CD Documentation](.github/workflows/README.md) for detailed setup.
-
 ## Documentation
 
-- **[Backend Development Guide](backend/README.md)** - Setup, testing, API development
-- **[Frontend Development Guide](frontend/README.md)** - Setup, components, styling
+- **[Setup Guide](.github/docs/SETUP.md)** - Initial project setup and dependencies
+- **[Backend Development Guide](.github/docs/BACKEND_DEV.md)** - Backend setup, testing, API development, code quality
+- **[Frontend Development Guide](.github/docs/FRONTEND_DEV.md)** - Frontend setup, components, styling, testing
+- **[CI/CD Documentation](.github/docs/CICD.md)** - GitHub Actions workflows, automated testing, deployment pipeline
+- **[SCRUM & Sprint Planning](.github/docs/SCRUM_SETUP.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
