@@ -5,20 +5,20 @@ from app.config import get_settings
 from app.api.routes import router
 from app.api.middleware import ProcessTimeMiddleware
 
-#from slowapi import _rate_limit_exceeded_handler
-#from slowapi.errors import RateLimitExceeded
-#from slowapi.middleware import SlowAPIMiddleware
+# from slowapi import _rate_limit_exceeded_handler
+# from slowapi.errors import RateLimitExceeded
+# from slowapi.middleware import SlowAPIMiddleware
 
-#limiter = Limiter(key_func=get_remote_address)
+# limiter = Limiter(key_func=get_remote_address)
 
 settings = get_settings()
 app = FastAPI(title="Vantage Point Backend")
 
-#app.state.limiter = limiter
-#app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# app.state.limiter = limiter
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-#app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
-#app.add_middleware(SlowAPIMiddleware)
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+# app.add_middleware(SlowAPIMiddleware)
 # CORS for frontend
 app.add_middleware(
     CORSMiddleware,
@@ -26,12 +26,13 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Process-Time"]
+    expose_headers=["X-Process-Time"],
 )
 
 app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(router, prefix="/api")
+
 
 @app.get("/")
 async def root():
