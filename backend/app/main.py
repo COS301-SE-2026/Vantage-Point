@@ -98,7 +98,10 @@ async def register_game_account(game_name: str, tag_line: str):
 
         if not existing_game_account:
             new_game_account = GameAccounts(
-                puuid=puuid, game_name=game_name, tag_line=tag_line, gameAccounts_level=0
+                puuid=puuid,
+                game_name=game_name,
+                tag_line=tag_line,
+                gameAccounts_level=0,
             )
             session.add(new_game_account)
             await session.commit()
