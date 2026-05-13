@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -27,11 +27,28 @@ class Champions(SQLModel, table=True):
 class Users(SQLModel, table=True):
     cognito_sub: str = Field(primary_key=True)
     email: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
 
+# GameAccounts
+# THIS IS A PLAYER ACCOUNT.
+# PUUID is Riot's global unique identifier for a player SO DO NOT TOUCH IT
+# I REPEAT DO NOT MESS WITH PUUID.
+# this stays the same acorss regions and name changes which is why we use it as the primary key. We can always look up the current name and tag using the PUUID.
+class GameAccounts(SQLModel, table=True):
+    __tablename__ = "game_accounts"
 
+    puuid: str = Field(primary_key=True)
+    game: str          # identifies which game this account belongs to e.g. "league_of_legends", "dota2"
+    game_name: str
+    tag_line: str  # the part after '#' in Riot ID, e.g. "EUW" in "Player#EUW"
+    account_level: int
+
+    linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
+    participations: List["Participants"] = Relationship(back_populates="game_account")
+
+    
 # UserGameAccounts
 # Join table: tracks which game accounts a user has linked to their account.
 # A user can track many game accounts, and a game account can be tracked by many users.
@@ -46,22 +63,6 @@ class UserGameAccounts(SQLModel, table=True):
     game_account: "GameAccounts" = Relationship(back_populates="linked_users")
 
 
-# GameAccounts
-# THIS IS A PLAYER ACCOUNT.
-# PUUID is Riot's global unique identifier for a player SO DO NOT TOUCH IT
-# I REPEAT DO NOT MESS WITH PUUID.
-# this stays the same acorss regions and name changes which is why we use it as the primary key. We can always look up the current name and tag using the PUUID.
-class GameAccounts(SQLModel, table=True):
-    __tablename__ = "game_accounts"
-
-    puuid: str = Field(primary_key=True)
-    game: str          # identifies which game this account belongs to e.g. "league_of_legends", "dota2"
-    game_name: str
-    tag_line: str  # the part after '#' in Riot ID, e.g. "EUW" in "Player#EUW"
-    gameAccounts_level: int
-
-    linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
-    participations: List["Participants"] = Relationship(back_populates="game_account")
 
 
 # Matches
