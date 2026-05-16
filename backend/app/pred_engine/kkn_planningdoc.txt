@@ -1,0 +1,33 @@
+Data needed for knn training/analysis
+
+Static
+    -Map content positions
+        -Walls
+        -Turrets (Outer, Inner)
+        -Inhibitor Turrets
+        -Nexus Turrets
+        -Nexus 
+        -Dragon pit
+        -Baron pit
+        -Turret Range
+        -Lanes
+        -Grass
+    -Champion data
+
+Dynamic
+    -Enemy champion positions
+    -Team positions
+    -Ally minion position
+    -Enemy minion position
+    -Player lane
+    -Player role
+    -Team pings (omw)
+    -Secondary objectives
+        -Dragon spawn
+        -Baron pit spawns
+    -Player health, armour, damage
+    -Vision
+    -Wards
+
+*turret = tower
+*make first version for summoners rift map only?
