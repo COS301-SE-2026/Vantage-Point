@@ -16,3 +16,4 @@ frontend/.env
 
 # Logs
 *.log
+backend/app/pred_engine/notes

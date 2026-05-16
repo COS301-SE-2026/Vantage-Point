@@ -7,4 +7,7 @@
 
 import knn_model
 
+#player position data get
+#run knn model
+
 print(knn_model.run_knn([[0.78182287]]))
