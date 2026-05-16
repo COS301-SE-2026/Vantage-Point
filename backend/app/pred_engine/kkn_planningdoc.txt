@@ -30,4 +30,4 @@ Dynamic
     -Wards
 
 *turret = tower
-*make first version for summoners rift maps?
+*make first version for summoners rift map only?
