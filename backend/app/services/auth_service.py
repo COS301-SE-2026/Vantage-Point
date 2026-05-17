@@ -3,15 +3,17 @@ import hmac
 import hashlib
 import base64
 from botocore.exceptions import ClientError
-from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    pass
+
 from app.config import get_settings
 
 settings = get_settings()
 
 # Initialize the Cognito Client
-client: CognitoIdentityProviderClient = boto3.client(
-    "cognito-idp", region_name=settings.aws_region
-)
+client: Any = boto3.client("cognito-idp", region_name=settings.aws_region)
 
 
 def get_secret_hash(username: str):
