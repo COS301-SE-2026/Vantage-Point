@@ -3,6 +3,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
+#map data processing done here
+
 # temp dataset to get the code functional
 X, y = make_regression(n_samples=200, n_features=1, noise=0.1, random_state=42)
 

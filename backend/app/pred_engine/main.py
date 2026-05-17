@@ -5,6 +5,9 @@
 # block get run thru knn to get the next block to move to
 # repeat to create optimal path
 
-from . import knn_model
+import knn_model
+
+#player position data get
+#run knn model
 
 print(knn_model.run_knn([[0.78182287]]))
