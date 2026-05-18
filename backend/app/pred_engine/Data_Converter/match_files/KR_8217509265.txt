@@ -40,7 +40,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -96,7 +96,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -152,7 +152,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -208,7 +208,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -264,7 +264,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -320,7 +320,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -376,7 +376,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -432,7 +432,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -488,7 +488,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -544,7 +544,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -872,7 +872,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -928,7 +928,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -984,7 +984,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -1040,7 +1040,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1096,7 +1096,7 @@
                         "totalGold": 510,
                         "xp": 0
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -1152,7 +1152,7 @@
                         "totalGold": 515,
                         "xp": 0
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1208,7 +1208,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1264,7 +1264,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -1320,7 +1320,7 @@
                         "totalGold": 500,
                         "xp": 0
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 27,
@@ -1376,7 +1376,7 @@
                         "totalGold": 510,
                         "xp": 0
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1617,7 +1617,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1673,7 +1673,7 @@
                         "totalGold": 747,
                         "xp": 496
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1729,7 +1729,7 @@
                         "totalGold": 688,
                         "xp": 306
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -1785,7 +1785,7 @@
                         "totalGold": 797,
                         "xp": 547
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1841,7 +1841,7 @@
                         "totalGold": 807,
                         "xp": 471
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -1897,7 +1897,7 @@
                         "totalGold": 704,
                         "xp": 161
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -1953,7 +1953,7 @@
                         "totalGold": 715,
                         "xp": 527
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -2009,7 +2009,7 @@
                         "totalGold": 768,
                         "xp": 500
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -2065,7 +2065,7 @@
                         "totalGold": 789,
                         "xp": 620
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 27,
@@ -2121,7 +2121,7 @@
                         "totalGold": 697,
                         "xp": 172
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -4296,7 +4296,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -4352,7 +4352,7 @@
                         "totalGold": 1353,
                         "xp": 1211
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -4408,7 +4408,7 @@
                         "totalGold": 982,
                         "xp": 491
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -4464,7 +4464,7 @@
                         "totalGold": 1401,
                         "xp": 774
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -4520,7 +4520,7 @@
                         "totalGold": 1331,
                         "xp": 857
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -4576,7 +4576,7 @@
                         "totalGold": 1262,
                         "xp": 264
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -4632,7 +4632,7 @@
                         "totalGold": 930,
                         "xp": 974
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -4688,7 +4688,7 @@
                         "totalGold": 1059,
                         "xp": 670
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -4744,7 +4744,7 @@
                         "totalGold": 1043,
                         "xp": 912
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 27,
@@ -4800,7 +4800,7 @@
                         "totalGold": 1108,
                         "xp": 1047
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -6228,7 +6228,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -6284,7 +6284,7 @@
                         "totalGold": 1632,
                         "xp": 1769
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -6340,7 +6340,7 @@
                         "totalGold": 1350,
                         "xp": 1011
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -6396,7 +6396,7 @@
                         "totalGold": 1967,
                         "xp": 1674
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -6452,7 +6452,7 @@
                         "totalGold": 2391,
                         "xp": 1026
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 33,
@@ -6508,7 +6508,7 @@
                         "totalGold": 1874,
                         "xp": 381
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -6564,7 +6564,7 @@
                         "totalGold": 1155,
                         "xp": 1483
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -6620,7 +6620,7 @@
                         "totalGold": 1276,
                         "xp": 837
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -6676,7 +6676,7 @@
                         "totalGold": 1339,
                         "xp": 1545
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 27,
@@ -6732,7 +6732,7 @@
                         "totalGold": 1230,
                         "xp": 1047
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -7386,7 +7386,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -7442,7 +7442,7 @@
                         "totalGold": 1994,
                         "xp": 2218
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -7498,7 +7498,7 @@
                         "totalGold": 1767,
                         "xp": 1587
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -7554,7 +7554,7 @@
                         "totalGold": 2239,
                         "xp": 2046
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -7610,7 +7610,7 @@
                         "totalGold": 2683,
                         "xp": 1572
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 61,
@@ -7666,7 +7666,7 @@
                         "totalGold": 2317,
                         "xp": 654
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -7722,7 +7722,7 @@
                         "totalGold": 1364,
                         "xp": 1700
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -7778,7 +7778,7 @@
                         "totalGold": 1618,
                         "xp": 1242
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -7834,7 +7834,7 @@
                         "totalGold": 1549,
                         "xp": 1824
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 27,
@@ -7890,7 +7890,7 @@
                         "totalGold": 1543,
                         "xp": 1389
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -9122,7 +9122,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -9178,7 +9178,7 @@
                         "totalGold": 2407,
                         "xp": 2975
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -9234,7 +9234,7 @@
                         "totalGold": 2186,
                         "xp": 1889
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -9290,7 +9290,7 @@
                         "totalGold": 2617,
                         "xp": 2679
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -9346,7 +9346,7 @@
                         "totalGold": 3298,
                         "xp": 1970
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 89,
@@ -9402,7 +9402,7 @@
                         "totalGold": 2707,
                         "xp": 1060
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -9458,7 +9458,7 @@
                         "totalGold": 1633,
                         "xp": 2333
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -9514,7 +9514,7 @@
                         "totalGold": 2016,
                         "xp": 1710
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 18,
@@ -9570,7 +9570,7 @@
                         "totalGold": 1933,
                         "xp": 2577
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 67,
@@ -9626,7 +9626,7 @@
                         "totalGold": 1793,
                         "xp": 1672
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -11389,7 +11389,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -11445,7 +11445,7 @@
                         "totalGold": 2752,
                         "xp": 3515
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -11501,7 +11501,7 @@
                         "totalGold": 2588,
                         "xp": 2497
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -11557,7 +11557,7 @@
                         "totalGold": 3304,
                         "xp": 3141
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -11613,7 +11613,7 @@
                         "totalGold": 3637,
                         "xp": 2541
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 101,
@@ -11669,7 +11669,7 @@
                         "totalGold": 3170,
                         "xp": 1480
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -11725,7 +11725,7 @@
                         "totalGold": 1939,
                         "xp": 2966
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -11781,7 +11781,7 @@
                         "totalGold": 2218,
                         "xp": 1909
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 33,
@@ -11837,7 +11837,7 @@
                         "totalGold": 2140,
                         "xp": 2786
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 67,
@@ -11893,7 +11893,7 @@
                         "totalGold": 2153,
                         "xp": 2305
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -12481,7 +12481,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -12537,7 +12537,7 @@
                         "totalGold": 2903,
                         "xp": 3794
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -12593,7 +12593,7 @@
                         "totalGold": 3081,
                         "xp": 3059
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -12649,7 +12649,7 @@
                         "totalGold": 3723,
                         "xp": 3667
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -12705,7 +12705,7 @@
                         "totalGold": 3961,
                         "xp": 3105
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 101,
@@ -12761,7 +12761,7 @@
                         "totalGold": 3387,
                         "xp": 1603
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -12817,7 +12817,7 @@
                         "totalGold": 2183,
                         "xp": 3400
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -12873,7 +12873,7 @@
                         "totalGold": 2598,
                         "xp": 2456
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 33,
@@ -12929,7 +12929,7 @@
                         "totalGold": 2400,
                         "xp": 3189
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 87,
@@ -12985,7 +12985,7 @@
                         "totalGold": 2371,
                         "xp": 2677
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -14368,7 +14368,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -14424,7 +14424,7 @@
                         "totalGold": 3744,
                         "xp": 4553
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -14480,7 +14480,7 @@
                         "totalGold": 3551,
                         "xp": 3243
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 36,
@@ -14536,7 +14536,7 @@
                         "totalGold": 4157,
                         "xp": 4455
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -14592,7 +14592,7 @@
                         "totalGold": 4320,
                         "xp": 3547
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 125,
@@ -14648,7 +14648,7 @@
                         "totalGold": 3729,
                         "xp": 1824
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -14704,7 +14704,7 @@
                         "totalGold": 2438,
                         "xp": 3772
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -14760,7 +14760,7 @@
                         "totalGold": 2891,
                         "xp": 2900
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 33,
@@ -14816,7 +14816,7 @@
                         "totalGold": 2807,
                         "xp": 3698
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 87,
@@ -14872,7 +14872,7 @@
                         "totalGold": 2763,
                         "xp": 3292
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -15385,7 +15385,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -15441,7 +15441,7 @@
                         "totalGold": 4097,
                         "xp": 5186
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -15497,7 +15497,7 @@
                         "totalGold": 4004,
                         "xp": 3668
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 81,
@@ -15553,7 +15553,7 @@
                         "totalGold": 4464,
                         "xp": 4911
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -15609,7 +15609,7 @@
                         "totalGold": 4746,
                         "xp": 4265
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 129,
@@ -15665,7 +15665,7 @@
                         "totalGold": 3951,
                         "xp": 1903
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -15721,7 +15721,7 @@
                         "totalGold": 2634,
                         "xp": 4310
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -15777,7 +15777,7 @@
                         "totalGold": 3218,
                         "xp": 3372
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 33,
@@ -15833,7 +15833,7 @@
                         "totalGold": 3148,
                         "xp": 4207
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 112,
@@ -15889,7 +15889,7 @@
                         "totalGold": 3029,
                         "xp": 3624
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -17835,7 +17835,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -17891,7 +17891,7 @@
                         "totalGold": 4736,
                         "xp": 5701
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -17947,7 +17947,7 @@
                         "totalGold": 4338,
                         "xp": 4155
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 89,
@@ -18003,7 +18003,7 @@
                         "totalGold": 5030,
                         "xp": 5587
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -18059,7 +18059,7 @@
                         "totalGold": 5231,
                         "xp": 4773
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 138,
@@ -18115,7 +18115,7 @@
                         "totalGold": 4235,
                         "xp": 2008
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -18171,7 +18171,7 @@
                         "totalGold": 2891,
                         "xp": 4713
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -18227,7 +18227,7 @@
                         "totalGold": 4183,
                         "xp": 3666
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 41,
@@ -18283,7 +18283,7 @@
                         "totalGold": 4222,
                         "xp": 4890
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 112,
@@ -18339,7 +18339,7 @@
                         "totalGold": 3441,
                         "xp": 4186
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -19166,7 +19166,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -19222,7 +19222,7 @@
                         "totalGold": 5249,
                         "xp": 7034
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -19278,7 +19278,7 @@
                         "totalGold": 4516,
                         "xp": 4155
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 134,
@@ -19334,7 +19334,7 @@
                         "totalGold": 5491,
                         "xp": 6127
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -19390,7 +19390,7 @@
                         "totalGold": 5389,
                         "xp": 4773
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 161,
@@ -19446,7 +19446,7 @@
                         "totalGold": 4745,
                         "xp": 3133
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -19502,7 +19502,7 @@
                         "totalGold": 3130,
                         "xp": 5147
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -19558,7 +19558,7 @@
                         "totalGold": 4675,
                         "xp": 4733
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 33,
@@ -19614,7 +19614,7 @@
                         "totalGold": 4404,
                         "xp": 5138
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 127,
@@ -19670,7 +19670,7 @@
                         "totalGold": 3852,
                         "xp": 4465
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -20924,7 +20924,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -20980,7 +20980,7 @@
                         "totalGold": 5690,
                         "xp": 7780
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -21036,7 +21036,7 @@
                         "totalGold": 4915,
                         "xp": 4638
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 137,
@@ -21092,7 +21092,7 @@
                         "totalGold": 6023,
                         "xp": 6977
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -21148,7 +21148,7 @@
                         "totalGold": 6636,
                         "xp": 5492
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 173,
@@ -21204,7 +21204,7 @@
                         "totalGold": 5149,
                         "xp": 3561
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -21260,7 +21260,7 @@
                         "totalGold": 3314,
                         "xp": 5426
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -21316,7 +21316,7 @@
                         "totalGold": 4872,
                         "xp": 4963
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 78,
@@ -21372,7 +21372,7 @@
                         "totalGold": 4739,
                         "xp": 5710
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 127,
@@ -21428,7 +21428,7 @@
                         "totalGold": 4036,
                         "xp": 4660
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -23117,7 +23117,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -23173,7 +23173,7 @@
                         "totalGold": 6206,
                         "xp": 8400
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -23229,7 +23229,7 @@
                         "totalGold": 5559,
                         "xp": 5138
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 140,
@@ -23285,7 +23285,7 @@
                         "totalGold": 6305,
                         "xp": 7141
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -23341,7 +23341,7 @@
                         "totalGold": 7476,
                         "xp": 6068
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 173,
@@ -23397,7 +23397,7 @@
                         "totalGold": 5439,
                         "xp": 3903
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -23453,7 +23453,7 @@
                         "totalGold": 3545,
                         "xp": 6525
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -23509,7 +23509,7 @@
                         "totalGold": 6040,
                         "xp": 5591
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 109,
@@ -23565,7 +23565,7 @@
                         "totalGold": 5104,
                         "xp": 6206
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 152,
@@ -23621,7 +23621,7 @@
                         "totalGold": 4631,
                         "xp": 5069
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25182,7 +25182,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25238,7 +25238,7 @@
                         "totalGold": 6895,
                         "xp": 9105
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25294,7 +25294,7 @@
                         "totalGold": 6002,
                         "xp": 5889
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 144,
@@ -25350,7 +25350,7 @@
                         "totalGold": 6901,
                         "xp": 8184
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25406,7 +25406,7 @@
                         "totalGold": 8333,
                         "xp": 6881
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 189,
@@ -25462,7 +25462,7 @@
                         "totalGold": 6211,
                         "xp": 4510
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25518,7 +25518,7 @@
                         "totalGold": 3860,
                         "xp": 7194
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25574,7 +25574,7 @@
                         "totalGold": 6452,
                         "xp": 6268
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 137,
@@ -25630,7 +25630,7 @@
                         "totalGold": 5373,
                         "xp": 6529
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 127,
@@ -25686,7 +25686,7 @@
                         "totalGold": 5125,
                         "xp": 5258
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25786,7 +25786,7 @@
                     }
                 ],
                 "participantFrames": {
-                    "1": {
+                    "_1": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25842,7 +25842,7 @@
                         "totalGold": 6917,
                         "xp": 9150
                     },
-                    "2": {
+                    "_2": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -25898,7 +25898,7 @@
                         "totalGold": 6123,
                         "xp": 6121
                     },
-                    "3": {
+                    "_3": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 144,
@@ -25954,7 +25954,7 @@
                         "totalGold": 7042,
                         "xp": 8184
                     },
-                    "4": {
+                    "_4": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -26010,7 +26010,7 @@
                         "totalGold": 8408,
                         "xp": 6961
                     },
-                    "5": {
+                    "_5": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 189,
@@ -26066,7 +26066,7 @@
                         "totalGold": 6242,
                         "xp": 4550
                     },
-                    "6": {
+                    "_6": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -26122,7 +26122,7 @@
                         "totalGold": 3881,
                         "xp": 7262
                     },
-                    "7": {
+                    "_7": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
@@ -26178,7 +26178,7 @@
                         "totalGold": 6493,
                         "xp": 6319
                     },
-                    "8": {
+                    "_8": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 126,
@@ -26234,7 +26234,7 @@
                         "totalGold": 5394,
                         "xp": 6591
                     },
-                    "9": {
+                    "_9": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 127,
@@ -26290,7 +26290,7 @@
                         "totalGold": 5146,
                         "xp": 5258
                     },
-                    "10": {
+                    "_10": {
                         "championStats": {
                             "abilityHaste": 0,
                             "abilityPower": 0,
