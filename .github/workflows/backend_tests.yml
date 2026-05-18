@@ -32,6 +32,9 @@ jobs:
       - name: Lint with Ruff
         run: cd backend && ruff check app
 
+      - name: Type check with MyPy
+        run: cd backend && mypy app
+
   test:
     name: Unit Tests and Coverage
     runs-on: ubuntu-latest
