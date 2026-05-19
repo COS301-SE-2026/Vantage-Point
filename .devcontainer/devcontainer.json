@@ -28,8 +28,9 @@
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         // database tools; Microsoft maintained PostgreSQL extension 
-        //"ms-ossdata.vscode-postgresql", not working currently so using alt
+        //"ms-ossdata.vscode-pgsql", not working currently so using alt
 	      "ckolkman.vscode-postgres",
+        "cweijan.vscode-postgresql-client2", // this is a nice alternative to the Chris Kolkman one, it has a better UI and more features, recommended by @Vele189
         // Misc ; WE need to better describe these extensions and why we need them in the README
         "tamasfe.even-better-toml",
         "ms-azuretools.vscode-docker"
