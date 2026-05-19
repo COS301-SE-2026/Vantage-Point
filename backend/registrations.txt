@@ -3,3 +3,4 @@ User: Sn1per3 | Email: player@example.com | Status: REGISTERED
 User: Sn1per12 | Email: player@example.com | Status: REGISTERED
 User: Sn1per13 | Email: player@example.com | Status: REGISTERED
 User: Sn1per15 | Email: player@example.com | Status: REGISTERED
+User: Sn1per16 | Email: player@example.com | Status: REGISTERED

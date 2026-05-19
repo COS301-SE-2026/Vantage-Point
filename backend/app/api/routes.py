@@ -18,7 +18,7 @@ oauth2_scheme = HTTPBearer()
 router = APIRouter()
 deletion_queue: dict[str, datetime] = {}
 
-
+#
 @router.post("/auth/register")
 async def register(user: UserRegister):
     result = await auth_service.register_user(user.username, user.password, user.email)
@@ -49,7 +49,7 @@ async def logout(
 ):
     # Extracts the raw string credentials from the FastAPI HTTPBearer object
     # needed for Cognito's global_sign_out
-
+    #jwt when logout request so use JWT get what user to infer which user logouts
     raw_token = token_data.credentials
     result = await auth_service.logout_user(raw_token)
     if "error" in result:
