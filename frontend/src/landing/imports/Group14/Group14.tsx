@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { LogOut } from "lucide-react";
+import ProfileView from "../../app/components/ProfileView";
 import svgPaths from "./svg-a7h301bhtl";
 import imgRectangle2 from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
 import imgImage from "./863f38ed1d3d10010128b3d2c32af74526eee2db.webp";
@@ -13,15 +14,21 @@ const DASHBOARD_FRAME_W = 1512;
 const COLLAPSED_CARD_TRACK_PX = 278;
 const COLLAPSED_COL_GAP_PX = 22;
 
+export type DashboardView = "matches" | "profile";
+
 interface Group1Props {
   readonly onLogout?: () => void;
   readonly onMatchSelect?: (matchId: string) => void;
+  readonly activeView?: DashboardView;
+  readonly onProfileClick?: () => void;
+  readonly onDashboardClick?: () => void;
 }
 
 interface FrameProps {
   readonly onLogout?: () => void;
   readonly onMatchSelect?: (matchId: string) => void;
   readonly sidebarOpen: boolean;
+  readonly onProfileClick?: () => void;
 }
 
 interface ProductCardBodyProps {
@@ -169,7 +176,12 @@ function Group() {
   );
 }
 
-function Frame({ onLogout, onMatchSelect, sidebarOpen }: Readonly<FrameProps>) {
+function Frame({
+  onLogout,
+  onMatchSelect,
+  sidebarOpen,
+  onProfileClick,
+}: Readonly<FrameProps>) {
   return (
     <div
       className="absolute bg-white h-[982px] left-0 overflow-clip top-0 w-[1512px]"
@@ -197,15 +209,22 @@ function Frame({ onLogout, onMatchSelect, sidebarOpen }: Readonly<FrameProps>) {
               className="absolute border-3 border-[#fdfdfd] border-solid inset-[-3px] pointer-events-none rounded-[13px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
             />
           </div>
-          <Group />
-          <div
-            className="absolute h-[18px] left-[49px] top-[395px] w-[81px]"
-            data-name="hugeicons/Text"
+          <button
+            type="button"
+            onClick={onProfileClick}
+            className="absolute left-[46px] top-[345px] flex cursor-pointer items-center gap-3 rounded-lg border-0 bg-transparent p-0 transition-opacity hover:opacity-80"
+            aria-label="Open profile"
           >
-            <p className="absolute font-['Sora:Regular',sans-serif] font-normal inset-0 leading-[normal] text-[#737373] text-[14px] tracking-[-0.28px] whitespace-nowrap">
-              Username
-            </p>
-          </div>
+            <Group />
+            <div className="flex flex-col items-start text-left">
+              <span className="font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a]">
+                UN
+              </span>
+              <span className="font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#737373]">
+                Username
+              </span>
+            </div>
+          </button>
           <button
             type="button"
             onClick={onLogout}
@@ -221,14 +240,6 @@ function Frame({ onLogout, onMatchSelect, sidebarOpen }: Readonly<FrameProps>) {
               Logout
             </span>
           </button>
-          <div
-            className="absolute h-[18px] left-[59px] top-[360px] w-[23px]"
-            data-name="hugeicons/Text"
-          >
-            <p className="absolute font-['Sora:Regular',sans-serif] font-normal inset-0 leading-[normal] text-[#0a0a0a] text-[14px] tracking-[-0.28px] whitespace-nowrap">
-              UN
-            </p>
-          </div>
         </div>
       ) : null}
       <p className="absolute left-[128px] top-[36px] whitespace-nowrap font-sarina text-[clamp(18px,1.6vw,24px)] leading-normal not-italic text-black">{`Vantage Point `}</p>
@@ -247,8 +258,12 @@ function Frame({ onLogout, onMatchSelect, sidebarOpen }: Readonly<FrameProps>) {
 export default function Group1({
   onLogout,
   onMatchSelect,
+  activeView = "matches",
+  onProfileClick,
+  onDashboardClick,
 }: Readonly<Group1Props>) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const showMatches = activeView === "matches";
   const collapsedCols = collapsedCardColumnLefts();
   const cardLeft = (col: 0 | 1 | 2 | 3) =>
     sidebarOpen ? [411, 672, 933, 1194][col] : collapsedCols[col];
@@ -272,7 +287,78 @@ export default function Group1({
         onLogout={onLogout}
         onMatchSelect={onMatchSelect}
         sidebarOpen={sidebarOpen}
+        onProfileClick={onProfileClick}
       />
+      {activeView === "profile" ? (
+        <ProfileView sidebarOpen={sidebarOpen} />
+      ) : null}
+      <button
+        type="button"
+        onClick={() => setSidebarOpen((open) => !open)}
+        aria-expanded={sidebarOpen}
+        aria-controls="dashboard-sidebar"
+        aria-label={
+          sidebarOpen ? "Collapse navigation panel" : "Expand navigation panel"
+        }
+        className="absolute top-[94px] flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-neutral-100"
+        style={{ left: sidebarOpen ? 330 : 44, ...panelVars }}
+      >
+        <div
+          className={`flex-none transition-transform duration-300 ease-out ${sidebarOpen ? "rotate-90" : "-rotate-90"}`}
+        >
+          <div
+            className="relative size-[24px] overflow-clip"
+            data-name="Icon / panel-top-open"
+          >
+            <div className="absolute inset-[9.38%]" data-name="Vector">
+              <svg
+                className="absolute inset-0 block size-full"
+                fill="none"
+                preserveAspectRatio="none"
+                viewBox="0 0 19.5 19.5"
+              >
+                <g id="Vector">
+                  <path d={svgPaths.p1616c880} fill="var(--fill-0, #525252)" />
+                  <path d={svgPaths.p184c1a00} fill="var(--fill-0, #525252)" />
+                  <path d={svgPaths.p8beb600} fill="var(--fill-0, #525252)" />
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </button>
+      {sidebarOpen ? (
+        <>
+          <button
+            type="button"
+            onClick={onDashboardClick}
+            className="absolute left-[38px] top-[148px] z-10 h-[47px] w-[272px] cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-left transition-opacity hover:opacity-80"
+            aria-label="Dashboard"
+          >
+            <span className="absolute left-[20px] top-[10px] font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] text-[#1e1e1e]">
+              Dashboard
+            </span>
+          </button>
+          <div
+            className="absolute left-[58px] top-[224px] flex w-[233px] content-stretch items-start pointer-events-none"
+            data-name="Text"
+          >
+            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
+              Analysis
+            </p>
+          </div>
+          <div
+            className="absolute left-[58px] top-[286px] flex w-[233px] content-stretch items-start pointer-events-none"
+            data-name="Text"
+          >
+            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
+              Metrics
+            </p>
+          </div>
+        </>
+      ) : null}
+      {showMatches ? (
+      <>
       <div
         className="absolute top-[29px] min-w-[120px] w-[377px] rounded-[9999px] bg-white transition-[left] duration-300 ease-out"
         style={{ left: searchLeft }}
@@ -320,69 +406,6 @@ export default function Group1({
           className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
         />
       </div>
-      <button
-        type="button"
-        onClick={() => setSidebarOpen((open) => !open)}
-        aria-expanded={sidebarOpen}
-        aria-controls="dashboard-sidebar"
-        aria-label={
-          sidebarOpen ? "Collapse navigation panel" : "Expand navigation panel"
-        }
-        className="absolute top-[94px] flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-neutral-100"
-        style={{ left: sidebarOpen ? 330 : 44, ...panelVars }}
-      >
-        <div
-          className={`flex-none transition-transform duration-300 ease-out ${sidebarOpen ? "rotate-90" : "-rotate-90"}`}
-        >
-          <div
-            className="relative size-[24px] overflow-clip"
-            data-name="Icon / panel-top-open"
-          >
-            <div className="absolute inset-[9.38%]" data-name="Vector">
-              <svg
-                className="absolute inset-0 block size-full"
-                fill="none"
-                preserveAspectRatio="none"
-                viewBox="0 0 19.5 19.5"
-              >
-                <g id="Vector">
-                  <path d={svgPaths.p1616c880} fill="var(--fill-0, #525252)" />
-                  <path d={svgPaths.p184c1a00} fill="var(--fill-0, #525252)" />
-                  <path d={svgPaths.p8beb600} fill="var(--fill-0, #525252)" />
-                </g>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </button>
-      {sidebarOpen ? (
-        <>
-          <div
-            className="absolute left-[58px] top-[158px] flex w-[233px] content-stretch items-start"
-            data-name="Text"
-          >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
-              Dashboard
-            </p>
-          </div>
-          <div
-            className="absolute left-[58px] top-[224px] flex w-[233px] content-stretch items-start"
-            data-name="Text"
-          >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
-              Analysis
-            </p>
-          </div>
-          <div
-            className="absolute left-[58px] top-[286px] flex w-[233px] content-stretch items-start"
-            data-name="Text"
-          >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
-              Metrics
-            </p>
-          </div>
-        </>
-      ) : null}
       <div
         className="absolute top-[29px] size-[40px] overflow-clip transition-[left] duration-300 ease-out"
         style={{ left: filterLeft }}
@@ -479,6 +502,8 @@ export default function Group1({
           </button>
         );
       })}
+      </>
+      ) : null}
     </div>
   );
 }
