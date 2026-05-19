@@ -14,13 +14,112 @@ const COLLAPSED_CARD_TRACK_PX = 278;
 const COLLAPSED_COL_GAP_PX = 22;
 
 interface Group1Props {
-  onLogout?: () => void;
+  readonly onLogout?: () => void;
+  readonly onMatchSelect?: (matchId: string) => void;
 }
 
 interface FrameProps {
-  onLogout?: () => void;
-  sidebarOpen: boolean;
+  readonly onLogout?: () => void;
+  readonly onMatchSelect?: (matchId: string) => void;
+  readonly sidebarOpen: boolean;
 }
+
+interface ProductCardBodyProps {
+  readonly outcome: string;
+  readonly durationLabel: string;
+  readonly mapLabel: string;
+}
+
+function ProductCardImage({ src }: Readonly<{ src: string }>) {
+  return (
+    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
+      <img
+        alt=""
+        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
+        src={src}
+      />
+    </div>
+  );
+}
+
+function ProductCardBody({
+  outcome,
+  durationLabel,
+  mapLabel,
+}: Readonly<ProductCardBodyProps>) {
+  return (
+    <div
+      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
+      data-name="Body"
+    >
+      <div
+        className="content-stretch flex items-start relative shrink-0 w-full"
+        data-name="Text"
+      >
+        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
+          Match #
+        </p>
+      </div>
+      <div
+        className="content-stretch flex items-start relative shrink-0"
+        data-name="Text Strong"
+      >
+        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
+          {outcome}
+        </p>
+      </div>
+      <div
+        className="content-stretch flex items-start relative shrink-0 w-full"
+        data-name="Text Small"
+      >
+        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
+          {durationLabel}
+        </p>
+      </div>
+      <div
+        className="content-stretch flex items-start relative shrink-0 w-full"
+        data-name="Text Small"
+      >
+        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
+          {mapLabel}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const COLUMN_MATCH_CARDS = [
+  {
+    matchId: "EUW1_mock_1",
+    src: imgImage,
+    outcome: "Defeat",
+    durationLabel: "Duration - 25min",
+    mapLabel: "Summoner's Rift",
+  },
+  {
+    matchId: "EUW1_mock_2",
+    src: imgImage1,
+    outcome: "Victory",
+    durationLabel: "Duration - 30min",
+    mapLabel: "Summoner's Rift",
+  },
+  {
+    matchId: "EUW1_mock_3",
+    src: imgImage2,
+    outcome: "Victory",
+    durationLabel: "Duration - 40min",
+    mapLabel: "Summoner's Rift",
+  },
+  {
+    matchId: "EUW1_mock_4",
+    src: imgImage2,
+    outcome: "Defeat",
+    durationLabel: "Duration - 20min",
+    mapLabel: "Summoner's Rift",
+  },
+] as const satisfies ReadonlyArray<
+  ProductCardBodyProps & { readonly src: string; readonly matchId: string }
+>;
 
 function collapsedCardColumnLefts(): [number, number, number, number] {
   const gridW = 4 * COLLAPSED_CARD_TRACK_PX + 3 * COLLAPSED_COL_GAP_PX;
@@ -70,7 +169,7 @@ function Group() {
   );
 }
 
-function Frame({ onLogout, sidebarOpen }: FrameProps) {
+function Frame({ onLogout, onMatchSelect, sidebarOpen }: Readonly<FrameProps>) {
   return (
     <div
       className="absolute bg-white h-[982px] left-0 overflow-clip top-0 w-[1512px]"
@@ -145,439 +244,10 @@ function Frame({ onLogout, sidebarOpen }: FrameProps) {
   );
 }
 
-function Image() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage}
-      />
-    </div>
-  );
-}
-
-function Body() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Defeat
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 25min
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Ancestral Woods
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image1() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage}
-      />
-    </div>
-  );
-}
-
-function Body1() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Defeat
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 25min
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Ancestral Woods
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image2() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage1}
-      />
-    </div>
-  );
-}
-
-function Body2() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Victory
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 30mins
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Desert Oasis
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image3() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage1}
-      />
-    </div>
-  );
-}
-
-function Body3() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Victory
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 30mins
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Desert Oasis
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image4() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage2}
-      />
-    </div>
-  );
-}
-
-function Body4() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Victory
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 40mins
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Frostbite Thicket
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image5() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage2}
-      />
-    </div>
-  );
-}
-
-function Body5() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Victory
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 40mins
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Frostbite Thicket
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image6() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage2}
-      />
-    </div>
-  );
-}
-
-function Body6() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Deafeat
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 20mins
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          The Reckoner Arena
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Image7() {
-  return (
-    <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
-      <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
-        src={imgImage2}
-      />
-    </div>
-  );
-}
-
-function Body7() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[208px]"
-      data-name="Body"
-    >
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text"
-      >
-        <p className="flex-[1_0_0] font-['Inter:Regular',sans-serif] font-normal leading-[1.4] min-w-px not-italic relative text-[#1e1e1e] text-[16px]">
-          Match #
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0"
-        data-name="Text Strong"
-      >
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] not-italic relative shrink-0 text-[#1e1e1e] text-[16px] whitespace-nowrap">
-          Deafeat
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          Duration - 20mins
-        </p>
-      </div>
-      <div
-        className="content-stretch flex items-start relative shrink-0 w-full"
-        data-name="Text Small"
-      >
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] not-italic relative shrink-0 text-[#757575] text-[14px] whitespace-nowrap">
-          The Reckoner Arena
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default function Group1({ onLogout }: Group1Props) {
+export default function Group1({
+  onLogout,
+  onMatchSelect,
+}: Readonly<Group1Props>) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const collapsedCols = collapsedCardColumnLefts();
   const cardLeft = (col: 0 | 1 | 2 | 3) =>
@@ -598,7 +268,11 @@ export default function Group1({ onLogout }: Group1Props) {
 
   return (
     <div className="relative size-full">
-      <Frame onLogout={onLogout} sidebarOpen={sidebarOpen} />
+      <Frame
+        onLogout={onLogout}
+        onMatchSelect={onMatchSelect}
+        sidebarOpen={sidebarOpen}
+      />
       <div
         className="absolute top-[29px] min-w-[120px] w-[377px] rounded-[9999px] bg-white transition-[left] duration-300 ease-out"
         style={{ left: searchLeft }}
@@ -757,102 +431,54 @@ export default function Group1({ onLogout }: Group1Props) {
           </svg>
         </div>
       </div>
-      <div
-        className={`absolute top-[133px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(0) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image />
-        <Body />
-      </div>
-      <div
-        className={`absolute top-[562px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(0) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image1 />
-        <Body1 />
-      </div>
-      <div
-        className={`absolute top-[133px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(1) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image2 />
-        <Body2 />
-      </div>
-      <div
-        className={`absolute top-[562px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(1) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image3 />
-        <Body3 />
-      </div>
-      <div
-        className={`absolute top-[133px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(2) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image4 />
-        <Body4 />
-      </div>
-      <div
-        className={`absolute top-[562px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(2) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image5 />
-        <Body5 />
-      </div>
-      <div
-        className={`absolute top-[133px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(3) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image6 />
-        <Body6 />
-      </div>
-      <div
-        className={`absolute top-[562px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out ${cardWidthClass}`}
-        style={{ left: cardLeft(3) }}
-        data-name="Product Info Card"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-        />
-        <Image7 />
-        <Body7 />
-      </div>
+      {COLUMN_MATCH_CARDS.map((card, col) => {
+        const column = col as 0 | 1 | 2 | 3;
+        return (
+          <button
+            key={`dashboard-match-top-${card.matchId}`}
+            type="button"
+            onClick={() => onMatchSelect?.(card.matchId)}
+            className={`absolute top-[133px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out cursor-pointer text-left hover:border-[#b3b3b3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4] ${cardWidthClass}`}
+            style={{ left: cardLeft(column) }}
+            data-name="Product Info Card"
+          >
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
+            />
+            <ProductCardImage src={card.src} />
+            <ProductCardBody
+              outcome={card.outcome}
+              durationLabel={card.durationLabel}
+              mapLabel={card.mapLabel}
+            />
+          </button>
+        );
+      })}
+      {COLUMN_MATCH_CARDS.map((card, col) => {
+        const column = col as 0 | 1 | 2 | 3;
+        return (
+          <button
+            key={`dashboard-match-bottom-${card.matchId}`}
+            type="button"
+            onClick={() => onMatchSelect?.(card.matchId)}
+            className={`absolute top-[562px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out cursor-pointer text-left hover:border-[#b3b3b3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4] ${cardWidthClass}`}
+            style={{ left: cardLeft(column) }}
+            data-name="Product Info Card"
+          >
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
+            />
+            <ProductCardImage src={card.src} />
+            <ProductCardBody
+              outcome={card.outcome}
+              durationLabel={card.durationLabel}
+              mapLabel={card.mapLabel}
+            />
+          </button>
+        );
+      })}
     </div>
   );
 }
