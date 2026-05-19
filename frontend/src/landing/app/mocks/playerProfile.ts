@@ -1,3 +1,7 @@
+import {
+  leagueWildRiftCard,
+  leagueWildRiftCover,
+} from "../assets/profile";
 import type { PlayerProfile, RadarMetric } from "../types/profile";
 
 /**
@@ -116,21 +120,17 @@ export const MOCK_PLAYER_PROFILE: PlayerProfile = {
   featured_games: [
     {
       game_name: "League Of Legends",
-      cover_image_url:
-        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jinx_0.jpg",
+      cover_image_url: leagueWildRiftCover,
+      card_image_url: leagueWildRiftCard,
       efficiency_score: 115,
       time_spent_label: "1:04:34:23",
-      tag_primary: "Ranked Solo",
-      tag_secondary: "EUW",
     },
     {
       game_name: "League Of Legends",
-      cover_image_url:
-        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg",
+      cover_image_url: leagueWildRiftCover,
+      card_image_url: leagueWildRiftCard,
       efficiency_score: 98,
       time_spent_label: "0:42:18:05",
-      tag_primary: "Normal Draft",
-      tag_secondary: "EUW",
     },
   ],
 };
