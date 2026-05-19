@@ -1,6 +1,8 @@
 import asyncio
 import os
-from datetime import datetime, timezone
+from datetime import datetime
+
+# TODO: add timezone handling if we need it later, for now we just store naive UTC datetimes which is fine for our use case.
 from dotenv import load_dotenv
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -17,6 +19,10 @@ from app.database.models import (
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Default to localhost for dev environments (assumes Docker PostgreSQL running)
+    DATABASE_URL = "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db"
+    print("DATABASE_URL not set, using fallback for localhost")
 engine = create_async_engine(DATABASE_URL, echo=False)
 
 # Champion IDs sourced from Riot Data Dragon (patch 12.1).
