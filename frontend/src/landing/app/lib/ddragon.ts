@@ -6,6 +6,11 @@ export function championIconUrl(championName: string): string {
   return `${DDRAGON_BASE}/img/champion/${championName}.png`;
 }
 
+/** Champion splash art (default skin) for card thumbnails. */
+export function championSplashUrl(championName: string, skinNum = 0): string {
+  return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${championName}_${skinNum}.jpg`;
+}
+
 /** Item icon by numeric item id; 0 yields empty slot placeholder. */
 export function itemIconUrl(itemId: number): string | null {
   if (itemId === 0) return null;
