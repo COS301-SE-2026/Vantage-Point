@@ -1,6 +1,6 @@
 import asyncio
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 # TODO: add timezone handling if we need it later, for now we just store naive UTC datetimes which is fine for our use case.
 from dotenv import load_dotenv
@@ -20,9 +20,10 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    # Default to localhost for dev environments (assumes Docker PostgreSQL running)
-    DATABASE_URL = "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db"
-    print("DATABASE_URL not set, using fallback for localhost")
+    raise ValueError(
+        "DATABASE_URL environment variable not set. "
+        "Please define it in your .env file or environment."
+    )
 engine = create_async_engine(DATABASE_URL, echo=False)
 
 # Champion IDs sourced from Riot Data Dragon (patch 12.1).
@@ -215,13 +216,13 @@ async def seed():
                 cognito_sub="fake-cognito-sub-0001",
                 email="testuser1@vantagepoint.dev",
                 # created_at=datetime.now(timezone.utc)
-                created_at=datetime.utcnow(),  # returns naive UTC datetime
+                created_at=datetime.now(timezone.utc).replace(tzinfo=None),
             ),
             Users(
                 cognito_sub="fake-cognito-sub-0002",
                 email="testuser2@vantagepoint.dev",
                 # created_at=datetime.now(timezone.utc)
-                created_at=datetime.utcnow(),  # returns naive UTC datetime
+                created_at=datetime.now(timezone.utc).replace(tzinfo=None),
             ),
         ]
         session.add_all(users)
