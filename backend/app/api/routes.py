@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
 from app.services import auth_service, riot_service
@@ -13,6 +13,8 @@ from typing import Annotated
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import List
+from app.schemas import SimplifiedMatchResponse
+from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
 
@@ -169,3 +171,27 @@ async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
     match_ids: list[str] = await riot_service.get_match_ids(puuid=puuid, count=count)
 
     return match_ids
+
+router = APIRouter(tags=["Matches"])
+
+@router.get("/api/mathces/{match_id}/filtered", response_model=SimplifiedMatchResponse):
+@public 
+async def get_filtered_match(match_id: str, puuid: str = Query(..., description="The exact PUUID of the player to filter the match data for")):
+    """
+    Fetches a full match from Riot's API and shrinks the payload 
+    down to a lightweight summary for a single player.
+    """
+
+    try:
+        raw_match_data = await riot_service.get_match_detail(match_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Failed to fetch match: {str(e)}")
+    
+    full_match = raw_match_data
+
+    simplified_match = filter_match_for_players(full_match=full_match, target_puuid=puuid)
+
+    if not simplified_match:
+        raise HTTPException(status_code=404, detail=f"Player with PUUID {puuid} was not found in match {match_id}")
+    
+    return simplified_match
