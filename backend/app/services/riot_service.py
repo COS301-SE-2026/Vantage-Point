@@ -72,6 +72,30 @@ class RiotService:
         else:
             raise HTTPException(status_code=response.status_code, detail="Failed to fetch match IDs from Riot")
             
+
+    async def get_match_detail(self, match_id: str) -> Any:
+        """
+        Fetches the complete MatchDto dictionary from Riot's Match-V5 API.
+        """
+
+        url = f"https://{self.region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers)
+
+            if response.status_code == 200:
+                return response.json()
+            
+            elif response.status_code == 404:
+                raise HTTPException(status_code=404, detail=f"Match {match_id} not found on Riot servers")
+            elif response.status_code == 429:
+                raise HTTPException(status_code=429, detail="Riot API rate limit exceeded. Try again later.")
+            elif response.status_code == 403:
+                raise HTTPException(status_code=403, detail="Riot API key is invalid or expired.")
+            else:
+                error_text: str = str(response.text)
+                raise HTTPException(status_code=response.status_code, detail=f"Riot API Error: {error_text}")
+
 riot_service = RiotService()
 
 def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
