@@ -48,9 +48,10 @@ function ChartContainer({
 }) {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const chartContextValue = React.useMemo(() => ({ config }), [config]);
 
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={chartContextValue}>
       <div
         data-slot="chart"
         data-chart={chartId}
@@ -177,7 +178,7 @@ function ChartTooltipContent({
         className,
       )}
     >
-      {!nestLabel ? tooltipLabel : null}
+      {nestLabel ? null : tooltipLabel}
       <div className="grid gap-1.5">
         {payload.map((item, index) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`;
@@ -323,24 +324,28 @@ function getPayloadConfigFromPayload(
 
   let configLabelKey: string = key;
 
-  if (
-    key in payload &&
-    typeof payload[key as keyof typeof payload] === "string"
-  ) {
-    configLabelKey = payload[key as keyof typeof payload] as string;
-  } else if (
-    payloadPayload &&
-    key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
-  ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string;
+  const payloadRecord: Record<string, unknown> =
+    typeof payload === "object" && payload !== null
+      ? (payload as Record<string, unknown>)
+      : {};
+  const direct = payloadRecord[key];
+  if (typeof direct === "string") {
+    configLabelKey = direct;
+  } else if (payloadPayload && typeof payloadPayload === "object") {
+    const nested = payloadPayload as Record<string, unknown>;
+    const nestedVal = nested[key];
+    if (typeof nestedVal === "string") {
+      configLabelKey = nestedVal;
+    }
   }
 
-  return configLabelKey in config
-    ? config[configLabelKey]
-    : config[key as keyof typeof config];
+  if (Object.hasOwn(config, configLabelKey)) {
+    return config[configLabelKey];
+  }
+  if (Object.hasOwn(config, key)) {
+    return config[key];
+  }
+  return undefined;
 }
 
 export {

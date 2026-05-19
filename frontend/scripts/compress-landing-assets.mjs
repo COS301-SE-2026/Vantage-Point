@@ -58,7 +58,9 @@ async function main() {
   console.log(`Done. ${pngs.length} files. ~${(saved / 1024 / 1024).toFixed(2)} MB smaller.`);
 }
 
-main().catch((e) => {
+try {
+  await main();
+} catch (e) {
   console.error(e);
   process.exit(1);
-});
+}
