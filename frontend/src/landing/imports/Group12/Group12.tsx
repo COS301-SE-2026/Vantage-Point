@@ -1,12 +1,28 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import imgLogIn from "./33447ade76e6dafbf24f66e5200e6226e2b7e71f.webp";
-import imgLogIn2 from "../Group11/074f2e7d666ae3563a3eeb82e0fb07354e40ea7e.webp";
-import imgLogIn3 from "../Group10/d7b3762f2ad191c84ab061f3d36b977c0cbabd70.webp";
-import imgLogIn4 from "../Group9/67249b5b07d799fb7823a84a582fc945ee4b427a.webp";
+import {
+  landingBackgroundImages,
+  landingSlideIndices,
+} from "../../lol-wallpapers/backgrounds";
 import img512732DbC4Af40C9A287649A4D140412RemovalaiPreview1 from "./7166b6362ecbe85befc7e0770705b8c3ae5f4193.webp";
 
-const backgroundImages = [imgLogIn, imgLogIn2, imgLogIn3, imgLogIn4];
+const backgroundImages = landingBackgroundImages;
+
+const MARQUEE_ITEMS = [
+  "Spatial Intelligence",
+  "AI Coaching",
+  "Positioning",
+  "Risk Prediction",
+] as const;
+
+const SLIDE_DOT_INDICES = landingSlideIndices;
+
+type FrameSlideProps = Readonly<{
+  currentSlide: number;
+  onDotClick: (index: number) => void;
+}>;
+
+type CurrentSlideProps = Readonly<{ currentSlide: number }>;
 
 function Logo() {
   return (
@@ -30,30 +46,25 @@ function Logo() {
 }
 
 function Group1() {
-  const items = [
-    "Spatial Intelligence",
-    "AI Coaching",
-    "Positioning",
-    "Risk Prediction",
-  ];
-
   return (
     <div className="absolute left-0 bottom-[15%] w-full overflow-hidden h-[clamp(40px,5vh,60px)]">
       <div className="flex gap-[clamp(60px,8vw,120px)] animate-scroll whitespace-nowrap">
-        {[...items, ...items, ...items].map((item, index) => (
-          <p
-            key={index}
-            className="font-sarina leading-[clamp(40px,5vh,60px)] text-[clamp(20px,2.5vw,32px)] text-white tracking-[-1.5px] shrink-0"
-          >
-            {item}
-          </p>
-        ))}
+        {[0, 1, 2].flatMap((copy) =>
+          MARQUEE_ITEMS.map((item) => (
+            <p
+              key={`${String(copy)}-${item}`}
+              className="font-sarina leading-[clamp(40px,5vh,60px)] text-[clamp(20px,2.5vw,32px)] text-white tracking-[-1.5px] shrink-0"
+            >
+              {item}
+            </p>
+          )),
+        )}
       </div>
     </div>
   );
 }
 
-function LogIn({ currentSlide }: { currentSlide: number }) {
+function LogIn({ currentSlide }: CurrentSlideProps) {
   return (
     <div
       className="absolute h-full left-0 overflow-clip top-0 w-full"
@@ -61,7 +72,7 @@ function LogIn({ currentSlide }: { currentSlide: number }) {
     >
       {backgroundImages.map((img, index) => (
         <img
-          key={index}
+          key={img}
           alt=""
           className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${
             index === currentSlide ? "opacity-100" : "opacity-0"
@@ -75,7 +86,7 @@ function LogIn({ currentSlide }: { currentSlide: number }) {
   );
 }
 
-function Login({ currentSlide }: { currentSlide: number }) {
+function Login({ currentSlide }: CurrentSlideProps) {
   return (
     <div className="absolute contents left-0 top-0" data-name="Login">
       <LogIn currentSlide={currentSlide} />
@@ -83,7 +94,7 @@ function Login({ currentSlide }: { currentSlide: number }) {
   );
 }
 
-function Register({ currentSlide }: { currentSlide: number }) {
+function Register({ currentSlide }: CurrentSlideProps) {
   return (
     <div className="absolute contents left-0 top-0" data-name="Register">
       <Login currentSlide={currentSlide} />
@@ -100,6 +111,7 @@ function Al() {
       data-name="AL"
     >
       <button
+        type="button"
         onClick={() => navigate("/login")}
         className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0)] flex-[1_0_0] min-h-[36px] min-w-px relative rounded-[8px] cursor-pointer"
         data-name="Button"
@@ -117,6 +129,7 @@ function Al() {
         </div>
       </button>
       <button
+        type="button"
         onClick={() => navigate("/register")}
         className="bg-[#171717] content-stretch flex gap-[8px] items-center justify-center min-h-[36px] px-[16px] py-[8px] relative rounded-[8px] shrink-0 cursor-pointer hover:bg-[#2c2c2c] transition-colors"
         data-name="Button"
@@ -129,22 +142,21 @@ function Al() {
   );
 }
 
-function Frame({
-  currentSlide,
-  onDotClick,
-}: {
-  currentSlide: number;
-  onDotClick: (index: number) => void;
-}) {
+function Frame({ currentSlide, onDotClick }: FrameSlideProps) {
   return (
     <div
       className="-translate-x-1/2 -translate-y-1/2 absolute content-stretch flex gap-[8px] items-center justify-center left-[calc(50%-1px)] px-[12px] py-[8px] rounded-[50px] top-1/2"
       data-name="Frame"
+      role="tablist"
+      aria-label="Background slides"
     >
-      {[0, 1, 2, 3].map((index) => (
-        <div
-          key={index}
-          className={`relative rounded-[50px] shrink-0 size-[8px] cursor-pointer transition-opacity duration-300 ${
+      {SLIDE_DOT_INDICES.map((index) => (
+        <button
+          type="button"
+          key={`group12-slide-dot-${String(index)}`}
+          aria-label={`Show slide ${String(index + 1)}`}
+          aria-current={index === currentSlide ? "true" : undefined}
+          className={`relative rounded-[50px] shrink-0 size-[8px] cursor-pointer border-0 p-0 transition-opacity duration-300 ${
             index === currentSlide
               ? "bg-black opacity-100"
               : "bg-black opacity-30"
