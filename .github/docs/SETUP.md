@@ -30,6 +30,17 @@ Have a `backend/.env` before running the backend. This file is gitignored so not
 DATABASE_URL=postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
 RIOT_API_KEY=your_key_here
 ```
+
+### Dev Container environment variables (`.devcontainer/.env`)
+
+To avoid hardcoding database credentials in the Docker Compose file (required for SonarQube security compliance), create a `.env` file inside the `.devcontainer/` folder:
+
+```bash
+# .devcontainer/.env
+POSTGRES_USER=riot_user
+POSTGRES_PASSWORD=riot_password
+POSTGRES_DB=riot_db
+```
  
 `DATABASE_URL` is also injected by Docker Compose so the app starts correctly even without `.env` inside the container. The `.env` file is needed for running scripts like `test_db.py` directly.
  
