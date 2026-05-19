@@ -404,15 +404,6 @@ export default function MatchDetailModal({
             </>
           )}
         </div>
-
-        <footer className="px-6 py-4 border-t border-[#eee] bg-[#fafafa] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <p className="text-xs text-[#757575] truncate" title={matchId ?? undefined}>
-            {matchId ? `Match ${matchId}` : ""}
-          </p>
-          <p className="text-xs text-[#999] italic">
-            Positioning analysis — coming soon
-          </p>
-        </footer>
       </DialogContent>
     </Dialog>
   );
