@@ -3,7 +3,8 @@ import hmac
 import hashlib
 import base64
 from botocore.exceptions import ClientError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
 if TYPE_CHECKING:
     pass
@@ -13,12 +14,12 @@ from app.config import get_settings
 settings = get_settings()
 
 # Initialize the Cognito Client
-client: Any = boto3.client("cognito-idp", region_name=settings.aws_region)
+client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region)#type:ignore
 
 
 def get_secret_hash(username: str):
     """
-    Cognito requires a keyed-hash (HMAC) to verify the client.
+    Cognito requires a keyed-hash to verify the client.
     """
     msg = username + settings.cognito_client_id
     dig = hmac.new(
@@ -45,9 +46,9 @@ async def register_user(username: str, password: str, email: str):
             UserAttributes=[{"Name": "email", "Value": email}],
         )
 
-        # 2. AUTO-CONFIRM (Only for local testing!)
+        # 2. AUTO-CONFIRM
         # This makes the user active immediately so they can login.
-        if settings.debug:  # Use your debug flag from config.py
+        if settings.debug:  # Use debug flag from config.py
             client.admin_confirm_sign_up(
                 UserPoolId=settings.cognito_user_pool_id, Username=username
             )
