@@ -1,8 +1,8 @@
 import os
 from fastapi import FastAPI
+from typing import Any, Dict
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel, select
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
 from dotenv import load_dotenv
 
 # from typing import List, Optional
@@ -10,22 +10,28 @@ from dotenv import load_dotenv
 
 # (Make sure riot_api.py is in backend/app/services/)
 # (make sure models.py is in backend/app/database/ )
-from app.database.models import Summoners
-from app.services.riot_api import get_puuid_by_riot_id
+from app.config import get_settings
+from app.api.routes import router
+from app.api.middleware import ProcessTimeMiddleware
 
 load_dotenv()
-
 
 # DATABASE & APP SETUP
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
+# from slowapi import _rate_limit_exceeded_handler
+# from slowapi.errors import RateLimitExceeded
+# from slowapi.middleware import SlowAPIMiddleware
+
+# limiter = Limiter(key_func=get_remote_address)
+
+settings = get_settings()
 app = FastAPI(title="Vantage Point Backend")
 
 # Get the URL from the docker-compose environment variable
 # points to the db service not localhost hopfully, this should only work inside the container.
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-
     print(
         "DATABASE_URL not set. Using default local Postgres URL for development/ Testing."
     )
@@ -34,30 +40,24 @@ if not DATABASE_URL:
     )
 engine = create_async_engine(DATABASE_URL)
 
+# app.state.limiter = limiter
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+# app.add_middleware(SlowAPIMiddleware)
 # CORS for frontend
 # 3000 = React default, 5173 = Vite default.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Process-Time"],
 )
 
+app.add_middleware(ProcessTimeMiddleware)
 
-# STARTUP
-
-
-@app.on_event("startup")
-async def on_startup():
-    # Creates any tables that don't exist yet. Safe to run on every boot
-    # It won't touch tables that are already there.
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-    print("Tables are ready.")
-
-
-# ROUTES
+app.include_router(router, prefix="/api")
 
 
 @app.get("/")
@@ -71,41 +71,6 @@ async def health():
 
 
 @app.post("/api/test")
-async def test_endpoint(data: dict):
+async def test_endpoint(data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"Test endpoint called with data: {data}")
     return {"received": data, "message": "Test successful"}
-
-
-# below is not really so self explanatory so i just added comments to the code to explain the steps.
-# let me know if you want me to add more comments or if you have any questions about the code!
-# Neo
-@app.post("/summoners/register")
-async def register_summoner(game_name: str, tag_line: str):
-    # 1. Get PUUID from Riot Service; Gets name + tag
-    puuid = await get_puuid_by_riot_id(game_name, tag_line)
-    if not puuid:
-        return {"error": "Could not find player on Riot servers."}
-
-    # 2. Save to Database; should only do so if this player is not in the DB already
-    async with AsyncSession(engine) as session:
-        statement = select(Summoners).where(Summoners.puuid == puuid)
-        result = await session.execute(statement)
-        existing_summoner = result.scalar_one_or_none()
-
-        # adding this check just to be safe and security even if no exist is already below it
-        if existing_summoner:
-            return {"message": "Summoner already in database."}
-
-        if not existing_summoner:
-            new_summoner = Summoners(
-                puuid=puuid, game_name=game_name, tag_line=tag_line, summoner_level=0
-            )
-            session.add(new_summoner)
-            await session.commit()
-            return {
-                "message": f"Successfully registered {game_name}#{tag_line}",
-                "puuid": puuid,
-            }
-
-        # should not be reached as the check i added earlier should catch this but just in case,
-        return {"message": "Summoner already in database."}
