@@ -1,21 +1,47 @@
 # Backend
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.dll
+*.dylib
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest/
+*.egg
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
 .coverage
 .coverage.*
+*.coverage.*
 backend/.coverage
+coverage.xml
+*.lcov
+.nyc_output/
 htmlcov/
 backend/app/tests/fixtures/
 backend/app/tests/integration/
+dist/
+build/
+*.whl
+pip-wheel-metadata/
+share/python-wheels/
+
+*.py[cod]
+*$py.class
 
 # Virtual Environment
 venv/
 env/
 .venv
+ENV/
+venv.bak/
+env.bak/
 
 # Environment Variables
 .env
