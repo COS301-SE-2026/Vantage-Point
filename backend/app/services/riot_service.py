@@ -3,7 +3,7 @@ import httpx
 from dotenv import load_dotenv
 from app.config import get_settings
 from fastapi import HTTPException
-from typing import Any
+from typing import Any, Optional
 from app.schemas.riot_schemas import SimplifiedPlayerStats, SimplifiedMatchResponse, SimplifiedTeammate
 
 load_dotenv()
@@ -113,4 +113,54 @@ def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
         secondary_runes=secondary_runes
     )
 
+def _format_teammate(p: Any) -> SimplifiedTeammate:
+    """Helper function to transform a raw participant into a SimplifiedTeammate."""
+    # Handle Riot ID naming combinations
+    t_name = f"{p.riotIdGameName}#{p.riotIdTagline}" if getattr(p, "riotIdGameName", None) else p.summonerName
+    
+    return SimplifiedTeammate(
+        summoner_name=t_name,
+        champion_name=p.championName,  
+        kills=p.kills,
+        deaths=p.deaths,
+        assists=p.assists,
+        kda=round((p.kills + p.assists) / max(p.deaths, 1), 2),
+        role=p.teamPosition if p.teamPosition else "UNKNOWN"
+    )
+
+def filter_match_for_players(full_match: Any, target_puuid: str) -> Optional[SimplifiedMatchResponse]:
+    # 1. Find the target participant without a standard for-loop
+    target_participant = next(
+        (p for p in full_match.info.participants if p.puuid == target_puuid), 
+        None
+    )
+    
+    # Early return guard clause
+    if not target_participant:
+        return None
+        
+    target_team_id = target_participant.teamId
+    
+    # 2. Find if the team won without a standard for-loop
+    your_team_won = next(
+        (team.win for team in full_match.info.teams if team.teamId == target_team_id), 
+        False
+    )
+    
+    # 3. Filter and build teammates using a list comprehension + helper function
+    teammates = [
+        _format_teammate(p)
+        for p in full_match.info.participants
+        if p.teamId == target_team_id and p.puuid != target_puuid
+    ]
+    
+    return SimplifiedMatchResponse(
+        match_id=full_match.metadata.matchId,
+        game_mode=full_match.info.gameMode,
+        map_id=full_match.info.mapId,
+        duration_seconds=full_match.info.gameDuration,
+        your_team_won=your_team_won,
+        your_stats=simplify_participant(target_participant),
+        teammates=teammates
+    )
 

@@ -208,11 +208,10 @@ class RiotMatchListResponse(BaseModel):
 class SimplifiedPlayerStats(BaseModel):
     summoner_name: str
     champion_name: str
-    kill: int
+    kills: int
     deaths: int
     assists: int
     kda: float
-    team_position: str
     role: str
 
     double_kills: int
@@ -253,12 +252,11 @@ class SimplifiedTeammate(BaseModel):
     deaths: int
     assists: int
     kda: float
-    team_position: str
     role: str
 
 class SimplifiedMatchResponse(BaseModel):
     match_id: str
-    game_model: str
+    game_mode: str
     map_id: int
     duration_seconds: int
     your_stats: SimplifiedPlayerStats
