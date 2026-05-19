@@ -1,5 +1,5 @@
 import os
-import httpx
+from httpx import AsyncClient
 from dotenv import load_dotenv
 from app.config import get_settings
 from fastapi import HTTPException
@@ -51,9 +51,9 @@ class RiotService:
         self.headers["X-Riot-Token"] = new_key
         return {"status": "success", "message": "Service headers updated"}
 
-    def get_match_ids(self, puuid: str, count: int = 5) -> list[str]:
+    async def get_match_ids(self, puuid: str, count: int = 5) -> list[str]:
         #Fetches a list of match IDs for a given PUUID
-        url = f"{self.account_url}/lol/match/v5matches/by-puuid/{puuid}/ids?start=0&count={count}"
+        url = f"{self.account_url}/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)

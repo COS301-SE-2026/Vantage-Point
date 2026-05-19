@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
-from app.services import auth_service
+from app.services import auth_service, riot_service
 from app.schemas.auth_schemas import (
     UserRegister,
     UserLogin,
@@ -12,6 +12,7 @@ from app.schemas.auth_schemas import (
 from typing import Annotated
 from datetime import datetime, timedelta
 from pydantic import BaseModel
+from typing import List
 
 oauth2_scheme = HTTPBearer()
 
@@ -160,3 +161,11 @@ async def update_riot_api_key(
 # =====================================================
 # Riot routes
 # ======================================================
+
+@router.get("/riot/matches/{puuid}", response_model=List[str])
+@public #custom decorator used to bypass cognito for testing
+async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
+    "GET a list of match IDs by player PUUID."
+    match_ids: list[str] = await riot_service.get_match_ids(puuid=puuid, count=count)
+
+    return match_ids
