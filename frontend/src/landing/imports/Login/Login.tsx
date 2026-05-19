@@ -1,26 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import svgPaths from "./svg-jgo840jab8";
-import imgRectangle1 from "./463eb708ddbeadb3c53cc0b26e34667670fe167b.webp";
-import imgRectangle2 from "../Login-1/97d8c9201149029b885bb52960ef71eae5ce7ae9.webp";
-import imgRectangle3 from "../Login-2/c9e85ad67d883d93480f830760511c1c35efd163.webp";
-import imgRectangle4 from "../Login-3/d28b50c79a88e9246a27dde74d7163e72d0415bd.webp";
-import imgRectangle5 from "../Login-4/d4b85c8bb23b5c155d2f9615ee10643ea1e3a199.webp";
+import {
+  landingBackgroundImages,
+  landingSlideIndices,
+} from "../../lol-wallpapers/backgrounds";
 import imgLogo from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
 import imgGoogle from "../Register/e98e9b24669bda4f34daad81de74f1cbc0c60e43.webp";
 import imgAppleInc from "../Register/42dab27d0f348cbd097620054816915a603a2f3b.webp";
 import imgRiotGames from "../Register/da8e2b2b779ebc3b362dbe11022d83a4a28639da.webp";
 
-const backgroundImages = [
-  imgRectangle1,
-  imgRectangle2,
-  imgRectangle3,
-  imgRectangle4,
-  imgRectangle5,
-];
+const backgroundImages = landingBackgroundImages;
 
 const authInputClassName =
   "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
+
+const SLIDE_DOT_INDICES = landingSlideIndices;
+
+type FrameSlideProps = Readonly<{
+  currentSlide: number;
+  onDotClick: (index: number) => void;
+}>;
+
+type ShowPasswordProps = Readonly<{
+  showPassword: boolean;
+  setShowPassword: (value: boolean) => void;
+}>;
 
 function Logo() {
   return (
@@ -85,22 +90,21 @@ function SocialLoginButtons() {
   );
 }
 
-function Frame({
-  currentSlide,
-  onDotClick,
-}: {
-  currentSlide: number;
-  onDotClick: (index: number) => void;
-}) {
+function Frame({ currentSlide, onDotClick }: FrameSlideProps) {
   return (
     <div
       className="-translate-x-1/2 -translate-y-1/2 absolute content-stretch flex gap-[8px] items-center justify-center left-[calc(50%-1px)] px-[12px] py-[8px] rounded-[50px] top-1/2"
       data-name="Frame"
+      role="tablist"
+      aria-label="Background slides"
     >
-      {[0, 1, 2, 3, 4].map((index) => (
-        <div
-          key={index}
-          className={`relative rounded-[50px] shrink-0 size-[8px] cursor-pointer transition-opacity duration-300 ${
+      {SLIDE_DOT_INDICES.map((index) => (
+        <button
+          type="button"
+          key={`login-slide-dot-${String(index)}`}
+          aria-label={`Show slide ${String(index + 1)}`}
+          aria-current={index === currentSlide ? "true" : undefined}
+          className={`relative rounded-[50px] shrink-0 size-[8px] cursor-pointer border-0 p-0 transition-opacity duration-300 ${
             index === currentSlide
               ? "bg-black opacity-100"
               : "bg-black opacity-30"
@@ -122,7 +126,7 @@ function Input() {
   );
 }
 
-function Input1({ showPassword }: { showPassword: boolean }) {
+function Input1({ showPassword }: Readonly<{ showPassword: boolean }>) {
   return (
     <input
       type={showPassword ? "text" : "password"}
@@ -135,10 +139,7 @@ function Input1({ showPassword }: { showPassword: boolean }) {
 function CheckboxAndLabel({
   showPassword,
   setShowPassword,
-}: {
-  showPassword: boolean;
-  setShowPassword: (value: boolean) => void;
-}) {
+}: ShowPasswordProps) {
   return (
     <label
       className="flex gap-[12px] items-center cursor-pointer self-start mt-1"
@@ -182,12 +183,13 @@ function CheckboxAndLabel1() {
     >
       <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] text-[16px] leading-[1.4] text-center">
         {`Don't have an account? `}
-        <span
+        <button
+          type="button"
           onClick={() => navigate("/register")}
-          className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] cursor-pointer hover:underline"
+          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] cursor-pointer hover:underline"
         >
           Sign Up
-        </span>
+        </button>
       </p>
     </div>
   );
@@ -196,10 +198,7 @@ function CheckboxAndLabel1() {
 function LeftPanelForm({
   showPassword,
   setShowPassword,
-}: {
-  showPassword: boolean;
-  setShowPassword: (value: boolean) => void;
-}) {
+}: ShowPasswordProps) {
   const navigate = useNavigate();
 
   return (
@@ -251,13 +250,7 @@ function LeftPanelForm({
   );
 }
 
-function LogIn({
-  currentSlide,
-  onDotClick,
-}: {
-  currentSlide: number;
-  onDotClick: (index: number) => void;
-}) {
+function LogIn({ currentSlide, onDotClick }: FrameSlideProps) {
   return (
     <div
       className="absolute bg-white h-full left-0 overflow-clip top-0 w-full"
@@ -267,7 +260,7 @@ function LogIn({
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {backgroundImages.map((img, index) => (
             <img
-              key={index}
+              key={img}
               alt=""
               className={`absolute h-full w-full object-cover transition-opacity duration-1000 ${
                 index === currentSlide ? "opacity-100" : "opacity-0"
