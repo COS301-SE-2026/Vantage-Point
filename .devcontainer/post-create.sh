@@ -7,6 +7,7 @@ sudo apt-get update -qq && sudo apt-get install -y postgresql-client
 # Backend — install Python dependencies
 cd /workspaces/backend
 pip install -r requirements.txt
+pip install -r requirements-dev.txt 
  
 # Frontend — install Node dependencies
 cd /workspaces/frontend
