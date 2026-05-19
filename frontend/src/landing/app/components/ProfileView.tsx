@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { getAchievementIcon } from "../lib/achievementIcons";
 import { championIconUrl } from "../lib/ddragon";
 import { getMockPlayerProfile } from "../mocks/playerProfile";
-import type { FeaturedGameSlide, PlayerProfile } from "../types/profile";
+import type { PlayerProfile } from "../types/profile";
+import FeaturedGameCard from "./FeaturedGameCard";
 import ProfileRadarChart from "./ProfileRadarChart";
 
 interface ProfileViewProps {
@@ -9,44 +11,12 @@ interface ProfileViewProps {
   readonly sidebarOpen?: boolean;
 }
 
-function FeaturedGameCard({ slide }: Readonly<{ slide: FeaturedGameSlide }>) {
-  return (
-    <div className="flex h-full min-h-[200px] overflow-hidden rounded-[16px] bg-[#2b2b2b] text-white shadow-[0px_4px_12px_rgba(0,0,0,0.15)]">
-      <img
-        src={slide.cover_image_url}
-        alt=""
-        className="h-full w-[42%] shrink-0 object-cover"
-      />
-      <div className="flex flex-1 flex-col justify-center gap-3 px-6 py-5">
-        <h3 className="font-['Inter:Semi_Bold',sans-serif] text-[20px] font-semibold leading-tight">
-          {slide.game_name}
-        </h3>
-        <p className="font-['Inter:Regular',sans-serif] text-[14px] text-[#d4d4d4]">
-          Efficiency Score:{" "}
-          <span className="font-semibold text-white">{slide.efficiency_score}</span>
-        </p>
-        <p className="font-['Inter:Regular',sans-serif] text-[14px] text-[#d4d4d4]">
-          Time Spent:{" "}
-          <span className="font-semibold text-white">{slide.time_spent_label}</span>
-        </p>
-        <div className="mt-1 flex gap-2">
-          <span className="rounded-full bg-[#525252] px-3 py-1 font-['Inter:Regular',sans-serif] text-[12px]">
-            {slide.tag_primary}
-          </span>
-          <span className="rounded-full bg-black px-3 py-1 font-['Inter:Regular',sans-serif] text-[12px]">
-            {slide.tag_secondary}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function ProfileView({
   profile = getMockPlayerProfile(),
   sidebarOpen = true,
 }: Readonly<ProfileViewProps>) {
   const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [cardExpanded, setCardExpanded] = useState(true);
   const featured =
     profile.featured_games[featuredIndex] ?? profile.featured_games[0];
 
@@ -80,7 +50,7 @@ export default function ProfileView({
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(305px,520px)]">
           <section aria-label="Performance radar">
             <ProfileRadarChart metrics={profile.radar_metrics} />
             <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1">
@@ -96,8 +66,17 @@ export default function ProfileView({
           </section>
 
           {featured ? (
-            <section aria-label="Featured game" className="min-h-[220px]">
-              <FeaturedGameCard slide={featured} />
+            <section
+              aria-label="Featured game"
+              className="flex min-h-[314px] flex-col items-end"
+            >
+              <div className="transition-[width] duration-300 ease-out">
+                <FeaturedGameCard
+                  slide={featured}
+                  expanded={cardExpanded}
+                  onToggle={() => setCardExpanded((open) => !open)}
+                />
+              </div>
               {profile.featured_games.length > 1 ? (
                 <div
                   className="mt-4 flex justify-center gap-2"
@@ -111,7 +90,10 @@ export default function ProfileView({
                       role="tab"
                       aria-selected={i === featuredIndex}
                       aria-label={`Game ${i + 1}`}
-                      onClick={() => setFeaturedIndex(i)}
+                      onClick={() => {
+                        setFeaturedIndex(i);
+                        setCardExpanded(true);
+                      }}
                       className={`size-2 rounded-full transition-colors ${
                         i === featuredIndex ? "bg-[#1e1e1e]" : "bg-[#d9d9d9]"
                       }`}
@@ -152,20 +134,32 @@ export default function ProfileView({
             Achievements
           </h2>
           <div className="flex flex-wrap gap-5">
-            {profile.achievements.map((a) => (
+            {profile.achievements.map((a) => {
+              const Icon = getAchievementIcon(a.id);
+              return (
               <div
                 key={a.id}
                 className="flex flex-col items-center gap-2"
                 title={`${a.description} (${a.source_field})`}
               >
-                <div className="flex size-[72px] items-center justify-center rounded-full bg-black font-['Inter:Semi_Bold',sans-serif] text-[13px] font-semibold leading-tight text-white">
-                  {a.count > 99 ? "99+" : a.count}
+                <div className="relative flex size-[72px] items-center justify-center rounded-full bg-black">
+                  {Icon ? (
+                    <Icon
+                      className="size-8 text-white"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                  ) : null}
+                  <span className="absolute bottom-0 right-0 flex min-w-[22px] translate-x-1 translate-y-1 items-center justify-center rounded-full bg-[#404040] px-1.5 py-0.5 font-['Inter:Semi_Bold',sans-serif] text-[11px] font-semibold leading-none text-white ring-2 ring-white">
+                    {a.count > 99 ? "99+" : a.count}
+                  </span>
                 </div>
                 <span className="max-w-[80px] text-center font-['Inter:Regular',sans-serif] text-[12px] text-[#525252]">
                   {a.label}
                 </span>
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>
