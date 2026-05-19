@@ -1,0 +1,5 @@
+User: Sn1per2 | Email: player1@example.com | Status: REGISTERED
+User: Sn1per3 | Email: player@example.com | Status: REGISTERED
+User: Sn1per12 | Email: player@example.com | Status: REGISTERED
+User: Sn1per13 | Email: player@example.com | Status: REGISTERED
+User: Sn1per15 | Email: player@example.com | Status: REGISTERED

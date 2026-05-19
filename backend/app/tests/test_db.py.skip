@@ -28,12 +28,12 @@ async def test_database_logic():
         # @NeoMachabaUP : There is no Jhin that we know of
         test_champ = Champions(champion_id=202, name="Jhin", tags="Marksman")
         test_summoner = Summoners(
-            puuid="test_puuid_123", 
-            game_name="TheFast", 
-            tag_line="4444", 
+            puuid="test_puuid_123",
+            game_name="TheFast",
+            tag_line="4444",
             summoner_level=100
         )
-        
+
         session.add(test_champ)
         session.add(test_summoner)
         await session.commit()
@@ -43,7 +43,7 @@ async def test_database_logic():
         statement = select(Summoners).where(Summoners.game_name == "TheFast")
         result = await session.execute(statement)
         summoner = result.scalar_one()
-        
+
         print(f"Found Summoner: {summoner.game_name}#{summoner.tag_line} (PUUID: {summoner.puuid})")
 
         print("--- Test complete ---")
@@ -53,5 +53,5 @@ async def test_database_logic():
 if __name__ == "__main__":
     asyncio.run(test_database_logic())
 
-# This is such basic testing and needs to be updated once we have more refinded database logic and models, 
+# This is such basic testing and needs to be updated once we have more refinded database logic and models,
 # but I just wanted to get something in here to test the connection and make sure we can write to the DB.
