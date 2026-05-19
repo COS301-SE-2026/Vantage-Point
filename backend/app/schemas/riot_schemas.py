@@ -201,3 +201,17 @@ class RiotMatchListResponse(BaseModel):
     match_ids: List[str]
     puuid: str
     count: int
+
+
+#simplified shcemas
+
+class SimplifiedPLayerStats(BaseModel):
+    summoner_name: str
+    champion_name: str
+    kill: int
+    deaths: int
+    assists: int
+    kda: float
+    team_position: str
+    role: str
+    
