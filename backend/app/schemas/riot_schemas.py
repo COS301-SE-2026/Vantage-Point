@@ -214,4 +214,44 @@ class SimplifiedPLayerStats(BaseModel):
     kda: float
     team_position: str
     role: str
-    
+
+    double_kills: int
+    triple_kills: int
+    quadra_kills: int
+    penta_kills: int
+    largest_multikill: int
+
+    primary_runes: Optional[List[int]] = None
+    secondary_runes: Optional[List[int]] = None
+
+     class Config:
+        json_schema_extra = {
+            "example": {
+                "summoner_name": "CoolPlayer",
+                "champion_name": "Yasuo",
+                "kills": 12,
+                "deaths": 3,
+                "assists": 8,
+                "kda": 6.67,
+                "team_position": "MIDDLE",
+                "role": "SOLO",
+                "double_kills": 2,
+                "triple_kills": 1,
+                "quadra_kills": 0,
+                "penta_kills": 0,
+                "largest_multikill": 3,
+                "primary_runes": [8112, 8126, 8138, 8135],
+                "secondary_runes": [8232, 8234]
+            }
+        }
+
+
+class SimplifiedTeammate(BaseModel):
+    summoner_name: str
+    champion_name: str
+    kills: int
+    deaths: int
+    assists: int
+    kda: float
+    team_position: str
+    role: str
