@@ -110,6 +110,15 @@ Expected output:
  public | user_game_accounts | table | riot_user
  public | users              | table | riot_user
 ```
+## Seeding the Database with Champion Data
+
+The database starts empty. To populate the `champions` table with real Riot IDs and static stats from the dataset, run the seed script **manually**:
+
+```bash
+cd /workspaces/backend
+
+python -m app.database.seed
+```
 
 ## Visualising the Schema
  
