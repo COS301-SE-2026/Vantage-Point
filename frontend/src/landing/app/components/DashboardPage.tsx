@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import DashboardComponent from "../../imports/Group14/Group14";
+import DashboardComponent, {
+  type DashboardView,
+} from "../../imports/Group14/Group14";
 import MatchDetailModal from "./MatchDetailModal";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<DashboardView>("matches");
 
   const matchFromUrl = searchParams.get("match");
 
@@ -43,8 +46,11 @@ export default function DashboardPage() {
   return (
     <div className="w-screen h-screen bg-white overflow-auto">
       <DashboardComponent
+        activeView={activeView}
         onLogout={handleLogout}
         onMatchSelect={handleMatchSelect}
+        onProfileClick={() => setActiveView("profile")}
+        onDashboardClick={() => setActiveView("matches")}
       />
       <MatchDetailModal
         matchId={selectedMatchId}
