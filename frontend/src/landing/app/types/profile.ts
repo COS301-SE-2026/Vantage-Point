@@ -35,12 +35,13 @@ export interface PlayerAchievement {
 
 export interface FeaturedGameSlide {
   readonly game_name: string;
+  /** Cover art for the expanded card (Figma 179:1051). */
   readonly cover_image_url: string;
+  /** Optional art for the collapsed card (Figma 139:837); defaults to cover_image_url. */
+  readonly card_image_url?: string;
   readonly efficiency_score: number;
-  /** Total time played formatted HH:MM:SS */
+  /** Total time played formatted D:HH:MM:SS */
   readonly time_spent_label: string;
-  readonly tag_primary: string;
-  readonly tag_secondary: string;
 }
 
 export interface PlayerProfile {
