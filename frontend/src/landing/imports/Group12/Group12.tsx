@@ -24,6 +24,30 @@ type FrameSlideProps = Readonly<{
 
 type CurrentSlideProps = Readonly<{ currentSlide: number }>;
 
+function HeroCopy() {
+  return (
+    <section
+      className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center px-[clamp(16px,5vw,48px)] pt-[clamp(48px,10vh,120px)] pb-[clamp(120px,22vh,200px)]"
+      aria-label="Introduction"
+    >
+      <h1 className="max-w-[min(920px,92vw)] text-center text-[clamp(2rem,5.2vw,3.75rem)] font-bold leading-[1.15] tracking-[-0.02em]">
+        <span className="font-sarina bg-gradient-to-r from-[#1d4ed8] via-[#3b82f6] to-[#7dd3fc] bg-clip-text text-transparent drop-shadow-sm">
+          Vantage Point
+        </span>
+        <span className="font-['Inter',sans-serif] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.45)]">
+          {" "}
+          turns every match into a lesson.
+        </span>
+      </h1>
+      <p className="mt-[clamp(16px,2.5vh,28px)] max-w-[min(640px,88vw)] text-center font-['Inter',sans-serif] text-[clamp(0.9375rem,1.65vw,1.125rem)] font-normal leading-[1.65] text-[#e5e5e5] drop-shadow-[0_1px_16px_rgba(0,0,0,0.5)]">
+        Unlock AI-powered spatial analysis that reveals where you mispositioned,
+        why you lost the fight, and how top players would have played it. Level
+        up with every game.
+      </p>
+    </section>
+  );
+}
+
 function Logo() {
   return (
     <div
@@ -80,6 +104,11 @@ function LogIn({ currentSlide }: CurrentSlideProps) {
           src={img}
         />
       ))}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-b from-black/35 via-black/10 to-black/55"
+      />
+      <HeroCopy />
       <Logo />
       <Group1 />
     </div>
