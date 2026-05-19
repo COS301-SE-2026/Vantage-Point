@@ -380,7 +380,7 @@ export default function MatchDetailModal({
           {loading && <LoadingSkeleton />}
           {error && !loading && (
             <p className="text-sm text-[#757575]">
-              Try again later or pick another match from the dashboard.
+              Try again later or pick another match from your matches.
             </p>
           )}
           {match && blueTeam && redTeam && !loading && (
