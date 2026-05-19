@@ -12,7 +12,7 @@ class RiotAccountResponse(BaseModel):
     tagLine: str
 
     class Config:
-        json_schema_extra = {
+        json_schema_extra: Dict[str, Any] = {
             "example": {
                 "puuid": "z1x2c3v4b5n6m7_8a9s0d1f2g3h4j5k6l7_8q9w0e1r2t3y4u5i6o7p8",
                 "gameName": "Sn1per1",
@@ -205,7 +205,7 @@ class RiotMatchListResponse(BaseModel):
 
 #simplified shcemas
 
-class SimplifiedPLayerStats(BaseModel):
+class SimplifiedPlayerStats(BaseModel):
     summoner_name: str
     champion_name: str
     kill: int
@@ -224,8 +224,8 @@ class SimplifiedPLayerStats(BaseModel):
     primary_runes: Optional[List[int]] = None
     secondary_runes: Optional[List[int]] = None
 
-     class Config:
-        json_schema_extra = {
+    class Config:
+        json_schema_extra: Dict[str, Any] = {
             "example": {
                 "summoner_name": "CoolPlayer",
                 "champion_name": "Yasuo",
@@ -255,3 +255,52 @@ class SimplifiedTeammate(BaseModel):
     kda: float
     team_position: str
     role: str
+
+class SimplifiedMatchResponse(BaseModel):
+    match_id: str
+    game_model: str
+    map_id: int
+    duration_seconds: int
+    your_stats: SimplifiedPlayerStats
+    teammates: List[SimplifiedTeammate]
+    your_team_won: bool
+
+    class Config:
+        json_schema_extra: Dict[str, Any] = {
+            "example": {
+                "match_id": "EUW1_1234567890",
+                "game_mode": "CLASSIC",
+                "map_id": 11,
+                "duration_seconds": 2345,
+                "your_stats": {
+                    "summoner_name": "CoolPlayer",
+                    "champion_name": "Yasuo",
+                    "kills": 12,
+                    "deaths": 3,
+                    "assists": 8,
+                    "kda": 6.67,
+                    "team_position": "MIDDLE",
+                    "role": "SOLO",
+                    "double_kills": 2,
+                    "triple_kills": 1,
+                    "quadra_kills": 0,
+                    "penta_kills": 0,
+                    "largest_multikill": 3,
+                    "primary_runes": [8112, 8126, 8138, 8135],
+                    "secondary_runes": [8232, 8234]
+                },
+                "teammates": [
+                    {
+                        "summoner_name": "Teammate1",
+                        "champion_name": "LeeSin",
+                        "kills": 5,
+                        "deaths": 4,
+                        "assists": 10,
+                        "kda": 3.75,
+                        "team_position": "JUNGLE",
+                        "role": "NONE"
+                    }
+                ],
+                "your_team_won": True
+            }
+        }

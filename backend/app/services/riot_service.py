@@ -1,9 +1,10 @@
 import os
 import httpx
-from httpx import AsyncClient
 from dotenv import load_dotenv
 from app.config import get_settings
 from fastapi import HTTPException
+from typing import Any
+from app.schemas.riot_schemas import SimplifiedPlayerStats, SimplifiedMatchResponse, SimplifiedTeammate
 
 load_dotenv()
 
@@ -70,12 +71,46 @@ class RiotService:
             raise HTTPException(status_code=404, detail="Data not found: PUUID has no match history")
         else:
             raise HTTPException(status_code=response.status_code, detail="Failed to fetch match IDs from Riot")
-        
-    def get_match_detail()
-        #endpoint used to get the details based on the specefic mathces to be posted on a match board
-        
             
 riot_service = RiotService()
 
+def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
+    """Converts a raw Riot ParticipantDto into your clean format"""
+    
+    deaths_safe = max(participant.deaths, 1)
+    calculated_kda = round((participant.kills + participant.assists) / deaths_safe, 2)
+    
+    name = participant.summonerName
+    if hasattr(participant, "riotIdGameName") and participant.riotIdGameName:
+        name = f"{participant.riotIdGameName}#{participant.riotIdTagline}"
+
+    assigned_role = participant.teamPosition if participant.teamPosition else "UNKNOWN"
+
+    primary_runes = None
+    secondary_runes = None
+    
+    if hasattr(participant, "perks") and participant.perks.styles:
+        for style in participant.perks.styles:
+            if style.description == "primaryStyle":
+                primary_runes = [selection.perk for selection in style.selections]
+            elif style.description == "subStyle":
+                secondary_runes = [selection.perk for selection in style.selections]
+
+    return SimplifiedPlayerStats(
+        summoner_name=name,
+        champion_name=participant.championName,
+        kills=participant.kills,
+        deaths=participant.deaths,
+        assists=participant.assists,
+        kda=calculated_kda,
+        role=assigned_role,
+        double_kills=participant.doubleKills,
+        triple_kills=participant.tripleKills,
+        quadra_kills=participant.quadraKills,
+        penta_kills=participant.pentaKills,
+        largest_multikill=participant.largestMultiKill,
+        primary_runes=primary_runes,
+        secondary_runes=secondary_runes
+    )
 
 
