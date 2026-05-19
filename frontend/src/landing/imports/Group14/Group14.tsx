@@ -1,11 +1,19 @@
 import { useState, type CSSProperties } from "react";
-import { LogOut } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  LogOut,
+} from "lucide-react";
 import ProfileView from "../../app/components/ProfileView";
+import {
+  MOCK_MATCH_HISTORY_BY_DAY,
+  type DashboardMatchCard,
+  type MatchHistoryDayRow,
+} from "../../app/mocks/matchHistory";
 import svgPaths from "./svg-a7h301bhtl";
 import imgRectangle2 from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
-import imgImage from "./863f38ed1d3d10010128b3d2c32af74526eee2db.webp";
-import imgImage1 from "./52d63edd3ead34fe669ce0b42a6f0cc7fa14831e.webp";
-import imgImage2 from "./0dbe3069ff5609f457daa04f89ca5a682c4ec7ad.webp";
 
 /** Fixed artboard width used by this screen (px). */
 const DASHBOARD_FRAME_W = 1512;
@@ -13,6 +21,10 @@ const DASHBOARD_FRAME_W = 1512;
 /** Collapsed grid: card track width (incl. horizontal padding) + gap between columns. */
 const COLLAPSED_CARD_TRACK_PX = 278;
 const COLLAPSED_COL_GAP_PX = 22;
+const SIDEBAR_OPEN_CARD_TRACK_PX = 261;
+const CARDS_PER_PAGE = 4;
+const MATCH_ROW_CARD_TOPS = [133, 608] as const;
+const MATCH_ROW_DATE_TOPS = [104, 560] as const;
 
 export type DashboardView = "matches" | "profile";
 
@@ -37,12 +49,15 @@ interface ProductCardBodyProps {
   readonly mapLabel: string;
 }
 
-function ProductCardImage({ src }: Readonly<{ src: string }>) {
+function ProductCardImage({
+  src,
+  championName,
+}: Readonly<{ src: string; championName: string }>) {
   return (
     <div className="h-[247px] relative shrink-0 w-full" data-name="Image">
       <img
-        alt=""
-        className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
+        alt={championName}
+        className="absolute inset-0 max-w-none object-cover object-top pointer-events-none size-full"
         src={src}
       />
     </div>
@@ -95,39 +110,6 @@ function ProductCardBody({
   );
 }
 
-const COLUMN_MATCH_CARDS = [
-  {
-    matchId: "EUW1_mock_1",
-    src: imgImage,
-    outcome: "Defeat",
-    durationLabel: "Duration - 25min",
-    mapLabel: "Summoner's Rift",
-  },
-  {
-    matchId: "EUW1_mock_2",
-    src: imgImage1,
-    outcome: "Victory",
-    durationLabel: "Duration - 30min",
-    mapLabel: "Summoner's Rift",
-  },
-  {
-    matchId: "EUW1_mock_3",
-    src: imgImage2,
-    outcome: "Victory",
-    durationLabel: "Duration - 40min",
-    mapLabel: "Summoner's Rift",
-  },
-  {
-    matchId: "EUW1_mock_4",
-    src: imgImage2,
-    outcome: "Defeat",
-    durationLabel: "Duration - 20min",
-    mapLabel: "Summoner's Rift",
-  },
-] as const satisfies ReadonlyArray<
-  ProductCardBodyProps & { readonly src: string; readonly matchId: string }
->;
-
 function collapsedCardColumnLefts(): [number, number, number, number] {
   const gridW = 4 * COLLAPSED_CARD_TRACK_PX + 3 * COLLAPSED_COL_GAP_PX;
   const start = Math.round((DASHBOARD_FRAME_W - gridW) / 2);
@@ -137,6 +119,136 @@ function collapsedCardColumnLefts(): [number, number, number, number] {
     start + 2 * (COLLAPSED_CARD_TRACK_PX + COLLAPSED_COL_GAP_PX),
     start + 3 * (COLLAPSED_CARD_TRACK_PX + COLLAPSED_COL_GAP_PX),
   ];
+}
+
+function sidebarOpenCardColumnLefts(): [number, number, number, number] {
+  return [411, 672, 933, 1194];
+}
+
+interface MatchHistoryDayRowSectionProps {
+  readonly dayRow: MatchHistoryDayRow;
+  readonly rowIndex: number;
+  readonly sidebarOpen: boolean;
+  readonly cardWidthClass: string;
+  readonly onMatchSelect?: (matchId: string) => void;
+}
+
+function MatchHistoryDayRowSection({
+  dayRow,
+  rowIndex,
+  sidebarOpen,
+  cardWidthClass,
+  onMatchSelect,
+}: Readonly<MatchHistoryDayRowSectionProps>) {
+  const [page, setPage] = useState(0);
+  const cardTop = MATCH_ROW_CARD_TOPS[rowIndex] ?? MATCH_ROW_CARD_TOPS[0];
+  const dateTop = MATCH_ROW_DATE_TOPS[rowIndex] ?? MATCH_ROW_DATE_TOPS[0];
+  const columnLefts = sidebarOpen
+    ? sidebarOpenCardColumnLefts()
+    : collapsedCardColumnLefts();
+  const cardTrackPx = sidebarOpen
+    ? SIDEBAR_OPEN_CARD_TRACK_PX
+    : COLLAPSED_CARD_TRACK_PX;
+  const gridStart = columnLefts[0];
+  const gridEnd = columnLefts[3] + cardTrackPx;
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(dayRow.matches.length / CARDS_PER_PAGE),
+  );
+  const safePage = Math.min(page, totalPages - 1);
+  const pageStart = safePage * CARDS_PER_PAGE;
+  const visibleMatches = dayRow.matches.slice(
+    pageStart,
+    pageStart + CARDS_PER_PAGE,
+  );
+  const canPageBack = safePage > 0;
+  const canPageForward = safePage < totalPages - 1;
+  const arrowTop = cardTop + 175;
+
+  return (
+    <>
+      <p
+        className="absolute whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e] transition-[left] duration-300 ease-out"
+        style={{ left: gridStart, top: dateTop }}
+      >
+        {dayRow.dateLabel}
+      </p>
+      <button
+        type="button"
+        onClick={() => setPage((p) => Math.max(0, p - 1))}
+        disabled={!canPageBack}
+        aria-label={`Previous matches on ${dayRow.dateLabel}`}
+        className="absolute flex size-[36px] cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-[#525252] transition-[left,opacity] duration-300 ease-out hover:bg-neutral-100 disabled:cursor-default disabled:opacity-30"
+        style={{ left: gridStart - 48, top: arrowTop }}
+      >
+        <ChevronLeft className="size-[28px]" strokeWidth={2} aria-hidden />
+      </button>
+      <button
+        type="button"
+        onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+        disabled={!canPageForward}
+        aria-label={`Next matches on ${dayRow.dateLabel}`}
+        className="absolute flex size-[36px] cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-[#525252] transition-[left,opacity] duration-300 ease-out hover:bg-neutral-100 disabled:cursor-default disabled:opacity-30"
+        style={{ left: gridEnd + 12, top: arrowTop }}
+      >
+        <ChevronRight className="size-[28px]" strokeWidth={2} aria-hidden />
+      </button>
+      {visibleMatches.map((card, col) => {
+        const column = col as 0 | 1 | 2 | 3;
+        return (
+          <MatchHistoryCardButton
+            key={`dashboard-match-${dayRow.dayKey}-${card.matchId}`}
+            card={card}
+            left={columnLefts[column]}
+            top={cardTop}
+            cardWidthClass={cardWidthClass}
+            onMatchSelect={onMatchSelect}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+interface MatchHistoryCardButtonProps {
+  readonly card: DashboardMatchCard;
+  readonly left: number;
+  readonly top: number;
+  readonly cardWidthClass: string;
+  readonly onMatchSelect?: (matchId: string) => void;
+}
+
+function MatchHistoryCardButton({
+  card,
+  left,
+  top,
+  cardWidthClass,
+  onMatchSelect,
+}: Readonly<MatchHistoryCardButtonProps>) {
+  return (
+    <button
+      type="button"
+      onClick={() => onMatchSelect?.(card.matchId)}
+      className={`absolute flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out cursor-pointer text-left hover:border-[#b3b3b3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4] ${cardWidthClass}`}
+      style={{ left, top }}
+      data-name="Product Info Card"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
+      />
+      <ProductCardImage
+        src={card.imageUrl}
+        championName={card.champion_name}
+      />
+      <ProductCardBody
+        outcome={card.outcome}
+        durationLabel={card.durationLabel}
+        mapLabel={card.mapLabel}
+      />
+    </button>
+  );
 }
 
 function Logo() {
@@ -264,9 +376,6 @@ export default function Group1({
 }: Readonly<Group1Props>) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const showMatches = activeView === "matches";
-  const collapsedCols = collapsedCardColumnLefts();
-  const cardLeft = (col: 0 | 1 | 2 | 3) =>
-    sidebarOpen ? [411, 672, 933, 1194][col] : collapsedCols[col];
   const searchLeft = sidebarOpen
     ? 912
     : Math.round((DASHBOARD_FRAME_W - 377) / 2);
@@ -406,102 +515,32 @@ export default function Group1({
           className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
         />
       </div>
-      <div
-        className="absolute top-[29px] size-[40px] overflow-clip transition-[left] duration-300 ease-out"
+      <button
+        type="button"
+        aria-label="Filter matches"
+        className="absolute top-[29px] flex size-[40px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#0a0a0a] transition-[left] duration-300 ease-out hover:bg-neutral-100"
         style={{ left: filterLeft }}
-        data-name="remix/filter-2"
       >
-        <div
-          className="absolute inset-[12.5%_16.67%_8.33%_16.67%]"
-          data-name="Vector"
-        >
-          <svg
-            className="absolute inset-0 block size-full"
-            fill="none"
-            preserveAspectRatio="none"
-            viewBox="0 0 26.6667 31.6667"
-          >
-            <path
-              d={svgPaths.p2914a000}
-              id="Vector"
-              stroke="var(--stroke-0, #0A0A0A)"
-              strokeWidth="2"
-            />
-          </svg>
-        </div>
-      </div>
-      <div
-        className="absolute top-[29px] size-[40px] overflow-clip transition-[left] duration-300 ease-out"
+        <Filter className="size-[22px]" strokeWidth={2} aria-hidden />
+      </button>
+      <button
+        type="button"
+        aria-label="Sort matches"
+        className="absolute top-[29px] flex size-[40px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#0a0a0a] transition-[left] duration-300 ease-out hover:bg-neutral-100"
         style={{ left: sortLeft }}
-        data-name="remix/sort-asc 1"
       >
-        <div
-          className="absolute inset-[12.5%_4.17%_16.67%_12.5%]"
-          data-name="Vector"
-        >
-          <svg
-            className="absolute inset-0 block size-full"
-            fill="none"
-            preserveAspectRatio="none"
-            viewBox="0 0 33.3333 28.3333"
-          >
-            <path
-              d={svgPaths.p1087f300}
-              id="Vector"
-              stroke="var(--stroke-0, #0A0A0A)"
-              strokeWidth="2"
-            />
-          </svg>
-        </div>
-      </div>
-      {COLUMN_MATCH_CARDS.map((card, col) => {
-        const column = col as 0 | 1 | 2 | 3;
-        return (
-          <button
-            key={`dashboard-match-top-${card.matchId}`}
-            type="button"
-            onClick={() => onMatchSelect?.(card.matchId)}
-            className={`absolute top-[133px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out cursor-pointer text-left hover:border-[#b3b3b3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4] ${cardWidthClass}`}
-            style={{ left: cardLeft(column) }}
-            data-name="Product Info Card"
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-            />
-            <ProductCardImage src={card.src} />
-            <ProductCardBody
-              outcome={card.outcome}
-              durationLabel={card.durationLabel}
-              mapLabel={card.mapLabel}
-            />
-          </button>
-        );
-      })}
-      {COLUMN_MATCH_CARDS.map((card, col) => {
-        const column = col as 0 | 1 | 2 | 3;
-        return (
-          <button
-            key={`dashboard-match-bottom-${card.matchId}`}
-            type="button"
-            onClick={() => onMatchSelect?.(card.matchId)}
-            className={`absolute top-[562px] flex flex-col content-stretch items-start gap-[16px] rounded-[8px] bg-white p-[16px] transition-[left,width] duration-300 ease-out cursor-pointer text-left hover:border-[#b3b3b3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4] ${cardWidthClass}`}
-            style={{ left: cardLeft(column) }}
-            data-name="Product Info Card"
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[8px] border border-solid border-[#d9d9d9]"
-            />
-            <ProductCardImage src={card.src} />
-            <ProductCardBody
-              outcome={card.outcome}
-              durationLabel={card.durationLabel}
-              mapLabel={card.mapLabel}
-            />
-          </button>
-        );
-      })}
+        <ArrowUpDown className="size-[22px]" strokeWidth={2} aria-hidden />
+      </button>
+      {MOCK_MATCH_HISTORY_BY_DAY.map((dayRow, rowIndex) => (
+        <MatchHistoryDayRowSection
+          key={dayRow.dayKey}
+          dayRow={dayRow}
+          rowIndex={rowIndex}
+          sidebarOpen={sidebarOpen}
+          cardWidthClass={cardWidthClass}
+          onMatchSelect={onMatchSelect}
+        />
+      ))}
       </>
       ) : null}
     </div>
