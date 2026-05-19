@@ -10,6 +10,10 @@ services:
     environment:
       # This points Python to the 'db' service below
       DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
+    ports:
+      - "5173:5173" # Vite (frontend)
+      - "8000:8000" # FastAPI (backend)
+      - "3000:3000" # Frontend (React)
 
   # The PostgreSQL Database
   db:
