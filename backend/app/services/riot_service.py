@@ -44,7 +44,19 @@ class RiotService:
         url = f"{self.platform_url}/lol/summoner/v4/summoners/by-puuid/{puuid}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Summoner data not found for this PUUID.")
+            elif response.status_code == 429:
+                raise HTTPException(status_code=429, detail="Rate limit exceeded: Riot is throttling requests.")
+            elif response.status_code in (401, 403):
+                raise HTTPException(status_code=401, detail="Unauthorized: Check your Riot API Key.")
+            else:
+                raise HTTPException(
+                    status_code=response.status_code, 
+                    detail=f"Riot API Error: {response.text}"
+                )
 
     def set_api_key(self, new_key: str):
         """
@@ -78,7 +90,7 @@ class RiotService:
         Fetches the complete MatchDto dictionary from Riot's Match-V5 API.
         """
 
-        url = f"https://{self.region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+        url = f"https://{self.account_url}.api.riotgames.com/lol/match/v5/matches/{match_id}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)

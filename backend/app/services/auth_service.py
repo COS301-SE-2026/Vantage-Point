@@ -2,12 +2,15 @@ import boto3
 import hmac
 import hashlib
 import base64
+import asyncio
+from fastapi import HTTPException
+from app.config import get_settings
 from botocore.exceptions import ClientError
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
 if TYPE_CHECKING:
-    pass
+    from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
 from app.config import get_settings
 
@@ -35,10 +38,24 @@ def log_registration(username: str, email: str):
     with open("registrations.txt", "a") as f:
         f.write(f"User: {username} | Email: {email} | Status: REGISTERED\n")
 
+def _handle_cognito_error(e: ClientError) -> None:
+    """Helper to extract Cognito errors and raise a standardized HTTP exception."""
+    error_code = e.response.get("Error", {}).gte("Code", "UnknownError")
+    error_message = e.response.get("Error", {}).get("Message", str(e))
+    
+    # Map common Cognito errors to appropriate HTTP status codes
+    status_code = 400
+    if error_code in ["NotAuthorizedException", "UserNotFoundException"]:
+        status_code = 401
+    elif error_code == "TooManyRequestsException":
+        status_code = 429
+        
+    raise HTTPException(status_code=status_code, detail=error_message)
 
-async def register_user(username: str, password: str, email: str):
+async def register_user(username: str, password: str, email: str) -> dict[str, Any]:
     try:
-        response = client.sign_up(
+        response = await asyncio.to_thread(
+            client.sign_up,
             ClientId=settings.cognito_client_id,
             SecretHash=get_secret_hash(username),
             Username=username,
@@ -49,19 +66,22 @@ async def register_user(username: str, password: str, email: str):
         # 2. AUTO-CONFIRM
         # This makes the user active immediately so they can login.
         if settings.debug:  # Use debug flag from config.py
-            client.admin_confirm_sign_up(
-                UserPoolId=settings.cognito_user_pool_id, Username=username
+            await asyncio.to_thread(
+                client.admin_confirm_sign_up,
+                UserPoolId=settings.cognito_user_pool_id, 
+                Username=username
             )
 
-        log_registration(username, email)
+        await asyncio.to_thread(log_registration,username, email)
         return response
+    
     except ClientError as e:
-        return {"error": str(e)}
+        _handle_cognito_error(e)
 
 
-async def login_user(username: str, password: str):
+async def login_user(username: str, password: str) -> dict[str, str]:
     try:
-        response = client.initiate_auth(
+        response = await asyncio.to_thread (client.initiate_auth,
             ClientId=settings.cognito_client_id,
             AuthFlow="USER_PASSWORD_AUTH",
             AuthParameters={
@@ -73,13 +93,13 @@ async def login_user(username: str, password: str):
         # This returns the AccessToken, IdToken, and RefreshToken
         return response["AuthenticationResult"]
     except ClientError as e:
-        return {"error": str(e)}
+        _handle_cognito_error(e)
 
 
 async def confirm_user(username: str, code: str):
     """Confirm the user using the code sent to their email."""
     try:
-        client.confirm_sign_up(
+        await asyncio.to_thread(client.confirm_sign_up,
             ClientId=settings.cognito_client_id,
             SecretHash=get_secret_hash(username),
             Username=username,
@@ -87,29 +107,26 @@ async def confirm_user(username: str, code: str):
         )
         return {"status": "success"}
     except ClientError as e:
-        error_message = e.response.get("Error", {}).get(
-            "Message", "Could not confirm please try again later!"
-        )
-        return {"error": error_message}
+       _handle_cognito_error(e)
 
 
-async def logout_user(access_token: str):
+async def logout_user(access_token: str) -> dict[str, str]:
     """
     Invalidates the user's tokens globally in Cognito.
     """
     try:
-        client.global_sign_out(AccessToken=access_token)
+        await asyncio.to_thread(client.global_sign_out, AccessToken=access_token)
         return {"status": "success", "message": "Logged out from all devices"}
     except ClientError as e:
-        return {"error": str(e)}
+        _handle_cognito_error(e)
 
 
-async def revoke_refresh_token(refresh_token: str):
+async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
     """
     Revokes a specific refresh token and its associated access tokens.
     """
     try:
-        client.revoke_token(
+        await asyncio.to_thread(client.revoke_token,
             Token=refresh_token,
             ClientId=settings.cognito_client_id,
             ClientSecret=settings.cognito_client_secret,
@@ -118,4 +135,4 @@ async def revoke_refresh_token(refresh_token: str):
         )
         return {"status": "success", "message": "Refresh token revoked."}
     except ClientError as e:
-        return {"error": str(e)}
+        _handle_cognito_error(e)
