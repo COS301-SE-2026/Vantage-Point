@@ -8,10 +8,10 @@ export default function SignInLoadingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const id = window.setTimeout(() => {
+    const id = globalThis.setTimeout(() => {
       navigate("/dashboard", { replace: true });
     }, LOADING_MS);
-    return () => window.clearTimeout(id);
+    return () => globalThis.clearTimeout(id);
   }, [navigate]);
 
   return (
