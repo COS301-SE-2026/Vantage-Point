@@ -265,25 +265,21 @@ function Logo() {
   );
 }
 
-function Group() {
+function ProfileAvatar() {
   return (
-    <div className="absolute left-[46px] size-[48px] top-[345px]">
+    <div className="relative size-[48px] shrink-0">
       <svg
         className="absolute block inset-0 size-full"
         fill="none"
         preserveAspectRatio="none"
         viewBox="0 0 48 48"
+        aria-hidden
       >
-        <g id="Group 1">
-          <circle
-            cx="24"
-            cy="24"
-            fill="var(--fill-0, #D9D9D9)"
-            id="Ellipse 1"
-            r="24"
-          />
-        </g>
+        <circle cx="24" cy="24" fill="#D9D9D9" r="24" />
       </svg>
+      <span className="absolute inset-0 flex items-center justify-center font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a]">
+        UN
+      </span>
     </div>
   );
 }
@@ -324,18 +320,13 @@ function Frame({
           <button
             type="button"
             onClick={onProfileClick}
-            className="absolute left-[46px] top-[345px] flex cursor-pointer items-center gap-3 rounded-lg border-0 bg-transparent p-0 transition-opacity hover:opacity-80"
+            className="absolute left-[46px] top-[345px] flex cursor-pointer flex-col items-start gap-1 rounded-lg border-0 bg-transparent p-0 transition-opacity hover:opacity-80"
             aria-label="Open profile"
           >
-            <Group />
-            <div className="flex flex-col items-start text-left">
-              <span className="font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a]">
-                UN
-              </span>
-              <span className="font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#737373]">
-                Username
-              </span>
-            </div>
+            <ProfileAvatar />
+            <span className="font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#737373]">
+              Username
+            </span>
           </button>
           <button
             type="button"
@@ -442,10 +433,10 @@ export default function Group1({
             type="button"
             onClick={onDashboardClick}
             className="absolute left-[38px] top-[148px] z-10 h-[47px] w-[272px] cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-left transition-opacity hover:opacity-80"
-            aria-label="Dashboard"
+            aria-label="Matches"
           >
             <span className="absolute left-[20px] top-[10px] font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] text-[#1e1e1e]">
-              Dashboard
+              Matches
             </span>
           </button>
           <div
