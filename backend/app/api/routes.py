@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+from urllib.parse import parse_qs
+
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
 from app.services import auth_service
@@ -339,3 +341,31 @@ async def get_live_player_metrics(
     return await LiveAnalyticsService.get_live_metrics_from_api(
         server_region=server_region, puuid=puuid, count=count
     )
+
+@router.post("/token", include_in_schema=False)
+async def swagger_login(request: Request) -> dict[str, str]:
+    form_data = parse_qs((await request.body()).decode())
+    username = form_data.get("username", [""])[0]
+    password = form_data.get("password", [""])[0]
+
+    if not username or not password:
+        raise HTTPException(
+            status_code=400,
+            detail="Username and password are required",
+        )
+
+    result = await auth_service.login_user(
+        username,
+        password,
+    )
+
+    if "error" in result:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password",
+        )
+
+    return {
+        "access_token": result["IdToken"],
+        "token_type": "bearer",
+    }
