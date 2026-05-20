@@ -4,7 +4,11 @@ from dotenv import load_dotenv
 from app.config import get_settings
 from fastapi import HTTPException
 from typing import Any, Optional
-from app.schemas.riot_schemas import SimplifiedPlayerStats, SimplifiedMatchResponse, SimplifiedTeammate
+from app.schemas.riot_schemas import (
+    SimplifiedPlayerStats,
+    SimplifiedMatchResponse,
+    SimplifiedTeammate,
+)
 
 load_dotenv()
 
@@ -37,7 +41,14 @@ class RiotService:
                 raise HTTPException(
                     status_code=response.status_code, detail="Summoner not found"
                 )
-            return response.json()["puuid"]
+            
+            data = response.json()
+            puuid = data.get("puuid")
+
+            if not isinstance(puuid, str):
+                raise HTTPException(status_code=500, detail="Invalid Riot API Response")
+            
+            return puuid
 
     async def get_summoner_data(self, puuid: str):
         """Gets level and profile icon using the PUUID."""
@@ -47,15 +58,22 @@ class RiotService:
             if response.status_code == 200:
                 return response.json()
             elif response.status_code == 404:
-                raise HTTPException(status_code=404, detail="Summoner data not found for this PUUID.")
+                raise HTTPException(
+                    status_code=404, detail="Summoner data not found for this PUUID."
+                )
             elif response.status_code == 429:
-                raise HTTPException(status_code=429, detail="Rate limit exceeded: Riot is throttling requests.")
+                raise HTTPException(
+                    status_code=429,
+                    detail="Rate limit exceeded: Riot is throttling requests.",
+                )
             elif response.status_code in (401, 403):
-                raise HTTPException(status_code=401, detail="Unauthorized: Check your Riot API Key.")
+                raise HTTPException(
+                    status_code=401, detail="Unauthorized: Check your Riot API Key."
+                )
             else:
                 raise HTTPException(
-                    status_code=response.status_code, 
-                    detail=f"Riot API Error: {response.text}"
+                    status_code=response.status_code,
+                    detail=f"Riot API Error: {response.text}",
                 )
 
     def set_api_key(self, new_key: str):
@@ -66,24 +84,33 @@ class RiotService:
         return {"status": "success", "message": "Service headers updated"}
 
     async def get_match_ids(self, puuid: str, count: int = 5) -> list[str]:
-        #Fetches a list of match IDs for a given PUUID
+        # Fetches a list of match IDs for a given PUUID
         url = f"{self.account_url}/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
 
         if response.status_code == 200:
-            #Explicitly cast to list[str] to prevent Pylance "Unknown" errors
+            # Explicitly cast to list[str] to prevent Pylance "Unknown" errors
             return list(response.json())
         elif response.status_code == 401:
-            raise HTTPException(status_code=401, detail="Unauthorized: Your Riot API Key has expired")
+            raise HTTPException(
+                status_code=401, detail="Unauthorized: Your Riot API Key has expired"
+            )
         elif response.status_code == 429:
-            raise HTTPException(status_code=429, detail="Rate limit exceeded: Riot is throttling requests")
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded: Riot is throttling requests",
+            )
         elif response.status_code == 404:
-            raise HTTPException(status_code=404, detail="Data not found: PUUID has no match history")
+            raise HTTPException(
+                status_code=404, detail="Data not found: PUUID has no match history"
+            )
         else:
-            raise HTTPException(status_code=response.status_code, detail="Failed to fetch match IDs from Riot")
-            
+            raise HTTPException(
+                status_code=response.status_code,
+                detail="Failed to fetch match IDs from Riot",
+            )
 
     async def get_match_detail(self, match_id: str) -> Any:
         """
@@ -97,25 +124,38 @@ class RiotService:
 
             if response.status_code == 200:
                 return response.json()
-            
+
             elif response.status_code == 404:
-                raise HTTPException(status_code=404, detail=f"Match {match_id} not found on Riot servers")
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Match {match_id} not found on Riot servers",
+                )
             elif response.status_code == 429:
-                raise HTTPException(status_code=429, detail="Riot API rate limit exceeded. Try again later.")
+                raise HTTPException(
+                    status_code=429,
+                    detail="Riot API rate limit exceeded. Try again later.",
+                )
             elif response.status_code == 403:
-                raise HTTPException(status_code=403, detail="Riot API key is invalid or expired.")
+                raise HTTPException(
+                    status_code=403, detail="Riot API key is invalid or expired."
+                )
             else:
                 error_text: str = str(response.text)
-                raise HTTPException(status_code=response.status_code, detail=f"Riot API Error: {error_text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Riot API Error: {error_text}",
+                )
+
 
 riot_service = RiotService()
 
+
 def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
     """Converts a raw Riot ParticipantDto into your clean format"""
-    
+
     deaths_safe = max(participant.deaths, 1)
     calculated_kda = round((participant.kills + participant.assists) / deaths_safe, 2)
-    
+
     name = participant.summonerName
     if hasattr(participant, "riotIdGameName") and participant.riotIdGameName:
         name = f"{participant.riotIdGameName}#{participant.riotIdTagline}"
@@ -124,7 +164,7 @@ def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
 
     primary_runes = None
     secondary_runes = None
-    
+
     if hasattr(participant, "perks") and participant.perks.styles:
         for style in participant.perks.styles:
             if style.description == "primaryStyle":
@@ -146,50 +186,57 @@ def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
         penta_kills=participant.pentaKills,
         largest_multikill=participant.largestMultiKill,
         primary_runes=primary_runes,
-        secondary_runes=secondary_runes
+        secondary_runes=secondary_runes,
     )
+
 
 def _format_teammate(p: Any) -> SimplifiedTeammate:
     """Helper function to transform a raw participant into a SimplifiedTeammate."""
     # Handle Riot ID naming combinations
-    t_name = f"{p.riotIdGameName}#{p.riotIdTagline}" if getattr(p, "riotIdGameName", None) else p.summonerName
-    
+    t_name = (
+        f"{p.riotIdGameName}#{p.riotIdTagline}"
+        if getattr(p, "riotIdGameName", None)
+        else p.summonerName
+    )
+
     return SimplifiedTeammate(
         summoner_name=t_name,
-        champion_name=p.championName,  
+        champion_name=p.championName,
         kills=p.kills,
         deaths=p.deaths,
         assists=p.assists,
         kda=round((p.kills + p.assists) / max(p.deaths, 1), 2),
-        role=p.teamPosition if p.teamPosition else "UNKNOWN"
+        role=p.teamPosition if p.teamPosition else "UNKNOWN",
     )
 
-def filter_match_for_players(full_match: Any, target_puuid: str) -> Optional[SimplifiedMatchResponse]:
+
+def filter_match_for_players(
+    full_match: Any, target_puuid: str
+) -> Optional[SimplifiedMatchResponse]:
     # 1. Find the target participant without a standard for-loop
     target_participant = next(
-        (p for p in full_match.info.participants if p.puuid == target_puuid), 
-        None
+        (p for p in full_match.info.participants if p.puuid == target_puuid), None
     )
-    
+
     # Early return guard clause
     if not target_participant:
         return None
-        
+
     target_team_id = target_participant.teamId
-    
+
     # 2. Find if the team won without a standard for-loop
     your_team_won = next(
-        (team.win for team in full_match.info.teams if team.teamId == target_team_id), 
-        False
+        (team.win for team in full_match.info.teams if team.teamId == target_team_id),
+        False,
     )
-    
+
     # 3. Filter and build teammates using a list comprehension + helper function
     teammates = [
         _format_teammate(p)
         for p in full_match.info.participants
         if p.teamId == target_team_id and p.puuid != target_puuid
     ]
-    
+
     return SimplifiedMatchResponse(
         match_id=full_match.metadata.matchId,
         game_mode=full_match.info.gameMode,
@@ -197,6 +244,5 @@ def filter_match_for_players(full_match: Any, target_puuid: str) -> Optional[Sim
         duration_seconds=full_match.info.gameDuration,
         your_team_won=your_team_won,
         your_stats=simplify_participant(target_participant),
-        teammates=teammates
+        teammates=teammates,
     )
-
