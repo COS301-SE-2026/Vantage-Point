@@ -17,6 +17,36 @@ API_KEY = os.getenv("RIOT_API_KEY")
 BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
+def get_macro_region(server_region: str) -> str:
+    """Maps a local Riot server region to its Match-V5 macro-region."""
+    region_map = {
+        # Americas
+        "na1": "americas",
+        "br1": "americas",
+        "la1": "americas",
+        "la2": "americas",
+        
+        # Europe
+        "euw1": "europe",
+        "eun1": "europe",
+        "tr1": "europe",
+        "ru": "europe",
+        
+        # Asia
+        "kr": "asia",
+        "jp1": "asia",
+        
+        # South East Asia
+        "oc1": "sea",
+        "ph2": "sea",
+        "sg2": "sea",
+        "th2": "sea",
+        "tw2": "sea",
+        "vn2": "sea",
+    }
+    
+    # Default to americas if somehow not found
+    return region_map.get(server_region.lower(), "americas")
 
 class RiotService:
     def __init__(self):
@@ -83,9 +113,14 @@ class RiotService:
         self.headers["X-Riot-Token"] = new_key
         return {"status": "success", "message": "Service headers updated"}
 
-    async def get_match_ids(self, puuid: str, count: int = 5) -> list[str]:
+    async def get_match_ids(self, server_region:str,  puuid: str, count: int = 5) -> list[str]:
         # Fetches a list of match IDs for a given PUUID
-        url = f"{self.account_url}/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
+
+        macro_region = get_macro_region(server_region)
+        # Dynamically inject the macro-region into the URL
+        base_url = f"https://{macro_region}.api.riotgames.com"
+        endpoint = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
+        url = base_url + endpoint
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -117,7 +152,9 @@ class RiotService:
         Fetches the complete MatchDto dictionary from Riot's Match-V5 API.
         """
 
-        url = f"https://{self.account_url}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+        server_region = match_id.split("_")[0].lower()
+        macro_region = get_macro_region(server_region)
+        url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -153,38 +190,42 @@ riot_service = RiotService()
 def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
     """Converts a raw Riot ParticipantDto into your clean format"""
 
-    deaths_safe = max(participant.deaths, 1)
-    calculated_kda = round((participant.kills + participant.assists) / deaths_safe, 2)
+    deaths_safe = max(participant["deaths"], 1)
+    calculated_kda = round((participant["kills"] + participant["assists"]) / deaths_safe, 2)
 
-    name = participant.summonerName
-    if hasattr(participant, "riotIdGameName") and participant.riotIdGameName:
-        name = f"{participant.riotIdGameName}#{participant.riotIdTagline}"
+    game_name = participant.get("riotIdGameName")
+    tag_line = participant.get("riotIdTagline")
+    if game_name and tag_line:
+        name = f"{game_name}#{tag_line}"
+    else:
+         name = participant.get("summonerName", "Unknown Summoner")
 
-    assigned_role = participant.teamPosition if participant.teamPosition else "UNKNOWN"
+    assigned_role = participant["teamPosition"] if participant["teamPosition"] else "UNKNOWN"
 
     primary_runes = None
     secondary_runes = None
 
-    if hasattr(participant, "perks") and participant.perks.styles:
-        for style in participant.perks.styles:
-            if style.description == "primaryStyle":
-                primary_runes = [selection.perk for selection in style.selections]
-            elif style.description == "subStyle":
-                secondary_runes = [selection.perk for selection in style.selections]
+    perks = participant.get("perks")
+    if perks and perks.get("style"):
+        for style in perks["styles"]:
+            if style.get("description") == "primaryStyle":
+                primary_runes = [selection["perk"] for selection in style.get("selections", [])]
+            elif style.get("description") == "subStyle":
+                secondary_runes = [selection["perk"] for selection in style.get("selections", [])]
 
     return SimplifiedPlayerStats(
         summoner_name=name,
-        champion_name=participant.championName,
-        kills=participant.kills,
-        deaths=participant.deaths,
-        assists=participant.assists,
+        champion_name=participant["championName"],
+        kills=participant["kills"],
+        deaths=participant["deaths"],
+        assists=participant["assists"],
         kda=calculated_kda,
         role=assigned_role,
-        double_kills=participant.doubleKills,
-        triple_kills=participant.tripleKills,
-        quadra_kills=participant.quadraKills,
-        penta_kills=participant.pentaKills,
-        largest_multikill=participant.largestMultiKill,
+        double_kills=participant["doubleKills"],
+        triple_kills=participant["tripleKills"],
+        quadra_kills=participant["quadraKills"],
+        penta_kills=participant["pentaKills"],
+        largest_multikill=participant["largestMultiKill"],
         primary_runes=primary_runes,
         secondary_runes=secondary_runes,
     )
@@ -196,17 +237,17 @@ def _format_teammate(p: Any) -> SimplifiedTeammate:
     t_name = (
         f"{p.riotIdGameName}#{p.riotIdTagline}"
         if getattr(p, "riotIdGameName", None)
-        else p.summonerName
+        else p["summonerName"]
     )
 
     return SimplifiedTeammate(
         summoner_name=t_name,
-        champion_name=p.championName,
-        kills=p.kills,
-        deaths=p.deaths,
-        assists=p.assists,
-        kda=round((p.kills + p.assists) / max(p.deaths, 1), 2),
-        role=p.teamPosition if p.teamPosition else "UNKNOWN",
+        champion_name=p["championName"],
+        kills=p["kills"],
+        deaths=p["deaths"],
+        assists=p["assists"],
+        kda=round((p["kills"] + p["assists"]) / max(p["deaths"], 1), 2),
+        role=p["teamPosition"] if p["teamPosition"] else "UNKNOWN",
     )
 
 
@@ -215,33 +256,33 @@ def filter_match_for_players(
 ) -> Optional[SimplifiedMatchResponse]:
     # 1. Find the target participant without a standard for-loop
     target_participant = next(
-        (p for p in full_match.info.participants if p.puuid == target_puuid), None
+        (p for p in full_match["info"]["participants"] if p["puuid"] == target_puuid), None
     )
 
     # Early return guard clause
     if not target_participant:
         return None
 
-    target_team_id = target_participant.teamId
+    target_team_id = target_participant["teamId"]
 
     # 2. Find if the team won without a standard for-loop
     your_team_won = next(
-        (team.win for team in full_match.info.teams if team.teamId == target_team_id),
+        (team["win"] for team in full_match["info"]["teams"] if team["teamId"] == target_team_id),
         False,
     )
 
     # 3. Filter and build teammates using a list comprehension + helper function
     teammates = [
         _format_teammate(p)
-        for p in full_match.info.participants
-        if p.teamId == target_team_id and p.puuid != target_puuid
+        for p in full_match["info"]["participants"]
+        if p["teamId"] == target_team_id and p["puuid"] != target_puuid
     ]
 
     return SimplifiedMatchResponse(
-        match_id=full_match.metadata.matchId,
-        game_mode=full_match.info.gameMode,
-        map_id=full_match.info.mapId,
-        duration_seconds=full_match.info.gameDuration,
+        match_id=full_match["metadata"]["matchId"],
+        game_mode=full_match["info"]["gameMode"],
+        map_id=full_match["info"]["mapId"],
+        duration_seconds=full_match["info"]["gameDuration"],
         your_team_won=your_team_won,
         your_stats=simplify_participant(target_participant),
         teammates=teammates,

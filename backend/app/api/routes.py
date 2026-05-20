@@ -285,9 +285,9 @@ async def update_riot_api_key(
     },
 )
 # @public #custom decorator used to bypass cognito for testing
-async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
+async def get_player_matches(server_region: str, puuid: str, count: int = 5) -> list[str]:
     "GET a list of match IDs by player PUUID."
-    match_ids: list[str] = await riot_service.get_match_ids(puuid=puuid, count=count)
+    match_ids: list[str] = await riot_service.get_match_ids(server_region=server_region, puuid=puuid, count=count)
 
     return match_ids
 
