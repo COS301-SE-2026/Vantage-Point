@@ -48,7 +48,11 @@ class Settings(BaseSettings):
     @field_validator("debug", mode="before")
     @classmethod
     def parse_debug(cls, value: Any) -> Any:
-        if isinstance(value, str) and value.lower() in {"release", "prod", "production"}:
+        if isinstance(value, str) and value.lower() in {
+            "release",
+            "prod",
+            "production",
+        }:
             return False
         return value
 

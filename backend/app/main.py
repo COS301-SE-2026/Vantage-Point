@@ -69,6 +69,7 @@ app.include_router(router, prefix="/api")
 
 
 class RootResponse(BaseModel):
+    status: str = Field(..., description="Current backend status")
     message: str = Field(..., description="API status message")
 
 
@@ -88,8 +89,10 @@ class TestResponse(BaseModel):
     description="Returns a simple message confirming that the backend is running.",
     response_model=RootResponse,
 )
-async def root() -> RootResponse:
-    return {"message": "Vantage Point API running"}
+@app.get("/")
+async def get_root() -> RootResponse:
+    # Explicitly call your schema class
+    return RootResponse(status="success", message="Welcome to Vantage Point API")
 
 
 @app.get(
@@ -100,7 +103,7 @@ async def root() -> RootResponse:
     response_model=HealthResponse,
 )
 async def health() -> HealthResponse:
-    return {"status": "Vantage Point Backend running healthy"}
+    return HealthResponse(status="Vantage Point Backend running healthy")
 
 
 @app.post(
