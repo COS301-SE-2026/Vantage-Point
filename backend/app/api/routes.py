@@ -6,19 +6,21 @@ from app.schemas.auth_schemas import (
     UserRegister,
     UserLogin,
     UserConfirm,
+)
+from app.schemas.profile_schemas import (
+    MatchSummary,
+    MessageResponse,
     ProfileResponse,
-    PlayerSummary,
+    RiotKeyUpdateResponse,
 )
 from app.schemas.generic_schemas import ErrorResponse
 from typing import Annotated, Any
-from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 from typing import List
-from sqlalchemy import Integer, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database.models import Champions, Participants, UserProfile
 from app.database.session import get_session
 from app.schemas.riot_schemas import SimplifiedMatchResponse
+from app.services.profile_services import ProfileService
 from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
@@ -118,8 +120,10 @@ async def get_profile(
     """
     Retrieves the authenticated user's profile.
     """
-    profile = await get_or_create_profile(session, current_user)
-    total_matches, summary = await build_player_summary(session, current_user)
+    profile = await ProfileService.get_or_create_profile(session, current_user)
+    total_matches, summary = await ProfileService.build_player_summary(
+        session, current_user
+    )
 
     return ProfileResponse(
         uuid=profile.user_id,
@@ -143,12 +147,9 @@ async def delete_account(
     current_user: Annotated[str, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    deletion_date = datetime.now(timezone.utc) + timedelta(days=30)
-    profile = await get_or_create_profile(session, current_user)
-    profile.deletion_scheduled_at = deletion_date
-    profile.updated_at = datetime.now(timezone.utc)
-    session.add(profile)
-    await session.commit()
+    deletion_date = await ProfileService.schedule_account_deletion(
+        session, current_user
+    )
 
     print(f"--- Notification email sent to user {current_user} ---")
     print("Subject: Account marked for deletion")
@@ -177,12 +178,7 @@ async def undo_delete(
     current_user: Annotated[str, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    profile = await session.get(UserProfile, current_user)
-    if profile and profile.deletion_scheduled_at:
-        profile.deletion_scheduled_at = None
-        profile.updated_at = datetime.now(timezone.utc)
-        session.add(profile)
-        await session.commit()
+    if await ProfileService.undo_account_deletion(session, current_user):
         return {"message": "Account deletion cancelled successfully."}
     raise HTTPException(
         status_code=400,
