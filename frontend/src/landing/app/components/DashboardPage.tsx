@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router";
 import DashboardComponent, {
   type DashboardView,
 } from "../../imports/Group14/Group14";
-import MatchDetailModal from "./MatchDetailModal";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -16,6 +15,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (matchFromUrl) {
       setSelectedMatchId(matchFromUrl);
+    } else {
+      setSelectedMatchId(null);
     }
   }, [matchFromUrl]);
 
@@ -31,17 +32,12 @@ export default function DashboardPage() {
     [setSearchParams]
   );
 
-  const handleModalOpenChange = useCallback(
-    (open: boolean) => {
-      if (!open) {
-        setSelectedMatchId(null);
-        const next = new URLSearchParams(searchParams);
-        next.delete("match");
-        setSearchParams(next, { replace: true });
-      }
-    },
-    [searchParams, setSearchParams]
-  );
+  const handleMatchBack = useCallback(() => {
+    setSelectedMatchId(null);
+    const next = new URLSearchParams(searchParams);
+    next.delete("match");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   return (
     <div className="w-screen h-screen bg-white overflow-auto">
@@ -49,13 +45,10 @@ export default function DashboardPage() {
         activeView={activeView}
         onLogout={handleLogout}
         onMatchSelect={handleMatchSelect}
+        selectedMatchId={selectedMatchId}
+        onMatchBack={handleMatchBack}
         onProfileClick={() => setActiveView("profile")}
         onDashboardClick={() => setActiveView("matches")}
-      />
-      <MatchDetailModal
-        matchId={selectedMatchId}
-        open={selectedMatchId !== null}
-        onOpenChange={handleModalOpenChange}
       />
     </div>
   );
