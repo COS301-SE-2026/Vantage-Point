@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
 from app.services import auth_service
@@ -12,6 +12,7 @@ from app.schemas.profile_schemas import (
     MessageResponse,
     ProfileResponse,
     RiotKeyUpdateResponse,
+    LiveAdvancedMetrics,
 )
 from app.schemas.generic_schemas import ErrorResponse
 from typing import Annotated, Any
@@ -21,11 +22,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.schemas.riot_schemas import SimplifiedMatchResponse
 from app.services.profile_services import ProfileService
+from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
 
 router = APIRouter()
+
 
 #
 @router.post(
@@ -50,7 +53,6 @@ async def register(user: UserRegister):
     tags=["Authentication"],
     summary="Log in a user",
     description="Authenticates a user with Cognito and returns the token payload from AWS.",
-    response_model=dict[str, Any],
     responses={
         401: {"model": ErrorResponse, "description": "Invalid username or password"},
     },
@@ -108,7 +110,6 @@ async def logout(
     tags=["Profile"],
     summary="Get current user profile",
     description="Retrieves the authenticated user's profile and mock gameplay summary.",
-    response_model=ProfileResponse,
     responses={
         401: {"model": ErrorResponse, "description": "Invalid or expired token"},
     },
@@ -289,11 +290,6 @@ async def get_player_matches(
 
 
 @router.get(
-    "/api/mathces/{match_id}/filtered",
-    include_in_schema=False,
-    response_model=SimplifiedMatchResponse,
-)
-@router.get(
     "/riot/matches/{match_id}/filtered",
     tags=["Riot"],
     summary="Get filtered Riot match",
@@ -306,12 +302,7 @@ async def get_player_matches(
         404: {"model": ErrorResponse, "description": "Match or player was not found"},
     },
 )
-async def get_filtered_match(
-    match_id: str,
-    puuid: str = Query(
-        ..., description="The exact PUUID of the player to filter the match data for"
-    ),
-):
+async def get_filtered_match(match_id: str, puuid: str):
     """
     Fetches a full match from Riot's API and shrinks the payload
     down to a lightweight summary for a single player.
@@ -335,3 +326,16 @@ async def get_filtered_match(
         )
 
     return simplified_match
+
+
+@router.get("/{server_region}/{puuid}/live-metrics", tags=["Live Metrics"])
+async def get_live_player_metrics(
+    server_region: str, puuid: str, count: int
+) -> LiveAdvancedMetrics:
+    """
+    Asynchronously reaches out to Riot's server architecture to evaluate a player's last N matches.
+    Computes precise performance indexes including KDA, Vision, GPM, DPM, CS/Min, and KP% on the fly.
+    """
+    return await LiveAnalyticsService.get_live_metrics_from_api(
+        server_region=server_region, puuid=puuid, count=count
+    )
