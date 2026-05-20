@@ -1,13 +1,18 @@
 import { useState, type CSSProperties } from "react";
-import { ArrowUpDown, Filter, LogOut } from "lucide-react";
+import { ArrowUpDown, Filter } from "lucide-react";
 import MatchDetailView from "../../app/components/MatchDetailView";
 import MatchesListView from "../../app/components/MatchesListView";
 import ProfileView from "../../app/components/ProfileView";
+import UserAccountMenu from "../../app/components/UserAccountMenu";
 import svgPaths from "./svg-a7h301bhtl";
 import imgRectangle2 from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
 
 /** Fixed artboard width used by this screen (px). */
 const DASHBOARD_FRAME_W = 1512;
+const SEARCH_WIDTH = 377;
+const TOOLBAR_GAP = 16;
+const TOOLBAR_ICON_SIZE = 40;
+const TOOLBAR_ICON_GAP = 8;
 
 export type DashboardView = "matches" | "profile";
 
@@ -22,9 +27,7 @@ interface Group1Props {
 }
 
 interface FrameProps {
-  readonly onLogout?: () => void;
   readonly sidebarOpen: boolean;
-  readonly onProfileClick?: () => void;
 }
 
 function Logo() {
@@ -41,30 +44,7 @@ function Logo() {
   );
 }
 
-function ProfileAvatar() {
-  return (
-    <div className="relative size-[48px] shrink-0">
-      <svg
-        className="absolute block inset-0 size-full"
-        fill="none"
-        preserveAspectRatio="none"
-        viewBox="0 0 48 48"
-        aria-hidden
-      >
-        <circle cx="24" cy="24" fill="#D9D9D9" r="24" />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a]">
-        UN
-      </span>
-    </div>
-  );
-}
-
-function Frame({
-  onLogout,
-  sidebarOpen,
-  onProfileClick,
-}: Readonly<FrameProps>) {
+function Frame({ sidebarOpen }: Readonly<FrameProps>) {
   return (
     <div
       className="absolute bg-white h-[982px] left-0 overflow-clip top-0 w-[1512px]"
@@ -92,32 +72,6 @@ function Frame({
               className="absolute border-3 border-[#fdfdfd] border-solid inset-[-3px] pointer-events-none rounded-[13px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
             />
           </div>
-          <button
-            type="button"
-            onClick={onProfileClick}
-            className="absolute left-[46px] top-[345px] flex cursor-pointer flex-col items-start gap-1 rounded-lg border-0 bg-transparent p-0 transition-opacity hover:opacity-80"
-            aria-label="Open profile"
-          >
-            <ProfileAvatar />
-            <span className="font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#737373]">
-              Username
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="absolute left-[232px] top-[427px] flex cursor-pointer items-center gap-2 rounded-md py-0.5 transition-opacity hover:opacity-80"
-            data-name="Logout Button"
-          >
-            <LogOut
-              className="size-[18px] shrink-0 text-[#525252]"
-              strokeWidth={2}
-              aria-hidden
-            />
-            <span className="whitespace-nowrap font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a]">
-              Logout
-            </span>
-          </button>
         </div>
       ) : null}
       <p className="absolute left-[128px] top-[36px] whitespace-nowrap font-sarina text-[clamp(18px,1.6vw,24px)] leading-normal not-italic text-black">{`Vantage Point `}</p>
@@ -148,9 +102,9 @@ export default function Group1({
   const showMatchList = showMatches && selectedMatchId === null;
   const searchLeft = sidebarOpen
     ? 912
-    : Math.round((DASHBOARD_FRAME_W - 377) / 2);
-  const filterLeft = 1336;
-  const sortLeft = 1394;
+    : Math.round((DASHBOARD_FRAME_W - SEARCH_WIDTH) / 2);
+  const filterLeft = searchLeft + SEARCH_WIDTH + TOOLBAR_GAP;
+  const sortLeft = filterLeft + TOOLBAR_ICON_SIZE + TOOLBAR_ICON_GAP;
 
   const panelVars = {
     "--transform-inner-width": "1200",
@@ -159,11 +113,13 @@ export default function Group1({
 
   return (
     <div className="relative size-full">
-      <Frame
-        onLogout={onLogout}
-        sidebarOpen={sidebarOpen}
-        onProfileClick={onProfileClick}
-      />
+      <Frame sidebarOpen={sidebarOpen} />
+      <div className="absolute right-6 top-[29px] z-20">
+        <UserAccountMenu
+          onProfileClick={onProfileClick}
+          onLogout={onLogout}
+        />
+      </div>
       {activeView === "profile" ? (
         <ProfileView sidebarOpen={sidebarOpen} />
       ) : null}
@@ -236,7 +192,7 @@ export default function Group1({
         <>
           <div
             className="absolute top-[29px] min-w-[120px] w-[377px] rounded-[9999px] bg-white transition-[left] duration-300 ease-out"
-            style={{ left: searchLeft }}
+            style={{ left: searchLeft, width: SEARCH_WIDTH }}
             data-name="Search"
           >
             <label
@@ -278,7 +234,7 @@ export default function Group1({
             </label>
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+              className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9]"
             />
           </div>
           <button
