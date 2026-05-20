@@ -13,7 +13,7 @@ from typing import Annotated
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import List
-from app.schemas import SimplifiedMatchResponse
+from app.schemas.riot_schemas import SimplifiedMatchResponse
 from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
@@ -165,7 +165,7 @@ async def update_riot_api_key(
 # ======================================================
 
 @router.get("/riot/matches/{puuid}", response_model=List[str])
-@public #custom decorator used to bypass cognito for testing
+#@public #custom decorator used to bypass cognito for testing
 async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
     "GET a list of match IDs by player PUUID."
     match_ids: list[str] = await riot_service.get_match_ids(puuid=puuid, count=count)
@@ -174,8 +174,8 @@ async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
 
 router = APIRouter(tags=["Matches"])
 
-@router.get("/api/mathces/{match_id}/filtered", response_model=SimplifiedMatchResponse):
-@public 
+@router.get("/api/mathces/{match_id}/filtered", response_model=SimplifiedMatchResponse)
+#@public
 async def get_filtered_match(match_id: str, puuid: str = Query(..., description="The exact PUUID of the player to filter the match data for")):
     """
     Fetches a full match from Riot's API and shrinks the payload 

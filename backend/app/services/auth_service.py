@@ -6,8 +6,9 @@ import asyncio
 from fastapi import HTTPException
 from app.config import get_settings
 from botocore.exceptions import ClientError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NoReturn
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
+from collections.abc import Mapping
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
@@ -38,9 +39,9 @@ def log_registration(username: str, email: str):
     with open("registrations.txt", "a") as f:
         f.write(f"User: {username} | Email: {email} | Status: REGISTERED\n")
 
-def _handle_cognito_error(e: ClientError) -> None:
+def _handle_cognito_error(e: ClientError) -> NoReturn:
     """Helper to extract Cognito errors and raise a standardized HTTP exception."""
-    error_code = e.response.get("Error", {}).gte("Code", "UnknownError")
+    error_code = e.response.get("Error", {}).get("Code", "UnknownError")
     error_message = e.response.get("Error", {}).get("Message", str(e))
     
     # Map common Cognito errors to appropriate HTTP status codes
@@ -52,7 +53,7 @@ def _handle_cognito_error(e: ClientError) -> None:
         
     raise HTTPException(status_code=status_code, detail=error_message)
 
-async def register_user(username: str, password: str, email: str) -> dict[str, Any]:
+async def register_user(username: str, password: str, email: str) -> Mapping[str, Any]:
     try:
         response = await asyncio.to_thread(
             client.sign_up,
@@ -79,7 +80,7 @@ async def register_user(username: str, password: str, email: str) -> dict[str, A
         _handle_cognito_error(e)
 
 
-async def login_user(username: str, password: str) -> dict[str, str]:
+async def login_user(username: str, password: str) ->Mapping[str, Any]:
     try:
         response = await asyncio.to_thread (client.initiate_auth,
             ClientId=settings.cognito_client_id,
