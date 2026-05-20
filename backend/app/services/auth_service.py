@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn
-from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from collections.abc import Mapping
 
 if TYPE_CHECKING:
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
 settings = get_settings()
 
 # Initialize the Cognito Client
-client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
+client: "CognitoIdentityProviderClient" = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 
 
 def get_secret_hash(username: str):

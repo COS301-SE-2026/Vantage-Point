@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 from typing import Any, Dict
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import create_async_engine
 from dotenv import load_dotenv
 
@@ -26,7 +27,14 @@ load_dotenv()
 # limiter = Limiter(key_func=get_remote_address)
 
 settings = get_settings()
-app = FastAPI(title="Vantage Point Backend")
+app = FastAPI(
+    title="Vantage Point Backend",
+    description=(
+        "API for authentication, profile management, Riot match data, and spatial "
+        "intelligence features."
+    ),
+    version="0.1.0",
+)
 
 # Get the URL from the docker-compose environment variable
 # points to the db service not localhost hopfully, this should only work inside the container.
@@ -60,17 +68,48 @@ app.add_middleware(ProcessTimeMiddleware)
 app.include_router(router, prefix="/api")
 
 
-@app.get("/")
-async def root():
+class RootResponse(BaseModel):
+    message: str = Field(..., description="API status message")
+
+
+class HealthResponse(BaseModel):
+    status: str = Field(..., description="Current backend health status")
+
+
+class TestResponse(BaseModel):
+    received: Dict[str, Any]
+    message: str
+
+
+@app.get(
+    "/",
+    tags=["System"],
+    summary="API root",
+    description="Returns a simple message confirming that the backend is running.",
+    response_model=RootResponse,
+)
+async def root() -> RootResponse:
     return {"message": "Vantage Point API running"}
 
 
-@app.get("/health")
-async def health():
+@app.get(
+    "/health",
+    tags=["System"],
+    summary="Health check",
+    description="Reports whether the backend service is healthy.",
+    response_model=HealthResponse,
+)
+async def health() -> HealthResponse:
     return {"status": "Vantage Point Backend running healthy"}
 
 
-@app.post("/api/test")
+@app.post(
+    "/api/test",
+    tags=["System"],
+    summary="Echo test payload",
+    description="Accepts any JSON object and echoes it back for quick API testing.",
+    response_model=TestResponse,
+)
 async def test_endpoint(data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"Test endpoint called with data: {data}")
     return {"received": data, "message": "Test successful"}
