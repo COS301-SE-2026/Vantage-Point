@@ -33,3 +33,13 @@ class ProfileResponse(BaseModel):
     username: str
     total_matches: int
     player_summary: PlayerSummary
+
+class LiveAdvancedMetrics(BaseModel):
+    games_analyzed: int
+    avg_kda: str
+    avg_vision_score: float
+    avg_kill_participation_pct: float
+    avg_cs_per_minute: float
+    avg_damage_per_minute: float
+    avg_gold_per_minute: float
+    win_rate: str

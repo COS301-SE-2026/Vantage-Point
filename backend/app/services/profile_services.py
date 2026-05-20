@@ -6,6 +6,7 @@ from sqlmodel import col
 
 from app.database.models import Champions, Participants, UserProfile
 from app.schemas.profile_schemas import PlayerSummary
+from app.services import riot_service
 
 
 class ProfileService:
@@ -116,3 +117,85 @@ class ProfileService:
         session.add(profile)
         await session.commit()
         return True
+
+
+    @staticmethod
+    async def get_live_metrics_from_api(puuid: str, count: int = 10) -> LiveAdvancedMetrics:
+    match_ids = await riot_service.get_match_ids(puuid, count=count)
+
+    if not match_ids:
+        return LiveAdvancedMetrics(
+            games_analyzed=0, 
+            avg_kda="0.0 / 0.0 / 0.0", 
+            avg_vision_score=0.0,
+            avg_kill_participation_pct=0.0, 
+            avg_cs_per_minute=0.0,
+            avg_damage_per_minute=0.0, 
+            avg_gold_per_minute=0.0, 
+            win_rate="0%"
+        )
+    
+    tasks = [riot_service.get_match_details(match_id) for match_id in match_ids]
+    matches_data = await asyncio.gather(*tasks)
+
+    total_kills, total_deaths, total_assists, total_wins = 0, 0, 0, 0
+    total_vision, total_damage, total_gold, total_cs = 0, 0, 0, 0
+    total_team_kills = 0
+    total_duration_minutes = 0.0
+
+    games_analyzed = len(matches_data)
+
+    # Everything below this line must stay indented inside the loop
+    for match in matches_data:
+        info = match.get("info", {})
+        duration_seconds = info.get("gameDuration", 1)
+
+        if duration_seconds > 10000:
+            duration_seconds = duration_seconds / 1000
+
+        game_minutes = duration_seconds / 60.0
+        total_duration_minutes += game_minutes
+
+        participants = info.get("participants", [])
+
+        user_team_id = next((p["teamId"] for p in participants if p["puuid"] == puuid), None)
+
+        if user_team_id:
+            team_kills = sum(p["kills"] for p in participants if p["teamId"] == user_team_id)
+            total_team_kills += team_kills
+
+        for p in participants:
+            if p["puuid"] == puuid:
+                total_kills += p.get("kills", 0)      # Fixed typo here
+                total_deaths += p.get("deaths", 0)
+                total_assists += p.get("assists", 0)
+                total_vision += p.get("visionScore", 0)   
+                total_damage += p.get("totalDamageDealtToChampions", 0)
+                total_gold += p.get("goldEarned", 0)                
+
+                total_cs += (p.get("totalMinionsKilled", 0) + p.get("neutralMinionsKilled", 0))
+                    
+                if p.get("win"):
+                    total_wins += 1
+                break # Stop iterating participants once we find our user
+    
+    # End of loop processing
+    if total_duration_minutes == 0: 
+        total_duration_minutes = 1.0
+
+    kp_pct = 0.0 # Fixed comparison typo here
+    if total_team_kills > 0:
+        kp_pct = ((total_kills + total_assists) / total_team_kills) * 100
+
+    avg_deaths = total_deaths / games_analyzed
+
+    return LiveAdvancedMetrics(
+        games_analyzed=games_analyzed,
+        avg_kda=f"{total_kills/games_analyzed:.1f} / {avg_deaths:.1f} / {total_assists/games_analyzed:.1f}",
+        avg_vision_score=round(total_vision / games_analyzed, 1),
+        avg_kill_participation_pct=round(kp_pct, 1),
+        avg_cs_per_minute=round(total_cs / total_duration_minutes, 1),
+        avg_damage_per_minute=round(total_damage / total_duration_minutes, 1),
+        avg_gold_per_minute=round(total_gold / total_duration_minutes, 1),
+        win_rate=f"{round((total_wins / games_analyzed) * 100)}%"
+    )
