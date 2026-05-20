@@ -8,7 +8,32 @@ import svgPaths from "./svg-a7h301bhtl";
 import imgRectangle2 from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
 
 /** Fixed artboard width used by this screen (px). */
-const DASHBOARD_FRAME_W = 1512;
+export const DASHBOARD_FRAME_W = 1512;
+export const DASHBOARD_FRAME_H = 982;
+export const DASHBOARD_SIDEBAR_LEFT = 28;
+export const DASHBOARD_SIDEBAR_WIDTH = 220;
+export const DASHBOARD_SIDEBAR_TOP = 94;
+export const DASHBOARD_CONTENT_GAP = 51;
+export const DASHBOARD_NAV_INSET = 10;
+export const DASHBOARD_TOGGLE_OFFSET = 12;
+
+/** Panel height: wraps nav items with padding; not full viewport. */
+export const DASHBOARD_SIDEBAR_HEIGHT = 400;
+
+export const DASHBOARD_CONTENT_LEFT_OPEN =
+  DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_CONTENT_GAP;
+
+export const DASHBOARD_CONTENT_WIDTH_OPEN =
+  DASHBOARD_FRAME_W - DASHBOARD_CONTENT_LEFT_OPEN;
+
+export const DASHBOARD_NAV_WIDTH =
+  DASHBOARD_SIDEBAR_WIDTH - DASHBOARD_NAV_INSET * 2;
+
+export const DASHBOARD_NAV_LEFT = DASHBOARD_SIDEBAR_LEFT + DASHBOARD_NAV_INSET;
+
+export const DASHBOARD_TOGGLE_LEFT_OPEN =
+  DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_TOGGLE_OFFSET;
+
 const SEARCH_WIDTH = 377;
 const TOOLBAR_GAP = 16;
 const TOOLBAR_ICON_SIZE = 40;
@@ -53,23 +78,52 @@ function Frame({ sidebarOpen }: Readonly<FrameProps>) {
       <Logo />
       {sidebarOpen ? (
         <div id="dashboard-sidebar" className="contents">
-          <div className="absolute bg-[rgba(117,117,117,0.12)] h-[366px] left-[28px] rounded-[15px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] top-[94px] w-[293px]" />
-          <div className="absolute bg-white h-[47px] left-[38px] rounded-[10px] top-[148px] w-[272px]">
+          <div
+            className="absolute rounded-[15px] bg-[rgba(117,117,117,0.12)]"
+            style={{
+              left: DASHBOARD_SIDEBAR_LEFT,
+              top: DASHBOARD_SIDEBAR_TOP,
+              width: DASHBOARD_SIDEBAR_WIDTH,
+              height: DASHBOARD_SIDEBAR_HEIGHT,
+            }}
+          />
+          <div
+            className="absolute h-[47px] rounded-[10px] bg-white"
+            style={{
+              left: DASHBOARD_NAV_LEFT,
+              top: 148,
+              width: DASHBOARD_NAV_WIDTH,
+            }}
+          >
             <div
               aria-hidden="true"
-              className="absolute border-3 border-solid border-white inset-[-3px] pointer-events-none rounded-[13px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+              className="pointer-events-none absolute inset-[-3px] rounded-[13px] border-3 border-solid border-white"
             />
           </div>
-          <div className="absolute bg-white h-[47px] left-[39px] rounded-[10px] top-[213px] w-[272px]">
+          <div
+            className="absolute h-[47px] rounded-[10px] bg-white"
+            style={{
+              left: DASHBOARD_NAV_LEFT,
+              top: 213,
+              width: DASHBOARD_NAV_WIDTH,
+            }}
+          >
             <div
               aria-hidden="true"
-              className="absolute border-3 border-[#fdfdfd] border-solid inset-[-3px] pointer-events-none rounded-[13px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+              className="pointer-events-none absolute inset-[-3px] rounded-[13px] border-3 border-solid border-[#fdfdfd]"
             />
           </div>
-          <div className="absolute bg-white h-[47px] left-[40px] rounded-[10px] top-[278px] w-[273px]">
+          <div
+            className="absolute h-[47px] rounded-[10px] bg-white"
+            style={{
+              left: DASHBOARD_NAV_LEFT,
+              top: 278,
+              width: DASHBOARD_NAV_WIDTH,
+            }}
+          >
             <div
               aria-hidden="true"
-              className="absolute border-3 border-[#fdfdfd] border-solid inset-[-3px] pointer-events-none rounded-[13px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+              className="pointer-events-none absolute inset-[-3px] rounded-[13px] border-3 border-solid border-[#fdfdfd]"
             />
           </div>
         </div>
@@ -79,7 +133,10 @@ function Frame({ sidebarOpen }: Readonly<FrameProps>) {
         className="absolute top-[94px] h-[840px] bg-white transition-[left,width] duration-300 ease-out"
         style={
           sidebarOpen
-            ? { left: 372, width: 1091 }
+            ? {
+                left: DASHBOARD_CONTENT_LEFT_OPEN,
+                width: DASHBOARD_CONTENT_WIDTH_OPEN,
+              }
             : { left: 0, width: DASHBOARD_FRAME_W }
         }
       />
@@ -131,8 +188,11 @@ export default function Group1({
         aria-label={
           sidebarOpen ? "Collapse navigation panel" : "Expand navigation panel"
         }
-        className="absolute top-[94px] flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-neutral-100"
-        style={{ left: sidebarOpen ? 330 : 44, ...panelVars }}
+        className="absolute top-[94px] z-30 flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-neutral-100"
+        style={{
+          left: sidebarOpen ? DASHBOARD_TOGGLE_LEFT_OPEN : 44,
+          ...panelVars,
+        }}
       >
         <div
           className={`flex-none transition-transform duration-300 ease-out ${sidebarOpen ? "rotate-90" : "-rotate-90"}`}
@@ -163,26 +223,38 @@ export default function Group1({
           <button
             type="button"
             onClick={onDashboardClick}
-            className="absolute left-[38px] top-[148px] z-10 h-[47px] w-[272px] cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-left transition-opacity hover:opacity-80"
+            className="absolute top-[148px] z-10 h-[47px] cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-left transition-opacity hover:opacity-80"
+            style={{
+              left: DASHBOARD_NAV_LEFT,
+              width: DASHBOARD_NAV_WIDTH,
+            }}
             aria-label="Matches"
           >
-            <span className="absolute left-[20px] top-[10px] font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] text-[#1e1e1e]">
+            <span className="absolute left-[20px] top-[12px] font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] text-[#1e1e1e]">
               Matches
             </span>
           </button>
           <div
-            className="absolute left-[58px] top-[224px] flex w-[233px] content-stretch items-start pointer-events-none"
+            className="absolute top-[224px] flex content-stretch items-start pointer-events-none"
+            style={{
+              left: DASHBOARD_NAV_LEFT + 20,
+              width: DASHBOARD_NAV_WIDTH - 20,
+            }}
             data-name="Text"
           >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
+            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
               Analysis
             </p>
           </div>
           <div
-            className="absolute left-[58px] top-[286px] flex w-[233px] content-stretch items-start pointer-events-none"
+            className="absolute top-[286px] flex content-stretch items-start pointer-events-none"
+            style={{
+              left: DASHBOARD_NAV_LEFT + 20,
+              width: DASHBOARD_NAV_WIDTH - 20,
+            }}
             data-name="Text"
           >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
+            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
               Metrics
             </p>
           </div>

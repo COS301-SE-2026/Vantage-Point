@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import {
+  DASHBOARD_CONTENT_LEFT_OPEN,
+  DASHBOARD_CONTENT_WIDTH_OPEN,
+  DASHBOARD_FRAME_W,
+} from "../../imports/Group14/Group14";
+import {
   MOCK_MATCH_HISTORY_BY_DAY,
   type DashboardMatchListItem,
   type MatchHistoryDayRow,
@@ -166,8 +171,8 @@ export default function MatchesListView({
   sidebarOpen = true,
   onMatchSelect,
 }: Readonly<MatchesListViewProps>) {
-  const contentLeft = sidebarOpen ? 372 : 0;
-  const contentWidth = sidebarOpen ? 1091 : 1512;
+  const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
+  const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
 
   return (
     <div

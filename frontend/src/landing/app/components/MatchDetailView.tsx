@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { fetchMatchDetail } from "../api/match";
 import {
+  DASHBOARD_CONTENT_LEFT_OPEN,
+  DASHBOARD_CONTENT_WIDTH_OPEN,
+  DASHBOARD_FRAME_W,
+} from "../../imports/Group14/Group14";
+import {
   championIconUrl,
   itemIconUrl,
   summonerSpellIconUrl,
@@ -267,8 +272,8 @@ export default function MatchDetailView({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const contentLeft = sidebarOpen ? 372 : 0;
-  const contentWidth = sidebarOpen ? 1091 : 1512;
+  const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
+  const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
 
   useEffect(() => {
     if (!matchId) {
