@@ -11,37 +11,19 @@ from app.schemas.auth_schemas import (
 )
 from app.schemas.generic_schemas import ErrorResponse
 from typing import Annotated, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 from typing import List
+from sqlalchemy import Integer, cast, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database.models import Champions, Participants, UserProfile
+from app.database.session import get_session
 from app.schemas.riot_schemas import SimplifiedMatchResponse
 from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
 
 router = APIRouter()
-deletion_queue: dict[str, datetime] = {}
-
-
-class MessageResponse(BaseModel):
-    message: str = Field(..., description="Human-readable operation result")
-
-
-class MatchSummary(BaseModel):
-    match_id: str
-    map: str
-    game_mode: str
-    duration: str
-    status: str
-    kda: str
-    champion: str
-
-
-class RiotKeyUpdateResponse(BaseModel):
-    message: str
-    user: str
-    status: str
-
 
 #
 @router.post(
@@ -131,21 +113,18 @@ async def logout(
 )
 async def get_profile(
     current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> ProfileResponse:
     """
     Retrieves the authenticated user's profile.
     """
-    summary = PlayerSummary(
-        most_played_character="Jinx",
-        common_mistakes=["Low vision score", "Overextending late game"],
-        avg_kda="8.4 / 4.2 / 6.1",
-        win_rate="54%",
-    )
+    profile = await get_or_create_profile(session, current_user)
+    total_matches, summary = await build_player_summary(session, current_user)
 
     return ProfileResponse(
-        uuid="b0fc69dc-40a1-704a-5302-a6c936519de9",
-        username=current_user,
-        total_matches=142,
+        uuid=profile.user_id,
+        username=profile.username,
+        total_matches=total_matches,
         player_summary=summary,
     )
 
@@ -160,9 +139,16 @@ async def get_profile(
         401: {"model": ErrorResponse, "description": "Invalid or expired token"},
     },
 )
-async def delete_account(current_user: Annotated[str, Depends(get_current_user)]):
-    deletion_date = datetime.now() + timedelta(days=30)
-    deletion_queue[current_user] = deletion_date
+async def delete_account(
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
+    deletion_date = datetime.now(timezone.utc) + timedelta(days=30)
+    profile = await get_or_create_profile(session, current_user)
+    profile.deletion_scheduled_at = deletion_date
+    profile.updated_at = datetime.now(timezone.utc)
+    session.add(profile)
+    await session.commit()
 
     print(f"--- Notification email sent to user {current_user} ---")
     print("Subject: Account marked for deletion")
@@ -187,11 +173,21 @@ async def delete_account(current_user: Annotated[str, Depends(get_current_user)]
         401: {"model": ErrorResponse, "description": "Invalid or expired token"},
     },
 )
-async def undo_delete(current_user: Annotated[str, Depends(get_current_user)]):
-    if current_user in deletion_queue:
-        del deletion_queue[current_user]
+async def undo_delete(
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
+    profile = await session.get(UserProfile, current_user)
+    if profile and profile.deletion_scheduled_at:
+        profile.deletion_scheduled_at = None
+        profile.updated_at = datetime.now(timezone.utc)
+        session.add(profile)
+        await session.commit()
         return {"message": "Account deletion cancelled successfully."}
-    raise HTTPException(status_code=400, detail="Account is not marked for deletion.")
+    raise HTTPException(
+        status_code=400,
+        detail={"error_code": 4002, "message": "Account is not marked for deletion."},
+    )
 
 
 @router.get(

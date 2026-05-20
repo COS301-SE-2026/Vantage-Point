@@ -1,11 +1,9 @@
-import os
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from typing import Any, Dict
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
@@ -17,6 +15,7 @@ from dotenv import load_dotenv
 from app.config import get_settings
 from app.api.routes import router
 from app.api.middleware import ProcessTimeMiddleware
+from app.database.session import init_db
 from app.schemas.generic_schemas import get_error_reason
 
 load_dotenv()
@@ -40,18 +39,6 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Get the URL from the docker-compose environment variable
-# points to the db service not localhost hopfully, this should only work inside the container.
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    print(
-        "DATABASE_URL not set. Using default local Postgres URL for development/ Testing."
-    )
-    DATABASE_URL = (
-        "postgresql+asyncpg://postgres:password@localhost:5432/vantage_point_db"
-    )
-engine = create_async_engine(DATABASE_URL)
-
 # app.state.limiter = limiter
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
@@ -70,6 +57,14 @@ app.add_middleware(
 app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(router, prefix="/api")
+
+
+@app.on_event("startup")
+async def startup() -> None:
+    try:
+        await init_db()
+    except Exception as exc:
+        print(f"Database initialization skipped: {exc}")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:

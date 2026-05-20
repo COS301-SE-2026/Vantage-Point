@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -6,6 +7,14 @@ from sqlmodel import SQLModel, Field, Relationship
 # I also added some comments to explain the purpose of each table and field.
 # Let me know if you have any questions or want me to change anything!
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
+
+#added for profile
+class UserProfile(SQLModel, table=True):
+    user_id: str = Field(primary_key=True)
+    username: str
+    deletion_scheduled_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # Champions
