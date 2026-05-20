@@ -195,8 +195,14 @@ def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
 
     game_name = participant.get("riotIdGameName")
     tag_line = participant.get("riotIdTagline")
+    fallback_name = participant.get("summonerName")
+
     if game_name and tag_line:
         name = f"{game_name}#{tag_line}"
+    elif game_name:
+        name = game_name
+    elif fallback_name and fallback_name.strip():
+        name = fallback_name
     else:
          name = participant.get("summonerName", "Unknown Summoner")
 
@@ -234,11 +240,18 @@ def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
 def _format_teammate(p: Any) -> SimplifiedTeammate:
     """Helper function to transform a raw participant into a SimplifiedTeammate."""
     # Handle Riot ID naming combinations
-    t_name = (
-        f"{p.riotIdGameName}#{p.riotIdTagline}"
-        if getattr(p, "riotIdGameName", None)
-        else p["summonerName"]
-    )
+    game_name = p.get("riotIdGameName")
+    tag_line = p.get("riotIdTagline")
+    fallback_name = p.get("summonerName")
+
+    if game_name and tag_line:
+        t_name = f"{game_name}#{tag_line}"
+    elif game_name:
+        t_name = game_name
+    elif fallback_name and fallback_name.strip():
+        t_name = fallback_name
+    else:
+        t_name = f"Teammate ({p.get('championName', 'Unknown')})"
 
     return SimplifiedTeammate(
         summoner_name=t_name,
