@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { fetchMatchDetail } from "../api/match";
 import {
   championIconUrl,
@@ -10,18 +11,11 @@ import type {
   ParticipantDetail,
   TeamDetail,
 } from "../types/match";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
 
-interface MatchDetailModalProps {
-  readonly matchId: string | null;
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
+interface MatchDetailViewProps {
+  readonly matchId: string;
+  readonly sidebarOpen?: boolean;
+  readonly onBack: () => void;
   readonly viewerPuuid?: string;
 }
 
@@ -263,18 +257,21 @@ function BansRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
   );
 }
 
-export default function MatchDetailModal({
+export default function MatchDetailView({
   matchId,
-  open,
-  onOpenChange,
+  sidebarOpen = true,
+  onBack,
   viewerPuuid,
-}: Readonly<MatchDetailModalProps>) {
+}: Readonly<MatchDetailViewProps>) {
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const contentLeft = sidebarOpen ? 372 : 0;
+  const contentWidth = sidebarOpen ? 1091 : 1512;
+
   useEffect(() => {
-    if (!open || !matchId) {
+    if (!matchId) {
       setMatch(null);
       setError(null);
       return;
@@ -305,7 +302,7 @@ export default function MatchDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [open, matchId, viewerPuuid]);
+  }, [matchId, viewerPuuid]);
 
   const viewer = match ? viewerParticipant(match, viewerPuuid) : undefined;
   const resultLabel = viewer
@@ -321,18 +318,30 @@ export default function MatchDetailModal({
   const redTeam = match?.teams.find((t) => t.team_id === 200);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-h-[90vh] overflow-y-auto sm:max-w-4xl font-['Inter',sans-serif] bg-white border-[#d9d9d9] text-[#1e1e1e] p-0 gap-0"
-        aria-describedby={match ? "match-detail-desc" : undefined}
-      >
-        <div className="p-6 pb-4 border-b border-[#eee] sticky top-0 bg-white z-10">
-          <DialogHeader className="text-left gap-1">
+    <div
+      className="absolute top-[94px] font-['Inter',sans-serif] transition-[left,width] duration-300 ease-out"
+      style={{ left: contentLeft, width: contentWidth, height: 840 }}
+      data-name="match-detail-view"
+    >
+      <div className="relative h-full overflow-auto px-10 py-6">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Back to matches"
+          className="mb-6 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] transition-opacity hover:opacity-80"
+        >
+          <ArrowLeft className="size-5 shrink-0" strokeWidth={2} aria-hidden />
+          <span className="font-['Inter:Regular',sans-serif] text-[14px] font-normal text-[#1e1e1e]">
+            Back to matches
+          </span>
+        </button>
+
+        <header className="mb-6 border-b border-[#eee] pb-4">
             {loading && (
-              <DialogTitle className="text-[#1e1e1e]">Loading match…</DialogTitle>
+              <h1 className="text-[#1e1e1e] text-xl font-semibold">Loading match…</h1>
             )}
             {error && (
-              <DialogTitle className="text-[#c44a4a]">{error}</DialogTitle>
+              <h1 className="text-[#c44a4a] text-xl font-semibold">{error}</h1>
             )}
             {match && viewer && (
               <>
@@ -343,18 +352,18 @@ export default function MatchDetailModal({
                     className="size-12 rounded"
                   />
                   <div>
-                    <DialogTitle
+                    <h1
                       className={`text-2xl font-semibold ${resultClass}`}
                     >
                       {resultLabel}
-                    </DialogTitle>
-                    <DialogDescription
+                    </h1>
+                    <p
                       id="match-detail-desc"
                       className="text-[#757575] text-sm"
                     >
                       {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
                       {viewer.assists} KDA
-                    </DialogDescription>
+                    </p>
                   </div>
                 </div>
                 <p className="text-sm text-[#757575] mt-2 flex flex-wrap gap-x-3 gap-y-1">
@@ -371,12 +380,11 @@ export default function MatchDetailModal({
               </>
             )}
             {match && !viewer && (
-              <DialogTitle className="text-[#1e1e1e]">Match details</DialogTitle>
+              <h1 className="text-[#1e1e1e] text-xl font-semibold">Match details</h1>
             )}
-          </DialogHeader>
-        </div>
+        </header>
 
-        <div className="p-6 pt-4 flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
           {loading && <LoadingSkeleton />}
           {error && !loading && (
             <p className="text-sm text-[#757575]">
@@ -390,21 +398,21 @@ export default function MatchDetailModal({
                 <TeamScoreboard team={redTeam} sideLabel="Red Team" />
               </div>
               <section>
-                <h4 className="text-sm font-semibold text-[#1e1e1e] mb-3">
+                <h2 className="text-sm font-semibold text-[#1e1e1e] mb-3">
                   Objectives
-                </h4>
+                </h2>
                 <ObjectivesRow teams={match.teams} />
               </section>
               <section>
-                <h4 className="text-sm font-semibold text-[#1e1e1e] mb-3">
+                <h2 className="text-sm font-semibold text-[#1e1e1e] mb-3">
                   Bans
-                </h4>
+                </h2>
                 <BansRow teams={match.teams} />
               </section>
             </>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
