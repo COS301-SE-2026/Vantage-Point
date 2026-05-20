@@ -8,10 +8,13 @@ from sqlmodel import SQLModel, Field, Relationship
 # Let me know if you have any questions or want me to change anything!
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
 
-#added for profile
+
+# added for profile
 class UserProfile(SQLModel, table=True):
     user_id: str = Field(primary_key=True)
     username: str
+    riot_puuid: Optional[str] = Field(default=None, foreign_key="summoners.puuid")
+
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -26,6 +29,7 @@ class Champions(SQLModel, table=True):
     tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
 
     participants: List["Participants"] = Relationship(back_populates="champion")
+    summoner: Optional["Summoners"] = Relationship()
 
 
 # Summoners

@@ -34,6 +34,7 @@ class ProfileResponse(BaseModel):
     total_matches: int
     player_summary: PlayerSummary
 
+
 class LiveAdvancedMetrics(BaseModel):
     games_analyzed: int
     avg_kda: str
