@@ -29,6 +29,7 @@ class Summoners(SQLModel, table=True):
     game_name: str
     tag_line: str  # the part after '#' in Riot ID, e.g. "EUW" in "Player#EUW"
     summoner_level: int
+    profile_icon_id: int
 
     participations: List["Participants"] = Relationship(back_populates="summoner")
 
@@ -45,6 +46,7 @@ class Matches(SQLModel, table=True):
     game_version: str  # Patch the game was played on, e.g. "13.12" - this is important for tracking balance changes and how they affect champion performance over time.
     game_duration: int  # in seconds;
     queue_id: int
+    game_creation: int
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -59,6 +61,7 @@ class Participants(SQLModel, table=True):
     match_id: str = Field(foreign_key="matches.match_id")
     puuid: str = Field(foreign_key="summoners.puuid")
     champion_id: int = Field(foreign_key="champions.champion_id")
+    team_id: int
 
     win: bool
     kills: int
