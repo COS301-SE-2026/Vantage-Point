@@ -1,9 +1,12 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from typing import Any, Dict
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import create_async_engine
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
 # from typing import List, Optional
@@ -14,6 +17,7 @@ from dotenv import load_dotenv
 from app.config import get_settings
 from app.api.routes import router
 from app.api.middleware import ProcessTimeMiddleware
+from app.schemas.generic_schemas import get_error_reason
 
 load_dotenv()
 
@@ -68,6 +72,44 @@ app.add_middleware(ProcessTimeMiddleware)
 app.include_router(router, prefix="/api")
 
 
+def error_response(status_code: int, detail: Any) -> dict[str, Any]:
+    return {
+        "status": "error",
+        "error_number": status_code,
+        "reason": get_error_reason(status_code),
+        "detail": detail,
+    }
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=error_response(exc.status_code, exc.detail),
+        headers=exc.headers,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=400,
+        content=error_response(400, exc.errors()),
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content=error_response(500, "Unexpected server error"),
+    )
+
+
 class RootResponse(BaseModel):
     status: str = Field(..., description="Current backend status")
     message: str = Field(..., description="API status message")
@@ -87,9 +129,7 @@ class TestResponse(BaseModel):
     tags=["System"],
     summary="API root",
     description="Returns a simple message confirming that the backend is running.",
-    response_model=RootResponse,
 )
-@app.get("/")
 async def get_root() -> RootResponse:
     # Explicitly call your schema class
     return RootResponse(status="success", message="Welcome to Vantage Point API")
@@ -100,7 +140,6 @@ async def get_root() -> RootResponse:
     tags=["System"],
     summary="Health check",
     description="Reports whether the backend service is healthy.",
-    response_model=HealthResponse,
 )
 async def health() -> HealthResponse:
     return HealthResponse(status="Vantage Point Backend running healthy")
