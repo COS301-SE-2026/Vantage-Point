@@ -30,6 +30,17 @@ Have a `backend/.env` before running the backend. This file is gitignored so not
 DATABASE_URL=postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
 RIOT_API_KEY=your_key_here
 ```
+
+### Dev Container environment variables (`.devcontainer/.env`)
+
+To avoid hardcoding database credentials in the Docker Compose file (required for SonarQube security compliance), create a `.env` file inside the `.devcontainer/` folder:
+
+```bash
+# .devcontainer/.env
+POSTGRES_USER=riot_user
+POSTGRES_PASSWORD=riot_password
+POSTGRES_DB=riot_db
+```
  
 `DATABASE_URL` is also injected by Docker Compose so the app starts correctly even without `.env` inside the container. The `.env` file is needed for running scripts like `test_db.py` directly.
  
@@ -49,15 +60,16 @@ Note the host is `db`, not `localhost` — that's the service name from `docker-
 
 
 ### Schema and ER Diagram
-| Table | Primary Key | Notes |
-|---|---|---|
-| `champions` | `champion_id` (int) | Matches Riot's own champion ID |
-| `summoners` | `puuid` (str) | Riot's global player identifier, stable across name changes |
-| `matches` | `match_id` (str) | Format: `EUW1_XXXXXXXXX` |
-| `participants` | `internal_id` (int, auto) | Join table — links a summoner, match, and champion together |
+| Table                | Primary Key           | Notes |
+|----------------------|-----------------------|-------|
+| `users`              | `cognito_sub` (str)   | Cognito `sub` claim; stores email, no password |
+| `game_accounts`      | `puuid` (str)         | Riot's global player ID, stable across name changes |
+| `user_game_accounts` | `id` (int, auto)      | Join table allowing a user to link multiple game accounts |
+| `matches`            | `match_id` (str)      | Riot match ID, e.g. `EUW1_1234567890` |
+| `champions`          | `champion_id` (int)   | Matches Riot's own champion ID |
+| `participants`       | `internal_id` (int, auto) | Links a game account, match, and champion; stores per‑match stats |
  
-`participants` holds foreign keys to all three other tables, so all three must have a matching row before a participant can be inserted.
-
+`participants` holds foreign keys to `matches`, `game_accounts`, and `champions`. All three must have a matching row before a participant can be inserted. A player's in‑game stats (kills, deaths, etc.) are stored directly in this table, while the user's real‑world identity is linked indirectly via `game_accounts` → `user_game_accounts` → `users`.
 ### Starting the backend (creates tables on first run)
  
 ```bash
@@ -100,12 +112,23 @@ Then list tables:
 Expected output:
  
 ```
- Schema |     Name     | Type  |   Owner
---------+--------------+-------+-----------
- public | champions    | table | riot_user
- public | matches      | table | riot_user
- public | participants | table | riot_user
- public | summoners    | table | riot_user
+ Schema |        Name        | Type  |   Owner   
+--------+--------------------+-------+-----------
+ public | champions          | table | riot_user
+ public | game_accounts      | table | riot_user
+ public | matches            | table | riot_user
+ public | participants       | table | riot_user
+ public | user_game_accounts | table | riot_user
+ public | users              | table | riot_user
+```
+## Seeding the Database with Champion Data
+
+The database starts empty. To populate the `champions` table with real Riot IDs and static stats from the dataset, run the seed script **manually**:
+
+```bash
+cd /workspaces/backend
+
+python -m app.database.seed
 ```
 
 ## Visualising the Schema
