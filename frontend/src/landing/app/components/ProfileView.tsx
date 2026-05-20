@@ -3,6 +3,11 @@ import { getAchievementIcon } from "../lib/achievementIcons";
 import { championIconUrl } from "../lib/ddragon";
 import { getMockPlayerProfile } from "../mocks/playerProfile";
 import type { PlayerProfile } from "../types/profile";
+import {
+  DASHBOARD_CONTENT_LEFT_OPEN,
+  DASHBOARD_CONTENT_WIDTH_OPEN,
+  DASHBOARD_FRAME_W,
+} from "../../imports/Group14/Group14";
 import FeaturedGameCard from "./FeaturedGameCard";
 import ProfileRadarChart from "./ProfileRadarChart";
 
@@ -20,8 +25,8 @@ export default function ProfileView({
   const featured =
     profile.featured_games[featuredIndex] ?? profile.featured_games[0];
 
-  const contentLeft = sidebarOpen ? 372 : 0;
-  const contentWidth = sidebarOpen ? 1091 : 1512;
+  const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
+  const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
 
   return (
     <div
