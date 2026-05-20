@@ -20,10 +20,8 @@ export default function ProfileView({
   profile = getMockPlayerProfile(),
   sidebarOpen = true,
 }: Readonly<ProfileViewProps>) {
-  const [featuredIndex, setFeaturedIndex] = useState(0);
   const [cardExpanded, setCardExpanded] = useState(true);
-  const featured =
-    profile.featured_games[featuredIndex] ?? profile.featured_games[0];
+  const featured = profile.featured_games[0];
 
   const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
   const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
@@ -35,7 +33,7 @@ export default function ProfileView({
       data-name="profile-view"
     >
       <div className="relative h-full overflow-auto px-10 py-8">
-        <header className="mb-8 flex items-center gap-6">
+        <header className="flex items-center gap-6">
           <div
             className="flex size-[96px] shrink-0 items-center justify-center rounded-full bg-[#404040] font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white"
             aria-hidden
@@ -49,65 +47,44 @@ export default function ProfileView({
             <p className="mt-1 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
               {profile.riot_id_tag}
             </p>
-            <p className="mt-2 font-['Inter:Regular',sans-serif] text-[12px] text-[#a3a3a3]">
-              Last {profile.matches_sampled} matches (Match-v5)
-            </p>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(305px,520px)]">
-          <section aria-label="Performance radar">
-            <ProfileRadarChart metrics={profile.radar_metrics} />
-            <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1">
-              {profile.radar_metrics.map((m) => (
-                <li
-                  key={m.key}
-                  className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575]"
-                >
-                  <span className="text-[#1e1e1e]">{m.label}</span>: {m.rawLabel}
-                </li>
-              ))}
-            </ul>
-          </section>
+        <div className="mt-14">
+          <p className="mb-6 font-['Inter:Semi_Bold',sans-serif] text-[16px] font-semibold text-[#525252]">
+            Last {profile.matches_sampled} matches
+          </p>
 
-          {featured ? (
-            <section
-              aria-label="Featured game"
-              className="flex min-h-[314px] flex-col items-end"
-            >
-              <div className="transition-[width] duration-300 ease-out">
-                <FeaturedGameCard
-                  slide={featured}
-                  expanded={cardExpanded}
-                  onToggle={() => setCardExpanded((open) => !open)}
-                />
-              </div>
-              {profile.featured_games.length > 1 ? (
-                <div
-                  className="mt-4 flex justify-center gap-2"
-                  role="tablist"
-                  aria-label="Featured games"
-                >
-                  {profile.featured_games.map((_, i) => (
-                    <button
-                      key={`featured-dot-${i}`}
-                      type="button"
-                      role="tab"
-                      aria-selected={i === featuredIndex}
-                      aria-label={`Game ${i + 1}`}
-                      onClick={() => {
-                        setFeaturedIndex(i);
-                        setCardExpanded(true);
-                      }}
-                      className={`size-2 rounded-full transition-colors ${
-                        i === featuredIndex ? "bg-[#1e1e1e]" : "bg-[#d9d9d9]"
-                      }`}
-                    />
-                  ))}
-                </div>
-              ) : null}
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(305px,520px)]">
+            <section aria-label="Performance radar">
+              <ProfileRadarChart metrics={profile.radar_metrics} />
+              <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1">
+                {profile.radar_metrics.map((m) => (
+                  <li
+                    key={m.key}
+                    className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575]"
+                  >
+                    <span className="text-[#1e1e1e]">{m.label}</span>: {m.rawLabel}
+                  </li>
+                ))}
+              </ul>
             </section>
-          ) : null}
+
+            {featured ? (
+              <section
+                aria-label="Featured game"
+                className="flex min-h-[314px] flex-col items-end"
+              >
+                <div className="transition-[width] duration-300 ease-out">
+                  <FeaturedGameCard
+                    slide={featured}
+                    expanded={cardExpanded}
+                    onToggle={() => setCardExpanded((open) => !open)}
+                  />
+                </div>
+              </section>
+            ) : null}
+          </div>
         </div>
 
         <section className="mt-12" aria-label="Recent champions">

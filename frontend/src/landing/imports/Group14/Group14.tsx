@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
-import { ArrowUpDown, Filter } from "lucide-react";
 import MatchDetailView from "../../app/components/MatchDetailView";
+import MatchesListToolbarMenus from "../../app/components/MatchesListToolbarMenus";
 import MatchesListView from "../../app/components/MatchesListView";
 import ProfileView from "../../app/components/ProfileView";
 import UserAccountMenu from "../../app/components/UserAccountMenu";
@@ -309,22 +309,7 @@ export default function Group1({
               className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9]"
             />
           </div>
-          <button
-            type="button"
-            aria-label="Filter matches"
-            className="absolute top-[29px] flex size-[40px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#0a0a0a] transition-[left] duration-300 ease-out hover:bg-neutral-100"
-            style={{ left: filterLeft }}
-          >
-            <Filter className="size-[22px]" strokeWidth={2} aria-hidden />
-          </button>
-          <button
-            type="button"
-            aria-label="Sort matches"
-            className="absolute top-[29px] flex size-[40px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#0a0a0a] transition-[left] duration-300 ease-out hover:bg-neutral-100"
-            style={{ left: sortLeft }}
-          >
-            <ArrowUpDown className="size-[22px]" strokeWidth={2} aria-hidden />
-          </button>
+          <MatchesListToolbarMenus filterLeft={filterLeft} sortLeft={sortLeft} />
           <MatchesListView
             sidebarOpen={sidebarOpen}
             onMatchSelect={onMatchSelect}
