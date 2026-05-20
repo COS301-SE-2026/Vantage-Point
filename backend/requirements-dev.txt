@@ -9,6 +9,12 @@ pytest-asyncio==0.21.1
 # Code Quality
 black==26.3.1
 ruff==0.1.11
+mypy==1.8.0
+
+# Type stubs for third-party libraries
+types-python-jose==3.5.0.20260408
+types-boto3-cognito-idp==1.43.0
+boto3-stubs==1.43.7
 
 # Utilities
 python-dotenv==1.2.2
