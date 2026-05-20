@@ -2,7 +2,21 @@ import {
   leagueWildRiftCard,
   leagueWildRiftCover,
 } from "../assets/profile";
+import { toFeaturedGamePerformanceLabels } from "../lib/profileAggregates";
 import type { PlayerProfile, RadarMetric } from "../types/profile";
+
+/** Primary featured-game performance over matches_sampled (13W / 7L = 65%). */
+const PRIMARY_FEATURED_PERFORMANCE = toFeaturedGamePerformanceLabels({
+  wins: 13,
+  losses: 7,
+  averageKda: 3.8,
+});
+
+const SECONDARY_FEATURED_PERFORMANCE = toFeaturedGamePerformanceLabels({
+  wins: 7,
+  losses: 5,
+  averageKda: 3.2,
+});
 
 /**
  * Mock profile built from Match-v5-shaped aggregates.
@@ -124,6 +138,7 @@ export const MOCK_PLAYER_PROFILE: PlayerProfile = {
       card_image_url: leagueWildRiftCard,
       efficiency_score: 115,
       time_spent_label: "1:04:34:23",
+      ...PRIMARY_FEATURED_PERFORMANCE,
     },
     {
       game_name: "League Of Legends",
@@ -131,6 +146,7 @@ export const MOCK_PLAYER_PROFILE: PlayerProfile = {
       card_image_url: leagueWildRiftCard,
       efficiency_score: 98,
       time_spent_label: "0:42:18:05",
+      ...SECONDARY_FEATURED_PERFORMANCE,
     },
   ],
 };

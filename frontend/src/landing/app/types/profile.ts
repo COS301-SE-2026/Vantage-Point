@@ -42,6 +42,10 @@ export interface FeaturedGameSlide {
   readonly efficiency_score: number;
   /** Total time played formatted D:HH:MM:SS */
   readonly time_spent_label: string;
+  /** Win rate over the profile sample window (e.g. "65% (13W / 7L)"). From participant.win. */
+  readonly win_rate_label: string;
+  /** Average KDA over the sample window (e.g. "3.8 avg"). From kills, deaths, assists. */
+  readonly kda_label: string;
 }
 
 export interface PlayerProfile {
