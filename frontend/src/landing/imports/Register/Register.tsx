@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import svgPaths from "./svg-xwtbp9m57d";
 import {
   landingBackgroundImages,
@@ -214,6 +215,8 @@ function LeftPanelForm({
   showPassword,
   setShowPassword,
 }: ShowPasswordProps) {
+  const navigate = useNavigate();
+
   return (
     <div
       className="absolute left-0 top-0 z-20 box-border flex h-full w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(20px,4vh,40px)]"
@@ -232,6 +235,7 @@ function LeftPanelForm({
         </div>
         <button
           type="button"
+          onClick={() => navigate("/link-riot-id")}
           className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors shrink-0"
         >
           <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
