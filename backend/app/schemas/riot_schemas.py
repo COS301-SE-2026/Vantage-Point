@@ -203,7 +203,8 @@ class RiotMatchListResponse(BaseModel):
     count: int
 
 
-#simplified shcemas
+# simplified shcemas
+
 
 class SimplifiedPlayerStats(BaseModel):
     summoner_name: str
@@ -240,7 +241,7 @@ class SimplifiedPlayerStats(BaseModel):
                 "penta_kills": 0,
                 "largest_multikill": 3,
                 "primary_runes": [8112, 8126, 8138, 8135],
-                "secondary_runes": [8232, 8234]
+                "secondary_runes": [8232, 8234],
             }
         }
 
@@ -253,6 +254,7 @@ class SimplifiedTeammate(BaseModel):
     assists: int
     kda: float
     role: str
+
 
 class SimplifiedMatchResponse(BaseModel):
     match_id: str
@@ -285,7 +287,7 @@ class SimplifiedMatchResponse(BaseModel):
                     "penta_kills": 0,
                     "largest_multikill": 3,
                     "primary_runes": [8112, 8126, 8138, 8135],
-                    "secondary_runes": [8232, 8234]
+                    "secondary_runes": [8232, 8234],
                 },
                 "teammates": [
                     {
@@ -296,9 +298,9 @@ class SimplifiedMatchResponse(BaseModel):
                         "assists": 10,
                         "kda": 3.75,
                         "team_position": "JUNGLE",
-                        "role": "NONE"
+                        "role": "NONE",
                     }
                 ],
-                "your_team_won": True
+                "your_team_won": True,
             }
         }

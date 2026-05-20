@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
-from app.services import auth_service, riot_service
+from app.services import auth_service
 from app.schemas.auth_schemas import (
     UserRegister,
     UserLogin,
@@ -175,7 +175,6 @@ async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
 router = APIRouter(tags=["Matches"])
 
 @router.get("/api/mathces/{match_id}/filtered", response_model=SimplifiedMatchResponse)
-#@public
 async def get_filtered_match(match_id: str, puuid: str = Query(..., description="The exact PUUID of the player to filter the match data for")):
     """
     Fetches a full match from Riot's API and shrinks the payload 
