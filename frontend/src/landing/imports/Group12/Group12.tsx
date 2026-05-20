@@ -69,9 +69,27 @@ function Logo() {
   );
 }
 
+function BackgroundLayer({ currentSlide }: CurrentSlideProps) {
+  return (
+    <div className="absolute inset-0" aria-hidden>
+      {backgroundImages.map((img, index) => (
+        <img
+          key={img}
+          alt=""
+          className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${
+            index === currentSlide ? "opacity-100" : "opacity-0"
+          }`}
+          src={img}
+        />
+      ))}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/55" />
+    </div>
+  );
+}
+
 function Group1() {
   return (
-    <div className="absolute left-0 bottom-[15%] w-full overflow-hidden h-[clamp(40px,5vh,60px)]">
+    <div className="absolute left-0 bottom-[15%] z-10 w-full overflow-hidden h-[clamp(40px,5vh,60px)]">
       <div className="flex gap-[clamp(60px,8vw,120px)] animate-scroll whitespace-nowrap">
         {[0, 1, 2].flatMap((copy) =>
           MARQUEE_ITEMS.map((item) => (
@@ -94,20 +112,7 @@ function LogIn({ currentSlide }: CurrentSlideProps) {
       className="absolute h-full left-0 overflow-clip top-0 w-full"
       data-name="Log In"
     >
-      {backgroundImages.map((img, index) => (
-        <img
-          key={img}
-          alt=""
-          className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-1000 ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
-          }`}
-          src={img}
-        />
-      ))}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-b from-black/35 via-black/10 to-black/55"
-      />
+      <BackgroundLayer currentSlide={currentSlide} />
       <HeroCopy />
       <Logo />
       <Group1 />
@@ -216,7 +221,7 @@ export default function Group() {
     <div className="relative w-full h-full">
       <Register currentSlide={currentSlide} />
       <div
-        className="absolute content-stretch flex flex-col items-start right-[2%] p-[16px] top-[1%] w-[clamp(180px,15vw,220px)]"
+        className="absolute z-20 content-stretch flex flex-col items-start right-[2%] p-[16px] top-[1%] w-[clamp(180px,15vw,220px)]"
         data-name="Dialog Footer"
       >
         <Al />
