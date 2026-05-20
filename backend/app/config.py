@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore[import-not-found]
+from pydantic import field_validator
 from functools import lru_cache
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 class Settings(BaseSettings):
@@ -43,6 +44,13 @@ class Settings(BaseSettings):
 
     # ============ Logging ============
     log_level: str = "INFO"
+
+    @field_validator("debug", mode="before")
+    @classmethod
+    def parse_debug(cls, value: Any) -> Any:
+        if isinstance(value, str) and value.lower() in {"release", "prod", "production"}:
+            return False
+        return value
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"

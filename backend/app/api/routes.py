@@ -9,9 +9,10 @@ from app.schemas.auth_schemas import (
     ProfileResponse,
     PlayerSummary,
 )
-from typing import Annotated
+from app.schemas.generic_schemas import ErrorResponse
+from typing import Annotated, Any
 from datetime import datetime, timedelta
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 from app.schemas.riot_schemas import SimplifiedMatchResponse
 from app.services.riot_service import riot_service, filter_match_for_players
@@ -21,8 +22,38 @@ oauth2_scheme = HTTPBearer()
 router = APIRouter()
 deletion_queue: dict[str, datetime] = {}
 
+
+class MessageResponse(BaseModel):
+    message: str = Field(..., description="Human-readable operation result")
+
+
+class MatchSummary(BaseModel):
+    match_id: str
+    map: str
+    game_mode: str
+    duration: str
+    status: str
+    kda: str
+    champion: str
+
+
+class RiotKeyUpdateResponse(BaseModel):
+    message: str
+    user: str
+    status: str
+
+
 #
-@router.post("/auth/register")
+@router.post(
+    "/auth/register",
+    tags=["Authentication"],
+    summary="Register a new user",
+    description="Creates a new Cognito user account with username, email, and password.",
+    response_model=MessageResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Registration failed"},
+    },
+)
 async def register(user: UserRegister):
     result = await auth_service.register_user(user.username, user.password, user.email)
     if "error" in result:
@@ -30,15 +61,33 @@ async def register(user: UserRegister):
     return {"message": "User registered successfully."}
 
 
-@router.post("/auth/login")
-async def login(user: UserLogin):
+@router.post(
+    "/auth/login",
+    tags=["Authentication"],
+    summary="Log in a user",
+    description="Authenticates a user with Cognito and returns the token payload from AWS.",
+    response_model=dict[str, Any],
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid username or password"},
+    },
+)
+async def login(user: UserLogin) -> dict[str, Any]:
     result = await auth_service.login_user(user.username, user.password)
     if "error" in result:
         raise HTTPException(status_code=401, detail="Invalid username or password")
-    return result
+    return dict(result)
 
 
-@router.post("/auth/confirm")
+@router.post(
+    "/auth/confirm",
+    tags=["Authentication"],
+    summary="Confirm a registered user",
+    description="Confirms a Cognito signup using the verification code sent to the user.",
+    response_model=dict[str, str],
+    responses={
+        401: {"model": ErrorResponse, "description": "Confirmation failed"},
+    },
+)
 async def confirm(data: UserConfirm):
     result = await auth_service.confirm_user(data.username, data.confirmation_code)
     if "error" in result:
@@ -46,13 +95,23 @@ async def confirm(data: UserConfirm):
     return result
 
 
-@router.post("/auth/logout")
+@router.post(
+    "/auth/logout",
+    tags=["Authentication"],
+    summary="Log out the current user",
+    description="Invalidates the authenticated user's Cognito access token globally.",
+    response_model=MessageResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Logout failed"},
+        403: {"model": ErrorResponse, "description": "Missing or invalid bearer token"},
+    },
+)
 async def logout(
     token_data: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ):
     # Extracts the raw string credentials from the FastAPI HTTPBearer object
     # needed for Cognito's global_sign_out
-    #jwt when logout request so use JWT get what user to infer which user logouts
+    # jwt when logout request so use JWT get what user to infer which user logouts
     raw_token = token_data.credentials
     result = await auth_service.logout_user(raw_token)
     if "error" in result:
@@ -60,7 +119,16 @@ async def logout(
     return {"message": "Successfully logged out from all devices."}
 
 
-@router.get("/profile", response_model=ProfileResponse)
+@router.get(
+    "/profile",
+    tags=["Profile"],
+    summary="Get current user profile",
+    description="Retrieves the authenticated user's profile and mock gameplay summary.",
+    response_model=ProfileResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
 async def get_profile(
     current_user: Annotated[str, Depends(get_current_user)],
 ) -> ProfileResponse:
@@ -82,7 +150,16 @@ async def get_profile(
     )
 
 
-@router.delete("/profile")
+@router.delete(
+    "/profile",
+    tags=["Profile"],
+    summary="Schedule account deletion",
+    description="Marks the authenticated account for deletion 30 days from now.",
+    response_model=MessageResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
 async def delete_account(current_user: Annotated[str, Depends(get_current_user)]):
     deletion_date = datetime.now() + timedelta(days=30)
     deletion_queue[current_user] = deletion_date
@@ -96,7 +173,20 @@ async def delete_account(current_user: Annotated[str, Depends(get_current_user)]
     }
 
 
-@router.post("/profile/undo-delete")
+@router.post(
+    "/profile/undo-delete",
+    tags=["Profile"],
+    summary="Undo scheduled account deletion",
+    description="Cancels a pending account deletion for the authenticated user.",
+    response_model=MessageResponse,
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Account is not marked for deletion",
+        },
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
 async def undo_delete(current_user: Annotated[str, Depends(get_current_user)]):
     if current_user in deletion_queue:
         del deletion_queue[current_user]
@@ -104,7 +194,16 @@ async def undo_delete(current_user: Annotated[str, Depends(get_current_user)]):
     raise HTTPException(status_code=400, detail="Account is not marked for deletion.")
 
 
-@router.get("/matches")
+@router.get(
+    "/matches",
+    tags=["Matches"],
+    summary="List recent matches",
+    description="Returns a mock list of recent matches for the authenticated user.",
+    response_model=List[MatchSummary],
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
 async def get_matches(current_user: Annotated[str, Depends(get_current_user)]):
     # Mock list of matches
     return [
@@ -130,10 +229,20 @@ async def get_matches(current_user: Annotated[str, Depends(get_current_user)]):
 
 
 class UpdateAPIKeyRequest(BaseModel):
-    riot_api_key: str
+    riot_api_key: str = Field(..., description="Riot Games developer API key")
 
 
-@router.put("/profile/riot-key")
+@router.put(
+    "/profile/riot-key",
+    tags=["Profile"],
+    summary="Update Riot API key",
+    description="Mock endpoint that validates updating the Riot API key for the current session.",
+    response_model=RiotKeyUpdateResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+        500: {"model": ErrorResponse, "description": "Failed to update API key"},
+    },
+)
 async def update_riot_api_key(
     request: UpdateAPIKeyRequest,
     current_user: Annotated[str, Depends(get_current_user)],
@@ -164,20 +273,51 @@ async def update_riot_api_key(
 # Riot routes
 # ======================================================
 
-@router.get("/riot/matches/{puuid}", response_model=List[str])
-#@public #custom decorator used to bypass cognito for testing
+
+@router.get(
+    "/riot/matches/{puuid}",
+    tags=["Riot"],
+    summary="Get Riot match IDs",
+    description="Fetches recent Riot match IDs for a player PUUID.",
+    response_model=List[str],
+    responses={
+        404: {"model": ErrorResponse, "description": "Player matches were not found"},
+    },
+)
+# @public #custom decorator used to bypass cognito for testing
 async def get_player_matches(puuid: str, count: int = 5) -> list[str]:
     "GET a list of match IDs by player PUUID."
     match_ids: list[str] = await riot_service.get_match_ids(puuid=puuid, count=count)
 
     return match_ids
 
-router = APIRouter(tags=["Matches"])
 
-@router.get("/api/mathces/{match_id}/filtered", response_model=SimplifiedMatchResponse)
-async def get_filtered_match(match_id: str, puuid: str = Query(..., description="The exact PUUID of the player to filter the match data for")):
+@router.get(
+    "/api/mathces/{match_id}/filtered",
+    include_in_schema=False,
+    response_model=SimplifiedMatchResponse,
+)
+@router.get(
+    "/riot/matches/{match_id}/filtered",
+    tags=["Riot"],
+    summary="Get filtered Riot match",
+    description=(
+        "Fetches a full Riot match and returns a lightweight summary for one player "
+        "plus their teammates."
+    ),
+    response_model=SimplifiedMatchResponse,
+    responses={
+        404: {"model": ErrorResponse, "description": "Match or player was not found"},
+    },
+)
+async def get_filtered_match(
+    match_id: str,
+    puuid: str = Query(
+        ..., description="The exact PUUID of the player to filter the match data for"
+    ),
+):
     """
-    Fetches a full match from Riot's API and shrinks the payload 
+    Fetches a full match from Riot's API and shrinks the payload
     down to a lightweight summary for a single player.
     """
 
@@ -185,12 +325,17 @@ async def get_filtered_match(match_id: str, puuid: str = Query(..., description=
         raw_match_data = await riot_service.get_match_detail(match_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Failed to fetch match: {str(e)}")
-    
+
     full_match = raw_match_data
 
-    simplified_match = filter_match_for_players(full_match=full_match, target_puuid=puuid)
+    simplified_match = filter_match_for_players(
+        full_match=full_match, target_puuid=puuid
+    )
 
     if not simplified_match:
-        raise HTTPException(status_code=404, detail=f"Player with PUUID {puuid} was not found in match {match_id}")
-    
+        raise HTTPException(
+            status_code=404,
+            detail=f"Player with PUUID {puuid} was not found in match {match_id}",
+        )
+
     return simplified_match
