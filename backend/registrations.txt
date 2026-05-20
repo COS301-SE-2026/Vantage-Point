@@ -5,3 +5,4 @@ User: Sn1per13 | Email: player@example.com | Status: REGISTERED
 User: Sn1per15 | Email: player@example.com | Status: REGISTERED
 User: Sn1per16 | Email: player@example.com | Status: REGISTERED
 User: Sn1per19 | Email: player@example.com | Status: REGISTERED
+User: Sn1per10 | Email: player@example.com | Status: REGISTERED
