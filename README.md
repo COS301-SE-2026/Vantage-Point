@@ -4,6 +4,12 @@
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
+
+[![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
+[![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
+[![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/COS301-SE-2026/Vantage-Point/branch/main/graph/badge.svg)](https://codecov.io/gh/COS301-SE-2026/Vantage-Point)
+
 ---
 
 ## About
@@ -15,19 +21,19 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 ## The F.R.O.S.N Team
 *Pending team picture*
 
-| Name | Picture | Role |
-|------|---------|------|
-| Fabio Berrino | *Pending picture* | Scrum Master and DevOps Engineer |
-| Shaun Marx | *Pending picture* | Backend Developer |
-| Vele Ndamulelo | *Pending picture* | Frontend Developer |
-| Neo Machaba | *Pending picture* | Database Manager |
-| Ophelia Greyling | *Pending picture* | AI/ML Developer |
+| Name | Picture | Role | Description | LinkedIn |
+|------|---------|------|-------------|----------|
+| Fabio Berrino | *Pending picture* | Scrum Master and DevSecOps Engineer | I am a BSc Information and Knowledge Systems Student Specialising in Software Development. I am Interestred in everything related to technology ranging from software development to DevSecOps and AI/ML. | [LinkedIn](https://www.linkedin.com/in/fabio-b-15357777fa/) |
+| Shaun Marx | *Pending picture* | Backend Developer |  | [LinkedIn](https://linkedin.com/in/shaun-marx) |
+| Vele Ndamulelo | *Pending picture* | Frontend Developer |  | [LinkedIn](https://linkedin.com/in/vele-ndamulelo) |
+| Neo Machaba | *Pending picture* | Database Manager |  | [LinkedIn](https://www.linkedin.com/in/neo-machaba) |
+| Ophelia Greyling | *Pending picture* | AI/ML Developer |  | [LinkedIn](https://linkedin.com/in/ophelia-greyling) |
 
 ## Team Roles
 
 | Role | Responsibility |
 |------|-----------------|
-| **Scrum Master and DevOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration |
+| **Scrum Master and DevSecOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration |
 | **Backend Developer** | API design, ORM setup, ML model integration, FastAPI development, Match-v5 API Integration |
 | **Frontend Developer** | UI/UX design, component architecture, performance optimization, React + D3.js implementation |
 | **Database Manager** | Database schema design, query optimization, data integrity, PostgreSQL management |
@@ -138,6 +144,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 
 ## Documentation
 
+- **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
 - **[Setup Guide](.github/docs/SETUP.md)** - Initial project setup and dependencies
 - **[Backend Development Guide](.github/docs/BACKEND_DEV.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/FRONTEND_DEV.md)** - Frontend setup, components, styling, testing
