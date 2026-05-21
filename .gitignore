@@ -17,6 +17,7 @@ pip-delete-this-directory.txt
 .ruff_cache/
 .mypy_cache/
 .coverage
+frontend/coverage
 .coverage.*
 *.coverage.*
 backend/.coverage
