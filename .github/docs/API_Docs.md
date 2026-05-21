@@ -198,7 +198,7 @@ Response Bidy:
 3 Riot & Match Data Endpoints
 
 3.2 Get Riot Match IDs by PUUID
-Endpoint: Get /api/riot/mathces/{puuid}
+Endpoint: Get /api/riot/matches/{puuid}
 Description: Hits the live Riot API engine to pull historical match ID strings associated with a specific Player UUID.
 Query Params: count(optional, default=5)
 
