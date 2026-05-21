@@ -131,10 +131,27 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Generate coverage badge
+        working-directory: frontend
+        run: |
+          # Extract coverage from vitest report
+          COVERAGE=$(cat coverage/coverage-final.json | python -c "import sys, json; data = json.load(sys.stdin); lines = [v['lines']['pct'] for v in data.values() if 'lines' in v]; avg = sum(lines)/len(lines) if lines else 0; print(f'{avg:.1f}')")
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+
+          # Create badge
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$COVERAGE >= 70" | bc -l) )); then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+
+          curl "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" -o coverage-badge.svg
+
+      - name: Upload coverage badge
+        uses: actions/upload-artifact@v4
         with:
-          files: ./frontend/coverage/coverage-final.json
-          flags: frontend
-          name: frontend-coverage
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: coverage-badge
+          path: frontend/coverage-badge.svg
+          retention-days: 30
