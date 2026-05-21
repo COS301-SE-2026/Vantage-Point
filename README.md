@@ -8,8 +8,6 @@ Transform your gameplay through advanced positioning analysis. Move beyond K/D r
 [![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
 [![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
 [![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
-[![Backend Coverage](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
-[![Frontend Coverage](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
 
 ---
 
