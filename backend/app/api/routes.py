@@ -15,6 +15,8 @@ from app.schemas.profile_schemas import (
     ProfileResponse,
     RiotKeyUpdateResponse,
     LiveAdvancedMetrics,
+    ProfileCreateRequest,
+    ProfileUpdateRequest,
 )
 from app.schemas.generic_schemas import ErrorResponse
 from typing import Annotated, Any
@@ -343,7 +345,14 @@ async def get_live_player_metrics(
     )
 
 
-@router.post("/token", include_in_schema=False)
+@router.post(
+    "/token",
+    include_in_schema=False,
+    responses={
+        400: {"description": "Username and password are required"},
+        401: {"description": "Invalid username or password"},
+    },
+)
 async def swagger_login(request: Request) -> dict[str, str]:
     form_data = parse_qs((await request.body()).decode())
     username = form_data.get("username", [""])[0]
@@ -370,3 +379,75 @@ async def swagger_login(request: Request) -> dict[str, str]:
         "access_token": result["IdToken"],
         "token_type": "bearer",
     }
+
+
+@router.post(
+    "/profile",
+    tags=["Profile"],
+    summary="Create current user profile",
+    include_in_schema=False,
+    description="Creates a profile for the authenticated user.",
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+        409: {"model": ErrorResponse, "description": "Profile already exists"},
+    },
+)
+async def create_profile(
+    request: ProfileCreateRequest,
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ProfileResponse:
+    profile = await ProfileService.create_profile(
+        session=session,
+        user_id=current_user,
+        request=request,
+    )
+
+    total_matches, summary = await ProfileService.build_player_summary(
+        session,
+        current_user,
+    )
+
+    return ProfileResponse(
+        uuid=profile.user_id,
+        username=profile.username,
+        total_matches=total_matches,
+        player_summary=summary,
+    )
+
+
+@router.put(
+    "/profile",
+    tags=["Profile"],
+    summary="Update current user profile",
+    description="Updates the authenticated user's profile.",
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+        404: {
+            "model": ErrorResponse,
+            "description": "Profile or Riot account not found",
+        },
+    },
+)
+async def update_profile(
+    request: ProfileUpdateRequest,
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ProfileResponse:
+    profile = await ProfileService.update_profile(
+        session=session,
+        user_id=current_user,
+        request=request,
+    )
+
+    total_matches, summary = await ProfileService.build_player_summary(
+        session,
+        current_user,
+    )
+
+    return ProfileResponse(
+        uuid=profile.user_id,
+        username=profile.username,
+        total_matches=total_matches,
+        player_summary=summary,
+    )
