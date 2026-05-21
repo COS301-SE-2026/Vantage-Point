@@ -29,7 +29,6 @@ class Champions(SQLModel, table=True):
     tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
 
     participants: List["Participants"] = Relationship(back_populates="champion")
-    summoner: Optional["Summoners"] = Relationship()
 
 
 # Users
