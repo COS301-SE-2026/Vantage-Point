@@ -24,7 +24,6 @@ r2 = r2_score(y_test, y_pred)
 # want lowest possible mse
 # want r2 as close as possible to 1
 
-
 # value going in to function is in format [[decimal]]
 def run_knn(X_val):
     y_out = knn_regressor.predict(X_val)

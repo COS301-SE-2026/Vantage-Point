@@ -21,7 +21,6 @@ from app.database.models import (
 
 # TODO: add more models to this import as we add them to the database. We will need them for testing relationships and constraints.
 
-
 def get_database_url():
     """Return DATABASE_URL that works both inside container and on host."""
     original = os.getenv("DATABASE_URL")
@@ -37,7 +36,6 @@ def get_database_url():
 
     return f"postgresql+asyncpg://riot_user:riot_password@{host}:5432/riot_db"
 
-
 # Setup Connection
 # DATABASE_URL = os.getenv("DATABASE_URL")
 DATABASE_URL = os.getenv(
@@ -45,7 +43,6 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db",
 )
 engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
-
 
 @pytest.mark.asyncio
 async def test_database_logic():
@@ -90,7 +87,6 @@ async def test_database_logic():
         print("--- Test complete ---")
         # TODO: add FK constraint tests (Participants referencing Matches/Summoners/Champions)
         # once the match history fetching logic is in place.
-
 
 if __name__ == "__main__":
     asyncio.run(test_database_logic())

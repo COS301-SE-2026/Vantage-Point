@@ -17,7 +17,6 @@ settings = get_settings()
 # Initialize the Cognito Client
 client: "CognitoIdentityProviderClient" = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 
-
 def get_secret_hash(username: str):
     """
     Cognito requires a keyed-hash to verify the client.
@@ -30,12 +29,10 @@ def get_secret_hash(username: str):
     ).digest()
     return base64.b64encode(dig).decode()
 
-
 def log_registration(username: str, email: str):
     """Writes new user info to a local text file"""
     with open("registrations.txt", "a") as f:
         f.write(f"User: {username} | Email: {email} | Status: REGISTERED\n")
-
 
 def _handle_cognito_error(e: ClientError) -> NoReturn:
     """Helper to extract Cognito errors and raise a standardized HTTP exception."""
@@ -50,7 +47,6 @@ def _handle_cognito_error(e: ClientError) -> NoReturn:
         status_code = 429
 
     raise HTTPException(status_code=status_code, detail=error_message)
-
 
 async def register_user(username: str, password: str, email: str) -> Mapping[str, Any]:
     try:
@@ -78,7 +74,6 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
     except ClientError as e:
         _handle_cognito_error(e)
 
-
 async def login_user(username: str, password: str) -> Mapping[str, Any]:
     try:
         response = await asyncio.to_thread(
@@ -96,7 +91,6 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
     except ClientError as e:
         _handle_cognito_error(e)
 
-
 async def confirm_user(username: str, code: str):
     """Confirm the user using the code sent to their email."""
     try:
@@ -111,7 +105,6 @@ async def confirm_user(username: str, code: str):
     except ClientError as e:
         _handle_cognito_error(e)
 
-
 async def logout_user(access_token: str) -> dict[str, str]:
     """
     Invalidates the user's tokens globally in Cognito.
@@ -121,7 +114,6 @@ async def logout_user(access_token: str) -> dict[str, str]:
         return {"status": "success", "message": "Logged out from all devices"}
     except ClientError as e:
         _handle_cognito_error(e)
-
 
 async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
     """
