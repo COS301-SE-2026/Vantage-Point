@@ -71,6 +71,7 @@ async def login(user: UserLogin) -> dict[str, Any]:
 @router.post(
     "/auth/confirm",
     tags=["Authentication"],
+    include_in_schema=False,
     summary="Confirm a registered user",
     description="Confirms a Cognito signup using the verification code sent to the user.",
     response_model=dict[str, str],
