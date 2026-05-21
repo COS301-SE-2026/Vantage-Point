@@ -4,17 +4,16 @@
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
+
+[![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
+[![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
+[![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
+
 ---
 
 ## About
 
 Vantage Point is a spatial intelligence platform designed for competitive gamers to move beyond traditional surface-level statistics like Kill/Death ratios. By transforming raw coordinate data from real-time matches into actionable insights, it identifies positioning errors and failing engagement patterns to help players visualize and correct their gameplay.
-
----
-
-[![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
-[![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_quality.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_quality.yml)
-[![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
 
 ---
 
