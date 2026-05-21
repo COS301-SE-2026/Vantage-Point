@@ -7,6 +7,7 @@ from sqlmodel import col
 from app.database.models import Champions, Participants, UserProfile
 from app.schemas.profile_schemas import PlayerSummary
 
+
 class ProfileService:
     @staticmethod
     async def get_or_create_profile(session: AsyncSession, user_id: str) -> UserProfile:

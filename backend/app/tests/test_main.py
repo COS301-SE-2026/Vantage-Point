@@ -7,6 +7,7 @@ No database or external API calls required.
 
 from fastapi import status
 
+
 class TestRootEndpoint:
     """Test suite for the root endpoint."""
 
@@ -27,6 +28,7 @@ class TestRootEndpoint:
         data = response.json()
         assert isinstance(data, dict)
         assert len(data) > 0
+
 
 class TestHealthEndpoint:
     """Test suite for the health check endpoint."""
@@ -53,6 +55,7 @@ class TestHealthEndpoint:
         """Test that GET /health returns JSON content type."""
         response = client.get("/health")
         assert response.headers["content-type"] == "application/json"
+
 
 class TestTestEndpoint:
     """Test suite for the test endpoint."""

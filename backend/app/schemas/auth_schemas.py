@@ -4,6 +4,7 @@ from datetime import datetime
 
 # ============ Request Models ============
 
+
 class UserRegister(BaseModel):
     """User registration request"""
 
@@ -24,6 +25,7 @@ class UserRegister(BaseModel):
             }
         }
 
+
 class UserLogin(BaseModel):
     """User login request"""
 
@@ -35,6 +37,7 @@ class UserLogin(BaseModel):
             "example": {"username": "Sn1per1", "password": "securepassword123"}
         }
 
+
 class UserConfirm(BaseModel):
     """Email confirmation request (for 2FA/email verification)"""
 
@@ -43,10 +46,12 @@ class UserConfirm(BaseModel):
         ..., min_length=6, max_length=6, description="6-digit confirmation code"
     )
 
+
 class RefreshTokenRequest(BaseModel):
     """Request new access token using refresh token"""
 
     refresh_token: str = Field(..., description="Refresh token from login")
+
 
 class ChangePasswordRequest(BaseModel):
     """Request to change password"""
@@ -55,7 +60,9 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=8)
     confirm_new_password: str = Field(..., min_length=8)
 
+
 # ============ Response Models ============
+
 
 class UserInfo(BaseModel):
     """User information response"""
@@ -70,6 +77,7 @@ class UserInfo(BaseModel):
     is_verified: bool = False
     created_at: datetime
     last_login: Optional[datetime] = None
+
 
 class TokenResponse(BaseModel):
     """Authentication token response"""
@@ -90,11 +98,13 @@ class TokenResponse(BaseModel):
             }
         }
 
+
 class LoginResponse(BaseModel):
     """Complete login response"""
 
     user: UserInfo
     tokens: TokenResponse
+
 
 class RegisterResponse(BaseModel):
     """Registration response"""
@@ -105,7 +115,9 @@ class RegisterResponse(BaseModel):
     email: str
     requires_verification: bool = True
 
+
 # ============ Token Payload Models ============
+
 
 class AccessTokenPayload(BaseModel):
     """JWT Access Token Payload"""
@@ -116,6 +128,7 @@ class AccessTokenPayload(BaseModel):
     iat: int  # issued at timestamp
     type: str = "access"
 
+
 class RefreshTokenPayload(BaseModel):
     """JWT Refresh Token Payload"""
 
@@ -125,11 +138,13 @@ class RefreshTokenPayload(BaseModel):
     iat: int
     type: str = "refresh"
 
+
 class PlayerSummary(BaseModel):
     most_played_character: str
     common_mistakes: List[str]
     avg_kda: str
     win_rate: str
+
 
 class ProfileResponse(BaseModel):
     uuid: str

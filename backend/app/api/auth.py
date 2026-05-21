@@ -11,6 +11,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 # Cache keys to avoid hitting AWS on every single request
 jwks_cache: dict[str, Any] | None = None
 
+
 async def get_jwks() -> dict[str, Any]:
     global jwks_cache
 
@@ -32,6 +33,7 @@ async def get_jwks() -> dict[str, Any]:
     jwks_cache = jwks
 
     return jwks
+
 
 def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     try:
@@ -61,6 +63,7 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
         detail="Matching public key not found",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
     global jwks_cache

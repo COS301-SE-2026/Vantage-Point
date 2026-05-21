@@ -31,6 +31,7 @@ oauth2_scheme = HTTPBearer()
 
 router = APIRouter()
 
+
 #
 @router.post(
     "/auth/register",
@@ -48,6 +49,7 @@ async def register(user: UserRegister):
         raise HTTPException(status_code=400, detail=result["error"])
     return {"message": "User registered successfully."}
 
+
 @router.post(
     "/auth/login",
     tags=["Authentication"],
@@ -62,6 +64,7 @@ async def login(user: UserLogin) -> dict[str, Any]:
     if "error" in result:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     return dict(result)
+
 
 @router.post(
     "/auth/confirm",
@@ -78,6 +81,7 @@ async def confirm(data: UserConfirm):
     if "error" in result:
         raise HTTPException(status_code=401, detail=result["error"])
     return result
+
 
 @router.post(
     "/auth/logout",
@@ -101,6 +105,7 @@ async def logout(
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return {"message": "Successfully logged out from all devices."}
+
 
 @router.get(
     "/profile",
@@ -130,6 +135,7 @@ async def get_profile(
         player_summary=summary,
     )
 
+
 @router.delete(
     "/profile",
     tags=["Profile"],
@@ -156,6 +162,7 @@ async def delete_account(
         "message": "Account marked for deletion. You have 30 days to undo this action."
     }
 
+
 @router.post(
     "/profile/undo-delete",
     tags=["Profile"],
@@ -180,6 +187,7 @@ async def undo_delete(
         status_code=400,
         detail={"error_code": 4002, "message": "Account is not marked for deletion."},
     )
+
 
 @router.get(
     "/matches",
@@ -214,8 +222,10 @@ async def get_matches(current_user: Annotated[str, Depends(get_current_user)]):
         },
     ]
 
+
 class UpdateAPIKeyRequest(BaseModel):
     riot_api_key: str = Field(..., description="Riot Games developer API key")
+
 
 @router.put(
     "/profile/riot-key",
@@ -253,9 +263,11 @@ async def update_riot_api_key(
         "status": "mock_verified",
     }
 
+
 # =====================================================
 # Riot routes
 # ======================================================
+
 
 @router.get(
     "/riot/matches/{puuid}",
@@ -277,6 +289,7 @@ async def get_player_matches(
     )
 
     return match_ids
+
 
 @router.get(
     "/riot/matches/{match_id}/filtered",
@@ -316,6 +329,7 @@ async def get_filtered_match(match_id: str, puuid: str):
 
     return simplified_match
 
+
 @router.get("/{server_region}/{puuid}/live-metrics", tags=["Live Metrics"])
 async def get_live_player_metrics(
     server_region: str, puuid: str, count: int
@@ -327,6 +341,7 @@ async def get_live_player_metrics(
     return await LiveAnalyticsService.get_live_metrics_from_api(
         server_region=server_region, puuid=puuid, count=count
     )
+
 
 @router.post("/token", include_in_schema=False)
 async def swagger_login(request: Request) -> dict[str, str]:
