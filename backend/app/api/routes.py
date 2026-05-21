@@ -342,6 +342,7 @@ async def get_live_player_metrics(
         server_region=server_region, puuid=puuid, count=count
     )
 
+
 @router.post("/token", include_in_schema=False)
 async def swagger_login(request: Request) -> dict[str, str]:
     form_data = parse_qs((await request.body()).decode())

@@ -11,6 +11,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 # Cache keys to avoid hitting AWS on every single request
 jwks_cache: dict[str, Any] | None = None
 
+
 async def get_jwks() -> dict[str, Any]:
     global jwks_cache
 
@@ -63,6 +64,7 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
     global jwks_cache
     issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
@@ -82,7 +84,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
 
         user_id = payload.get("sub")
         if user_id is None:
-            raise HTTPException(status_code=401, detail="Token missing subject",  headers={"WWW-Authenticate": "Bearer"})
+            raise HTTPException(
+                status_code=401,
+                detail="Token missing subject",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         return str(user_id)  # Return the Cognito User ID
     except JWTError as exc:
