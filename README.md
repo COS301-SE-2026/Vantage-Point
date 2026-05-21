@@ -101,7 +101,7 @@ Vantage-Point/
 │   │   ├── database/         # Database layer, schema + models, seeding scripts and session transaction engine
 │   │   ├── pred_engine/      # Match analytics predictive ML pipeline
 │   │   │   └── knn_model.py  # K-Nearest Neighbors core model logic
-│   │   ├── schemas/          # Pydantic data validation and payload definitions; Geospatial query payload parsing
+│   │   ├── schemas/          # Used in Services
 │   │   ├── services/         # Decoupled business logic & provider layer
 │   │   ├── tests/            # Unit & Integration Tests; Automated backend testing logic (Pytest)
 │   │   ├── utils/            # Helper functions and rate-limiting scripts
