@@ -21,3 +21,4 @@ python-dotenv==1.2.2
 
 joblib==1.4.2
 python-jose[cryptography]==3.5.0
+mypy-boto3-cognito-idp==1.43.0
