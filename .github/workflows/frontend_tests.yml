@@ -130,30 +130,3 @@ jobs:
           path: frontend/dist/
           retention-days: 7
           if-no-files-found: ignore
-
-  # ============================================================================
-  # SUMMARY
-  # ============================================================================
-  summary:
-    name: Results Summary
-    runs-on: ubuntu-latest
-    needs: [security, quality, test, build]
-    if: always()
-
-    steps:
-      - name: Test results
-        run: |
-          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Security Scan | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Quality | ${{ needs.quality.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Unit Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
-
-      - name: Fail if any job failed
-        if: |
-          needs.security.result == 'failure' ||
-          needs.quality.result == 'failure' ||
-          needs.test.result == 'failure' ||
-          needs.build.result == 'failure'
-        run: exit 1
