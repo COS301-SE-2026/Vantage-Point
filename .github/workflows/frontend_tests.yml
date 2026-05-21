@@ -132,13 +132,11 @@ jobs:
           if-no-files-found: ignore
 
       - name: Generate coverage badge
+        working-directory: frontend
         run: |
-          cd frontend
-          # Extract coverage from vitest report
           COVERAGE=$(cat coverage/coverage-final.json | python -c "import sys, json; data = json.load(sys.stdin); lines = [v['lines']['pct'] for v in data.values() if 'lines' in v]; avg = sum(lines)/len(lines) if lines else 0; print(f'{avg:.1f}')")
           echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
 
-          # Create badge
           if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
             COLOR="green"
           elif (( $(echo "$COVERAGE >= 70" | bc -l) )); then
