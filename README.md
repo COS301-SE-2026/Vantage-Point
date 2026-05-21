@@ -22,21 +22,21 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 
 | Name | Picture | Role | Description | LinkedIn |
 |------|---------|------|-------------|----------|
-| Fabio Berrino | *Pending picture* | Scrum Master and DevSecOps Engineer | I am a BSc Information and Knowledge Systems Student Specialising in Software Development. I am Interestred in everything related to technology ranging from software development to DevSecOps and AI/ML. | [LinkedIn](https://www.linkedin.com/in/fabio-b-15357777fa/) |
-| Shaun Marx | *Pending picture* | Backend Developer |  | [LinkedIn](https://linkedin.com/in/shaun-marx) |
-| Vele Ndamulelo | *Pending picture* | Frontend Developer |  | [LinkedIn](https://linkedin.com/in/vele-ndamulelo) |
-| Neo Machaba | *Pending picture* | Database Manager |  | [LinkedIn](https://www.linkedin.com/in/neo-machaba) |
-| Ophelia Greyling | *Pending picture* | AI/ML Developer |  | [LinkedIn](https://linkedin.com/in/ophelia-greyling) |
+| Fabio Berrino | ![Fabio](.github/images/Fabio.jpg) | Scrum Master and DevSecOps Engineer | I am a BSc Information and Knowledge Systems Student Specialising in Software Development. I am Interestred in everything related to technology ranging from software development to DevSecOps and AI/ML. | [LinkedIn](https://www.linkedin.com/in/fabio-b-15357777fa/) |
+| Ophelia Greyling | ![Ophelia](.github/images/Ophelia.jpeg) | Data Analyst and AI/ML Engineer |  | [LinkedIn](https://www.linkedin.com/in/zanri-greyling-031636271/) |
+| Vele Ndamulelo | ![Vele](.github/images/Vele.jpg) | Designer and Frontend Developer |  | [LinkedIn](https://www.linkedin.com/in/vele-ndamulelo-3a3085372/) |
+| Neo Machaba | ![Neo](.github/images/Neo.jpg) | Database Manager |  | [LinkedIn](https://www.linkedin.com/in/neo-machaba) |
+| Shaun Marx | ![Shaun](.github/images/Shaun.jpg) | API and Backend Developer |  | [LinkedIn](https://www.linkedin.com/in/shaun-marx-07bbb63b6/) |
 
 ## Team Roles
 
 | Role | Responsibility |
 |------|-----------------|
-| **Scrum Master and DevSecOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration |
-| **Backend Developer** | API design, ORM setup, ML model integration, FastAPI development, Match-v5 API Integration |
-| **Frontend Developer** | UI/UX design, component architecture, performance optimization, React + D3.js implementation |
+| **Scrum Master and DevSecOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration and Vulnerability scanning |
+| **API and Backend Developer** | API design, ORM setup, ML model integration, FastAPI development and Match-v5 API Integration |
+| **Designer and Frontend Developer** | UI/UX design, component architecture, performance optimization, React + D3.js implementation |
 | **Database Manager** | Database schema design, query optimization, data integrity, PostgreSQL management |
-| **AI/ML Developer** | Machine learning model development, data science pipeline, model training and optimization |
+| **Data Analysis and AI/ML Engineer** | Machine learning model development, data science pipeline, model training and optimization |
 
 ---
 
