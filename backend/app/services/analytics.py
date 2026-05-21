@@ -5,7 +5,6 @@ from app.services.riot_service import riot_service
 
 
 class LiveAnalyticsService:
-
     @staticmethod
     def _empty_live_metrics() -> LiveAdvancedMetrics:
         return LiveAdvancedMetrics(
