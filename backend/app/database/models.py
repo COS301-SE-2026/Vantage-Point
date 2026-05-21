@@ -8,6 +8,7 @@ from sqlmodel import SQLModel, Field, Relationship
 # Let me know if you have any questions or want me to change anything!
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
 
+
 # added for profile
 class UserProfile(SQLModel, table=True):
     user_id: str = Field(primary_key=True)
@@ -17,6 +18,7 @@ class UserProfile(SQLModel, table=True):
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
@@ -29,6 +31,7 @@ class Champions(SQLModel, table=True):
     participants: List["Participants"] = Relationship(back_populates="champion")
     summoner: Optional["Summoners"] = Relationship()
 
+
 # Users
 # Represents a registered Vantage Point account.
 # We don't store passwords — Cognito owns that.
@@ -40,6 +43,7 @@ class Users(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
+
 
 # GameAccounts
 # THIS IS A PLAYER ACCOUNT.
@@ -58,6 +62,7 @@ class GameAccounts(SQLModel, table=True):
     linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
     participations: List["Participants"] = Relationship(back_populates="game_account")
 
+
 # UserGameAccounts
 # Join table: tracks which game accounts a user has linked to their account.
 # A user can track many game accounts, and a game account can be tracked by many users.
@@ -70,6 +75,7 @@ class UserGameAccounts(SQLModel, table=True):
 
     user: "Users" = Relationship(back_populates="linked_game_accounts")
     game_account: "GameAccounts" = Relationship(back_populates="linked_users")
+
 
 # Matches
 # 1 row per match
@@ -86,6 +92,7 @@ class Matches(SQLModel, table=True):
     game_creation: int
 
     participants: List["Participants"] = Relationship(back_populates="match")
+
 
 # Participants
 # This is the "join table" that connects Summoners, Matches, and Champions.

@@ -15,13 +15,16 @@ ERROR_REASONS: dict[int, str] = {
     504: "Gateway timeout",
 }
 
+
 def get_error_reason(status_code: int) -> str:
     return ERROR_REASONS.get(status_code, "Unexpected error")
+
 
 class APIResponse(BaseModel):
     status: str = "success"
     message: Optional[str] = None
     data: Optional[Any] = None
+
 
 class ErrorResponse(BaseModel):
     status: str = Field(default="error", description="Error response status")

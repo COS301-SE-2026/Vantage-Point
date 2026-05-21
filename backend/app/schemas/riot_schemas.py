@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 # ============ Account API ============
 
+
 class RiotAccountResponse(BaseModel):
     """Response from Riot Account API (by-riot-id)"""
 
@@ -19,7 +20,9 @@ class RiotAccountResponse(BaseModel):
             }
         }
 
+
 # ============ Summoner API (Legacy) ============
+
 
 class SummonerResponse(BaseModel):
     """Response from Summoner API"""
@@ -32,13 +35,16 @@ class SummonerResponse(BaseModel):
     revisionDate: int
     summonerLevel: int
 
+
 # ============ Match API ============
+
 
 class ParticipantPerks(BaseModel):
     """Perks/Runes for a participant"""
 
     statPerks: Dict[str, int]
     styles: List[Dict[str, Any]]
+
 
 class MatchParticipant(BaseModel):
     """Complete participant data from match"""
@@ -117,11 +123,13 @@ class MatchParticipant(BaseModel):
     # Challenge stats
     challenges: Optional[Dict[str, Any]] = None
 
+
 class TeamObjective(BaseModel):
     """Team objective stats"""
 
     first: bool
     kills: int
+
 
 class TeamObjectives(BaseModel):
     """All team objectives"""
@@ -134,11 +142,13 @@ class TeamObjectives(BaseModel):
     champion: Optional[TeamObjective] = None
     horde: Optional[TeamObjective] = None
 
+
 class TeamBan(BaseModel):
     """Champion bans"""
 
     championId: int
     pickTurn: int
+
 
 class Team(BaseModel):
     """Team data"""
@@ -147,6 +157,7 @@ class Team(BaseModel):
     win: bool
     bans: List[TeamBan]
     objectives: TeamObjectives
+
 
 class MatchInfo(BaseModel):
     """Match info section"""
@@ -168,6 +179,7 @@ class MatchInfo(BaseModel):
     participants: List[MatchParticipant]
     teams: List[Team]
 
+
 class MatchMetadata(BaseModel):
     """Match metadata"""
 
@@ -175,11 +187,13 @@ class MatchMetadata(BaseModel):
     matchId: str
     participants: List[str]  # List of PUUIDs
 
+
 class RiotMatchResponse(BaseModel):
     """Complete Riot match response"""
 
     metadata: MatchMetadata
     info: MatchInfo
+
 
 class RiotMatchListResponse(BaseModel):
     """List of match IDs"""
@@ -188,7 +202,9 @@ class RiotMatchListResponse(BaseModel):
     puuid: str
     count: int
 
+
 # simplified shcemas
+
 
 class SimplifiedPlayerStats(BaseModel):
     summoner_name: str
@@ -229,6 +245,7 @@ class SimplifiedPlayerStats(BaseModel):
             }
         }
 
+
 class SimplifiedTeammate(BaseModel):
     summoner_name: str
     champion_name: str
@@ -237,6 +254,7 @@ class SimplifiedTeammate(BaseModel):
     assists: int
     kda: float
     role: str
+
 
 class SimplifiedMatchResponse(BaseModel):
     match_id: str

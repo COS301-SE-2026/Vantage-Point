@@ -55,12 +55,14 @@ app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(router, prefix="/api")
 
+
 @app.on_event("startup")
 async def startup() -> None:
     try:
         await init_db()
     except Exception as exc:
         print(f"Database initialization skipped: {exc}")
+
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
     return {
@@ -69,6 +71,7 @@ def error_response(status_code: int, detail: Any) -> dict[str, Any]:
         "reason": get_error_reason(status_code),
         "detail": detail,
     }
+
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(
@@ -80,6 +83,7 @@ async def http_exception_handler(
         headers=exc.headers,
     )
 
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
@@ -89,6 +93,7 @@ async def validation_exception_handler(
         content=error_response(400, exc.errors()),
     )
 
+
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
@@ -96,16 +101,20 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
         content=error_response(500, "Unexpected server error"),
     )
 
+
 class RootResponse(BaseModel):
     status: str = Field(..., description="Current backend status")
     message: str = Field(..., description="API status message")
 
+
 class HealthResponse(BaseModel):
     status: str = Field(..., description="Current backend health status")
+
 
 class TestResponse(BaseModel):
     received: Dict[str, Any]
     message: str
+
 
 @app.get(
     "/",
@@ -117,6 +126,7 @@ async def get_root() -> RootResponse:
     # Explicitly call your schema class
     return RootResponse(status="success", message="Welcome to Vantage Point API")
 
+
 @app.get(
     "/health",
     tags=["System"],
@@ -125,6 +135,7 @@ async def get_root() -> RootResponse:
 )
 async def health() -> HealthResponse:
     return HealthResponse(status="Vantage Point Backend running healthy")
+
 
 @app.post(
     "/api/test",
@@ -136,6 +147,7 @@ async def health() -> HealthResponse:
 async def test_endpoint(data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"Test endpoint called with data: {data}")
     return {"received": data, "message": "Test successful"}
+
 
 # below is not really so self explanatory so i just added comments to the code to explain the steps.
 # let me know if you want me to add more comments or if you have any questions about the code!
