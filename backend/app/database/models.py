@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -19,18 +20,49 @@ class Champions(SQLModel, table=True):
     participants: List["Participants"] = Relationship(back_populates="champion")
 
 
-# Summoners
+# Users
+# Represents a registered Vantage Point account.
+# We don't store passwords — Cognito owns that.
+# cognito_sub is the 'sub' claim from the Cognito JWT token,
+# it's the stable unique identifier for a user.
+class Users(SQLModel, table=True):
+    cognito_sub: str = Field(primary_key=True)
+    email: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
+
+
+# GameAccounts
 # THIS IS A PLAYER ACCOUNT.
 # PUUID is Riot's global unique identifier for a player SO DO NOT TOUCH IT
 # I REPEAT DO NOT MESS WITH PUUID.
 # this stays the same acorss regions and name changes which is why we use it as the primary key. We can always look up the current name and tag using the PUUID.
-class Summoners(SQLModel, table=True):
+class GameAccounts(SQLModel, table=True):
+    __tablename__ = "game_accounts"
+
     puuid: str = Field(primary_key=True)
+    game: str  # identifies which game this account belongs to e.g. "league_of_legends", "dota2"
     game_name: str
     tag_line: str  # the part after '#' in Riot ID, e.g. "EUW" in "Player#EUW"
-    summoner_level: int
+    account_level: int
 
-    participations: List["Participants"] = Relationship(back_populates="summoner")
+    linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
+    participations: List["Participants"] = Relationship(back_populates="game_account")
+
+
+# UserGameAccounts
+# Join table: tracks which game accounts a user has linked to their account.
+# A user can track many game accounts, and a game account can be tracked by many users.
+class UserGameAccounts(SQLModel, table=True):
+    __tablename__ = "user_game_accounts"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    cognito_sub: str = Field(foreign_key="users.cognito_sub")
+    puuid: str = Field(foreign_key="game_accounts.puuid")
+
+    user: "Users" = Relationship(back_populates="linked_game_accounts")
+    game_account: "GameAccounts" = Relationship(back_populates="linked_users")
 
 
 # Matches
@@ -57,7 +89,7 @@ class Participants(SQLModel, table=True):
     internal_id: Optional[int] = Field(default=None, primary_key=True)
 
     match_id: str = Field(foreign_key="matches.match_id")
-    puuid: str = Field(foreign_key="summoners.puuid")
+    puuid: str = Field(foreign_key="game_accounts.puuid")
     champion_id: int = Field(foreign_key="champions.champion_id")
 
     win: bool
@@ -68,5 +100,5 @@ class Participants(SQLModel, table=True):
 
     # Below are back-references so we can navigate from a participant to its match/player/champion
     match: "Matches" = Relationship(back_populates="participants")
-    summoner: "Summoners" = Relationship(back_populates="participations")
+    game_account: "GameAccounts" = Relationship(back_populates="participations")
     champion: "Champions" = Relationship(back_populates="participants")
