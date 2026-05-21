@@ -1,0 +1,157 @@
+name: Frontend Tests & Quality
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_quality.yml'
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_quality.yml'
+
+env:
+  NODE_VERSION: '20.x'
+  COVERAGE_THRESHOLD: 70
+
+jobs:
+  # ============================================================================
+  # SECURITY: DEPENDENCY SCANNING
+  # ============================================================================
+  security:
+    name: Security & Dependency Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Check npm packages for vulnerabilities
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+  # ============================================================================
+  # LEVEL 1: CODE QUALITY GATE (Lint + Format Check)
+  # ============================================================================
+  quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    needs: security
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Format check with Prettier
+        working-directory: frontend
+        run: npm run format:check
+
+      - name: Lint with ESLint
+        working-directory: frontend
+        run: npm run lint
+
+  # ============================================================================
+  # LEVEL 2: UNIT TESTS & COVERAGE
+  # ============================================================================
+  test:
+    name: Unit Tests and Coverage
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run tests with coverage
+        working-directory: frontend
+        run: npm run test:coverage -- --run
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: frontend/coverage/
+          retention-days: 30
+
+  # ============================================================================
+  # LEVEL 3: BUILD VERIFICATION
+  # ============================================================================
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build production bundle
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-artifacts
+          path: frontend/dist/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Generate coverage badge
+        run: |
+          cd frontend
+          # Extract coverage from vitest report
+          COVERAGE=$(cat coverage/coverage-final.json | python -c "import sys, json; data = json.load(sys.stdin); lines = [v['lines']['pct'] for v in data.values() if 'lines' in v]; avg = sum(lines)/len(lines) if lines else 0; print(f'{avg:.1f}')")
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+
+          # Create badge
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$COVERAGE >= 70" | bc -l) )); then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+
+          curl "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" -o coverage-badge.svg
+
+      - name: Upload coverage badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: frontend/coverage-badge.svg
+          retention-days: 30
