@@ -4,8 +4,10 @@ sqlalchemy==2.0.25
 asyncpg==0.29.0
 sqlmodel
 #pydantic==2.6.0
-#pydantic-settings==2.2.0
+pydantic-settings==2.14.1
+pydantic[email]==2.13.4
 pandas==2.2.0
 scikit-learn==1.5.0
 httpx==0.26.0
 python-dotenv==1.2.2
+boto3==1.43.12
