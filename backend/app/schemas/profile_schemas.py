@@ -44,3 +44,13 @@ class LiveAdvancedMetrics(BaseModel):
     avg_damage_per_minute: float
     avg_gold_per_minute: float
     win_rate: str
+
+
+class ProfileCreateRequest:
+    riot_puuid: str
+    username: str
+
+
+class ProfileUpdateRequest:
+    riot_puuid: str
+    username: str

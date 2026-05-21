@@ -1,11 +1,19 @@
 from datetime import datetime, timedelta, timezone
-
+from fastapi import HTTPException, status
 from sqlalchemy import Integer, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
-from app.database.models import Champions, Participants, UserProfile
-from app.schemas.profile_schemas import PlayerSummary
+from app.database.models import Champions, Participants, UserProfile, GameAccounts
+from app.schemas.profile_schemas import (
+    PlayerSummary,
+    ProfileCreateRequest,
+    ProfileUpdateRequest,
+)
+
+
+def utc_now_naive() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class ProfileService:
@@ -109,9 +117,11 @@ class ProfileService:
     ) -> datetime:
         profile = await ProfileService.get_or_create_profile(session, user_id)
 
-        deletion_date = datetime.now(timezone.utc) + timedelta(days=30)
+        deletion_date = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(
+            days=30
+        )
         profile.deletion_scheduled_at = deletion_date
-        profile.updated_at = datetime.now(timezone.utc)
+        profile.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
         session.add(profile)
         await session.commit()
         await session.refresh(profile)
@@ -127,7 +137,88 @@ class ProfileService:
             return False
 
         profile.deletion_scheduled_at = None
-        profile.updated_at = datetime.now(timezone.utc)
+        profile.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
         session.add(profile)
         await session.commit()
         return True
+
+    @staticmethod
+    async def create_profile(
+        session: AsyncSession, user_id: str, request: ProfileCreateRequest
+    ) -> UserProfile:
+        statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
+        result = await session.execute(statement)
+        existing_profile = result.scalar_one_or_none()
+
+        if existing_profile:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Profile already exists."
+            )
+        if request.riot_puuid is not None:
+            account_stmt = select(GameAccounts).where(
+                col(GameAccounts.puuid) == request.riot_puuid
+            )
+            account_result = await session.execute(account_stmt)
+            game_account = account_result.scalar_one_or_none()
+
+            if game_account is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Linked Riot account was not found.",
+                )
+
+        now = utc_now_naive()
+
+        profile = UserProfile(
+            user_id=user_id,
+            username=request.username,
+            riot_puuid=request.riot_puuid,
+            created_at=now,
+            updated_at=now,
+        )
+
+        session.add(profile)
+        await session.commit()
+        await session.refresh(profile)
+
+        return profile
+
+    @staticmethod
+    async def update_profile(
+        session: AsyncSession,
+        user_id: str,
+        request: ProfileUpdateRequest,
+    ) -> UserProfile:
+        statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
+        result = await session.execute(statement)
+        profile = result.scalar_one_or_none()
+
+        if profile is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Profile not found."
+            )
+
+        if request.riot_puuid is not None:
+            account_stmt = select(GameAccounts).where(
+                col(GameAccounts.puuid) == request.riot_puuid
+            )
+            account_result = await session.execute(account_stmt)
+            game_account = account_result.scalar_one_or_none()
+
+            if game_account is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Linked Riot account was not found.",
+                )
+            profile.riot_puuid = request.riot_puuid
+
+        if request.username is not None:
+            profile.username = request.username
+
+        profile.updated_at = utc_now_naive()
+
+        session.add(profile)
+        await session.commit()
+        await session.refresh(profile)
+
+        return profile
