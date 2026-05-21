@@ -70,7 +70,7 @@ async def test_database_logic():
             game="league_of_legends",
             game_name="TheFast",
             tag_line="4444",
-            account_level=30,
+            summoner_level=30,
         )
 
         session.add(test_champ)

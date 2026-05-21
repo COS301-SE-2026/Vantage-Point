@@ -7,3 +7,4 @@ User: Sn1per16 | Email: player@example.com | Status: REGISTERED
 User: Sn1per19 | Email: player@example.com | Status: REGISTERED
 User: Sn1per10 | Email: player@example.com | Status: REGISTERED
 User: Sn1per1345 | Email: player@example.com | Status: REGISTERED
+User: Sn1per111 | Email: player@example.com | Status: REGISTERED
