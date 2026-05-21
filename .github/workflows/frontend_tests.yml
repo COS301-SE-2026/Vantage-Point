@@ -1,0 +1,159 @@
+name: Frontend Tests & Quality
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_quality.yml'
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_quality.yml'
+
+env:
+  NODE_VERSION: '18.x'
+  COVERAGE_THRESHOLD: 70
+
+jobs:
+  # ============================================================================
+  # SECURITY: DEPENDENCY SCANNING
+  # ============================================================================
+  security:
+    name: Security & Dependency Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Check npm packages for vulnerabilities
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+  # ============================================================================
+  # LEVEL 1: CODE QUALITY GATE (Lint + Format Check)
+  # ============================================================================
+  quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    needs: security
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Format check with Prettier
+        working-directory: frontend
+        run: npm run format:check
+
+      - name: Lint with ESLint
+        working-directory: frontend
+        run: npm run lint
+
+  # ============================================================================
+  # LEVEL 2: UNIT TESTS & COVERAGE
+  # ============================================================================
+  test:
+    name: Unit Tests and Coverage
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run tests with coverage
+        working-directory: frontend
+        run: npm run test:coverage -- --run
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: frontend/coverage/
+          retention-days: 30
+
+  # ============================================================================
+  # LEVEL 3: BUILD VERIFICATION
+  # ============================================================================
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build production bundle
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-artifacts
+          path: frontend/dist/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ============================================================================
+  # SUMMARY
+  # ============================================================================
+  summary:
+    name: Results Summary
+    runs-on: ubuntu-latest
+    needs: [security, quality, test, build]
+    if: always()
+
+    steps:
+      - name: Test results
+        run: |
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.quality.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if any job failed
+        if: |
+          needs.security.result == 'failure' ||
+          needs.quality.result == 'failure' ||
+          needs.test.result == 'failure' ||
+          needs.build.result == 'failure'
+        run: exit 1
