@@ -13,11 +13,15 @@ from sqlmodel import SQLModel, Field, Relationship
 class UserProfile(SQLModel, table=True):
     user_id: str = Field(primary_key=True)
     username: str
-    riot_puuid: Optional[str] = Field(default=None, foreign_key="summoners.puuid")
+    riot_puuid: Optional[str] = Field(default=None, foreign_key="game_accounts.puuid")
 
     deletion_scheduled_at: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
 
 
 # Champions
