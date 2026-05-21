@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class MessageResponse(BaseModel):
@@ -44,3 +45,13 @@ class LiveAdvancedMetrics(BaseModel):
     avg_damage_per_minute: float
     avg_gold_per_minute: float
     win_rate: str
+
+
+class ProfileCreateRequest(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    riot_puuid: Optional[str] = None
+
+
+class ProfileUpdateRequest(BaseModel):
+    username: Optional[str] = Field(default=None, min_length=3, max_length=50)
+    riot_puuid: Optional[str] = None

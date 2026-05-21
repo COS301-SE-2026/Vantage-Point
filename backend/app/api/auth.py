@@ -3,7 +3,7 @@ import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.config import get_settings
-from typing import Any
+from typing import Any, cast
 
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -54,7 +54,18 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    for key in jwks.get("keys", []):
+    raw_keys = jwks.get("keys", [])
+
+    if not isinstance(raw_keys, list):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid JWKS format",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    keys = cast(list[dict[str, Any]], raw_keys)
+
+    for key in keys:
         if key.get("kid") == token_kid:
             return key
 

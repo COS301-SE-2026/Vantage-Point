@@ -1,19 +1,27 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 from typing import Any, Dict
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
+
+from app.api.middleware import ProcessTimeMiddleware
+from app.api.routes import router
+from app.config import get_settings
+from app.database.models import GameAccounts
+from app.database.session import async_session_maker, init_db
+from app.schemas.generic_schemas import get_error_reason
+from app.services.riot_api import get_puuid_by_riot_id
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
 
 # (Make sure riot_api.py is in backend/app/services/)
 # (make sure models.py is in backend/app/database/ )
-from app.database.models import Summoners
-from app.services.riot_api import get_puuid_by_riot_id
 
 load_dotenv()
 
@@ -27,6 +35,17 @@ load_dotenv()
 # limiter = Limiter(key_func=get_remote_address)
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        await init_db()
+    except Exception as exc:
+        print(f"Database initialization skipped: {exc}")
+    yield
+
+
 app = FastAPI(
     title="Vantage Point Backend",
     description=(
@@ -34,6 +53,7 @@ app = FastAPI(
         "intelligence features."
     ),
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # app.state.limiter = limiter
@@ -44,7 +64,7 @@ app = FastAPI(
 # 3000 = React default, 5173 = Vite default.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins,
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,14 +74,6 @@ app.add_middleware(
 app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(router, prefix="/api")
-
-
-@app.on_event("startup")
-async def startup() -> None:
-    try:
-        await init_db()
-    except Exception as exc:
-        print(f"Database initialization skipped: {exc}")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
@@ -160,20 +172,24 @@ async def register_summoner(game_name: str, tag_line: str):
         return {"error": "Could not find player on Riot servers."}
 
     # 2. Save to Database; should only do so if this player is not in the DB already
-    async with AsyncSession(engine) as session:
-        statement = select(Summoners).where(Summoners.puuid == puuid)
+    async with async_session_maker() as session:
+        statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
         result = await session.execute(statement)
-        existing_summoner = result.scalar_one_or_none()
+        existing_account = result.scalar_one_or_none()
 
         # adding this check just to be safe and security even if no exist is already below it
-        if existing_summoner:
+        if existing_account:
             return {"message": "Summoner already in database."}
 
-        if not existing_summoner:
-            new_summoner = Summoners(
-                puuid=puuid, game_name=game_name, tag_line=tag_line, summoner_level=0
+        if not existing_account:
+            new_account = GameAccounts(
+                puuid=puuid,
+                game="league_of_legends",
+                game_name=game_name,
+                tag_line=tag_line,
+                summoner_level=0,
             )
-            session.add(new_summoner)
+            session.add(new_account)
             await session.commit()
             return {
                 "message": f"Successfully registered {game_name}#{tag_line}",
