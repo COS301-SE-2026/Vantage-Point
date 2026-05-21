@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
-import { Swords, Trophy } from "lucide-react";
-import {
-  iconLightningBolt,
-  iconTimeMachine,
-} from "../assets/profile";
+import { History, Swords, Trophy, Zap } from "lucide-react";
 import type { FeaturedGameSlide } from "../types/profile";
 
 interface FeaturedGameCardProps {
@@ -36,10 +32,6 @@ function StatRow({
       </div>
     </div>
   );
-}
-
-function StatIconImage({ src }: Readonly<{ src: string }>) {
-  return <img src={src} alt="" className="size-5 object-contain" />;
 }
 
 function StatIconLucide({
@@ -99,12 +91,12 @@ function FeaturedGameCardOpen({
         </h3>
         <div className="flex flex-col gap-4">
           <StatRow
-            icon={<StatIconImage src={iconLightningBolt} />}
+            icon={<StatIconLucide Icon={Zap} />}
             label="Efficiency Score"
             value={slide.efficiency_score}
           />
           <StatRow
-            icon={<StatIconImage src={iconTimeMachine} />}
+            icon={<StatIconLucide Icon={History} />}
             label="Time Spent"
             value={slide.time_spent_label}
           />

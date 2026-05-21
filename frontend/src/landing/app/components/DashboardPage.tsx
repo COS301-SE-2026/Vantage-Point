@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [activeView, setActiveView] = useState<DashboardView>("matches");
 
   const matchFromUrl = searchParams.get("match");
+  const viewFromUrl = searchParams.get("view");
 
   useEffect(() => {
     if (matchFromUrl) {
@@ -19,6 +20,14 @@ export default function DashboardPage() {
       setSelectedMatchId(null);
     }
   }, [matchFromUrl]);
+
+  useEffect(() => {
+    if (viewFromUrl === "profile") {
+      setActiveView("profile");
+    } else if (viewFromUrl === "matches") {
+      setActiveView("matches");
+    }
+  }, [viewFromUrl]);
 
   const handleLogout = () => {
     navigate("/login");
