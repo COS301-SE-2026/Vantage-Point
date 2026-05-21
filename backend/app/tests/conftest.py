@@ -10,7 +10,6 @@ from fastapi.testclient import TestClient
 from unittest.mock import MagicMock, AsyncMock
 from app.main import app
 
-
 @pytest.fixture(scope="function")
 def client():
     """
@@ -19,7 +18,6 @@ def client():
     Scope: function (new instance for each test)
     """
     return TestClient(app)
-
 
 @pytest.fixture
 def test_user_data():
@@ -33,7 +31,6 @@ def test_user_data():
         "username": "testuser",
         "email": "test@example.com",
     }
-
 
 @pytest.fixture
 def test_user_response():
@@ -50,7 +47,6 @@ def test_user_response():
         "created_at": "2024-01-15T10:30:00Z",
     }
 
-
 @pytest.fixture
 def test_match_data():
     """
@@ -64,7 +60,6 @@ def test_match_data():
         "summoner_name": "TestPlayer",
         "coordinates": [[500, 600], [550, 650], [600, 700]],
     }
-
 
 @pytest.fixture
 def test_match_response():
@@ -81,7 +76,6 @@ def test_match_response():
         "created_at": "2024-01-15T10:30:00Z",
     }
 
-
 @pytest.fixture
 def mock_db_session():
     """
@@ -92,7 +86,6 @@ def mock_db_session():
     """
     mock_session = MagicMock()
     return mock_session
-
 
 @pytest.fixture
 def mock_riot_api():
@@ -106,7 +99,6 @@ def mock_riot_api():
     mock_api.fetch_matches = AsyncMock(return_value=[])
     mock_api.fetch_match_timeline = AsyncMock(return_value={})
     return mock_api
-
 
 @pytest.fixture
 def mock_logger():

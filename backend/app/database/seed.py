@@ -189,7 +189,6 @@ CHAMPIONS = [
     (143, "Zyra", "Mage"),
 ]
 
-
 async def seed():
     print("--- Seeding database ---")
 
@@ -328,7 +327,6 @@ async def seed():
     print("  User-GA links:  3")
     print("  Matches:        2")
     print("  Participants:   3")
-
 
 if __name__ == "__main__":
     asyncio.run(seed())

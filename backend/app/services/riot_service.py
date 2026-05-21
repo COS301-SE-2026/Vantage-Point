@@ -17,7 +17,6 @@ API_KEY = os.getenv("RIOT_API_KEY")
 BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
-
 def get_macro_region(server_region: str) -> str:
     """Maps a local Riot server region to its Match-V5 macro-region."""
     region_map = {
@@ -45,7 +44,6 @@ def get_macro_region(server_region: str) -> str:
 
     # Default to americas if somehow not found
     return region_map.get(server_region.lower(), "americas")
-
 
 class RiotService:
     def __init__(self):
@@ -186,9 +184,7 @@ class RiotService:
                     detail=f"Riot API Error: {error_text}",
                 )
 
-
 riot_service = RiotService()
-
 
 def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
     """Converts a raw Riot ParticipantDto into your clean format"""
@@ -247,7 +243,6 @@ def simplify_participant(participant: Any) -> SimplifiedPlayerStats:
         secondary_runes=secondary_runes,
     )
 
-
 def _format_teammate(p: Any) -> SimplifiedTeammate:
     """Helper function to transform a raw participant into a SimplifiedTeammate."""
     # Handle Riot ID naming combinations
@@ -273,7 +268,6 @@ def _format_teammate(p: Any) -> SimplifiedTeammate:
         kda=round((p["kills"] + p["assists"]) / max(p["deaths"], 1), 2),
         role=p["teamPosition"] if p["teamPosition"] else "UNKNOWN",
     )
-
 
 def filter_match_for_players(
     full_match: Any, target_puuid: str

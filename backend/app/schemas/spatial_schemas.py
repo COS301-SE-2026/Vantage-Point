@@ -1,17 +1,14 @@
 from typing import List
 from pydantic import BaseModel
 
-
 class Coordinate(BaseModel):
     x: float
     y: float
-
 
 class PlayerPath(BaseModel):
     puuid: str
     champion: str
     path: List[Coordinate]  # List of (x,y) points over time
-
 
 class SpatialAnalysis(BaseModel):
     match_id: str
