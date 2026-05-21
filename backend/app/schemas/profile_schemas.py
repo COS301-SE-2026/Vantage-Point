@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class MessageResponse(BaseModel):
@@ -46,11 +47,11 @@ class LiveAdvancedMetrics(BaseModel):
     win_rate: str
 
 
-class ProfileCreateRequest:
-    riot_puuid: str
-    username: str
+class ProfileCreateRequest(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    riot_puuid: Optional[str] = None
 
 
-class ProfileUpdateRequest:
-    riot_puuid: str
-    username: str
+class ProfileUpdateRequest(BaseModel):
+    username: Optional[str] = Field(default=None, min_length=3, max_length=50)
+    riot_puuid: Optional[str] = None
