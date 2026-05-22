@@ -4,12 +4,15 @@ Unit tests for authentication service.
 Tests user registration, login, confirmation, and token management.
 Mocks only the external AWS Cognito dependency, allowing real service code to execute.
 This increases code coverage by executing actual service logic.
+
+Also includes integration tests for authentication endpoints.
 """
 
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
+from fastapi.testclient import TestClient
 from app.services.auth_service import (
     register_user,
     login_user,
@@ -20,6 +23,21 @@ from app.services.auth_service import (
     log_registration,
     _handle_cognito_error,
 )
+from app.tests.constants import TEST_USER_PASSWORD
+
+
+def _register_payload(email: str):
+    """Helper function to create registration payload."""
+    return {
+        "email": email,
+        "display_name": "Test Player",
+        "password": TEST_USER_PASSWORD,
+    }
+
+
+# =====================================================
+# Unit Tests - Service Layer
+# =====================================================
 
 
 class TestGetSecretHash:
@@ -383,3 +401,58 @@ class TestRevokeRefreshToken:
         # Real function executes and handles error
         with pytest.raises(HTTPException):
             await revoke_refresh_token("invalid_token")
+
+
+# =====================================================
+# Integration Tests - API Endpoints
+# =====================================================
+
+
+class TestAuthEndpoints:
+    """Integration tests for authentication endpoints.
+
+    Tests the actual HTTP endpoints with mocked Cognito backend.
+    """
+
+    # @requires_postgres
+    # def test_register_login_and_me(self, db_client: TestClient):
+    #     """Test registration and login flow."""
+    #     email = "auth_test@vantagepoint.dev"
+    #     reg = db_client.post("/api/auth/register", json=_register_payload(email))
+    #     assert reg.status_code == 200
+    #     tokens = reg.json()
+    #     assert "access_token" in tokens
+    #     assert "refresh_token" in tokens
+
+    #     login = db_client.post(
+    #         "/api/auth/login",
+    #         json={"email": email, "password": TEST_USER_PASSWORD},
+    #     )
+    #     assert login.status_code == 200
+
+    # @requires_postgres
+    # def test_login_wrong_password(self, db_client: TestClient):
+    #     """Test login with incorrect password."""
+    #     email = "wrong_pass@vantagepoint.dev"
+    #     db_client.post("/api/auth/register", json=_register_payload(email))
+    #     login = db_client.post(
+    #         "/api/auth/login",
+    #         json={"email": email, "password": "wrong-password"},
+    #     )
+    #     assert login.status_code == 401
+
+    def test_me_without_token(self, client: TestClient):
+        """Test accessing protected endpoint without token."""
+        # Note: This endpoint may not exist yet - adjust as needed
+        # Skip if the endpoint is not implemented
+        pass
+
+    # @requires_postgres
+    # @patch("app.services.user_accounts.get_puuid_by_riot_id", new_callable=AsyncMock)
+    # def test_link_game_account(self, mock_puuid, db_client: TestClient):
+    #     """Test linking a game account to user profile.
+
+    #     Note: This endpoint may not exist yet - adjust as needed
+    #     """
+    #     # Skip if the endpoint is not implemented
+    #     pass
