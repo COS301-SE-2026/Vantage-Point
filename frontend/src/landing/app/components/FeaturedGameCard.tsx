@@ -49,7 +49,7 @@ function FeaturedGameCardClosed({
     <button
       type="button"
       onClick={onToggle}
-      className="flex h-[314px] w-[305px] cursor-pointer flex-col gap-4 rounded-[8px] border border-[#d9d9d9] bg-white p-4 text-left transition-shadow hover:shadow-md"
+      className="flex h-[314px] w-full min-w-0 max-w-[305px] cursor-pointer flex-col gap-4 rounded-[8px] border border-[#d9d9d9] bg-white p-4 text-left transition-shadow hover:shadow-md"
       aria-expanded={false}
     >
       <div className="relative h-[247px] w-full shrink-0 overflow-hidden rounded-[4px]">
@@ -75,14 +75,14 @@ function FeaturedGameCardOpen({
     <button
       type="button"
       onClick={onToggle}
-      className="flex h-[314px] w-[520px] cursor-pointer overflow-hidden rounded-[13px] bg-[#7b7676] text-left transition-shadow hover:shadow-lg"
+      className="flex h-[314px] w-full min-w-0 max-w-[520px] cursor-pointer overflow-hidden rounded-[13px] bg-[#7b7676] text-left transition-shadow hover:shadow-lg"
       aria-expanded={true}
     >
-      <div className="shrink-0 p-[15px] pr-0">
+      <div className="max-w-full shrink-0 p-[15px] pr-0">
         <img
           src={slide.cover_image_url}
           alt=""
-          className="h-[289px] w-[271px] object-cover"
+          className="h-[289px] max-w-full w-[271px] object-cover"
         />
       </div>
       <div className="flex flex-1 flex-col px-6 pb-6 pt-6">

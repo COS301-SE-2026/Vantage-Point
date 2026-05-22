@@ -15,6 +15,16 @@ from app.database.models import (
     Matches,
     Participants,
 )
+from app.database.seed_data import (
+    PROFILE_MATCHES_SAMPLED,
+    SEED_MATCHES,
+    SEED_VIEWER_PARTICIPANTS,
+    SEED_USER_ACHIEVEMENTS,
+    SEED_FEATURED_GAMES,
+    VIEWER_PUUID,
+)
+from app.database.seed_profile import seed_profile_for_puuid
+from app.database.seed_data.matches import build_detail_json, game_creation_for
 
 load_dotenv()
 
@@ -210,32 +220,37 @@ async def seed():
         )
 
         # --- Users ---
-        # cognito_sub format mirrors what AWS Cognito actually returns (UUID v4)
+        # password for both seed users: "password123"
+        from app.auth.passwords import hash_password
+
         users = [
             Users(
-                cognito_sub="fake-cognito-sub-0001",
+                id="00000000-0000-4000-8000-000000000001",
                 email="testuser1@vantagepoint.dev",
-                # created_at=datetime.now(timezone.utc)
+                password_hash=hash_password("password123"),
+                display_name="TestUser1",
                 created_at=datetime.now(timezone.utc).replace(tzinfo=None),
             ),
             Users(
-                cognito_sub="fake-cognito-sub-0002",
+                id="00000000-0000-4000-8000-000000000002",
                 email="testuser2@vantagepoint.dev",
-                # created_at=datetime.now(timezone.utc)
+                password_hash=hash_password("password123"),
+                display_name="TestUser2",
                 created_at=datetime.now(timezone.utc).replace(tzinfo=None),
             ),
         ]
         session.add_all(users)
 
         # --- Game Accounts ---
-        # PUUIDs are fake but consistent across the seed so FK constraints hold
+        # Viewer PUUID for seeded match history (seed-viewer-puuid)
         game_accounts = [
             GameAccounts(
-                puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000001",
+                puuid=VIEWER_PUUID,
                 game="league_of_legends",
-                game_name="TheFast",
-                tag_line="4444",
+                game_name="You",
+                tag_line="EUW",
                 account_level=100,
+                profile_matches_sampled=PROFILE_MATCHES_SAMPLED,
             ),
             GameAccounts(
                 puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000002",
@@ -248,76 +263,64 @@ async def seed():
         session.add_all(game_accounts)
 
         # --- User <-> Game Account links ---
-        # User 1 tracks both accounts — exercises the many-to-many relationship
         session.add_all(
             [
                 UserGameAccounts(
-                    cognito_sub="fake-cognito-sub-0001",
-                    puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000001",
+                    user_id="00000000-0000-4000-8000-000000000001",
+                    puuid=VIEWER_PUUID,
                 ),
                 UserGameAccounts(
-                    cognito_sub="fake-cognito-sub-0002",
-                    puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000002",
-                ),
-                UserGameAccounts(
-                    cognito_sub="fake-cognito-sub-0001",
+                    user_id="00000000-0000-4000-8000-000000000002",
                     puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000002",
                 ),
             ]
         )
 
-        # --- Matches ---
+        # --- Matches (8 seeded games) ---
+        from app.database.seed_data.matches import GAME_VERSION, MAP_ID, QUEUE_ID
+
         matches = [
             Matches(
-                match_id="EUW1_FAKE001",
-                game_version="12.1.123",
-                game_duration=1820,  # ~30 min
-                queue_id=420,  # Ranked Solo/Duo
-            ),
-            Matches(
-                match_id="EUW1_FAKE002",
-                game_version="12.1.123",
-                game_duration=2100,  # ~35 min
-                queue_id=450,  # ARAM
-            ),
+                match_id=row.match_id,
+                game_version=GAME_VERSION,
+                game_duration=row.game_duration,
+                queue_id=QUEUE_ID,
+                game_creation=game_creation_for(row.played_on, row.match_id),
+                map_id=MAP_ID,
+                played_on=row.played_on,
+                detail_json=build_detail_json(row.match_id),
+            )
+            for row in SEED_MATCHES
         ]
         session.add_all(matches)
 
-        # --- Participants ---
+        # --- Viewer participants (one per match for list + profile) ---
         session.add_all(
             [
                 Participants(
-                    match_id="EUW1_FAKE001",
-                    puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000001",
-                    champion_id=202,  # Jhin
-                    win=True,
-                    kills=12,
-                    deaths=2,
-                    assists=5,
-                    individual_position="BOTTOM",
-                ),
-                Participants(
-                    match_id="EUW1_FAKE001",
-                    puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000002",
-                    champion_id=84,  # Akali
-                    win=False,
-                    kills=4,
-                    deaths=7,
-                    assists=3,
-                    individual_position="MIDDLE",
-                ),
-                Participants(
-                    match_id="EUW1_FAKE002",
-                    puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000001",
-                    champion_id=157,  # Yasuo
-                    win=False,
-                    kills=6,
-                    deaths=9,
-                    assists=4,
-                    individual_position="MIDDLE",
-                ),
+                    match_id=vp.match_id,
+                    puuid=VIEWER_PUUID,
+                    champion_id=vp.champion_id,
+                    win=vp.win,
+                    kills=vp.kills,
+                    deaths=vp.deaths,
+                    assists=vp.assists,
+                    individual_position=vp.individual_position,
+                    team_id=vp.team_id,
+                    cs=vp.cs,
+                    gold_earned=vp.gold_earned,
+                    damage_to_champions=vp.damage_to_champions,
+                    vision_score=vp.vision_score,
+                    kill_participation=vp.kill_participation,
+                    riot_id_display="You#EUW",
+                    items_json="[3031, 3006, 3046, 3035, 3036, 0, 3363]",
+                    summoner_spells_json="[4, 14]",
+                )
+                for vp in SEED_VIEWER_PARTICIPANTS
             ]
         )
+
+        await seed_profile_for_puuid(session, VIEWER_PUUID, set_matches_sampled=False)
 
         await session.commit()
 
@@ -326,8 +329,11 @@ async def seed():
     print("  Users:          2")
     print("  Game accounts:  2")
     print("  User-GA links:  3")
-    print("  Matches:        2")
-    print("  Participants:   3")
+    print(f"  Matches:        {len(SEED_MATCHES)}")
+    print(f"  Participants:   {len(SEED_VIEWER_PARTICIPANTS)} (viewer)")
+    print(f"  Achievements:   {len(SEED_USER_ACHIEVEMENTS)} (viewer)")
+    print(f"  Featured games: {len(SEED_FEATURED_GAMES)} (viewer)")
+    print("  Dev login:      testuser1@vantagepoint.dev / password123")
 
 
 if __name__ == "__main__":

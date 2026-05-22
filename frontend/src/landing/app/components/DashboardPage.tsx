@@ -1,64 +1,107 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
-import DashboardComponent, {
-  type DashboardView,
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router";
+import DashboardShell, {
+  type DashboardSection,
 } from "../../imports/Group14/Group14";
+import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
+import { fetchPlayerProfile } from "../api/profile";
+import { useAuth } from "../context/AuthContext";
+import type { PlayerProfile } from "../types/profile";
+
+function sectionFromPathname(pathname: string): DashboardSection {
+  return pathname.includes("/dashboard/profile") ? "profile" : "matches";
+}
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<DashboardView>("matches");
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const { user, logout, refreshUser } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [profile, setProfile] = useState<PlayerProfile | undefined>(undefined);
 
-  const matchFromUrl = searchParams.get("match");
-  const viewFromUrl = searchParams.get("view");
+  const loadProfile = useCallback(async () => {
+    if (!user) {
+      setProfile(undefined);
+      return;
+    }
+    const data = await fetchPlayerProfile();
+    setProfile(data);
+  }, [user]);
+
+  const activeSection = sectionFromPathname(location.pathname);
 
   useEffect(() => {
-    if (matchFromUrl) {
-      setSelectedMatchId(matchFromUrl);
-    } else {
-      setSelectedMatchId(null);
+    const legacyMatch = searchParams.get("match");
+    const legacyView = searchParams.get("view");
+    if (legacyMatch) {
+      navigate(`/dashboard/matches/${encodeURIComponent(legacyMatch)}`, {
+        replace: true,
+      });
+      return;
     }
-  }, [matchFromUrl]);
+    if (legacyView === "profile") {
+      navigate("/dashboard/profile", { replace: true });
+      return;
+    }
+    if (legacyView === "matches") {
+      navigate("/dashboard/matches", { replace: true });
+    }
+  }, [navigate, searchParams]);
 
   useEffect(() => {
-    if (viewFromUrl === "profile") {
-      setActiveView("profile");
-    } else if (viewFromUrl === "matches") {
-      setActiveView("matches");
-    }
-  }, [viewFromUrl]);
+    let cancelled = false;
+    loadProfile()
+      .catch(() => {
+        if (!cancelled) {
+          setProfile(undefined);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadProfile]);
+
+  const refreshProfile = useCallback(async () => {
+    await refreshUser();
+    await loadProfile();
+  }, [refreshUser, loadProfile]);
+
+  const accountAvatarUrl = profile?.avatar_url ?? user?.avatar_url ?? null;
+  const accountInitials = profile?.avatar_initials ?? "VP";
 
   const handleLogout = () => {
-    navigate("/login");
+    logout();
+    navigate("/login", { replace: true });
   };
 
-  const handleMatchSelect = useCallback(
-    (matchId: string) => {
-      setSelectedMatchId(matchId);
-      setSearchParams({ match: matchId }, { replace: true });
-    },
-    [setSearchParams]
-  );
-
-  const handleMatchBack = useCallback(() => {
-    setSelectedMatchId(null);
-    const next = new URLSearchParams(searchParams);
-    next.delete("match");
-    setSearchParams(next, { replace: true });
-  }, [searchParams, setSearchParams]);
+  const outletContext: DashboardOutletContext = {
+    sidebarOpen,
+    profile,
+    refreshProfile,
+  };
 
   return (
-    <div className="w-screen h-screen bg-white overflow-auto">
-      <DashboardComponent
-        activeView={activeView}
-        onLogout={handleLogout}
-        onMatchSelect={handleMatchSelect}
-        selectedMatchId={selectedMatchId}
-        onMatchBack={handleMatchBack}
-        onProfileClick={() => setActiveView("profile")}
-        onDashboardClick={() => setActiveView("matches")}
-      />
+    <div className="min-h-screen w-full overflow-x-auto bg-white">
+      <div className="relative mx-auto w-full min-w-0 max-w-[var(--vp-layout-max)]">
+        <DashboardShell
+          sidebarOpen={sidebarOpen}
+          onSidebarToggle={() => setSidebarOpen((open) => !open)}
+          activeSection={activeSection}
+          onMatchesClick={() => navigate("/dashboard/matches")}
+          onProfileClick={() => navigate("/dashboard/profile")}
+          onLogout={handleLogout}
+          accountInitials={accountInitials}
+          accountAvatarUrl={accountAvatarUrl}
+        >
+          <Outlet context={outletContext} />
+        </DashboardShell>
+      </div>
     </div>
   );
 }

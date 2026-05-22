@@ -42,5 +42,8 @@ Thumbs.db
 build/
 dist/
 
+# User uploads
+backend/uploads/
+
 # Other
 .postman

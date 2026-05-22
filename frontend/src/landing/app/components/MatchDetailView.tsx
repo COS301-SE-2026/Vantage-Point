@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useNavigate, useOutletContext, useParams } from "react-router";
+import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchMatchDetail } from "../api/match";
 import {
-  DASHBOARD_CONTENT_LEFT_OPEN,
-  DASHBOARD_CONTENT_WIDTH_OPEN,
-  DASHBOARD_FRAME_W,
-} from "../../imports/Group14/Group14";
+  DASHBOARD_CONTENT_HEIGHT,
+  getDashboardContentStyle,
+} from "../lib/dashboardLayout";
 import {
   championIconUrl,
   itemIconUrl,
@@ -18,9 +19,9 @@ import type {
 } from "../types/match";
 
 interface MatchDetailViewProps {
-  readonly matchId: string;
+  readonly matchId?: string;
   readonly sidebarOpen?: boolean;
-  readonly onBack: () => void;
+  readonly onBack?: () => void;
   readonly viewerPuuid?: string;
 }
 
@@ -71,45 +72,75 @@ function LoadingSkeleton() {
 function ParticipantRow({
   player,
 }: Readonly<{ player: ParticipantDetail }>) {
+  const isViewer = player.is_viewer;
+  const rowBg = isViewer ? "bg-[#dce8fc]" : "";
+  const cellBase = `py-2 ${rowBg}`;
+
   return (
-    <tr
-      className={
-        player.is_viewer
-          ? "bg-[#f5f8ff] border-l-2 border-l-[#4a7fd4]"
-          : "border-b border-[#eee]"
-      }
-    >
-      <td className="py-2 pr-2">
+    <tr className={isViewer ? "shadow-[inset_0_0_0_1px_#9bb8e8]" : "border-b border-[#eee]"}>
+      <td
+        className={`${cellBase} pr-2 ${
+          isViewer
+            ? "border-l-4 border-l-[#2f6fd4] pl-2"
+            : "pl-2"
+        }`}
+      >
         <div className="flex items-center gap-2 min-w-0">
           <img
             src={championIconUrl(player.champion_name)}
             alt=""
-            className="size-8 rounded shrink-0"
+            className={`rounded shrink-0 ${isViewer ? "size-9 ring-2 ring-[#4a7fd4]/40" : "size-8"}`}
           />
           <div className="min-w-0">
-            <p className="text-sm font-medium text-[#1e1e1e] truncate">
+            <p
+              className={`text-sm truncate ${
+                isViewer
+                  ? "font-semibold text-[#1a3d6e]"
+                  : "font-medium text-[#1e1e1e]"
+              }`}
+            >
               {player.riot_id ?? player.champion_name}
             </p>
             <p className="text-xs text-[#757575]">{player.position}</p>
           </div>
         </div>
       </td>
-      <td className="py-2 text-sm text-center tabular-nums">
+      <td
+        className={`${cellBase} text-sm text-center tabular-nums ${
+          isViewer ? "font-semibold text-[#1a3d6e]" : ""
+        }`}
+      >
         {player.kills}/{player.deaths}/{player.assists}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575]">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {player.cs}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575] hidden sm:table-cell">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums hidden sm:table-cell ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {formatNumber(player.gold_earned)}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575] hidden md:table-cell">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums hidden md:table-cell ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {formatNumber(player.damage_to_champions)}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575] hidden lg:table-cell">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums hidden lg:table-cell ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {player.vision_score}
       </td>
-      <td className="py-2 pl-2">
+      <td className={`${cellBase} pl-2 pr-2`}>
         <div className="flex items-center gap-0.5 justify-end flex-wrap max-w-[140px]">
           {player.summoner_spells.map((spellId) => {
             const url = summonerSpellIconUrl(spellId);
@@ -246,14 +277,14 @@ function BansRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
             {team.team_id === 100 ? "Blue" : "Red"} bans
           </p>
           <div className="flex flex-wrap gap-1">
-            {team.bans.map((champId) => (
-              <span
-                key={champId}
-                className="text-xs px-2 py-1 rounded bg-[#eee] text-[#1e1e1e]"
-                title={`Champion ${champId}`}
-              >
-                #{champId}
-              </span>
+            {team.bans.map((ban) => (
+              <img
+                key={ban.champion_id}
+                src={championIconUrl(ban.champion_name)}
+                alt={ban.champion_name}
+                title={ban.champion_name}
+                className="size-8 rounded shrink-0 grayscale opacity-70"
+              />
             ))}
           </div>
         </div>
@@ -263,17 +294,24 @@ function BansRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
 }
 
 export default function MatchDetailView({
-  matchId,
-  sidebarOpen = true,
-  onBack,
+  matchId: matchIdProp,
+  sidebarOpen: sidebarOpenProp,
+  onBack: onBackProp,
   viewerPuuid,
-}: Readonly<MatchDetailViewProps>) {
+}: Readonly<MatchDetailViewProps> = {}) {
+  const navigate = useNavigate();
+  const { matchId: matchIdParam } = useParams<{ matchId: string }>();
+  const outlet = useOutletContext<DashboardOutletContext | undefined>();
+  const matchId = matchIdProp ?? matchIdParam ?? "";
+  const sidebarOpen = sidebarOpenProp ?? outlet?.sidebarOpen ?? true;
+  const onBack =
+    onBackProp ?? (() => navigate("/dashboard/matches", { replace: false }));
+
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
-  const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
+  const contentStyle = getDashboardContentStyle(sidebarOpen);
 
   useEffect(() => {
     if (!matchId) {
@@ -324,8 +362,8 @@ export default function MatchDetailView({
 
   return (
     <div
-      className="absolute top-[94px] font-['Inter',sans-serif] transition-[left,width] duration-300 ease-out"
-      style={{ left: contentLeft, width: contentWidth, height: 840 }}
+      className="absolute top-[var(--vp-dashboard-header)] min-w-0 font-['Inter',sans-serif] transition-[left,width] duration-300 ease-out"
+      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="match-detail-view"
     >
       <div className="relative h-full overflow-auto px-10 py-6">

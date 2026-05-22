@@ -1,19 +1,32 @@
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
+import { useNavigate, useOutletContext } from "react-router";
+import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import {
-  DASHBOARD_CONTENT_LEFT_OPEN,
-  DASHBOARD_CONTENT_WIDTH_OPEN,
-  DASHBOARD_FRAME_W,
-} from "../../imports/Group14/Group14";
+  DASHBOARD_CONTENT_HEIGHT,
+  getDashboardContentStyle,
+} from "../lib/dashboardLayout";
+import { fetchMatchHistory } from "../api/matches";
 import {
-  MOCK_MATCH_HISTORY_BY_DAY,
+  groupDashboardMatchesByDay,
   type DashboardMatchListItem,
   type MatchHistoryDayRow,
-} from "../mocks/matchHistory";
+} from "../lib/matchHistoryGroup";
+import {
+  applyMatchListControls,
+  matchListDaySortAscending,
+} from "../lib/matchListQuery";
+import {
+  DEFAULT_MATCH_FILTER_ID,
+  DEFAULT_MATCH_SORT_ID,
+  type MatchFilterId,
+  type MatchSortId,
+} from "../lib/matchListControls";
+import type { MatchHistorySummary } from "../types/match";
+import MatchesListToolbar from "./MatchesListToolbar";
 
 interface MatchesListViewProps {
   readonly sidebarOpen?: boolean;
-  readonly onMatchSelect?: (matchId: string) => void;
 }
 
 function outcomeClass(outcome: "Victory" | "Defeat"): string {
@@ -22,7 +35,7 @@ function outcomeClass(outcome: "Victory" | "Defeat"): string {
 
 interface MatchHistoryListRowProps {
   readonly item: DashboardMatchListItem;
-  readonly onMatchSelect?: (matchId: string) => void;
+  readonly onOpenMatch: (matchId: string) => void;
 }
 
 const MATCH_ROW_GRID =
@@ -95,12 +108,12 @@ function MatchHistoryListHeader() {
 
 function MatchHistoryListRow({
   item,
-  onMatchSelect,
+  onOpenMatch,
 }: Readonly<MatchHistoryListRowProps>) {
   return (
     <button
       type="button"
-      onClick={() => onMatchSelect?.(item.matchId)}
+      onClick={() => onOpenMatch(item.matchId)}
       aria-label={matchRowAriaLabel(item)}
       className={`${MATCH_ROW_GRID} cursor-pointer rounded-[8px] border border-solid border-[#d9d9d9] bg-white text-left transition-colors hover:border-[#b3b3b3] hover:bg-[#fafafa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4]`}
     >
@@ -143,10 +156,10 @@ function MatchHistoryListRow({
 
 function MatchHistoryDaySection({
   dayRow,
-  onMatchSelect,
+  onOpenMatch,
 }: Readonly<{
   dayRow: MatchHistoryDayRow;
-  onMatchSelect?: (matchId: string) => void;
+  onOpenMatch: (matchId: string) => void;
 }>) {
   return (
     <section className="flex flex-col gap-3" aria-label={`Matches on ${dayRow.dateLabel}`}>
@@ -158,7 +171,7 @@ function MatchHistoryDaySection({
         <ul className="flex flex-col gap-2" role="rowgroup">
         {dayRow.matches.map((item) => (
           <li key={item.matchId}>
-            <MatchHistoryListRow item={item} onMatchSelect={onMatchSelect} />
+            <MatchHistoryListRow item={item} onOpenMatch={onOpenMatch} />
           </li>
         ))}
         </ul>
@@ -167,26 +180,109 @@ function MatchHistoryDaySection({
   );
 }
 
-export default function MatchesListView({
-  sidebarOpen = true,
-  onMatchSelect,
-}: Readonly<MatchesListViewProps>) {
-  const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
-  const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
+export default function MatchesListView(
+  props: Readonly<MatchesListViewProps> = {}
+) {
+  const { sidebarOpen: sidebarOpenProp } = props;
+  const navigate = useNavigate();
+  const outlet = useOutletContext<DashboardOutletContext | undefined>();
+  const sidebarOpen = sidebarOpenProp ?? outlet?.sidebarOpen ?? true;
+
+  const handleOpenMatch = (matchId: string) => {
+    navigate(`/dashboard/matches/${encodeURIComponent(matchId)}`);
+  };
+
+  const [allMatches, setAllMatches] = useState<readonly MatchHistorySummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterId, setFilterId] = useState<MatchFilterId>(DEFAULT_MATCH_FILTER_ID);
+  const [sortId, setSortId] = useState<MatchSortId>(DEFAULT_MATCH_SORT_ID);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetchMatchHistory()
+      .then((matches) => {
+        if (!cancelled) {
+          setAllMatches(matches);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load matches");
+          setAllMatches([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const dayRows = useMemo(
+    () =>
+      groupDashboardMatchesByDay(
+        applyMatchListControls(allMatches, { filterId, sortId, searchQuery }),
+        { oldestDaysFirst: matchListDaySortAscending(sortId) }
+      ),
+    [allMatches, filterId, searchQuery, sortId]
+  );
+
+  const hasNoMatches = !loading && !error && allMatches.length === 0;
+  const hasNoVisibleMatches =
+    !loading && !error && allMatches.length > 0 && dayRows.length === 0;
+
+  const contentStyle = getDashboardContentStyle(sidebarOpen);
 
   return (
     <div
-      className="absolute top-[94px] transition-[left,width] duration-300 ease-out"
-      style={{ left: contentLeft, width: contentWidth, height: 840 }}
+      className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
+      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="matches-list-view"
     >
-      <div className="relative h-full overflow-auto px-10 pt-16 pb-8">
+      <div className="relative h-full overflow-auto px-10 pt-8 pb-8">
+        {!loading && !error ? (
+          <MatchesListToolbar
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            filterId={filterId}
+            onFilterIdChange={setFilterId}
+            sortId={sortId}
+            onSortIdChange={setSortId}
+          />
+        ) : null}
+        {loading ? (
+          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+            Loading matches…
+          </p>
+        ) : null}
+        {error ? (
+          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#c44a4a]">
+            {error}
+          </p>
+        ) : null}
+        {hasNoMatches ? (
+          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+            No matches yet. Link your Riot ID or sign in with the seeded test account.
+          </p>
+        ) : null}
+        {hasNoVisibleMatches ? (
+          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+            No matches match your search or filters.
+          </p>
+        ) : null}
         <div className="flex flex-col gap-8">
-          {MOCK_MATCH_HISTORY_BY_DAY.map((dayRow) => (
+          {dayRows.map((dayRow) => (
             <MatchHistoryDaySection
               key={dayRow.dayKey}
               dayRow={dayRow}
-              onMatchSelect={onMatchSelect}
+              onOpenMatch={handleOpenMatch}
             />
           ))}
         </div>

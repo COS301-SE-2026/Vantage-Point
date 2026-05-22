@@ -1,9 +1,6 @@
-import { useState, type CSSProperties } from "react";
-import MatchDetailView from "../../app/components/MatchDetailView";
-import MatchesListToolbarMenus from "../../app/components/MatchesListToolbarMenus";
-import MatchesListView from "../../app/components/MatchesListView";
-import ProfileView from "../../app/components/ProfileView";
+import type { CSSProperties, ReactNode } from "react";
 import UserAccountMenu from "../../app/components/UserAccountMenu";
+import { getDashboardContentBackdropStyle } from "../../app/lib/dashboardLayout";
 import svgPaths from "./svg-a7h301bhtl";
 import imgRectangle2 from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
 
@@ -34,21 +31,18 @@ export const DASHBOARD_NAV_LEFT = DASHBOARD_SIDEBAR_LEFT + DASHBOARD_NAV_INSET;
 export const DASHBOARD_TOGGLE_LEFT_OPEN =
   DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_TOGGLE_OFFSET;
 
-const SEARCH_WIDTH = 377;
-const TOOLBAR_GAP = 16;
-const TOOLBAR_ICON_SIZE = 40;
-const TOOLBAR_ICON_GAP = 8;
+export type DashboardSection = "matches" | "profile";
 
-export type DashboardView = "matches" | "profile";
-
-interface Group1Props {
+interface DashboardShellProps {
+  readonly children: ReactNode;
+  readonly sidebarOpen: boolean;
+  readonly onSidebarToggle: () => void;
+  readonly activeSection?: DashboardSection;
   readonly onLogout?: () => void;
-  readonly onMatchSelect?: (matchId: string) => void;
-  readonly selectedMatchId?: string | null;
-  readonly onMatchBack?: () => void;
-  readonly activeView?: DashboardView;
+  readonly onMatchesClick?: () => void;
   readonly onProfileClick?: () => void;
-  readonly onDashboardClick?: () => void;
+  readonly accountInitials?: string;
+  readonly accountAvatarUrl?: string | null;
 }
 
 interface FrameProps {
@@ -72,7 +66,7 @@ function Logo() {
 function Frame({ sidebarOpen }: Readonly<FrameProps>) {
   return (
     <div
-      className="absolute bg-white h-[982px] left-0 overflow-clip top-0 w-[1512px]"
+      className="absolute left-0 top-0 min-h-screen w-full min-w-0 overflow-clip bg-white"
       data-name="Frame"
     >
       <Logo />
@@ -128,61 +122,45 @@ function Frame({ sidebarOpen }: Readonly<FrameProps>) {
           </div>
         </div>
       ) : null}
-      <p className="absolute left-[128px] top-[36px] whitespace-nowrap font-sarina text-[clamp(18px,1.6vw,24px)] leading-normal not-italic text-black">{`Vantage Point `}</p>
+      <p className="absolute left-[128px] top-[36px] max-w-[calc(100%-160px)] truncate font-sarina text-[clamp(18px,1.6vw,24px)] leading-normal not-italic text-black">{`Vantage Point `}</p>
       <div
-        className="absolute top-[94px] h-[840px] bg-white transition-[left,width] duration-300 ease-out"
-        style={
-          sidebarOpen
-            ? {
-                left: DASHBOARD_CONTENT_LEFT_OPEN,
-                width: DASHBOARD_CONTENT_WIDTH_OPEN,
-              }
-            : { left: 0, width: DASHBOARD_FRAME_W }
-        }
+        className="absolute bg-white transition-[left,width] duration-300 ease-out"
+        style={getDashboardContentBackdropStyle(sidebarOpen)}
       />
     </div>
   );
 }
 
-export default function Group1({
+export default function DashboardShell({
+  children,
+  sidebarOpen,
+  onSidebarToggle,
+  activeSection = "matches",
   onLogout,
-  onMatchSelect,
-  selectedMatchId = null,
-  onMatchBack,
-  activeView = "matches",
+  onMatchesClick,
   onProfileClick,
-  onDashboardClick,
-}: Readonly<Group1Props>) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const showMatches = activeView === "matches";
-  const showMatchDetail = showMatches && selectedMatchId !== null;
-  const showMatchList = showMatches && selectedMatchId === null;
-  const searchLeft = sidebarOpen
-    ? 912
-    : Math.round((DASHBOARD_FRAME_W - SEARCH_WIDTH) / 2);
-  const filterLeft = searchLeft + SEARCH_WIDTH + TOOLBAR_GAP;
-  const sortLeft = filterLeft + TOOLBAR_ICON_SIZE + TOOLBAR_ICON_GAP;
-
+  accountInitials = "VP",
+  accountAvatarUrl = null,
+}: Readonly<DashboardShellProps>) {
   const panelVars = {
     "--transform-inner-width": "1200",
     "--transform-inner-height": "19",
   } as CSSProperties;
 
   return (
-    <div className="relative size-full">
+    <div className="relative min-h-screen w-full min-w-0">
       <Frame sidebarOpen={sidebarOpen} />
       <div className="absolute right-6 top-[29px] z-20">
         <UserAccountMenu
           onProfileClick={onProfileClick}
           onLogout={onLogout}
+          initials={accountInitials}
+          avatarUrl={accountAvatarUrl}
         />
       </div>
-      {activeView === "profile" ? (
-        <ProfileView sidebarOpen={sidebarOpen} />
-      ) : null}
       <button
         type="button"
-        onClick={() => setSidebarOpen((open) => !open)}
+        onClick={onSidebarToggle}
         aria-expanded={sidebarOpen}
         aria-controls="dashboard-sidebar"
         aria-label={
@@ -222,13 +200,14 @@ export default function Group1({
         <>
           <button
             type="button"
-            onClick={onDashboardClick}
+            onClick={onMatchesClick}
             className="absolute top-[148px] z-10 h-[47px] cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-left transition-opacity hover:opacity-80"
             style={{
               left: DASHBOARD_NAV_LEFT,
               width: DASHBOARD_NAV_WIDTH,
             }}
             aria-label="Matches"
+            aria-current={activeSection === "matches" ? "page" : undefined}
           >
             <span className="absolute left-[20px] top-[12px] font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] text-[#1e1e1e]">
               Matches
@@ -260,69 +239,7 @@ export default function Group1({
           </div>
         </>
       ) : null}
-      {showMatchList ? (
-        <>
-          <div
-            className="absolute top-[29px] min-w-[120px] w-[377px] rounded-[9999px] bg-white transition-[left] duration-300 ease-out"
-            style={{ left: searchLeft, width: SEARCH_WIDTH }}
-            data-name="Search"
-          >
-            <label
-              htmlFor="dashboard-search"
-              className="relative flex size-full cursor-text items-center gap-[8px] overflow-clip rounded-[inherit] px-[16px] py-[12px]"
-            >
-              <input
-                id="dashboard-search"
-                type="search"
-                name="dashboard-search"
-                placeholder="search"
-                aria-label="Search"
-                className="m-0 min-w-0 flex-1 border-0 bg-transparent p-0 font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-none text-[#1e1e1e] caret-[#1e1e1e] outline-none placeholder:font-['Inter:Regular',sans-serif] placeholder:text-[#b3b3b3] placeholder:font-normal"
-              />
-              <div
-                className="relative size-[16px] shrink-0 overflow-clip"
-                data-name="Search"
-              >
-                <div className="absolute inset-[12.5%]" data-name="Icon">
-                  <div className="absolute inset-[-6.67%]">
-                    <svg
-                      className="block size-full"
-                      fill="none"
-                      preserveAspectRatio="none"
-                      viewBox="0 0 13.6 13.6"
-                    >
-                      <path
-                        d={svgPaths.p8625680}
-                        id="Icon"
-                        stroke="var(--stroke-0, #1E1E1E)"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.6"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </label>
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9]"
-            />
-          </div>
-          <MatchesListToolbarMenus filterLeft={filterLeft} sortLeft={sortLeft} />
-          <MatchesListView
-            sidebarOpen={sidebarOpen}
-            onMatchSelect={onMatchSelect}
-          />
-        </>
-      ) : null}
-      {showMatchDetail && selectedMatchId && onMatchBack ? (
-        <MatchDetailView
-          matchId={selectedMatchId}
-          sidebarOpen={sidebarOpen}
-          onBack={onMatchBack}
-        />
-      ) : null}
+      {children}
     </div>
   );
 }
