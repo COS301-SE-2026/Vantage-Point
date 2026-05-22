@@ -9,6 +9,7 @@ This directory contains automated workflows that run on every push and pull requ
 | Workflow | Trigger | Required |
 |----------|---------|----------|
 | `backend-tests.yml` | Push/PR to main/dev | Yes |
+| `frontend-tests.yml` | Push/PR to main/dev | Yes |
 | `security.yml` | Push/PR + weekly | Yes |
 
 ## Workflows
@@ -19,14 +20,27 @@ This directory contains automated workflows that run on every push and pull requ
 **What it does:**
 - **Code Quality** (Ruff linting, Black formatting)
 - **Unit Tests** (pytest with coverage)
-- **Coverage Reports** (uploaded to Codecov)
+- **Coverage Reports** (pytest --cov=app)
 - **Artifacts** (HTML coverage report saved for 30 days)
 
 **Required to pass before merge:** YES
 
 ---
 
-### 2. `security.yml`
+### 2. `frontend-tests.yml`
+**Runs on:** Every push/PR to `main` or `dev` branches affecting `frontend/`
+
+**What it does:**
+- **Code Quality** (ESLint, Prettier)
+- **Unit Tests** (jest with coverage)
+- **Coverage Reports** (vitest)
+- **Artifacts** (HTML coverage report saved for 30 days)
+
+**Required to pass before merge:** YES
+
+---
+
+### 3. `security.yml`
 **Runs on:** Every push/PR + weekly schedule
 
 **What it does:**
@@ -58,10 +72,22 @@ This directory contains automated workflows that run on every push and pull requ
 - HTML reports can be downloaded
 
 ## Local Testing
+_Before pushing, run locally_
 
-Before pushing, run locally:
+### Frontend
 
-```bash
+```sh
+cd frontend
+
+# Install dev dependencies
+npm install
+
+# Run tests with coverage
+npm run test:coverage -- --run 
+```
+
+### Backend
+```sh
 cd backend
 
 # Install dev dependencies
