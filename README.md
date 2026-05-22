@@ -163,6 +163,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 
 - **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
 - **[Setup Guide](.github/docs/Setup.md)** - Initial project setup and dependencies
+- **[Functional Requirements (SRS)](.github/docs/SRS_v2.pdf)** - Functional, architectural and technology requirements
 - **[Dev Quickstart](.github/docs/Dev-Quickstart.md)** - Seed database, run backend/frontend, sign in as test user
 - **[Backend Development Guide](.github/docs/Backend-Development-Guide.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/Frontend-Development-Guide.md)** - Frontend setup, components, styling, testing
