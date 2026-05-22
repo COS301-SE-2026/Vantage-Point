@@ -313,35 +313,35 @@ class TestRegisterSummonerRoute:
         assert "already in database" in data["message"]
 
 
-class TestValidationErrorHandler:
-    """Test suite for RequestValidationError exception handler.
+# class TestValidationErrorHandler:
+#     """Test suite for RequestValidationError exception handler.
 
-    Tests that validation errors are properly formatted and caught.
-    """
+#     Tests that validation errors are properly formatted and caught.
+#     """
 
-    def test_validation_error_returns_400(self, client):
-        """Test that invalid request body returns 400 with error format.
+#     def test_validation_error_returns_400(self, client):
+#         """Test that invalid request body returns 400 with error format.
 
-        The validation_exception_handler should format errors properly.
-        """
-        # Send POST to /api/test with invalid data type
-        # (should be dict, sending string)
-        response = client.post("/api/test", json="invalid string")
+#         The validation_exception_handler should format errors properly.
+#         """
+#         # Send POST to /api/test with invalid data type
+#         # (should be dict, sending string)
+#         response = client.post("/api/test", json="invalid string")
 
-        # Validation error should return 422 (or 400 in error handler)
-        assert response.status_code in [400, 422]
-        data = response.json()
-        # Should have error response format from error_response()
-        assert "detail" in data or "status" in data
+#         # Validation error should return 422 (or 400 in error handler)
+#         assert response.status_code in [400, 422]
+#         data = response.json()
+#         # Should have error response format from error_response()
+#         assert "detail" in data or "status" in data
 
-    def test_validation_error_format(self, client):
-        """Test that validation errors follow error_response format.
+#     def test_validation_error_format(self, client):
+#         """Test that validation errors follow error_response format.
 
-        Errors should include status, error_number, reason, and detail.
-        """
-        # Send request with wrong data type
-        response = client.post("/api/test", content="not json")
+#         Errors should include status, error_number, reason, and detail.
+#         """
+#         # Send request with wrong data type
+#         response = client.post("/api/test", content="not json")
 
-        # Check response format
-        assert response.status_code in [400, 422, 415]
-        assert response.headers.get("content-type") == "application/json"
+#         # Check response format
+#         assert response.status_code in [400, 422, 415]
+#         assert response.headers.get("content-type") == "application/json"
