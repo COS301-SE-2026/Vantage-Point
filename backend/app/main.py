@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -16,6 +17,8 @@ from app.schemas.generic_schemas import get_error_reason
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -99,6 +102,7 @@ async def validation_exception_handler(
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception("Unhandled error on %s", request.url.path)
     return JSONResponse(
         status_code=500,
         content=error_response(500, "Unexpected server error"),

@@ -1,63 +1,9 @@
-import os
-import socket
 from unittest.mock import AsyncMock, patch
 
-import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.pool import NullPool
-from sqlmodel import SQLModel
 
-from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD
-from app.tests.db_url import get_pytest_database_url
-
-os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
-
-from app.database.session import get_session  # noqa: E402
-from app.main import app  # noqa: E402
-
-
-def _postgres_available() -> bool:
-    try:
-        with socket.create_connection(("127.0.0.1", 5432), timeout=0.5):
-            return True
-    except OSError:
-        return False
-
-
-DATABASE_URL = get_pytest_database_url()
-requires_postgres = pytest.mark.skipif(
-    not DATABASE_URL or not _postgres_available(),
-    reason="DATABASE_URL must be set and PostgreSQL available on localhost:5432",
-)
-
-
-@pytest.fixture
-def db_client():
-    import asyncio
-
-    assert DATABASE_URL is not None
-    engine = create_async_engine(DATABASE_URL, poolclass=NullPool)
-
-    async def _setup():
-        async with engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.drop_all)
-            await conn.run_sync(SQLModel.metadata.create_all)
-
-    asyncio.run(_setup())
-
-    async def override_get_session():
-        async with AsyncSession(engine) as session:
-            yield session
-
-    app.router.on_startup.clear()
-
-    app.dependency_overrides[get_session] = override_get_session
-    test_client = TestClient(app)
-    yield test_client
-    test_client.close()
-    app.dependency_overrides.clear()
-    asyncio.run(engine.dispose())
+from app.tests.constants import TEST_USER_PASSWORD
+from app.tests.postgres_fixtures import requires_postgres
 
 
 def _register_payload(email: str):

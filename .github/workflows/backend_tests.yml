@@ -28,12 +28,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Format check with Black
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && black --check app
 
       - name: Lint with Ruff
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && ruff check app
 
       - name: Type check with MyPy
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && mypy app
 
   test:
