@@ -153,3 +153,14 @@ jobs:
           path: frontend/dist/
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: Commit coverage badge
+        working-directory: frontend
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout -b badges 2>/dev/null || git checkout badges
+          cp coverage-badge.svg ../frontend-coverage-badge.svg
+          git add ../frontend-coverage-badge.svg
+          git commit -m "Update frontend coverage badge" || true
+          git push origin badges -f

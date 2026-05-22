@@ -101,3 +101,13 @@ jobs:
           name: coverage-badge
           path: backend/coverage-badge.svg
           retention-days: 30
+
+      - name: Commit coverage badge
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout -b badges 2>/dev/null || git checkout badges
+          cp backend/coverage-badge.svg backend-coverage-badge.svg
+          git add backend-coverage-badge.svg
+          git commit -m "Update backend coverage badge" || true
+          git push origin badges -f
