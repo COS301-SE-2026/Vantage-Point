@@ -86,33 +86,50 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 ## Project Structure
 ```
 Vantage-Point/
-├── backend/              # FastAPI server
+├── .devcontainer/            # Local containerized development environment
+│   ├── docker-compose.yml    # Multi-container orchestration (DB, App, Client)
+│   ├── devcontainer.json     # VS Code container environment specification tool settings
+│   ├── post-create.sh        # Automated environment setup script
+│   └── start-services.sh     # Service initialization script
+│
+├── .github/                  # GitHub workflows, actions, and workspace configurations
+│   ├── docs/                 # Internal design, API, and scrum methodology logs
+│   └── workflows/            # CI/CD automated test & security pipelines
+│
+├── backend/                  # FastAPI REST API & machine learning engine
 │   ├── app/
-│   │   ├── api/          # API routes (v1)
-│   │   ├── services/     # Business logic
-│   │   ├── models/       # SQLModel schemas
-│   │   ├── tests/        # Unit & integration tests
-│   │   ├── utils/        # Logging, helpers
-│   │   └── main.py       # App entry point
-│   ├── requirements-dev.txt
-│   └── README.md         # Backend guide
+│   │   ├── api/              # API router configurations & routing middleware
+│   │   ├── database/         # Database layer, schema + models, seeding scripts and session transaction engine
+│   │   ├── pred_engine/      # Match analytics predictive ML pipeline
+│   │   │   └── knn_model.py  # K-Nearest Neighbors core model logic
+│   │   ├── schemas/          # Used in Services
+│   │   ├── services/         # Decoupled business logic & provider layer
+│   │   ├── tests/            # Unit & Integration Tests; Automated backend testing logic (Pytest)
+│   │   ├── utils/            # Helper functions and rate-limiting scripts
+│   │   ├── config.py         # App environment configuration & secrets manager
+│   │   └── main.py           # Application server root entry point
+│   ├── mypy.ini              # Static type linting rules
+│   ├── pytest.ini            # Pytest execution configurations
+│   ├── requirements.txt      # Runtime server dependencies
+│   └── requirements-dev.txt  # Local test/lint utilities
 │
-├── frontend/             # React + Vite + Tailwind
+├── frontend/                 # Single-Page Application (React + Vite + Tailwind)
+│   ├── public/               # Global static assets (SVG favicons/icons)
 │   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── pages/        # Page components
-│   │   ├── assets/       # Images, fonts (bundled)
-│   │   ├── __tests__/    # Vitest tests
-│   │   ├── utils/        # Helpers, services
-│   │   └── App.jsx       # Entry component
-│   ├── public/           # Static files (favicon, manifest)
-│   ├── package.json
-│   └── README.md         # Frontend guide
+│   │   ├── pages/            # Client interface layouts (Login, Register, Dashboard)
+│   │   ├── services/         # Axios/Fetch client endpoints (authService, API configurations)
+│   │   ├── __tests__/        # Client-side Vitest test suites
+│   │   ├── App.jsx           # Application shell and component router
+│   │   ├── index.css         # Main stylesheet & Tailwind imports
+│   │   └── main.jsx          # Client virtual DOM registration entry point
+│   ├── eslint.config.js      # JS code style linting rules
+│   ├── tailwind.config.js    # Utility-first CSS theme extensions
+│   ├── vite.config.js        # Vite bundling engine customization
+│   └── vitest.config.ts      # Client testing runtime configurations
 │
-├── .github/
-│   └── workflows/        # GitHub Actions CI/CD
-│
-└── README.md             # Main project guide
+├── .gitignore                # Global Git version control exclusions
+├── .gitattributes            # Global Git configuration file used to define standardized line endings
+└── README.md                 # Primary project overview and setup documentation
 ```
 
 ## Branching Strategy
@@ -147,6 +164,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 - **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
 - **[Functional Requirements (SRS)](.github/docs/SRS_v2.pdf)** - Functional, architectural and technology requirements
 - **[Setup Guide](.github/docs/SETUP.md)** - Initial project setup and dependencies
+- **[Dev Quickstart](.github/docs/Dev-Quickstart.md)** - Seed database, run backend/frontend, sign in as test user
 - **[Backend Development Guide](.github/docs/BACKEND_DEV.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/FRONTEND_DEV.md)** - Frontend setup, components, styling, testing
 - **[CI/CD Documentation](.github/docs/CICD.md)** - GitHub Actions workflows, automated testing, deployment pipeline

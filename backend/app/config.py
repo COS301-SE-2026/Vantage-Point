@@ -22,8 +22,6 @@ class Settings(BaseSettings):
     debug: bool = True
     host: str = "0.0.0.0"
     port: int = 8000
-    secret_key: str = "your-secret-key-change-in-production"
-
     # ============ Rate Limiting ============
     rate_limit_requests: int = 20
     rate_limit_seconds: int = 1
