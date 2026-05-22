@@ -163,6 +163,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 
 - **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
 - **[Setup Guide](.github/docs/SETUP.md)** - Initial project setup and dependencies
+- **[Dev Quickstart](.github/docs/Dev-Quickstart.md)** - Seed database, run backend/frontend, sign in as test user
 - **[Backend Development Guide](.github/docs/BACKEND_DEV.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/FRONTEND_DEV.md)** - Frontend setup, components, styling, testing
 - **[CI/CD Documentation](.github/docs/CICD.md)** - GitHub Actions workflows, automated testing, deployment pipeline

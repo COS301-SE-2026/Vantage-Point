@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import {
   landingBackgroundImages,
   landingSlideIndices,
@@ -64,35 +63,52 @@ function Frame({ currentSlide, onDotClick }: FrameSlideProps) {
   );
 }
 
-function LeftPanelForm() {
-  const navigate = useNavigate();
+export type RiotIdFormProps = Readonly<{
+  riotId: string;
+  error?: string | null;
+  loading?: boolean;
+  onRiotIdChange: (value: string) => void;
+  onSubmit: () => void;
+}>;
 
+function LeftPanelForm({ form }: Readonly<{ form: RiotIdFormProps }>) {
   return (
     <div
-      className="absolute left-0 top-0 z-20 box-border flex h-full w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(24px,5vh,48px)]"
+      className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(24px,5vh,48px)]"
       data-name="left-panel"
     >
       <div className="flex w-full max-w-[min(378px,100%)] flex-1 flex-col items-center justify-center gap-8">
         <Logo />
         <div className="flex w-full flex-col gap-6">
+          {form.error ? (
+            <p
+              className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center"
+              role="alert"
+            >
+              {form.error}
+            </p>
+          ) : null}
           <div className="flex flex-col gap-[8px]" data-name="Input Field">
             <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
               Riot ID
             </p>
             <input
               type="text"
+              value={form.riotId}
+              onChange={(e) => form.onRiotIdChange(e.target.value)}
               placeholder="What's your riot id?"
               className={authInputClassName}
             />
           </div>
           <button
             type="button"
-            onClick={() => navigate("/sign-in-loading")}
-            className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors"
+            disabled={form.loading}
+            onClick={form.onSubmit}
+            className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
               <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
-                Submit
+                {form.loading ? "Linking…" : "Submit"}
               </p>
             </div>
           </button>
@@ -132,7 +148,7 @@ function RightPanel({ currentSlide, onDotClick }: FrameSlideProps) {
   );
 }
 
-export default function RiotId() {
+export default function RiotId({ form }: Readonly<{ form: RiotIdFormProps }>) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -150,7 +166,7 @@ export default function RiotId() {
   return (
     <div className="relative size-full" data-name="RiotId">
       <RightPanel currentSlide={currentSlide} onDotClick={handleDotClick} />
-      <LeftPanelForm />
+      <LeftPanelForm form={form} />
     </div>
   );
 }
