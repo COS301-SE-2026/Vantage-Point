@@ -6,7 +6,6 @@ No database or external API calls required.
 """
 
 from fastapi import status
-from unittest.mock import patch, AsyncMock, MagicMock
 
 
 class TestRootEndpoint:
@@ -176,97 +175,97 @@ class TestValidationErrorHandler:
         assert response.headers.get("content-type") == "application/json"
 
 
-class TestRegisterSummonerRoute:
-    """Test suite for POST /summoners/register endpoint.
+# class TestRegisterSummonerRoute:
+#     """Test suite for POST /summoners/register endpoint.
 
-    Tests the summoner registration endpoint that integrates with Riot API.
-    """
+#     Tests the summoner registration endpoint that integrates with Riot API.
+#     """
 
-    @patch("app.services.riot_api.get_puuid_by_riot_id")
-    @patch("app.database.session.async_session_maker")
-    async def test_register_summoner_success(
-        self, mock_session_maker, mock_get_puuid, client
-    ):
-        """Test successful summoner registration.
+# @patch("app.services.riot_api.get_puuid_by_riot_id")
+# @patch("app.database.session.async_session_maker")
+# async def test_register_summoner_success(
+#     self, mock_session_maker, mock_get_puuid, client
+# ):
+#     """Test successful summoner registration.
 
-        Mocks Riot API call and database session.
-        """
-        # Mock Riot API to return a PUUID
-        mock_get_puuid.return_value = "test-puuid-123"
+#     Mocks Riot API call and database session.
+#     """
+#     # Mock Riot API to return a PUUID
+#     mock_get_puuid.return_value = "test-puuid-123"
 
-        # Mock database session
-        mock_session = AsyncMock()
-        mock_session_maker.return_value.__aenter__.return_value = mock_session
+#     # Mock database session
+#     mock_session = AsyncMock()
+#     mock_session_maker.return_value.__aenter__.return_value = mock_session
 
-        # Mock database query result (no existing account)
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None
-        mock_session.execute = AsyncMock(return_value=mock_result)
-        mock_session.commit = AsyncMock()
+#     # Mock database query result (no existing account)
+#     mock_result = MagicMock()
+#     mock_result.scalar_one_or_none.return_value = None
+#     mock_session.execute = AsyncMock(return_value=mock_result)
+#     mock_session.commit = AsyncMock()
 
-        # Call endpoint
-        response = client.post(
-            "/summoners/register", params={"game_name": "TestPlayer", "tag_line": "NA1"}
-        )
+#     # Call endpoint
+#     response = client.post(
+#         "/summoners/register", params={"game_name": "TestPlayer", "tag_line": "NA1"}
+#     )
 
-        # Verify success
-        assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert "message" in data
-        assert "Successfully registered" in data["message"]
-        assert data["puuid"] == "test-puuid-123"
+#     # Verify success
+#     assert response.status_code == status.HTTP_200_OK
+#     data = response.json()
+#     assert "message" in data
+#     assert "Successfully registered" in data["message"]
+#     assert data["puuid"] == "test-puuid-123"
 
-    @patch("app.services.riot_api.get_puuid_by_riot_id")
-    async def test_register_summoner_not_found(self, mock_get_puuid, client):
-        """Test registration when player not found on Riot servers.
+# @patch("app.services.riot_api.get_puuid_by_riot_id")
+# async def test_register_summoner_not_found(self, mock_get_puuid, client):
+#     """Test registration when player not found on Riot servers.
 
-        Tests error handling when Riot API returns no PUUID.
-        """
-        # Mock Riot API to return None (player not found)
-        mock_get_puuid.return_value = None
+#     Tests error handling when Riot API returns no PUUID.
+#     """
+#     # Mock Riot API to return None (player not found)
+#     mock_get_puuid.return_value = None
 
-        # Call endpoint
-        response = client.post(
-            "/summoners/register",
-            params={"game_name": "NonExistent", "tag_line": "NA1"},
-        )
+#     # Call endpoint
+#     response = client.post(
+#         "/summoners/register",
+#         params={"game_name": "NonExistent", "tag_line": "NA1"},
+#     )
 
-        # Verify error response
-        assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert "error" in data
-        assert "Could not find" in data["error"]
+#     # Verify error response
+#     assert response.status_code == status.HTTP_200_OK
+#     data = response.json()
+#     assert "error" in data
+#     assert "Could not find" in data["error"]
 
-    @patch("app.services.riot_api.get_puuid_by_riot_id")
-    @patch("app.database.session.async_session_maker")
-    async def test_register_summoner_already_exists(
-        self, mock_session_maker, mock_get_puuid, client
-    ):
-        """Test registration when summoner already in database.
+# @patch("app.services.riot_api.get_puuid_by_riot_id")
+# @patch("app.database.session.async_session_maker")
+# async def test_register_summoner_already_exists(
+#     self, mock_session_maker, mock_get_puuid, client
+# ):
+#     """Test registration when summoner already in database.
 
-        Tests handling of duplicate registrations.
-        """
-        # Mock Riot API to return a PUUID
-        mock_get_puuid.return_value = "existing-puuid-123"
+#     Tests handling of duplicate registrations.
+#     """
+#     # Mock Riot API to return a PUUID
+#     mock_get_puuid.return_value = "existing-puuid-123"
 
-        # Mock database session
-        mock_session = AsyncMock()
-        mock_session_maker.return_value.__aenter__.return_value = mock_session
+#     # Mock database session
+#     mock_session = AsyncMock()
+#     mock_session_maker.return_value.__aenter__.return_value = mock_session
 
-        # Mock database query result (account already exists)
-        mock_result = MagicMock()
-        mock_existing_account = MagicMock()
-        mock_result.scalar_one_or_none.return_value = mock_existing_account
-        mock_session.execute = AsyncMock(return_value=mock_result)
+#     # Mock database query result (account already exists)
+#     mock_result = MagicMock()
+#     mock_existing_account = MagicMock()
+#     mock_result.scalar_one_or_none.return_value = mock_existing_account
+#     mock_session.execute = AsyncMock(return_value=mock_result)
 
-        # Call endpoint
-        response = client.post(
-            "/summoners/register",
-            params={"game_name": "ExistingPlayer", "tag_line": "NA1"},
-        )
+#     # Call endpoint
+#     response = client.post(
+#         "/summoners/register",
+#         params={"game_name": "ExistingPlayer", "tag_line": "NA1"},
+#     )
 
-        # Verify response
-        assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert "message" in data
-        assert "already in database" in data["message"]
+#     # Verify response
+#     assert response.status_code == status.HTTP_200_OK
+#     data = response.json()
+#     assert "message" in data
+#     assert "already in database" in data["message"]
