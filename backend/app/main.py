@@ -1,21 +1,21 @@
+import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from typing import Any, Dict
+from typing import Any
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
-from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
 from app.api.middleware import ProcessTimeMiddleware
-from app.api.routes import router
-from app.database.models import GameAccounts
-from app.database.session import async_session_maker
-from app.services.riot_api import get_puuid_by_riot_id
 from app.schemas.generic_schemas import get_error_reason
+from app.api.routes import router
+from app.services.avatar_storage import ensure_avatar_dir, UPLOADS_DIR
+from app.database.session import init_db
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -65,9 +65,7 @@ app.add_middleware(
 )
 app.add_middleware(ProcessTimeMiddleware)
 
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(matches.router)
+app.include_router(router, prefix="/api")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
