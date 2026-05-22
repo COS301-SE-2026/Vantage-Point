@@ -29,6 +29,16 @@ Have a `backend/.env` before running the backend. This file is gitignored so not
 ```env
 DATABASE_URL=postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
 RIOT_API_KEY=your_key_here
+JWT_SECRET=change-me-to-a-long-random-string
+SEED_DEV_PASSWORD=choose-a-dev-only-password
+JWT_ACCESS_EXPIRE_MINUTES=30
+JWT_REFRESH_EXPIRE_DAYS=7
+```
+
+For the frontend, copy `frontend/.env.example` to `frontend/.env` and set:
+
+```env
+VITE_API_URL=http://localhost:8000
 ```
 
 ### Dev Container environment variables (`.devcontainer/.env`)
@@ -62,10 +72,13 @@ Note the host is `db`, not `localhost` — that's the service name from `docker-
 ### Schema and ER Diagram
 | Table                | Primary Key           | Notes |
 |----------------------|-----------------------|-------|
-| `users`              | `cognito_sub` (str)   | Cognito `sub` claim; stores email, no password |
-| `game_accounts`      | `puuid` (str)         | Riot's global player ID, stable across name changes |
+| `users`              | `id` (UUID str)       | Email/password auth; `display_name` for profile header |
+| `game_accounts`      | `puuid` (str)         | Riot player ID; `profile_matches_sampled` drives "Last N matches" label |
 | `user_game_accounts` | `id` (int, auto)      | Join table allowing a user to link multiple game accounts |
-| `matches`            | `match_id` (str)      | Riot match ID, e.g. `EUW1_1234567890` |
+| `achievement_definitions` | `id` (str)       | Achievement catalog (label, description, source field) |
+| `user_achievements`  | `id` (int, auto)      | Per-PUUID achievement counts for profile |
+| `user_featured_games`| `id` (int, auto)      | Featured-game banner slides per PUUID |
+| `matches`            | `match_id` (str)      | Riot match ID; includes `game_creation`, `map_id`, `played_on`, `detail_json` (scoreboard) |
 | `champions`          | `champion_id` (int)   | Matches Riot's own champion ID |
 | `participants`       | `internal_id` (int, auto) | Links a game account, match, and champion; stores per‑match stats |
  
@@ -126,10 +139,35 @@ Expected output:
 The database starts empty. To populate the `champions` table with real Riot IDs and static stats from the dataset, run the seed script **manually**:
 
 ```bash
-cd /workspaces/backend
+cd backend
+python3 -m venv .venv   # first time only
+.venv/bin/pip install -r requirements.txt   # first time only
+.venv/bin/python -m app.database.seed
+```
 
+### Auth API (email/password + JWT)
+
+After changing the `users` schema, reset the database (seed drops and recreates tables):
+
+```bash
+cd /workspaces/backend
 python -m app.database.seed
 ```
+
+| Endpoint | Method | Auth | Purpose |
+|----------|--------|------|---------|
+| `/api/v1/auth/register` | POST | No | Create account; returns access + refresh tokens |
+| `/api/v1/auth/login` | POST | No | Sign in |
+| `/api/v1/auth/refresh` | POST | No | Refresh access token |
+| `/api/v1/users/me` | GET | Bearer | Profile identity + linked Riot ID |
+| `/api/v1/users/me/profile` | GET | Bearer | Profile aggregates (radar, champions, achievements) |
+| `/api/v1/users/me/game-accounts` | POST | Bearer | Link Riot ID (`Name#TAG`) via Riot API |
+| `/api/v1/matches` | GET | Bearer | Match history for linked account |
+| `/api/v1/matches/{match_id}` | GET | Bearer | Full match detail (scoreboard) |
+
+Seed users: `testuser1@vantagepoint.dev` / `testuser2@vantagepoint.dev` with password from `SEED_DEV_PASSWORD` in `backend/.env`. See [Dev-Quickstart.md](./Dev-Quickstart.md) for the full seed → run → login flow.
+
+**Seeded dev data (viewer `You#EUW`, PUUID `seed-viewer-puuid`):** 8 matches, 7 achievements, 2 featured-game banners, `profile_matches_sampled=20`. Match list rows come from `participants`; each match’s scoreboard in `matches.detail_json` is built per `match_id` and aligned with the viewer’s list stats (champion, KDA, win/loss). Radar and recent champions are computed from `participants`; achievements and banner stats are read from `user_achievements` / `user_featured_games` (not from Match-v5 yet). Sign in as `testuser1` after seeding. Real Riot-linked accounts without seeded rows get empty achievements/banners until ingestion is added.
 
 ## Visualising the Schema
  
