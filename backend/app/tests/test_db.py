@@ -41,7 +41,6 @@ def get_database_url():
     return f"postgresql+asyncpg://{user}:{password}@{host}:5432/{db}"
 
 
-<<<<<<< HEAD
 # Setup Connection
 # DATABASE_URL = os.getenv("DATABASE_URL")
 DATABASE_URL = os.getenv(
@@ -49,10 +48,6 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db",
 )
 # engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
-=======
-DATABASE_URL = os.getenv("DATABASE_URL") or get_database_url()
-engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
->>>>>>> 4c1b02f3e7028644b29977fac2646e523176d011
 
 
 @pytest.fixture
