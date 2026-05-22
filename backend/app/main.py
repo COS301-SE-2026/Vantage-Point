@@ -39,6 +39,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+ensure_avatar_dir()
 app.mount(
     "/uploads",
     StaticFiles(directory=str(UPLOADS_DIR)),
