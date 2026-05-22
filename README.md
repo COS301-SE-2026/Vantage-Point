@@ -162,10 +162,11 @@ To ensure a stable and collaborative development workflow, the following strateg
 ## Documentation
 
 - **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
+- **[Setup Guide](.github/docs/Setup.md)** - Initial project setup and dependencies
 - **[Functional Requirements (SRS)](.github/docs/SRS_v2.pdf)** - Functional, architectural and technology requirements
-- **[Setup Guide](.github/docs/SETUP.md)** - Initial project setup and dependencies
 - **[Dev Quickstart](.github/docs/Dev-Quickstart.md)** - Seed database, run backend/frontend, sign in as test user
-- **[Backend Development Guide](.github/docs/BACKEND_DEV.md)** - Backend setup, testing, API development, code quality
-- **[Frontend Development Guide](.github/docs/FRONTEND_DEV.md)** - Frontend setup, components, styling, testing
+- **[Backend Development Guide](.github/docs/Backend-Development-Guide.md)** - Backend setup, testing, API development, code quality
+- **[Frontend Development Guide](.github/docs/Frontend-Development-Guide.md)** - Frontend setup, components, styling, testing
 - **[CI/CD Documentation](.github/docs/CICD.md)** - GitHub Actions workflows, automated testing, deployment pipeline
-- **[SCRUM & Sprint Planning](.github/docs/SCRUM_SETUP.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
+- **[SCRUM & Sprint Planning](.github/docs/Scrum-Setup.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
+- **[Brand Style Guide](.github/docs/Brand-Style.md)** - Brand style guide for consistent UI/UX across the application
