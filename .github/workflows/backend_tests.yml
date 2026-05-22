@@ -82,10 +82,37 @@ jobs:
           path: backend/htmlcov/
           retention-days: 30
 
-      # Limit reached - Renenable when codecov limit is lifted
-      # - name: Upload to Codecov
-      #   uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
-      #   with:
-      #     file: ./backend/coverage.xml
-      #     flags: backend
-      #     fail_ci_if_error: true
+      - name: Generate coverage badge
+        run: |
+          cd backend
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; root = ET.parse('coverage.xml').getroot(); print(f'{float(root.attrib[\"line-rate\"])*100:.1f}')")
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$COVERAGE >= 70" | bc -l) )); then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+
+          curl "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" -o coverage-badge.svg
+
+      - name: Upload coverage badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: backend/coverage-badge.svg
+          retention-days: 30
+
+      - name: Commit and push coverage badge
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+        run: |
+          cd backend
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add coverage-badge.svg
+          git commit -m "chore: update backend coverage badge" || true
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

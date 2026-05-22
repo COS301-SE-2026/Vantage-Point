@@ -1,18 +1,44 @@
+from contextlib import asynccontextmanager
+from typing import Any
+
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import SQLModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from app.api.middleware import ProcessTimeMiddleware
+from app.database.session import init_db
+from app.routers import auth, matches, users
+from app.schemas.generic_schemas import get_error_reason
+from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
 
 load_dotenv()
 
-from app.database.session import engine
-from app.routers import auth, matches, users
-from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
 
-app = FastAPI(title="Vantage Point Backend")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ensure_avatar_dir()
+    try:
+        await init_db()
+        print("Tables are ready.")
+    except Exception as exc:
+        print(f"Database initialization skipped: {exc}")
+    yield
 
-ensure_avatar_dir()
+
+app = FastAPI(
+    title="Vantage Point Backend",
+    description=(
+        "API for authentication, profile management, Riot match data, and spatial "
+        "intelligence features."
+    ),
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
 app.mount(
     "/uploads",
     StaticFiles(directory=str(UPLOADS_DIR)),
@@ -31,18 +57,51 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Process-Time"],
 )
+app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(matches.router)
 
 
-@app.on_event("startup")
-async def on_startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-    print("Tables are ready.")
+def error_response(status_code: int, detail: Any) -> dict[str, Any]:
+    return {
+        "status": "error",
+        "error_number": status_code,
+        "reason": get_error_reason(status_code),
+        "detail": detail,
+    }
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=error_response(exc.status_code, exc.detail),
+        headers=exc.headers,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=400,
+        content=error_response(400, exc.errors()),
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content=error_response(500, "Unexpected server error"),
+    )
 
 
 @app.get("/")
