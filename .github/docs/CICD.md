@@ -82,6 +82,10 @@ cd frontend
 # Install dev dependencies
 npm install
 
+# run format and lint checks
+npm run format:check
+npm run lint
+
 # Run tests with coverage
 npm run test:coverage -- --run 
 ```
