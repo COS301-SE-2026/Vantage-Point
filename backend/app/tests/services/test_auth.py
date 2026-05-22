@@ -204,7 +204,7 @@ class TestLoginUser:
             }
         }
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             return mock_response
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -228,7 +228,7 @@ class TestLoginUser:
             }
         }
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             raise ClientError(error_response, "initiate_auth")
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -254,7 +254,7 @@ class TestConfirmUser:
         Real confirm_user() executes.
         """
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             return {}
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -277,7 +277,7 @@ class TestConfirmUser:
             }
         }
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             raise ClientError(error_response, "confirm_sign_up")
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -301,7 +301,7 @@ class TestLogoutUser:
         Real logout_user() executes.
         """
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             return {}
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -325,7 +325,7 @@ class TestLogoutUser:
             }
         }
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             raise ClientError(error_response, "global_sign_out")
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -351,7 +351,7 @@ class TestRevokeRefreshToken:
         Real revoke_refresh_token() executes.
         """
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             return {}
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -375,7 +375,7 @@ class TestRevokeRefreshToken:
             }
         }
 
-        async def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(func, *args, **kwargs):
             raise ClientError(error_response, "revoke_token")
 
         mock_to_thread.side_effect = mock_to_thread_impl
