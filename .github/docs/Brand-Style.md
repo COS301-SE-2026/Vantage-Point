@@ -1,4 +1,4 @@
-# 4.2.1 Brand Style
+# Brand Style
 
 The brand style defines the visual identity of Vantage Point and ensures a consistent, professional appearance across all interfaces. This document reflects what is **implemented in the codebase** today (`frontend/src`), not aspirational guidelines.
 
