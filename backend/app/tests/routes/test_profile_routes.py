@@ -38,7 +38,7 @@ class TestProfileRoutes:
             "avg_kda": "3.5 / 2.0 / 12.0",
             "win_rate": "65%",
             "top_champions": ["Thresh"],
-            "recent_performance": "Excellent"
+            "recent_performance": "Excellent",
         }
         mock_summary.return_value = (10, mock_player_summary)
 
@@ -65,7 +65,7 @@ class TestProfileRoutes:
             "avg_kda": "0.0 / 0.0 / 0.0",
             "win_rate": "0%",
             "top_champions": [],
-            "recent_performance": "New Player"
+            "recent_performance": "New Player",
         }
         mock_summary.return_value = (0, mock_player_summary)
 
