@@ -7,7 +7,6 @@ No database or external API calls required.
 
 from fastapi import status
 from unittest.mock import patch, AsyncMock, MagicMock
-import pytest
 
 
 class TestRootEndpoint:
@@ -185,7 +184,9 @@ class TestRegisterSummonerRoute:
 
     @patch("app.main.get_puuid_by_riot_id")
     @patch("app.main.async_session_maker")
-    async def test_register_summoner_success(self, mock_session_maker, mock_get_puuid, client):
+    async def test_register_summoner_success(
+        self, mock_session_maker, mock_get_puuid, client
+    ):
         """Test successful summoner registration.
 
         Mocks Riot API call and database session.
@@ -205,8 +206,7 @@ class TestRegisterSummonerRoute:
 
         # Call endpoint
         response = client.post(
-            "/summoners/register",
-            params={"game_name": "TestPlayer", "tag_line": "NA1"}
+            "/summoners/register", params={"game_name": "TestPlayer", "tag_line": "NA1"}
         )
 
         # Verify success
@@ -228,7 +228,7 @@ class TestRegisterSummonerRoute:
         # Call endpoint
         response = client.post(
             "/summoners/register",
-            params={"game_name": "NonExistent", "tag_line": "NA1"}
+            params={"game_name": "NonExistent", "tag_line": "NA1"},
         )
 
         # Verify error response
@@ -239,7 +239,9 @@ class TestRegisterSummonerRoute:
 
     @patch("app.main.get_puuid_by_riot_id")
     @patch("app.main.async_session_maker")
-    async def test_register_summoner_already_exists(self, mock_session_maker, mock_get_puuid, client):
+    async def test_register_summoner_already_exists(
+        self, mock_session_maker, mock_get_puuid, client
+    ):
         """Test registration when summoner already in database.
 
         Tests handling of duplicate registrations.
@@ -260,7 +262,7 @@ class TestRegisterSummonerRoute:
         # Call endpoint
         response = client.post(
             "/summoners/register",
-            params={"game_name": "ExistingPlayer", "tag_line": "NA1"}
+            params={"game_name": "ExistingPlayer", "tag_line": "NA1"},
         )
 
         # Verify response
