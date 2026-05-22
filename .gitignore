@@ -17,7 +17,6 @@ pip-delete-this-directory.txt
 .ruff_cache/
 .mypy_cache/
 .coverage
-frontend/coverage
 .coverage.*
 *.coverage.*
 backend/.coverage
@@ -32,6 +31,7 @@ build/
 *.whl
 pip-wheel-metadata/
 share/python-wheels/
+backend/registrations.txt
 
 *.py[cod]
 *$py.class
@@ -57,6 +57,7 @@ env.bak/
 node_modules/
 frontend/dist/
 frontend/build/
+frontend/coverage
 
 # OS
 .DS_Store
