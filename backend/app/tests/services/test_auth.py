@@ -9,7 +9,7 @@ Also includes integration tests for authentication endpoints.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
 from fastapi.testclient import TestClient
@@ -24,7 +24,6 @@ from app.services.auth_service import (
     _handle_cognito_error,
 )
 from app.tests.constants import TEST_USER_PASSWORD
-from app.tests.postgres_fixtures import requires_postgres
 
 
 def _register_payload(email: str):

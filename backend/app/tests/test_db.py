@@ -1,23 +1,9 @@
-import asyncio
 import os
 from socket import socket
 import pytest
-from sqlmodel import (
-    SQLModel,
-    select,
-)  # removed create_engine and Session because we are using the async versions now
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
 
 # Models now live in database/models.py — import from there, not from main.
-from app.database.models import (
-    Champions,
-    GameAccounts,
-    # Below are not yet used in this test but will be needed for future tests as we add more complex relationships and logic.
-    # Matches,
-    # Participants,
-    # UserGameAccounts,
-    # Users,
-)
 
 # TODO: add more models to this import as we add them to the database. We will need them for testing relationships and constraints.
 
