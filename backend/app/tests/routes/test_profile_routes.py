@@ -113,12 +113,12 @@ class TestMiscRoutes:
         yield
         app.dependency_overrides.clear()
 
-    async def test_get_matches_success(self, client):
+    def test_get_matches_success(self, client):
         """Test GET /api/matches returns mock match list."""
         response = client.get("/api/matches")
         assert response.status_code == status.HTTP_200_OK
 
-    async def test_update_riot_key(self, client):
+    def test_update_riot_key(self, client):
         """Test PUT /api/profile/riot-key."""
         payload = {"riot_api_key": "RGAPI-test-key-123"}
         response = client.put("/api/profile/riot-key", json=payload)
