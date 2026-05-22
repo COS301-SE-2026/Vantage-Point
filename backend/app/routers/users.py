@@ -25,9 +25,7 @@ router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 
 def _user_me_response(user: Users, account) -> UserMeResponse:
-    tag = (
-        riot_id_tag(account.game_name, account.tag_line) if account else None
-    )
+    tag = riot_id_tag(account.game_name, account.tag_line) if account else None
     return UserMeResponse(
         id=user.id,
         email=user.email,
@@ -95,9 +93,7 @@ async def get_my_profile(
         riot_id_tag(account.game_name, account.tag_line) if account else None
     )
     puuid = await get_primary_linked_puuid(session, current_user.id)
-    return await build_player_profile(
-        session, current_user, puuid, riot_id_tag_value
-    )
+    return await build_player_profile(session, current_user, puuid, riot_id_tag_value)
 
 
 async def _link_game_account_impl(

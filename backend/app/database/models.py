@@ -70,7 +70,9 @@ class GameAccounts(SQLModel, table=True):
     linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
     participations: List["Participants"] = Relationship(back_populates="game_account")
     achievements: List["UserAchievements"] = Relationship(back_populates="game_account")
-    featured_games: List["UserFeaturedGames"] = Relationship(back_populates="game_account")
+    featured_games: List["UserFeaturedGames"] = Relationship(
+        back_populates="game_account"
+    )
 
 
 # UserGameAccounts
