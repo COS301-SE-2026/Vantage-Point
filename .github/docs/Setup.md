@@ -30,6 +30,7 @@ Have a `backend/.env` before running the backend. This file is gitignored so not
 DATABASE_URL=postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
 RIOT_API_KEY=your_key_here
 JWT_SECRET=change-me-to-a-long-random-string
+SEED_DEV_PASSWORD=choose-a-dev-only-password
 JWT_ACCESS_EXPIRE_MINUTES=30
 JWT_REFRESH_EXPIRE_DAYS=7
 ```
@@ -164,7 +165,7 @@ python -m app.database.seed
 | `/api/v1/matches` | GET | Bearer | Match history for linked account |
 | `/api/v1/matches/{match_id}` | GET | Bearer | Full match detail (scoreboard) |
 
-Seed users: `testuser1@vantagepoint.dev` / `testuser2@vantagepoint.dev` with password `password123`.
+Seed users: `testuser1@vantagepoint.dev` / `testuser2@vantagepoint.dev` with password from `SEED_DEV_PASSWORD` in `backend/.env`. See [Dev-Quickstart.md](./Dev-Quickstart.md) for the full seed → run → login flow.
 
 **Seeded dev data (viewer `You#EUW`, PUUID `seed-viewer-puuid`):** 8 matches, 7 achievements, 2 featured-game banners, `profile_matches_sampled=20`. Match list rows come from `participants`; each match’s scoreboard in `matches.detail_json` is built per `match_id` and aligned with the viewer’s list stats (champion, KDA, win/loss). Radar and recent champions are computed from `participants`; achievements and banner stats are read from `user_achievements` / `user_featured_games` (not from Match-v5 yet). Sign in as `testuser1` after seeding. Real Riot-linked accounts without seeded rows get empty achievements/banners until ingestion is added.
 
