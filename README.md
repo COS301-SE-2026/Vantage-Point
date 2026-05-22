@@ -5,9 +5,9 @@
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
 [![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
-[![Backend Coverage](https://raw.githubusercontent.com/COS301-SE-2026/Vantage-Point/badges/backend-coverage-badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
+[![Backend Coverage](backend/coverage-badge.svg)](backend/htmlcov/index.html)
 [![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
-[![Frontend Coverage](https://raw.githubusercontent.com/COS301-SE-2026/Vantage-Point/badges/frontend-coverage-badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
+[![Frontend Coverage](frontend/coverage-badge.svg)](frontend/coverage/index.html)
 [![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
 
 ---
