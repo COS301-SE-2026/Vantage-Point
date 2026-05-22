@@ -59,7 +59,7 @@ async function refreshAccessToken(): Promise<boolean> {
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
-  retryOnUnauthorized = true
+  retryOnUnauthorized = true,
 ): Promise<T> {
   const { accessToken } = getStoredTokens();
   const headers = new Headers(options.headers);
@@ -109,7 +109,7 @@ export async function apiFetch<T>(
 export async function apiFetchFormData<T>(
   path: string,
   formData: FormData,
-  retryOnUnauthorized = true
+  retryOnUnauthorized = true,
 ): Promise<T> {
   const { accessToken } = getStoredTokens();
   const headers = new Headers();
@@ -153,7 +153,7 @@ export async function apiFetchFormData<T>(
 
 export async function apiFetchPublic<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const headers = new Headers(options.headers);
   if (!headers.has("Content-Type") && options.body) {

@@ -1,7 +1,7 @@
 from collections import Counter
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import col, select
 
 from app.database.models import (
     AchievementDefinitions,
@@ -59,7 +59,7 @@ async def _load_matches_sampled(session: AsyncSession, puuid: str) -> int:
         select(GameAccounts.profile_matches_sampled).where(GameAccounts.puuid == puuid)
     )
     value = result.scalar_one_or_none()
-    return value if value is not None else 0
+    return int(value) if value is not None else 0
 
 
 async def _load_achievements(
@@ -69,10 +69,10 @@ async def _load_achievements(
         select(UserAchievements, AchievementDefinitions)
         .join(
             AchievementDefinitions,
-            AchievementDefinitions.id == UserAchievements.achievement_id,
+            col(AchievementDefinitions.id) == col(UserAchievements.achievement_id),
         )
-        .where(UserAchievements.puuid == puuid)
-        .order_by(UserAchievements.achievement_id)
+        .where(col(UserAchievements.puuid) == puuid)
+        .order_by(col(UserAchievements.achievement_id))
     )
     return [
         PlayerAchievementResponse(
@@ -91,8 +91,8 @@ async def _load_featured_games(
 ) -> list[FeaturedGameSlideResponse]:
     result = await session.execute(
         select(UserFeaturedGames)
-        .where(UserFeaturedGames.puuid == puuid)
-        .order_by(UserFeaturedGames.sort_order)
+        .where(col(UserFeaturedGames.puuid) == puuid)
+        .order_by(col(UserFeaturedGames.sort_order))
     )
     slides = result.scalars().all()
     return [
@@ -139,10 +139,10 @@ async def build_player_profile(
 
     result = await session.execute(
         select(Participants, Matches, Champions)
-        .join(Matches, Matches.match_id == Participants.match_id)
-        .join(Champions, Champions.champion_id == Participants.champion_id)
-        .where(Participants.puuid == puuid)
-        .order_by(Matches.game_creation.desc())
+        .join(Matches, col(Matches.match_id) == col(Participants.match_id))
+        .join(Champions, col(Champions.champion_id) == col(Participants.champion_id))
+        .where(col(Participants.puuid) == puuid)
+        .order_by(col(Matches.game_creation).desc())
     )
     rows = result.all()
 

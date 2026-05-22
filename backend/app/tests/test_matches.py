@@ -1,5 +1,6 @@
 import os
 import socket
+from typing import Any, cast
 
 import pytest
 from fastapi.testclient import TestClient
@@ -86,7 +87,7 @@ def _login(client: TestClient, email: str) -> str:
         json={"email": email, "password": "password123"},
     )
     assert response.status_code == 200
-    return response.json()["access_token"]
+    return cast(str, response.json()["access_token"])
 
 
 @requires_postgres
@@ -103,11 +104,11 @@ def test_match_list_detail_and_profile(seeded_db_client: TestClient):
     match_8 = next(i for i in items if i["match_id"] == "EUW1_700000008")
     assert match_8["champion_name"] == "Thresh"
 
-    def viewer_from_detail(body: dict) -> dict:
+    def viewer_from_detail(body: dict[str, Any]) -> dict[str, Any]:
         for team in body["teams"]:
             for participant in team["participants"]:
                 if participant["is_viewer"]:
-                    return participant
+                    return cast(dict[str, Any], participant)
         raise AssertionError("viewer not found in match detail")
 
     match_1_list = next(i for i in items if i["match_id"] == "EUW1_700000001")

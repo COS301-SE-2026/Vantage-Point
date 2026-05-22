@@ -13,7 +13,9 @@ export default function ProtectedRoute({
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-white">
-        <p className="font-['Inter:Regular',sans-serif] text-[#757575]">Loading…</p>
+        <p className="font-['Inter:Regular',sans-serif] text-[#757575]">
+          Loading…
+        </p>
       </div>
     );
   }

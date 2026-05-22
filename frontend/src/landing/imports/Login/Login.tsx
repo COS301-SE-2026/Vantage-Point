@@ -231,8 +231,6 @@ function LeftPanelForm({
   setShowPassword,
   form,
 }: ShowPasswordProps & { form: LoginFormProps }) {
-  const navigate = useNavigate();
-
   return (
     <div
       className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(24px,5vh,48px)]"
@@ -325,9 +323,7 @@ function LogIn({ currentSlide, onDotClick }: FrameSlideProps) {
   );
 }
 
-export default function Login({
-  form,
-}: Readonly<{ form: LoginFormProps }>) {
+export default function Login({ form }: Readonly<{ form: LoginFormProps }>) {
   const [showPassword, setShowPassword] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 

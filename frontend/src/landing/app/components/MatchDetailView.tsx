@@ -45,11 +45,11 @@ function formatNumber(n: number): string {
 
 function viewerParticipant(
   match: MatchDetail,
-  viewerPuuid?: string
+  viewerPuuid?: string,
 ): ParticipantDetail | undefined {
   for (const team of match.teams) {
     const found = team.participants.find(
-      (p) => p.is_viewer || (viewerPuuid && p.puuid === viewerPuuid)
+      (p) => p.is_viewer || (viewerPuuid && p.puuid === viewerPuuid),
     );
     if (found) return found;
   }
@@ -69,20 +69,20 @@ function LoadingSkeleton() {
   );
 }
 
-function ParticipantRow({
-  player,
-}: Readonly<{ player: ParticipantDetail }>) {
+function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
   const isViewer = player.is_viewer;
   const rowBg = isViewer ? "bg-[#dce8fc]" : "";
   const cellBase = `py-2 ${rowBg}`;
 
   return (
-    <tr className={isViewer ? "shadow-[inset_0_0_0_1px_#9bb8e8]" : "border-b border-[#eee]"}>
+    <tr
+      className={
+        isViewer ? "shadow-[inset_0_0_0_1px_#9bb8e8]" : "border-b border-[#eee]"
+      }
+    >
       <td
         className={`${cellBase} pr-2 ${
-          isViewer
-            ? "border-l-4 border-l-[#2f6fd4] pl-2"
-            : "pl-2"
+          isViewer ? "border-l-4 border-l-[#2f6fd4] pl-2" : "pl-2"
         }`}
       >
         <div className="flex items-center gap-2 min-w-0">
@@ -197,7 +197,9 @@ function TeamScoreboard({
         <h3 className={`text-sm font-semibold ${sideColor}`}>{sideLabel}</h3>
         <span
           className={`text-xs font-medium px-2 py-0.5 rounded ${
-            team.win ? "bg-[#e6f4ea] text-[#1e7e34]" : "bg-[#fce8e8] text-[#c44a4a]"
+            team.win
+              ? "bg-[#e6f4ea] text-[#1e7e34]"
+              : "bg-[#fce8e8] text-[#c44a4a]"
           }`}
         >
           {team.win ? "Victory" : "Defeat"}
@@ -325,7 +327,7 @@ export default function MatchDetailView({
     setError(null);
     setMatch(null);
 
-    fetchMatchDetail(matchId, viewerPuuid)
+    fetchMatchDetail(matchId)
       .then((data) => {
         if (!cancelled) {
           if (!data.teams?.length) {
@@ -348,14 +350,8 @@ export default function MatchDetailView({
   }, [matchId, viewerPuuid]);
 
   const viewer = match ? viewerParticipant(match, viewerPuuid) : undefined;
-  const resultLabel = viewer
-    ? viewer.win
-      ? "Victory"
-      : "Defeat"
-    : null;
-  const resultClass = viewer?.win
-    ? "text-[#1e7e34]"
-    : "text-[#c44a4a]";
+  const resultLabel = viewer ? (viewer.win ? "Victory" : "Defeat") : null;
+  const resultClass = viewer?.win ? "text-[#1e7e34]" : "text-[#c44a4a]";
 
   const blueTeam = match?.teams.find((t) => t.team_id === 100);
   const redTeam = match?.teams.find((t) => t.team_id === 200);
@@ -380,51 +376,50 @@ export default function MatchDetailView({
         </button>
 
         <header className="mb-6 border-b border-[#eee] pb-4">
-            {loading && (
-              <h1 className="text-[#1e1e1e] text-xl font-semibold">Loading match…</h1>
-            )}
-            {error && (
-              <h1 className="text-[#c44a4a] text-xl font-semibold">{error}</h1>
-            )}
-            {match && viewer && (
-              <>
-                <div className="flex flex-wrap items-center gap-3">
-                  <img
-                    src={championIconUrl(viewer.champion_name)}
-                    alt=""
-                    className="size-12 rounded"
-                  />
-                  <div>
-                    <h1
-                      className={`text-2xl font-semibold ${resultClass}`}
-                    >
-                      {resultLabel}
-                    </h1>
-                    <p
-                      id="match-detail-desc"
-                      className="text-[#757575] text-sm"
-                    >
-                      {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
-                      {viewer.assists} KDA
-                    </p>
-                  </div>
+          {loading && (
+            <h1 className="text-[#1e1e1e] text-xl font-semibold">
+              Loading match…
+            </h1>
+          )}
+          {error && (
+            <h1 className="text-[#c44a4a] text-xl font-semibold">{error}</h1>
+          )}
+          {match && viewer && (
+            <>
+              <div className="flex flex-wrap items-center gap-3">
+                <img
+                  src={championIconUrl(viewer.champion_name)}
+                  alt=""
+                  className="size-12 rounded"
+                />
+                <div>
+                  <h1 className={`text-2xl font-semibold ${resultClass}`}>
+                    {resultLabel}
+                  </h1>
+                  <p id="match-detail-desc" className="text-[#757575] text-sm">
+                    {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
+                    {viewer.assists} KDA
+                  </p>
                 </div>
-                <p className="text-sm text-[#757575] mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                  <span>{formatDuration(match.game_duration)}</span>
-                  <span>·</span>
-                  <span>{match.queue_label}</span>
-                  <span>·</span>
-                  <span>{match.map_label}</span>
-                  <span>·</span>
-                  <span>v{match.game_version}</span>
-                  <span>·</span>
-                  <span>{formatGameDate(match.game_creation)}</span>
-                </p>
-              </>
-            )}
-            {match && !viewer && (
-              <h1 className="text-[#1e1e1e] text-xl font-semibold">Match details</h1>
-            )}
+              </div>
+              <p className="text-sm text-[#757575] mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                <span>{formatDuration(match.game_duration)}</span>
+                <span>·</span>
+                <span>{match.queue_label}</span>
+                <span>·</span>
+                <span>{match.map_label}</span>
+                <span>·</span>
+                <span>v{match.game_version}</span>
+                <span>·</span>
+                <span>{formatGameDate(match.game_creation)}</span>
+              </p>
+            </>
+          )}
+          {match && !viewer && (
+            <h1 className="text-[#1e1e1e] text-xl font-semibold">
+              Match details
+            </h1>
+          )}
         </header>
 
         <div className="flex flex-col gap-6">

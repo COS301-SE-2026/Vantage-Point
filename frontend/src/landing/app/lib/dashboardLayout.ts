@@ -1,7 +1,5 @@
 import type { CSSProperties } from "react";
-import {
-  DASHBOARD_CONTENT_LEFT_OPEN,
-} from "../../imports/Group14/Group14";
+import { DASHBOARD_CONTENT_LEFT_OPEN } from "../../imports/Group14/Group14";
 
 export {
   DASHBOARD_CONTENT_LEFT_OPEN,
@@ -13,9 +11,7 @@ export const DASHBOARD_CONTENT_TOP = "var(--vp-dashboard-header)";
 export const DASHBOARD_CONTENT_HEIGHT =
   "calc(100vh - var(--vp-dashboard-header))";
 
-export function getDashboardContentStyle(
-  sidebarOpen: boolean,
-): CSSProperties {
+export function getDashboardContentStyle(sidebarOpen: boolean): CSSProperties {
   if (sidebarOpen) {
     return {
       left: DASHBOARD_CONTENT_LEFT_OPEN,

@@ -43,7 +43,11 @@ export default function MatchesListToolbar({
             aria-label="Search matches"
             className="m-0 min-w-0 flex-1 border-0 bg-transparent p-0 font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-none text-[#1e1e1e] caret-[#1e1e1e] outline-none placeholder:font-['Inter:Regular',sans-serif] placeholder:text-[#b3b3b3] placeholder:font-normal"
           />
-          <Search className="size-4 shrink-0 text-[#1e1e1e]" strokeWidth={1.6} aria-hidden />
+          <Search
+            className="size-4 shrink-0 text-[#1e1e1e]"
+            strokeWidth={1.6}
+            aria-hidden
+          />
         </label>
         <div
           aria-hidden="true"

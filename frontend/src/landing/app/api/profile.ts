@@ -1,7 +1,4 @@
-import {
-  leagueWildRiftCard,
-  leagueWildRiftCover,
-} from "../assets/profile";
+import { leagueWildRiftCard, leagueWildRiftCover } from "../assets/profile";
 import type {
   FeaturedGameSlide,
   PlayerAchievement,
@@ -101,7 +98,7 @@ function mapProfile(body: PlayerProfileApi): PlayerProfile {
         champion_id: c.champion_id,
         champion_name: c.champion_name,
         games_played: c.games_played,
-      })
+      }),
     ),
     achievements: body.achievements.map(
       (a): PlayerAchievement => ({
@@ -110,7 +107,7 @@ function mapProfile(body: PlayerProfileApi): PlayerProfile {
         description: a.description,
         source_field: a.source_field,
         count: a.count,
-      })
+      }),
     ),
     featured_games: body.featured_games.map(mapFeatured),
   };

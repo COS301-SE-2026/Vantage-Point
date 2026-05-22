@@ -1,9 +1,4 @@
-import {
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
-} from "recharts";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import type { RadarMetric } from "../types/profile";
 import { ChartContainer, type ChartConfig } from "./ui/chart";
 
@@ -32,7 +27,10 @@ export default function ProfileRadarChart({
   return (
     <ChartContainer
       config={chartConfig}
-      className={className ?? "mx-auto aspect-square h-[min(100%,320px)] w-full max-w-[360px]"}
+      className={
+        className ??
+        "mx-auto aspect-square h-[min(100%,320px)] w-full max-w-[360px]"
+      }
     >
       <RadarChart data={data} cx="50%" cy="50%" outerRadius="72%">
         <PolarGrid stroke="#d4d4d4" />

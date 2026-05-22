@@ -11,7 +11,10 @@ export function getStoredTokens(): {
   };
 }
 
-export function setStoredTokens(accessToken: string, refreshToken: string): void {
+export function setStoredTokens(
+  accessToken: string,
+  refreshToken: string,
+): void {
   localStorage.setItem(ACCESS_KEY, accessToken);
   localStorage.setItem(REFRESH_KEY, refreshToken);
 }

@@ -1,6 +1,6 @@
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import col, select
 
 from app.database.models import GameAccounts, UserGameAccounts
 from app.services.riot_api import (
@@ -21,8 +21,11 @@ async def get_primary_linked_account(
 ) -> GameAccounts | None:
     result = await session.execute(
         select(GameAccounts)
-        .join(UserGameAccounts, UserGameAccounts.puuid == GameAccounts.puuid)
-        .where(UserGameAccounts.user_id == user_id)
+        .join(
+            UserGameAccounts,
+            col(UserGameAccounts.puuid) == col(GameAccounts.puuid),
+        )
+        .where(col(UserGameAccounts.user_id) == user_id)
         .limit(1)
     )
     return result.scalar_one_or_none()
@@ -31,8 +34,11 @@ async def get_primary_linked_account(
 async def get_primary_linked_puuid(session: AsyncSession, user_id: str) -> str | None:
     result = await session.execute(
         select(GameAccounts.puuid)
-        .join(UserGameAccounts, UserGameAccounts.puuid == GameAccounts.puuid)
-        .where(UserGameAccounts.user_id == user_id)
+        .join(
+            UserGameAccounts,
+            col(UserGameAccounts.puuid) == col(GameAccounts.puuid),
+        )
+        .where(col(UserGameAccounts.user_id) == user_id)
         .limit(1)
     )
     return result.scalar_one_or_none()
@@ -41,8 +47,11 @@ async def get_primary_linked_puuid(session: AsyncSession, user_id: str) -> str |
 async def get_linked_puuids(session: AsyncSession, user_id: str) -> list[str]:
     result = await session.execute(
         select(GameAccounts.puuid)
-        .join(UserGameAccounts, UserGameAccounts.puuid == GameAccounts.puuid)
-        .where(UserGameAccounts.user_id == user_id)
+        .join(
+            UserGameAccounts,
+            col(UserGameAccounts.puuid) == col(GameAccounts.puuid),
+        )
+        .where(col(UserGameAccounts.user_id) == user_id)
     )
     return list(result.scalars().all())
 
@@ -103,7 +112,7 @@ async def link_riot_account_for_user(
         )
 
     account_result = await session.execute(
-        select(GameAccounts).where(GameAccounts.puuid == puuid)
+        select(GameAccounts).where(col(GameAccounts.puuid) == puuid)
     )
     game_account = account_result.scalar_one_or_none()
     if game_account:
@@ -122,7 +131,7 @@ async def link_riot_account_for_user(
         await session.flush()
 
     await session.execute(
-        delete(UserGameAccounts).where(UserGameAccounts.user_id == user_id)
+        delete(UserGameAccounts).where(col(UserGameAccounts.user_id) == user_id)
     )
 
     session.add(UserGameAccounts(user_id=user_id, puuid=puuid))

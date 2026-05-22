@@ -76,7 +76,8 @@ export default function ProfileView({
                     key={m.key}
                     className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575]"
                   >
-                    <span className="text-[#1e1e1e]">{m.label}</span>: {m.rawLabel}
+                    <span className="text-[#1e1e1e]">{m.label}</span>:{" "}
+                    {m.rawLabel}
                   </li>
                 ))}
               </ul>
@@ -131,27 +132,27 @@ export default function ProfileView({
             {profile.achievements.map((a) => {
               const Icon = getAchievementIcon(a.id);
               return (
-              <div
-                key={a.id}
-                className="flex flex-col items-center gap-2"
-                title={`${a.description} (${a.source_field})`}
-              >
-                <div className="relative flex size-[72px] items-center justify-center rounded-full bg-black">
-                  {Icon ? (
-                    <Icon
-                      className="size-8 text-white"
-                      strokeWidth={2}
-                      aria-hidden
-                    />
-                  ) : null}
-                  <span className="absolute bottom-0 right-0 flex min-w-[22px] translate-x-1 translate-y-1 items-center justify-center rounded-full bg-[#404040] px-1.5 py-0.5 font-['Inter:Semi_Bold',sans-serif] text-[11px] font-semibold leading-none text-white ring-2 ring-white">
-                    {a.count > 99 ? "99+" : a.count}
+                <div
+                  key={a.id}
+                  className="flex flex-col items-center gap-2"
+                  title={`${a.description} (${a.source_field})`}
+                >
+                  <div className="relative flex size-[72px] items-center justify-center rounded-full bg-black">
+                    {Icon ? (
+                      <Icon
+                        className="size-8 text-white"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                    ) : null}
+                    <span className="absolute bottom-0 right-0 flex min-w-[22px] translate-x-1 translate-y-1 items-center justify-center rounded-full bg-[#404040] px-1.5 py-0.5 font-['Inter:Semi_Bold',sans-serif] text-[11px] font-semibold leading-none text-white ring-2 ring-white">
+                      {a.count > 99 ? "99+" : a.count}
+                    </span>
+                  </div>
+                  <span className="max-w-[80px] text-center font-['Inter:Regular',sans-serif] text-[12px] text-[#525252]">
+                    {a.label}
                   </span>
                 </div>
-                <span className="max-w-[80px] text-center font-['Inter:Regular',sans-serif] text-[12px] text-[#525252]">
-                  {a.label}
-                </span>
-              </div>
               );
             })}
           </div>

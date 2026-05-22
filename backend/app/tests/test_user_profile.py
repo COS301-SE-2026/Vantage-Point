@@ -1,6 +1,7 @@
 import io
 import os
 import socket
+from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -71,7 +72,7 @@ def _register_and_token(client: TestClient, email: str) -> str:
         },
     )
     assert reg.status_code == 200
-    return reg.json()["access_token"]
+    return cast(str, reg.json()["access_token"])
 
 
 @requires_postgres

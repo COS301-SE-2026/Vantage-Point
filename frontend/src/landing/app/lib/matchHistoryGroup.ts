@@ -25,7 +25,9 @@ function formatRoleLabel(position: string): string {
   return ROLE_LABELS[position] ?? position.slice(0, 3).toUpperCase();
 }
 
-export function toDashboardListItem(match: MatchHistorySummary): DashboardMatchListItem {
+export function toDashboardListItem(
+  match: MatchHistorySummary,
+): DashboardMatchListItem {
   return {
     ...match,
     durationLabel: `${match.duration_minutes} min`,
@@ -45,7 +47,7 @@ function formatDayLabel(playedOn: string): string {
 
 export function groupDashboardMatchesByDay(
   matches: readonly DashboardMatchListItem[],
-  options?: { readonly oldestDaysFirst?: boolean }
+  options?: { readonly oldestDaysFirst?: boolean },
 ): MatchHistoryDayRow[] {
   const byDay = new Map<string, DashboardMatchListItem[]>();
 
@@ -69,7 +71,7 @@ export function groupDashboardMatchesByDay(
 }
 
 export function groupMatchesByDay(
-  matches: readonly MatchHistorySummary[]
+  matches: readonly MatchHistorySummary[],
 ): MatchHistoryDayRow[] {
   return groupDashboardMatchesByDay(matches.map(toDashboardListItem));
 }

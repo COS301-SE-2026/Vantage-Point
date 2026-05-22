@@ -56,12 +56,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-    loadProfile()
-      .catch(() => {
-        if (!cancelled) {
-          setProfile(undefined);
-        }
-      });
+    loadProfile().catch(() => {
+      if (!cancelled) {
+        setProfile(undefined);
+      }
+    });
     return () => {
       cancelled = true;
     };

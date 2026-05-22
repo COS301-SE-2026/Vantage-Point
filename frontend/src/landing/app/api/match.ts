@@ -1,5 +1,9 @@
 import { apiFetch } from "./client";
-import type { MatchDetail, ParticipantDetail, TeamDetail } from "../types/match";
+import type {
+  MatchDetail,
+  ParticipantDetail,
+  TeamDetail,
+} from "../types/match";
 
 interface ObjectivesSummaryApi {
   readonly baron: number;
@@ -101,12 +105,9 @@ function mapMatchDetail(body: MatchDetailApi): MatchDetail {
   };
 }
 
-export async function fetchMatchDetail(
-  matchId: string,
-  _puuid?: string
-): Promise<MatchDetail> {
+export async function fetchMatchDetail(matchId: string): Promise<MatchDetail> {
   const body = await apiFetch<MatchDetailApi>(
-    `/api/v1/matches/${encodeURIComponent(matchId)}`
+    `/api/v1/matches/${encodeURIComponent(matchId)}`,
   );
   return mapMatchDetail(body);
 }

@@ -19,7 +19,10 @@ function StatRow({
 }>) {
   return (
     <div className="flex items-start gap-2">
-      <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center" aria-hidden>
+      <span
+        className="mt-0.5 flex size-5 shrink-0 items-center justify-center"
+        aria-hidden
+      >
         {icon}
       </span>
       <div className="flex flex-col gap-1">
@@ -34,9 +37,7 @@ function StatRow({
   );
 }
 
-function StatIconLucide({
-  Icon,
-}: Readonly<{ Icon: typeof Trophy }>) {
+function StatIconLucide({ Icon }: Readonly<{ Icon: typeof Trophy }>) {
   return <Icon className="size-5 text-white" strokeWidth={2} aria-hidden />;
 }
 
