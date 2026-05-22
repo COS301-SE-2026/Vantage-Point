@@ -1,21 +1,21 @@
-import logging
-from contextlib import asynccontextmanager
-from typing import Any
-
-from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from contextlib import asynccontextmanager
+from typing import Any, Dict
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from dotenv import load_dotenv
 
 from app.api.middleware import ProcessTimeMiddleware
-from app.database.session import init_db
-from app.routers import auth, matches, users
+from app.api.routes import router
+from app.database.models import GameAccounts
+from app.database.session import async_session_maker
+from app.services.riot_api import get_puuid_by_riot_id
 from app.schemas.generic_schemas import get_error_reason
-from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
-
 load_dotenv()
 
 logger = logging.getLogger(__name__)
