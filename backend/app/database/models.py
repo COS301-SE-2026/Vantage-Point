@@ -11,6 +11,21 @@ from sqlmodel import SQLModel, Field, Relationship
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
 
 
+# added for profile
+class UserProfile(SQLModel, table=True):
+    user_id: str = Field(primary_key=True)
+    username: str
+    riot_puuid: Optional[str] = Field(default=None, foreign_key="game_accounts.puuid")
+
+    deletion_scheduled_at: Optional[datetime] = None
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+
+
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
 # we can cross reference api responses directly without a lookup step making it easier to confirm data integrity.
@@ -102,13 +117,13 @@ class Participants(SQLModel, table=True):
     match_id: str = Field(foreign_key="matches.match_id")
     puuid: str = Field(foreign_key="game_accounts.puuid")
     champion_id: int = Field(foreign_key="champions.champion_id")
+    team_id: int = 100
 
     win: bool
     kills: int
     deaths: int
     assists: int
     individual_position: str  # Riot's assigned lane: "TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY" ; will use this later to determine role for champion mastery and other stats
-    team_id: int = 100
     cs: int = 0
     gold_earned: int = 0
     damage_to_champions: int = 0
