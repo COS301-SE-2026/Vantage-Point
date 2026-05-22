@@ -72,6 +72,7 @@ jobs:
       - name: Run tests with coverage
         env:
           JWT_SECRET: test-ci-secret
+          TEST_USER_PASSWORD: test-ci-user-password
           DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term
 

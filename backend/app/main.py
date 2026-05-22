@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     try:
         await init_db()
         print("Tables are ready.")
-    except Exception as exc:
+    except (OSError, ConnectionError, TimeoutError, RuntimeError, ValueError) as exc:
         print(f"Database initialization skipped: {exc}")
     yield
 

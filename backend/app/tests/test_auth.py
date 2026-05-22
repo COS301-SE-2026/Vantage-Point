@@ -8,7 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 from sqlmodel import SQLModel
 
-os.environ.setdefault("JWT_SECRET", "test-secret-key-for-pytest-only")
+from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD
+from app.tests.db_url import get_pytest_database_url
+
+os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
 from app.database.session import get_session  # noqa: E402
 from app.main import app  # noqa: E402
@@ -22,13 +25,10 @@ def _postgres_available() -> bool:
         return False
 
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db",
-)
+DATABASE_URL = get_pytest_database_url()
 requires_postgres = pytest.mark.skipif(
-    not _postgres_available(),
-    reason="PostgreSQL is not available on localhost:5432",
+    not DATABASE_URL or not _postgres_available(),
+    reason="DATABASE_URL must be set and PostgreSQL available on localhost:5432",
 )
 
 
@@ -36,6 +36,7 @@ requires_postgres = pytest.mark.skipif(
 def db_client():
     import asyncio
 
+    assert DATABASE_URL is not None
     engine = create_async_engine(DATABASE_URL, poolclass=NullPool)
 
     async def _setup():
@@ -63,7 +64,7 @@ def _register_payload(email: str):
     return {
         "email": email,
         "display_name": "Test Player",
-        "password": "password123",
+        "password": TEST_USER_PASSWORD,
     }
 
 
@@ -89,7 +90,7 @@ def test_register_login_and_me(db_client: TestClient):
 
     login = client.post(
         "/api/v1/auth/login",
-        json={"email": email, "password": "password123"},
+        json={"email": email, "password": TEST_USER_PASSWORD},
     )
     assert login.status_code == 200
 

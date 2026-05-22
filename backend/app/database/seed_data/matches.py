@@ -376,6 +376,32 @@ def _build_team_participants(
     return participants
 
 
+def _objectives_for_win(team_won: bool) -> dict[str, int]:
+    return {
+        "baron": int(team_won),
+        "dragon": 3 if team_won else 2,
+        "rift_herald": int(team_won),
+        "tower": 9 if team_won else 4,
+        "inhibitor": 2 if team_won else 0,
+    }
+
+
+def _team_payload(
+    team_id: int,
+    team_won: bool,
+    bans: tuple[int, ...],
+    bots: tuple[BotSlot, ...],
+    viewer: SeedViewerParticipant,
+) -> dict[str, Any]:
+    return {
+        "team_id": team_id,
+        "win": team_won,
+        "bans": list(bans),
+        "objectives": _objectives_for_win(team_won),
+        "participants": _build_team_participants(viewer, bots, team_id, team_won),
+    }
+
+
 def _build_teams_for_match(
     viewer: SeedViewerParticipant, roster: MatchBotRoster
 ) -> list[dict[str, Any]]:
@@ -396,35 +422,10 @@ def _build_teams_for_match(
         blue_bots, red_bots = roster.enemies, roster.allies
         blue_bans, red_bans = roster.enemy_bans, roster.ally_bans
 
-    blue = {
-        "team_id": 100,
-        "win": blue_win,
-        "bans": list(blue_bans),
-        "objectives": {
-            "baron": 1 if blue_win else 0,
-            "dragon": 3 if blue_win else 2,
-            "rift_herald": 1 if blue_win else 0,
-            "tower": 9 if blue_win else 4,
-            "inhibitor": 2 if blue_win else 0,
-        },
-        "participants": _build_team_participants(viewer, blue_bots, 100, blue_win),
-    }
-
-    red = {
-        "team_id": 200,
-        "win": red_win,
-        "bans": list(red_bans),
-        "objectives": {
-            "baron": 1 if red_win else 0,
-            "dragon": 3 if red_win else 2,
-            "rift_herald": 1 if red_win else 0,
-            "tower": 9 if red_win else 4,
-            "inhibitor": 2 if red_win else 0,
-        },
-        "participants": _build_team_participants(viewer, red_bots, 200, red_win),
-    }
-
-    return [blue, red]
+    return [
+        _team_payload(100, blue_win, blue_bans, blue_bots, viewer),
+        _team_payload(200, red_win, red_bans, red_bots, viewer),
+    ]
 
 
 def build_detail_json(match_id: str) -> str:
