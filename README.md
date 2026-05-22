@@ -170,3 +170,4 @@ To ensure a stable and collaborative development workflow, the following strateg
 - **[CI/CD Documentation](.github/docs/CICD.md)** - GitHub Actions workflows, automated testing, deployment pipeline
 - **[SCRUM & Sprint Planning](.github/docs/Scrum-Setup.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
 - **[Brand Style Guide](.github/docs/Brand-Style.md)** - Brand style guide for consistent UI/UX across the application
+- **[Wireframes](https://www.figma.com/design/cUssojtAVvCokYU7k9yAmW/vantage-point?m=auto&t=oenm7gYsMCu5Tsix-6)** - Wireframes for the application UI
