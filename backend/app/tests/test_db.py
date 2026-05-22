@@ -44,11 +44,30 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db",
 )
-engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
+# engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
 
 
+@pytest.fixture
+async def engine():
+    """Create async engine fixture for database tests.
+
+    echo=True shows the raw SQL for debugging.
+    Only creates engine when test runs, not at import time.
+    """
+    _engine = create_async_engine(DATABASE_URL, echo=True)
+    yield _engine
+    await _engine.dispose()
+
+
+# @pytest.mark.skip(reason="Database not available")
+@pytest.mark.integration
 @pytest.mark.asyncio
-async def test_database_logic():
+async def test_database_logic(engine):
+    """Test database connection and basic CRUD operations.
+
+    This is such basic testing and needs to be updated once we have more refined database logic and models,
+    but it verifies that we can connect to the DB and perform basic operations.
+    """
     print("Starting Database Lab (lets hope this works)")
 
     async with engine.begin() as conn:
@@ -86,6 +105,10 @@ async def test_database_logic():
         print(
             f"Found Game Account: {game_account.game_name}#{game_account.tag_line} (PUUID: {game_account.puuid})"
         )
+
+        # Verify the data was retrieved correctly
+        assert game_account.game_name == "TheFast"
+        assert game_account.puuid == "test_puuid_123"
 
         print("--- Test complete ---")
         # TODO: add FK constraint tests (Participants referencing Matches/Summoners/Champions)
