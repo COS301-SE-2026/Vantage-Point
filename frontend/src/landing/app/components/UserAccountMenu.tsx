@@ -1,4 +1,5 @@
 import { LogOut, User } from "lucide-react";
+import { resolveAvatarUrl } from "../lib/avatarUrl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,14 +7,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface UserAccountMenuProps {
   readonly onProfileClick?: () => void;
   readonly onLogout?: () => void;
   readonly initials?: string;
+  readonly avatarUrl?: string | null;
 }
 
-function ProfileAvatar({ initials }: Readonly<{ initials: string }>) {
+function ProfileAvatar({
+  initials,
+  avatarUrl,
+}: Readonly<{ initials: string; avatarUrl?: string | null }>) {
+  const src = resolveAvatarUrl(avatarUrl ?? undefined);
+
+  if (src) {
+    return (
+      <Avatar className="size-[48px]">
+        <AvatarImage src={src} alt="" className="object-cover" />
+        <AvatarFallback className="bg-[#d9d9d9] font-['Sora:Regular',sans-serif] text-[14px] text-[#0a0a0a]">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+    );
+  }
+
   return (
     <div className="relative size-[48px] shrink-0">
       <svg
@@ -36,6 +55,7 @@ export default function UserAccountMenu({
   onProfileClick,
   onLogout,
   initials = "UN",
+  avatarUrl = null,
 }: Readonly<UserAccountMenuProps>) {
   return (
     <DropdownMenu>
@@ -45,7 +65,7 @@ export default function UserAccountMenu({
           className="cursor-pointer rounded-full border-0 bg-transparent p-0 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#525252]"
           aria-label="Account menu"
         >
-          <ProfileAvatar initials={initials} />
+          <ProfileAvatar initials={initials} avatarUrl={avatarUrl} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="end" className="min-w-[10rem]">

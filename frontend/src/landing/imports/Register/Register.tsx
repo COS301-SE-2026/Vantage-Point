@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import svgPaths from "./svg-xwtbp9m57d";
 import {
   landingBackgroundImages,
@@ -80,11 +79,12 @@ function Frame({ currentSlide, onDotClick }: FrameSlideProps) {
   );
 }
 
-function Group() {
+function Group({ onSocialClick }: Readonly<{ onSocialClick?: () => void }>) {
   return (
     <div className="flex gap-[clamp(20px,5vw,80px)] items-center justify-center w-full">
       <button
         type="button"
+        onClick={onSocialClick}
         className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer"
         data-name="Google"
       >
@@ -96,6 +96,7 @@ function Group() {
       </button>
       <button
         type="button"
+        onClick={onSocialClick}
         className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer"
         data-name="Apple Inc"
       >
@@ -107,6 +108,7 @@ function Group() {
       </button>
       <button
         type="button"
+        onClick={onSocialClick}
         className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer"
         data-name="Riot Games"
       >
@@ -120,7 +122,17 @@ function Group() {
   );
 }
 
-function InputButtons1() {
+function InputButtons1({
+  email,
+  displayName,
+  onEmailChange,
+  onDisplayNameChange,
+}: Readonly<{
+  email: string;
+  displayName: string;
+  onEmailChange: (value: string) => void;
+  onDisplayNameChange: (value: string) => void;
+}>) {
   return (
     <div className="space-y-4 w-full">
       <div className="flex flex-col gap-[8px]" data-name="Input Field">
@@ -129,6 +141,8 @@ function InputButtons1() {
         </p>
         <input
           type="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
           placeholder="Enter email"
           className={authInputClassName}
         />
@@ -139,6 +153,8 @@ function InputButtons1() {
         </p>
         <input
           type="text"
+          value={displayName}
+          onChange={(e) => onDisplayNameChange(e.target.value)}
           placeholder="Enter username"
           className={authInputClassName}
         />
@@ -147,7 +163,19 @@ function InputButtons1() {
   );
 }
 
-function InputButtons({ showPassword }: Readonly<{ showPassword: boolean }>) {
+function InputButtons({
+  showPassword,
+  password,
+  confirmPassword,
+  onPasswordChange,
+  onConfirmPasswordChange,
+}: Readonly<{
+  showPassword: boolean;
+  password: string;
+  confirmPassword: string;
+  onPasswordChange: (value: string) => void;
+  onConfirmPasswordChange: (value: string) => void;
+}>) {
   return (
     <div className="space-y-4 w-full">
       <div className="flex flex-col gap-[8px]" data-name="Input Field">
@@ -156,6 +184,8 @@ function InputButtons({ showPassword }: Readonly<{ showPassword: boolean }>) {
         </p>
         <input
           type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => onPasswordChange(e.target.value)}
           placeholder="Enter password"
           className={authInputClassName}
         />
@@ -166,6 +196,8 @@ function InputButtons({ showPassword }: Readonly<{ showPassword: boolean }>) {
         </p>
         <input
           type={showPassword ? "text" : "password"}
+          value={confirmPassword}
+          onChange={(e) => onConfirmPasswordChange(e.target.value)}
           placeholder="Confirm password"
           className={authInputClassName}
         />
@@ -211,23 +243,56 @@ function CheckboxAndLabel({
   );
 }
 
+export type RegisterFormProps = Readonly<{
+  email: string;
+  displayName: string;
+  password: string;
+  confirmPassword: string;
+  error?: string | null;
+  loading?: boolean;
+  onEmailChange: (value: string) => void;
+  onDisplayNameChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onConfirmPasswordChange: (value: string) => void;
+  onSubmit: () => void;
+  onSocialClick?: () => void;
+}>;
+
 function LeftPanelForm({
   showPassword,
   setShowPassword,
-}: ShowPasswordProps) {
-  const navigate = useNavigate();
-
+  form,
+}: ShowPasswordProps & { form: RegisterFormProps }) {
   return (
     <div
-      className="absolute left-0 top-0 z-20 box-border flex h-full w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(20px,4vh,40px)]"
+      className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(20px,4vh,40px)]"
       data-name="left-panel"
     >
       <div className="flex w-full max-w-[min(378px,100%)] flex-col items-center gap-6">
         <Logo />
-        <Group />
-        <InputButtons1 />
+        <Group onSocialClick={form.onSocialClick} />
+        {form.error ? (
+          <p
+            className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center w-full"
+            role="alert"
+          >
+            {form.error}
+          </p>
+        ) : null}
+        <InputButtons1
+          email={form.email}
+          displayName={form.displayName}
+          onEmailChange={form.onEmailChange}
+          onDisplayNameChange={form.onDisplayNameChange}
+        />
         <div className="w-full flex flex-col gap-4">
-          <InputButtons showPassword={showPassword} />
+          <InputButtons
+            showPassword={showPassword}
+            password={form.password}
+            confirmPassword={form.confirmPassword}
+            onPasswordChange={form.onPasswordChange}
+            onConfirmPasswordChange={form.onConfirmPasswordChange}
+          />
           <CheckboxAndLabel
             showPassword={showPassword}
             setShowPassword={setShowPassword}
@@ -235,12 +300,13 @@ function LeftPanelForm({
         </div>
         <button
           type="button"
-          onClick={() => navigate("/link-riot-id")}
-          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors shrink-0"
+          disabled={form.loading}
+          onClick={form.onSubmit}
+          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
             <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
-              Sign Up
+              {form.loading ? "Signing up…" : "Sign Up"}
             </p>
           </div>
         </button>
@@ -284,19 +350,21 @@ function Login({
   setShowPassword,
   currentSlide,
   onDotClick,
-}: RegisterLoginProps) {
+  form,
+}: RegisterLoginProps & { form: RegisterFormProps }) {
   return (
     <div className="absolute contents left-0 top-0" data-name="Login">
       <LogIn currentSlide={currentSlide} onDotClick={onDotClick} />
       <LeftPanelForm
         showPassword={showPassword}
         setShowPassword={setShowPassword}
+        form={form}
       />
     </div>
   );
 }
 
-export default function Register() {
+export default function Register({ form }: Readonly<{ form: RegisterFormProps }>) {
   const [showPassword, setShowPassword] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -319,6 +387,7 @@ export default function Register() {
         setShowPassword={setShowPassword}
         currentSlide={currentSlide}
         onDotClick={handleDotClick}
+        form={form}
       />
     </div>
   );

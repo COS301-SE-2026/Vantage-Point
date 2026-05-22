@@ -27,11 +27,12 @@ def test_user_data():
     Provide sample user data for testing user-related endpoints.
 
     Returns:
-        dict: User data with username, email
+        dict: User data with display_name, email, password
     """
     return {
-        "username": "testuser",
+        "display_name": "testuser",
         "email": "test@example.com",
+        "password": "password123",
     }
 
 
@@ -41,13 +42,14 @@ def test_user_response():
     Provide sample user response data (as returned from the API).
 
     Returns:
-        dict: User response with id, username, email, and timestamp
+        dict: User profile fields from GET /api/v1/users/me
     """
     return {
-        "id": 1,
-        "username": "testuser",
+        "id": "00000000-0000-4000-8000-000000000099",
         "email": "test@example.com",
-        "created_at": "2024-01-15T10:30:00Z",
+        "display_name": "testuser",
+        "riot_id_tag": None,
+        "has_linked_riot": False,
     }
 
 

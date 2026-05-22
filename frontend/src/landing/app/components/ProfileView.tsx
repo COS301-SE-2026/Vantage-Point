@@ -1,15 +1,17 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router";
+import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { getAchievementIcon } from "../lib/achievementIcons";
 import { championIconUrl } from "../lib/ddragon";
-import { getMockPlayerProfile } from "../mocks/playerProfile";
 import type { PlayerProfile } from "../types/profile";
 import {
-  DASHBOARD_CONTENT_LEFT_OPEN,
-  DASHBOARD_CONTENT_WIDTH_OPEN,
-  DASHBOARD_FRAME_W,
-} from "../../imports/Group14/Group14";
+  DASHBOARD_CONTENT_HEIGHT,
+  getDashboardContentStyle,
+} from "../lib/dashboardLayout";
 import FeaturedGameCard from "./FeaturedGameCard";
+import ProfileHeaderEditor from "./ProfileHeaderEditor";
 import ProfileRadarChart from "./ProfileRadarChart";
+import { useAuth } from "../context/AuthContext";
 
 interface ProfileViewProps {
   readonly profile?: PlayerProfile;
@@ -17,46 +19,56 @@ interface ProfileViewProps {
 }
 
 export default function ProfileView({
-  profile = getMockPlayerProfile(),
-  sidebarOpen = true,
-}: Readonly<ProfileViewProps>) {
+  profile: profileProp,
+  sidebarOpen: sidebarOpenProp,
+}: Readonly<ProfileViewProps> = {}) {
+  const outlet = useOutletContext<DashboardOutletContext | undefined>();
+  const { refreshUser } = useAuth();
+  const profile = profileProp ?? outlet?.profile;
+  const sidebarOpen = sidebarOpenProp ?? outlet?.sidebarOpen ?? true;
+  const refreshProfile = outlet?.refreshProfile;
   const [cardExpanded, setCardExpanded] = useState(true);
-  const featured = profile.featured_games[0];
 
-  const contentLeft = sidebarOpen ? DASHBOARD_CONTENT_LEFT_OPEN : 0;
-  const contentWidth = sidebarOpen ? DASHBOARD_CONTENT_WIDTH_OPEN : DASHBOARD_FRAME_W;
+  const handleProfileSaved = async () => {
+    if (refreshProfile) {
+      await refreshProfile();
+    } else {
+      await refreshUser();
+    }
+  };
+
+  const contentStyle = getDashboardContentStyle(sidebarOpen);
+
+  if (!profile) {
+    return (
+      <div
+        className="absolute top-[var(--vp-dashboard-header)] min-w-0 px-10 py-8 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] transition-[left,width] duration-300 ease-out"
+        style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
+        data-name="profile-view"
+      >
+        Loading profile…
+      </div>
+    );
+  }
+
+  const featured = profile.featured_games[0];
 
   return (
     <div
-      className="absolute top-[94px] transition-[left,width] duration-300 ease-out"
-      style={{ left: contentLeft, width: contentWidth, height: 840 }}
+      className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
+      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="profile-view"
     >
       <div className="relative h-full overflow-auto px-10 py-8">
-        <header className="flex items-center gap-6">
-          <div
-            className="flex size-[96px] shrink-0 items-center justify-center rounded-full bg-[#404040] font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white"
-            aria-hidden
-          >
-            {profile.avatar_initials}
-          </div>
-          <div>
-            <h1 className="font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold leading-tight text-[#1e1e1e]">
-              {profile.display_name}
-            </h1>
-            <p className="mt-1 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
-              {profile.riot_id_tag}
-            </p>
-          </div>
-        </header>
+        <ProfileHeaderEditor profile={profile} onSaved={handleProfileSaved} />
 
         <div className="mt-14">
           <p className="mb-6 font-['Inter:Semi_Bold',sans-serif] text-[16px] font-semibold text-[#525252]">
             Last {profile.matches_sampled} matches
           </p>
 
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(305px,520px)]">
-            <section aria-label="Performance radar">
+          <div className="grid min-w-0 grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(305px,520px)]">
+            <section aria-label="Performance radar" className="min-w-0">
               <ProfileRadarChart metrics={profile.radar_metrics} />
               <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1">
                 {profile.radar_metrics.map((m) => (
@@ -73,9 +85,9 @@ export default function ProfileView({
             {featured ? (
               <section
                 aria-label="Featured game"
-                className="flex min-h-[314px] flex-col items-end"
+                className="flex min-h-[314px] min-w-0 flex-col items-stretch lg:items-end"
               >
-                <div className="transition-[width] duration-300 ease-out">
+                <div className="w-full min-w-0 max-w-full transition-[width] duration-300 ease-out">
                   <FeaturedGameCard
                     slide={featured}
                     expanded={cardExpanded}

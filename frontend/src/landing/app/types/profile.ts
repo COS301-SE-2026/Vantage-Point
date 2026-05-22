@@ -52,6 +52,7 @@ export interface PlayerProfile {
   readonly display_name: string;
   readonly riot_id_tag: string;
   readonly avatar_initials: string;
+  readonly avatar_url: string | null;
   readonly radar_metrics: readonly RadarMetric[];
   readonly recent_champions: readonly RecentChampion[];
   readonly achievements: readonly PlayerAchievement[];

@@ -25,10 +25,15 @@ export interface ParticipantDetail {
   readonly is_viewer: boolean;
 }
 
+export interface ChampionBan {
+  readonly champion_id: number;
+  readonly champion_name: string;
+}
+
 export interface TeamDetail {
   readonly team_id: number;
   readonly win: boolean;
-  readonly bans: readonly number[];
+  readonly bans: readonly ChampionBan[];
   readonly objectives: ObjectivesSummary;
   readonly participants: readonly ParticipantDetail[];
 }
