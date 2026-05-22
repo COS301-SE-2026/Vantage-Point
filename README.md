@@ -4,6 +4,12 @@
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
+[![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
+[![Backend Coverage](backend/coverage-badge.svg)](backend/htmlcov/index.html)
+[![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
+[![Frontend Coverage](frontend/coverage-badge.svg)](frontend/coverage/index.html)
+[![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
+
 ---
 
 ## About
@@ -15,23 +21,23 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 ## The F.R.O.S.N Team
 *Pending team picture*
 
-| Name | Picture | Role |
-|------|---------|------|
-| Fabio Berrino | *Pending picture* | Scrum Master and DevOps Engineer |
-| Shaun Marx | *Pending picture* | Backend Developer |
-| Vele Ndamulelo | *Pending picture* | Frontend Developer |
-| Neo Machaba | *Pending picture* | Database Manager |
-| Ophelia Greyling | *Pending picture* | AI/ML Developer |
+| Name | Picture | Role | Description | LinkedIn |
+|------|---------|------|-------------|----------|
+| Fabio Berrino | ![Fabio](.github/images/Fabio.jpg) | Scrum Master and DevSecOps Engineer | I am a BSc Information and Knowledge Systems Student Specialising in Software Development. I am Interestred in everything related to technology ranging from software development to DevSecOps and AI/ML. | [LinkedIn](https://www.linkedin.com/in/fabio-b-15357777fa/) |
+| Ophelia Greyling | ![Ophelia](.github/images/Ophelia.jpeg) | Data Analyst and AI/ML Engineer | I am a Computer Science student with a deep interest in data science and its various applications, as well as the mechanisms between computer networks. I have plans to start working in a machine learning related field in the second semester. | [LinkedIn](https://www.linkedin.com/in/zanri-greyling-031636271/) |
+| Vele Ndamulelo | ![Vele](.github/images/Vele.png) | Designer and Frontend Developer | I am a  BSC Computer Science student focused on building scalable software systems that reduce complexity and improve efficiency. | [LinkedIn](https://www.linkedin.com/in/vele-ndamulelo-3a3085372/) |
+| Neo Machaba | ![Neo](.github/images/Neo.jpg) | Database Manager | I am a BSC Computer Science student, I am interested in Data sciene, engineering and analyst with a goal in improving appplication and workflow efficiency with applying networking in order to reduce system bottlenecking. | [LinkedIn](https://www.linkedin.com/in/neo-machaba) |
+| Shaun Marx | ![Shaun](.github/images/Shaun.jpeg) | API and Backend Developer | I am an IKS student with an interest in building software systems from scratch and applying them in different environments. I am especially interested in software engineering, and backend development. | [LinkedIn](https://www.linkedin.com/in/shaun-marx-07bbb63b6/) |
 
 ## Team Roles
 
 | Role | Responsibility |
 |------|-----------------|
-| **Scrum Master and DevOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration |
-| **Backend Developer** | API design, ORM setup, ML model integration, FastAPI development, Match-v5 API Integration |
-| **Frontend Developer** | UI/UX design, component architecture, performance optimization, React + D3.js implementation |
+| **Scrum Master and DevSecOps Engineer** | Process facilitation, blocker removal, team velocity tracking, CI/CD pipeline management, AWS Integration and Vulnerability scanning |
+| **API and Backend Developer** | API design, ORM setup, ML model integration, FastAPI development and Match-v5 API Integration |
+| **Designer and Frontend Developer** | UI/UX design, component architecture, performance optimization, React + D3.js implementation |
 | **Database Manager** | Database schema design, query optimization, data integrity, PostgreSQL management |
-| **AI/ML Developer** | Machine learning model development, data science pipeline, model training and optimization |
+| **Data Analysis and AI/ML Engineer** | Machine learning model development, data science pipeline, model training and optimization |
 
 ---
 
@@ -80,33 +86,50 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 ## Project Structure
 ```
 Vantage-Point/
-├── backend/              # FastAPI server
+├── .devcontainer/            # Local containerized development environment
+│   ├── docker-compose.yml    # Multi-container orchestration (DB, App, Client)
+│   ├── devcontainer.json     # VS Code container environment specification tool settings
+│   ├── post-create.sh        # Automated environment setup script
+│   └── start-services.sh     # Service initialization script
+│
+├── .github/                  # GitHub workflows, actions, and workspace configurations
+│   ├── docs/                 # Internal design, API, and scrum methodology logs
+│   └── workflows/            # CI/CD automated test & security pipelines
+│
+├── backend/                  # FastAPI REST API & machine learning engine
 │   ├── app/
-│   │   ├── api/          # API routes (v1)
-│   │   ├── services/     # Business logic
-│   │   ├── models/       # SQLModel schemas
-│   │   ├── tests/        # Unit & integration tests
-│   │   ├── utils/        # Logging, helpers
-│   │   └── main.py       # App entry point
-│   ├── requirements-dev.txt
-│   └── README.md         # Backend guide
+│   │   ├── api/              # API router configurations & routing middleware
+│   │   ├── database/         # Database layer, schema + models, seeding scripts and session transaction engine
+│   │   ├── pred_engine/      # Match analytics predictive ML pipeline
+│   │   │   └── knn_model.py  # K-Nearest Neighbors core model logic
+│   │   ├── schemas/          # Used in Services
+│   │   ├── services/         # Decoupled business logic & provider layer
+│   │   ├── tests/            # Unit & Integration Tests; Automated backend testing logic (Pytest)
+│   │   ├── utils/            # Helper functions and rate-limiting scripts
+│   │   ├── config.py         # App environment configuration & secrets manager
+│   │   └── main.py           # Application server root entry point
+│   ├── mypy.ini              # Static type linting rules
+│   ├── pytest.ini            # Pytest execution configurations
+│   ├── requirements.txt      # Runtime server dependencies
+│   └── requirements-dev.txt  # Local test/lint utilities
 │
-├── frontend/             # React + Vite + Tailwind
+├── frontend/                 # Single-Page Application (React + Vite + Tailwind)
+│   ├── public/               # Global static assets (SVG favicons/icons)
 │   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── pages/        # Page components
-│   │   ├── assets/       # Images, fonts (bundled)
-│   │   ├── __tests__/    # Vitest tests
-│   │   ├── utils/        # Helpers, services
-│   │   └── App.jsx       # Entry component
-│   ├── public/           # Static files (favicon, manifest)
-│   ├── package.json
-│   └── README.md         # Frontend guide
+│   │   ├── pages/            # Client interface layouts (Login, Register, Dashboard)
+│   │   ├── services/         # Axios/Fetch client endpoints (authService, API configurations)
+│   │   ├── __tests__/        # Client-side Vitest test suites
+│   │   ├── App.jsx           # Application shell and component router
+│   │   ├── index.css         # Main stylesheet & Tailwind imports
+│   │   └── main.jsx          # Client virtual DOM registration entry point
+│   ├── eslint.config.js      # JS code style linting rules
+│   ├── tailwind.config.js    # Utility-first CSS theme extensions
+│   ├── vite.config.js        # Vite bundling engine customization
+│   └── vitest.config.ts      # Client testing runtime configurations
 │
-├── .github/
-│   └── workflows/        # GitHub Actions CI/CD
-│
-└── README.md             # Main project guide
+├── .gitignore                # Global Git version control exclusions
+├── .gitattributes            # Global Git configuration file used to define standardized line endings
+└── README.md                 # Primary project overview and setup documentation
 ```
 
 ## Branching Strategy
@@ -138,6 +161,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 
 ## Documentation
 
+- **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
 - **[Setup Guide](.github/docs/SETUP.md)** - Initial project setup and dependencies
 - **[Backend Development Guide](.github/docs/BACKEND_DEV.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/FRONTEND_DEV.md)** - Frontend setup, components, styling, testing
