@@ -12,8 +12,8 @@ httpx==0.26.0
 python-dotenv==1.2.2
 python-jose[cryptography]==3.5.0
 bcrypt==4.2.1
-python-multipart==0.0.9
+python-multipart==0.0.27
 boto3==1.43.12
 email-validator==2.1.0
-joblib==1.4.2
+joblib==1.5.2
 idna>=3.15

@@ -33,9 +33,7 @@ async def user_has_match_access(
 async def get_match_detail(
     session: AsyncSession, match_id: str, viewer_puuid: str | None
 ) -> MatchDetailResponse | None:
-    result = await session.execute(
-        select(Matches).where(Matches.match_id == match_id)
-    )
+    result = await session.execute(select(Matches).where(Matches.match_id == match_id))
     match = result.scalar_one_or_none()
     if not match or not match.detail_json:
         return None
@@ -62,9 +60,9 @@ async def get_match_detail(
         participants: list[ParticipantDetailResponse] = []
         for p in team.get("participants", []):
             puuid = p.get("puuid", "")
-            is_viewer = bool(
-                viewer_puuid and puuid == viewer_puuid
-            ) or p.get("is_viewer", False)
+            is_viewer = bool(viewer_puuid and puuid == viewer_puuid) or p.get(
+                "is_viewer", False
+            )
             participants.append(
                 ParticipantDetailResponse(
                     puuid=puuid,

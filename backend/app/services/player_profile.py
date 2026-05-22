@@ -56,9 +56,7 @@ def _normalize_radar(value: float, cap: float) -> int:
 
 async def _load_matches_sampled(session: AsyncSession, puuid: str) -> int:
     result = await session.execute(
-        select(GameAccounts.profile_matches_sampled).where(
-            GameAccounts.puuid == puuid
-        )
+        select(GameAccounts.profile_matches_sampled).where(GameAccounts.puuid == puuid)
     )
     value = result.scalar_one_or_none()
     return value if value is not None else 0
@@ -163,9 +161,7 @@ async def build_player_profile(
 
     total_duration = sum(m.game_duration for _, m, _ in rows) or 1
 
-    kda_values = [
-        (p.kills + p.assists) / max(p.deaths, 1) for p, _, _ in rows
-    ]
+    kda_values = [(p.kills + p.assists) / max(p.deaths, 1) for p, _, _ in rows]
     avg_kda = sum(kda_values) / len(kda_values)
 
     total_cs = sum(p.cs for p, _, _ in rows)

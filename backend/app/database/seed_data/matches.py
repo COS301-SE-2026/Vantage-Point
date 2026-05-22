@@ -150,7 +150,9 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
         ),
         enemies=(
             _bot(86, "TOP", 6, 3, 5, 176, 11200, 14800, 24, "bruiser"),
-            _bot(64, "JUNGLE", 3, 4, 14, 128, 10100, 13200, 42, "jungle", SPELLS_JUNGLE),
+            _bot(
+                64, "JUNGLE", 3, 4, 14, 128, 10100, 13200, 42, "jungle", SPELLS_JUNGLE
+            ),
             _bot(134, "MIDDLE", 9, 4, 6, 201, 11800, 21000, 30, "ap"),
             _bot(51, "BOTTOM", 10, 5, 4, 232, 13200, 24500, 26, "adc"),
             _bot(99, "UTILITY", 1, 6, 19, 30, 7800, 5100, 68, "support"),
@@ -161,7 +163,9 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
     "EUW1_700000002": MatchBotRoster(
         allies=(
             _bot(86, "TOP", 4, 2, 7, 184, 10900, 16200, 22, "bruiser"),
-            _bot(64, "JUNGLE", 6, 4, 11, 134, 10400, 13800, 44, "jungle", SPELLS_JUNGLE),
+            _bot(
+                64, "JUNGLE", 6, 4, 11, 134, 10400, 13800, 44, "jungle", SPELLS_JUNGLE
+            ),
             _bot(222, "BOTTOM", 9, 3, 5, 228, 12500, 23800, 24, "adc"),
             _bot(89, "UTILITY", 1, 5, 20, 28, 8200, 4800, 76, "support"),
         ),
@@ -201,7 +205,9 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
         ),
         enemies=(
             _bot(122, "TOP", 7, 2, 3, 172, 11400, 16800, 24, "bruiser"),
-            _bot(234, "JUNGLE", 9, 4, 5, 124, 11200, 14200, 40, "jungle", SPELLS_JUNGLE),
+            _bot(
+                234, "JUNGLE", 9, 4, 5, 124, 11200, 14200, 40, "jungle", SPELLS_JUNGLE
+            ),
             _bot(134, "MIDDLE", 10, 3, 8, 188, 12000, 22400, 31, "ap"),
             _bot(51, "BOTTOM", 12, 2, 4, 218, 12800, 24800, 27, "adc"),
             _bot(267, "UTILITY", 2, 5, 16, 34, 8000, 5400, 74, "support"),
@@ -218,7 +224,9 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
         ),
         enemies=(
             _bot(86, "TOP", 5, 4, 6, 180, 11000, 15500, 23, "bruiser"),
-            _bot(64, "JUNGLE", 2, 5, 13, 136, 10200, 12800, 41, "jungle", SPELLS_JUNGLE),
+            _bot(
+                64, "JUNGLE", 2, 5, 13, 136, 10200, 12800, 41, "jungle", SPELLS_JUNGLE
+            ),
             _bot(103, "MIDDLE", 7, 5, 5, 202, 11300, 19200, 28, "ap"),
             _bot(222, "BOTTOM", 6, 8, 4, 186, 10800, 18500, 24, "adc"),
             _bot(412, "UTILITY", 1, 7, 15, 28, 7600, 4300, 66, "support"),
@@ -235,7 +243,9 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
         ),
         enemies=(
             _bot(86, "TOP", 8, 2, 4, 188, 11800, 17200, 25, "bruiser"),
-            _bot(64, "JUNGLE", 7, 3, 10, 140, 11000, 14500, 43, "jungle", SPELLS_JUNGLE),
+            _bot(
+                64, "JUNGLE", 7, 3, 10, 140, 11000, 14500, 43, "jungle", SPELLS_JUNGLE
+            ),
             _bot(103, "MIDDLE", 11, 2, 6, 212, 12200, 23200, 33, "ap"),
             _bot(222, "BOTTOM", 9, 4, 5, 226, 12600, 24100, 26, "adc"),
             _bot(412, "UTILITY", 2, 5, 18, 34, 8400, 4900, 77, "support"),
@@ -246,7 +256,9 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
     "EUW1_700000007": MatchBotRoster(
         allies=(
             _bot(86, "TOP", 6, 3, 5, 192, 11500, 16800, 24, "bruiser"),
-            _bot(64, "JUNGLE", 5, 4, 12, 138, 10700, 14100, 45, "jungle", SPELLS_JUNGLE),
+            _bot(
+                64, "JUNGLE", 5, 4, 12, 138, 10700, 14100, 45, "jungle", SPELLS_JUNGLE
+            ),
             _bot(222, "BOTTOM", 10, 2, 8, 236, 13200, 24600, 27, "adc"),
             _bot(89, "UTILITY", 1, 4, 21, 32, 8800, 5000, 80, "support"),
         ),
@@ -310,7 +322,9 @@ def _participant_from_bot(bot: BotSlot, team_win: bool) -> dict[str, Any]:
     }
 
 
-def _participant_from_viewer(viewer: SeedViewerParticipant, team_win: bool) -> dict[str, Any]:
+def _participant_from_viewer(
+    viewer: SeedViewerParticipant, team_win: bool
+) -> dict[str, Any]:
     name = _champion_name(viewer.champion_id)
     item_key = {
         "BOTTOM": "adc",
@@ -340,9 +354,7 @@ def _participant_from_viewer(viewer: SeedViewerParticipant, team_win: bool) -> d
     }
 
 
-def _slot_for_position(
-    slots: tuple[BotSlot, ...], position: str
-) -> BotSlot | None:
+def _slot_for_position(slots: tuple[BotSlot, ...], position: str) -> BotSlot | None:
     for slot in slots:
         if slot.position == position:
             return slot
@@ -357,10 +369,7 @@ def _build_team_participants(
 ) -> list[dict[str, Any]]:
     participants: list[dict[str, Any]] = []
     for position in POSITION_ORDER:
-        if (
-            team_id == viewer.team_id
-            and position == viewer.individual_position
-        ):
+        if team_id == viewer.team_id and position == viewer.individual_position:
             participants.append(_participant_from_viewer(viewer, team_win))
         else:
             bot = _slot_for_position(bots, position)
@@ -369,7 +378,9 @@ def _build_team_participants(
     return participants
 
 
-def _build_teams_for_match(viewer: SeedViewerParticipant, roster: MatchBotRoster) -> list[dict[str, Any]]:
+def _build_teams_for_match(
+    viewer: SeedViewerParticipant, roster: MatchBotRoster
+) -> list[dict[str, Any]]:
     ally_win = viewer.win
     enemy_win = not ally_win
 
@@ -394,9 +405,7 @@ def _build_teams_for_match(viewer: SeedViewerParticipant, roster: MatchBotRoster
             "tower": 9 if blue_win else 4,
             "inhibitor": 2 if blue_win else 0,
         },
-        "participants": _build_team_participants(
-            viewer, blue_bots, 100, blue_win
-        ),
+        "participants": _build_team_participants(viewer, blue_bots, 100, blue_win),
     }
 
     red = {
@@ -410,9 +419,7 @@ def _build_teams_for_match(viewer: SeedViewerParticipant, roster: MatchBotRoster
             "tower": 9 if red_win else 4,
             "inhibitor": 2 if red_win else 0,
         },
-        "participants": _build_team_participants(
-            viewer, red_bots, 200, red_win
-        ),
+        "participants": _build_team_participants(viewer, red_bots, 200, red_win),
     }
 
     return [blue, red]
@@ -438,28 +445,100 @@ SEED_MATCHES: list[SeedMatchRow] = [
 
 SEED_VIEWER_PARTICIPANTS: list[SeedViewerParticipant] = [
     SeedViewerParticipant(
-        "EUW1_700000001", 222, False, 4, 8, 6, 165, "BOTTOM", 200, 10_500, 16_000, 22, 0.55
+        "EUW1_700000001",
+        222,
+        False,
+        4,
+        8,
+        6,
+        165,
+        "BOTTOM",
+        200,
+        10_500,
+        16_000,
+        22,
+        0.55,
     ),
     SeedViewerParticipant(
-        "EUW1_700000002", 103, True, 8, 3, 6, 210, "MIDDLE", 100, 12_000, 22_000, 35, 0.72
+        "EUW1_700000002",
+        103,
+        True,
+        8,
+        3,
+        6,
+        210,
+        "MIDDLE",
+        100,
+        12_000,
+        22_000,
+        35,
+        0.72,
     ),
     SeedViewerParticipant(
         "EUW1_700000003", 86, True, 5, 2, 4, 198, "TOP", 100, 11_500, 19_000, 28, 0.65
     ),
     SeedViewerParticipant(
-        "EUW1_700000004", 64, False, 4, 5, 12, 142, "JUNGLE", 100, 9_800, 14_000, 40, 0.80
+        "EUW1_700000004",
+        64,
+        False,
+        4,
+        5,
+        12,
+        142,
+        "JUNGLE",
+        100,
+        9_800,
+        14_000,
+        40,
+        0.80,
     ),
     SeedViewerParticipant(
-        "EUW1_700000005", 51, True, 11, 2, 5, 224, "BOTTOM", 200, 14_000, 28_000, 30, 0.70
+        "EUW1_700000005",
+        51,
+        True,
+        11,
+        2,
+        5,
+        224,
+        "BOTTOM",
+        200,
+        14_000,
+        28_000,
+        30,
+        0.70,
     ),
     SeedViewerParticipant(
         "EUW1_700000006", 122, False, 3, 7, 2, 156, "TOP", 200, 9_000, 15_000, 18, 0.45
     ),
     SeedViewerParticipant(
-        "EUW1_700000007", 134, True, 9, 4, 7, 205, "MIDDLE", 100, 13_500, 25_000, 32, 0.68
+        "EUW1_700000007",
+        134,
+        True,
+        9,
+        4,
+        7,
+        205,
+        "MIDDLE",
+        100,
+        13_500,
+        25_000,
+        32,
+        0.68,
     ),
     SeedViewerParticipant(
-        "EUW1_700000008", 412, False, 1, 6, 14, 28, "UTILITY", 200, 7_500, 8_000, 78, 0.85
+        "EUW1_700000008",
+        412,
+        False,
+        1,
+        6,
+        14,
+        28,
+        "UTILITY",
+        200,
+        7_500,
+        8_000,
+        78,
+        0.85,
     ),
 ]
 
