@@ -35,15 +35,13 @@ def get_database_url():
     except socket.gaierror:
         host = "localhost"
 
-    return f"postgresql+asyncpg://riot_user:riot_password@{host}:5432/riot_db"
+    user = os.getenv("POSTGRES_USER", "riot_user")
+    password = os.getenv("POSTGRES_PASSWORD", "")
+    db = os.getenv("POSTGRES_DB", "riot_db")
+    return f"postgresql+asyncpg://{user}:{password}@{host}:5432/{db}"
 
 
-# Setup Connection
-# DATABASE_URL = os.getenv("DATABASE_URL")
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db",
-)
+DATABASE_URL = os.getenv("DATABASE_URL") or get_database_url()
 engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
 
 
