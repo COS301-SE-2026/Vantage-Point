@@ -5,9 +5,11 @@ This setup uses simple mocks instead of database connections,
 allowing tests to run while the database is still being set up.
 """
 
-import os
+pytest_plugins = ["app.tests.postgres_fixtures"]
 
-from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD
+import os  # noqa: E402
+
+from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E402
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 

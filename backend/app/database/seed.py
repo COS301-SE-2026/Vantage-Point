@@ -338,7 +338,9 @@ async def seed():
     print(f"  Participants:   {len(SEED_VIEWER_PARTICIPANTS)} (viewer)")
     print(f"  Achievements:   {len(SEED_USER_ACHIEVEMENTS)} (viewer)")
     print(f"  Featured games: {len(SEED_FEATURED_GAMES)} (viewer)")
-    print("  Dev login:      testuser1@vantagepoint.dev (password from SEED_DEV_PASSWORD)")
+    print(
+        "  Dev login:      testuser1@vantagepoint.dev (password from SEED_DEV_PASSWORD)"
+    )
 
 
 if __name__ == "__main__":
