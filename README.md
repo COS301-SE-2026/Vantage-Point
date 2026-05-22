@@ -4,9 +4,10 @@
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
-
 [![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
+[![Backend Coverage](backend/coverage-badge.svg)](backend/htmlcov/index.html)
 [![Frontend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/frontend_tests.yml)
+[![Frontend Coverage](frontend/coverage-badge.svg)](frontend/coverage/index.html)
 [![Security](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/security.yml)
 
 ---
@@ -23,10 +24,10 @@ Vantage Point is a spatial intelligence platform designed for competitive gamers
 | Name | Picture | Role | Description | LinkedIn |
 |------|---------|------|-------------|----------|
 | Fabio Berrino | ![Fabio](.github/images/Fabio.jpg) | Scrum Master and DevSecOps Engineer | I am a BSc Information and Knowledge Systems Student Specialising in Software Development. I am Interestred in everything related to technology ranging from software development to DevSecOps and AI/ML. | [LinkedIn](https://www.linkedin.com/in/fabio-b-15357777fa/) |
-| Ophelia Greyling | ![Ophelia](.github/images/Ophelia.jpeg) | Data Analyst and AI/ML Engineer |  | [LinkedIn](https://www.linkedin.com/in/zanri-greyling-031636271/) |
-| Vele Ndamulelo | ![Vele](.github/images/Vele.jpg) | Designer and Frontend Developer |  | [LinkedIn](https://www.linkedin.com/in/vele-ndamulelo-3a3085372/) |
-| Neo Machaba | ![Neo](.github/images/Neo.jpg) | Database Manager |  | [LinkedIn](https://www.linkedin.com/in/neo-machaba) |
-| Shaun Marx | ![Shaun](.github/images/Shaun.jpg) | API and Backend Developer |  | [LinkedIn](https://www.linkedin.com/in/shaun-marx-07bbb63b6/) |
+| Ophelia Greyling | ![Ophelia](.github/images/Ophelia.jpeg) | Data Analyst and AI/ML Engineer | I am a Computer Science student with a deep interest in data science and its various applications, as well as the mechanisms between computer networks. I have plans to start working in a machine learning related field in the second semester. | [LinkedIn](https://www.linkedin.com/in/zanri-greyling-031636271/) |
+| Vele Ndamulelo | ![Vele](.github/images/Vele.png) | Designer and Frontend Developer | I am a  BSC Computer Science student focused on building scalable software systems that reduce complexity and improve efficiency. | [LinkedIn](https://www.linkedin.com/in/vele-ndamulelo-3a3085372/) |
+| Neo Machaba | ![Neo](.github/images/Neo.jpg) | Database Manager | I am a BSC Computer Science student, I am interested in Data sciene, engineering and analyst with a goal in improving appplication and workflow efficiency with applying networking in order to reduce system bottlenecking. | [LinkedIn](https://www.linkedin.com/in/neo-machaba) |
+| Shaun Marx | ![Shaun](.github/images/Shaun.jpeg) | API and Backend Developer | I am an IKS student with an interest in building software systems from scratch and applying them in different environments. I am especially interested in software engineering, and backend development. | [LinkedIn](https://www.linkedin.com/in/shaun-marx-07bbb63b6/) |
 
 ## Team Roles
 
