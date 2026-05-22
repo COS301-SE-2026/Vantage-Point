@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from typing import Any, Dict
+
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -11,7 +12,6 @@ from dotenv import load_dotenv
 
 from app.api.middleware import ProcessTimeMiddleware
 from app.api.routes import router
-from app.config import get_settings
 from app.database.models import GameAccounts
 from app.database.session import async_session_maker, init_db
 from app.schemas.generic_schemas import get_error_reason
@@ -33,8 +33,6 @@ load_dotenv()
 # from slowapi.middleware import SlowAPIMiddleware
 
 # limiter = Limiter(key_func=get_remote_address)
-
-settings = get_settings()
 
 
 @asynccontextmanager
@@ -64,9 +62,9 @@ app = FastAPI(
 # 3000 = React default, 5173 = Vite default.
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=".",
+    allow_origin_regex=".*",
     allow_credentials=True,
-    allow_methods=[""],
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["X-Process-Time"],
 )
@@ -181,20 +179,17 @@ async def register_summoner(game_name: str, tag_line: str):
         if existing_account:
             return {"message": "Summoner already in database."}
 
-        if not existing_account:
-            new_account = GameAccounts(
-                puuid=puuid,
-                game="league_of_legends",
-                game_name=game_name,
-                tag_line=tag_line,
-                summoner_level=0,
-            )
-            session.add(new_account)
-            await session.commit()
-            return {
-                "message": f"Successfully registered {game_name}#{tag_line}",
-                "puuid": puuid,
-            }
+        new_account = GameAccounts(
+            puuid=puuid,
+            game="league_of_legends",
+            game_name=game_name,
+            tag_line=tag_line,
+            summoner_level=0,
+        )
+        session.add(new_account)
+        await session.commit()
 
-        # should not be reached as the check i added earlier should catch this but just in case,
-        return {"message": "Summoner already in database."}
+    return {
+        "message": f"Successfully registered {game_name}#{tag_line}",
+        "puuid": puuid,
+    }
