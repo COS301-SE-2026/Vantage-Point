@@ -95,7 +95,7 @@ function Group1() {
           MARQUEE_ITEMS.map((item) => (
             <p
               key={`${String(copy)}-${item}`}
-              className="font-sarina leading-[clamp(40px,5vh,60px)] text-[clamp(20px,2.5vw,32px)] text-white tracking-[-1.5px] shrink-0"
+              className="font-['Inter',sans-serif] font-medium leading-[clamp(40px,5vh,60px)] text-[clamp(20px,2.5vw,32px)] text-white tracking-wide drop-shadow-[0_1px_12px_rgba(0,0,0,0.6)] shrink-0"
             >
               {item}
             </p>

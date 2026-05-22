@@ -42,12 +42,17 @@ export interface FeaturedGameSlide {
   readonly efficiency_score: number;
   /** Total time played formatted D:HH:MM:SS */
   readonly time_spent_label: string;
+  /** Win rate over the profile sample window (e.g. "65% (13W / 7L)"). From participant.win. */
+  readonly win_rate_label: string;
+  /** Average KDA over the sample window (e.g. "3.8 avg"). From kills, deaths, assists. */
+  readonly kda_label: string;
 }
 
 export interface PlayerProfile {
   readonly display_name: string;
   readonly riot_id_tag: string;
   readonly avatar_initials: string;
+  readonly avatar_url: string | null;
   readonly radar_metrics: readonly RadarMetric[];
   readonly recent_champions: readonly RecentChampion[];
   readonly achievements: readonly PlayerAchievement[];

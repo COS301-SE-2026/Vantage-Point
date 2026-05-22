@@ -39,6 +39,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --vp-layout-max: 1512px;
+  --vp-dashboard-header: 94px;
+  --vp-sidebar-width: 220px;
+  --vp-sidebar-left: 28px;
+  --vp-content-gap: 51px;
 }
 
 .dark {
@@ -223,5 +228,42 @@
   .animate-vantage-pulse {
     color: #0f172a;
     animation: vantage-pulse 4.5s ease-in-out infinite;
+  }
+
+  @keyframes vantage-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.07);
+    }
+  }
+
+  .animate-vantage-breathe {
+    transform-origin: center;
+    animation: vantage-breathe 2.8s ease-in-out infinite;
+  }
+
+  @keyframes vantage-dot-fill {
+    0%,
+    8% {
+      background-color: transparent;
+      transform: scale(1);
+    }
+    12%,
+    88% {
+      background-color: #0f172a;
+      transform: scale(1);
+    }
+    92%,
+    100% {
+      background-color: transparent;
+      transform: scale(1);
+    }
+  }
+
+  .animate-vantage-dot-fill {
+    animation: vantage-dot-fill 2.7s ease-in-out infinite;
   }
 }

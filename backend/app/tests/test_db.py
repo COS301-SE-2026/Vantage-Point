@@ -35,9 +35,13 @@ def get_database_url():
     except socket.gaierror:
         host = "localhost"
 
-    return f"postgresql+asyncpg://riot_user:riot_password@{host}:5432/riot_db"
+    user = os.getenv("POSTGRES_USER", "riot_user")
+    password = os.getenv("POSTGRES_PASSWORD", "")
+    db = os.getenv("POSTGRES_DB", "riot_db")
+    return f"postgresql+asyncpg://{user}:{password}@{host}:5432/{db}"
 
 
+<<<<<<< HEAD
 # Setup Connection
 # DATABASE_URL = os.getenv("DATABASE_URL")
 DATABASE_URL = os.getenv(
@@ -45,6 +49,10 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db",
 )
 # engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
+=======
+DATABASE_URL = os.getenv("DATABASE_URL") or get_database_url()
+engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True shows the raw SQL
+>>>>>>> 4c1b02f3e7028644b29977fac2646e523176d011
 
 
 @pytest.fixture
@@ -89,7 +97,7 @@ async def test_database_logic(engine):
             game="league_of_legends",
             game_name="TheFast",
             tag_line="4444",
-            summoner_level=30,
+            account_level=30,
         )
 
         session.add(test_champ)

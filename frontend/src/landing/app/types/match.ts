@@ -25,10 +25,15 @@ export interface ParticipantDetail {
   readonly is_viewer: boolean;
 }
 
+export interface ChampionBan {
+  readonly champion_id: number;
+  readonly champion_name: string;
+}
+
 export interface TeamDetail {
   readonly team_id: number;
   readonly win: boolean;
-  readonly bans: readonly number[];
+  readonly bans: readonly ChampionBan[];
   readonly objectives: ObjectivesSummary;
   readonly participants: readonly ParticipantDetail[];
 }
@@ -43,4 +48,19 @@ export interface MatchDetail {
   readonly map_id: number;
   readonly map_label: string;
   readonly teams: readonly TeamDetail[];
+}
+
+/** Viewer summary for a single match in the dashboard list. */
+export interface MatchHistorySummary {
+  readonly matchId: string;
+  readonly champion_name: string;
+  readonly outcome: "Victory" | "Defeat";
+  readonly duration_minutes: number;
+  readonly map_label: string;
+  readonly played_on: string;
+  readonly kills: number;
+  readonly deaths: number;
+  readonly assists: number;
+  readonly cs: number;
+  readonly position: string;
 }

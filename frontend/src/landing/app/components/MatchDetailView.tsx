@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate, useOutletContext, useParams } from "react-router";
+import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchMatchDetail } from "../api/match";
+import {
+  DASHBOARD_CONTENT_HEIGHT,
+  getDashboardContentStyle,
+} from "../lib/dashboardLayout";
 import {
   championIconUrl,
   itemIconUrl,
@@ -10,18 +17,11 @@ import type {
   ParticipantDetail,
   TeamDetail,
 } from "../types/match";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
 
-interface MatchDetailModalProps {
-  readonly matchId: string | null;
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
+interface MatchDetailViewProps {
+  readonly matchId?: string;
+  readonly sidebarOpen?: boolean;
+  readonly onBack?: () => void;
   readonly viewerPuuid?: string;
 }
 
@@ -45,11 +45,11 @@ function formatNumber(n: number): string {
 
 function viewerParticipant(
   match: MatchDetail,
-  viewerPuuid?: string
+  viewerPuuid?: string,
 ): ParticipantDetail | undefined {
   for (const team of match.teams) {
     const found = team.participants.find(
-      (p) => p.is_viewer || (viewerPuuid && p.puuid === viewerPuuid)
+      (p) => p.is_viewer || (viewerPuuid && p.puuid === viewerPuuid),
     );
     if (found) return found;
   }
@@ -69,48 +69,78 @@ function LoadingSkeleton() {
   );
 }
 
-function ParticipantRow({
-  player,
-}: Readonly<{ player: ParticipantDetail }>) {
+function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
+  const isViewer = player.is_viewer;
+  const rowBg = isViewer ? "bg-[#dce8fc]" : "";
+  const cellBase = `py-2 ${rowBg}`;
+
   return (
     <tr
       className={
-        player.is_viewer
-          ? "bg-[#f5f8ff] border-l-2 border-l-[#4a7fd4]"
-          : "border-b border-[#eee]"
+        isViewer ? "shadow-[inset_0_0_0_1px_#9bb8e8]" : "border-b border-[#eee]"
       }
     >
-      <td className="py-2 pr-2">
+      <td
+        className={`${cellBase} pr-2 ${
+          isViewer ? "border-l-4 border-l-[#2f6fd4] pl-2" : "pl-2"
+        }`}
+      >
         <div className="flex items-center gap-2 min-w-0">
           <img
             src={championIconUrl(player.champion_name)}
             alt=""
-            className="size-8 rounded shrink-0"
+            className={`rounded shrink-0 ${isViewer ? "size-9 ring-2 ring-[#4a7fd4]/40" : "size-8"}`}
           />
           <div className="min-w-0">
-            <p className="text-sm font-medium text-[#1e1e1e] truncate">
+            <p
+              className={`text-sm truncate ${
+                isViewer
+                  ? "font-semibold text-[#1a3d6e]"
+                  : "font-medium text-[#1e1e1e]"
+              }`}
+            >
               {player.riot_id ?? player.champion_name}
             </p>
             <p className="text-xs text-[#757575]">{player.position}</p>
           </div>
         </div>
       </td>
-      <td className="py-2 text-sm text-center tabular-nums">
+      <td
+        className={`${cellBase} text-sm text-center tabular-nums ${
+          isViewer ? "font-semibold text-[#1a3d6e]" : ""
+        }`}
+      >
         {player.kills}/{player.deaths}/{player.assists}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575]">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {player.cs}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575] hidden sm:table-cell">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums hidden sm:table-cell ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {formatNumber(player.gold_earned)}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575] hidden md:table-cell">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums hidden md:table-cell ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {formatNumber(player.damage_to_champions)}
       </td>
-      <td className="py-2 text-sm text-right tabular-nums text-[#757575] hidden lg:table-cell">
+      <td
+        className={`${cellBase} text-sm text-right tabular-nums hidden lg:table-cell ${
+          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
+        }`}
+      >
         {player.vision_score}
       </td>
-      <td className="py-2 pl-2">
+      <td className={`${cellBase} pl-2 pr-2`}>
         <div className="flex items-center gap-0.5 justify-end flex-wrap max-w-[140px]">
           {player.summoner_spells.map((spellId) => {
             const url = summonerSpellIconUrl(spellId);
@@ -167,7 +197,9 @@ function TeamScoreboard({
         <h3 className={`text-sm font-semibold ${sideColor}`}>{sideLabel}</h3>
         <span
           className={`text-xs font-medium px-2 py-0.5 rounded ${
-            team.win ? "bg-[#e6f4ea] text-[#1e7e34]" : "bg-[#fce8e8] text-[#c44a4a]"
+            team.win
+              ? "bg-[#e6f4ea] text-[#1e7e34]"
+              : "bg-[#fce8e8] text-[#c44a4a]"
           }`}
         >
           {team.win ? "Victory" : "Defeat"}
@@ -247,14 +279,14 @@ function BansRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
             {team.team_id === 100 ? "Blue" : "Red"} bans
           </p>
           <div className="flex flex-wrap gap-1">
-            {team.bans.map((champId) => (
-              <span
-                key={champId}
-                className="text-xs px-2 py-1 rounded bg-[#eee] text-[#1e1e1e]"
-                title={`Champion ${champId}`}
-              >
-                #{champId}
-              </span>
+            {team.bans.map((ban) => (
+              <img
+                key={ban.champion_id}
+                src={championIconUrl(ban.champion_name)}
+                alt={ban.champion_name}
+                title={ban.champion_name}
+                className="size-8 rounded shrink-0 grayscale opacity-70"
+              />
             ))}
           </div>
         </div>
@@ -263,18 +295,28 @@ function BansRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
   );
 }
 
-export default function MatchDetailModal({
-  matchId,
-  open,
-  onOpenChange,
+export default function MatchDetailView({
+  matchId: matchIdProp,
+  sidebarOpen: sidebarOpenProp,
+  onBack: onBackProp,
   viewerPuuid,
-}: Readonly<MatchDetailModalProps>) {
+}: Readonly<MatchDetailViewProps> = {}) {
+  const navigate = useNavigate();
+  const { matchId: matchIdParam } = useParams<{ matchId: string }>();
+  const outlet = useOutletContext<DashboardOutletContext | undefined>();
+  const matchId = matchIdProp ?? matchIdParam ?? "";
+  const sidebarOpen = sidebarOpenProp ?? outlet?.sidebarOpen ?? true;
+  const onBack =
+    onBackProp ?? (() => navigate("/dashboard/matches", { replace: false }));
+
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const contentStyle = getDashboardContentStyle(sidebarOpen);
+
   useEffect(() => {
-    if (!open || !matchId) {
+    if (!matchId) {
       setMatch(null);
       setError(null);
       return;
@@ -285,7 +327,7 @@ export default function MatchDetailModal({
     setError(null);
     setMatch(null);
 
-    fetchMatchDetail(matchId, viewerPuuid)
+    fetchMatchDetail(matchId)
       .then((data) => {
         if (!cancelled) {
           if (!data.teams?.length) {
@@ -305,78 +347,82 @@ export default function MatchDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [open, matchId, viewerPuuid]);
+  }, [matchId, viewerPuuid]);
 
   const viewer = match ? viewerParticipant(match, viewerPuuid) : undefined;
-  const resultLabel = viewer
-    ? viewer.win
-      ? "Victory"
-      : "Defeat"
-    : null;
-  const resultClass = viewer?.win
-    ? "text-[#1e7e34]"
-    : "text-[#c44a4a]";
+  const resultLabel = viewer ? (viewer.win ? "Victory" : "Defeat") : null;
+  const resultClass = viewer?.win ? "text-[#1e7e34]" : "text-[#c44a4a]";
 
   const blueTeam = match?.teams.find((t) => t.team_id === 100);
   const redTeam = match?.teams.find((t) => t.team_id === 200);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-h-[90vh] overflow-y-auto sm:max-w-4xl font-['Inter',sans-serif] bg-white border-[#d9d9d9] text-[#1e1e1e] p-0 gap-0"
-        aria-describedby={match ? "match-detail-desc" : undefined}
-      >
-        <div className="p-6 pb-4 border-b border-[#eee] sticky top-0 bg-white z-10">
-          <DialogHeader className="text-left gap-1">
-            {loading && (
-              <DialogTitle className="text-[#1e1e1e]">Loading match…</DialogTitle>
-            )}
-            {error && (
-              <DialogTitle className="text-[#c44a4a]">{error}</DialogTitle>
-            )}
-            {match && viewer && (
-              <>
-                <div className="flex flex-wrap items-center gap-3">
-                  <img
-                    src={championIconUrl(viewer.champion_name)}
-                    alt=""
-                    className="size-12 rounded"
-                  />
-                  <div>
-                    <DialogTitle
-                      className={`text-2xl font-semibold ${resultClass}`}
-                    >
-                      {resultLabel}
-                    </DialogTitle>
-                    <DialogDescription
-                      id="match-detail-desc"
-                      className="text-[#757575] text-sm"
-                    >
-                      {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
-                      {viewer.assists} KDA
-                    </DialogDescription>
-                  </div>
-                </div>
-                <p className="text-sm text-[#757575] mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                  <span>{formatDuration(match.game_duration)}</span>
-                  <span>·</span>
-                  <span>{match.queue_label}</span>
-                  <span>·</span>
-                  <span>{match.map_label}</span>
-                  <span>·</span>
-                  <span>v{match.game_version}</span>
-                  <span>·</span>
-                  <span>{formatGameDate(match.game_creation)}</span>
-                </p>
-              </>
-            )}
-            {match && !viewer && (
-              <DialogTitle className="text-[#1e1e1e]">Match details</DialogTitle>
-            )}
-          </DialogHeader>
-        </div>
+    <div
+      className="absolute top-[var(--vp-dashboard-header)] min-w-0 font-['Inter',sans-serif] transition-[left,width] duration-300 ease-out"
+      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
+      data-name="match-detail-view"
+    >
+      <div className="relative h-full overflow-auto px-10 py-6">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Back to matches"
+          className="mb-6 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] transition-opacity hover:opacity-80"
+        >
+          <ArrowLeft className="size-5 shrink-0" strokeWidth={2} aria-hidden />
+          <span className="font-['Inter:Regular',sans-serif] text-[14px] font-normal text-[#1e1e1e]">
+            Back to matches
+          </span>
+        </button>
 
-        <div className="p-6 pt-4 flex flex-col gap-6">
+        <header className="mb-6 border-b border-[#eee] pb-4">
+          {loading && (
+            <h1 className="text-[#1e1e1e] text-xl font-semibold">
+              Loading match…
+            </h1>
+          )}
+          {error && (
+            <h1 className="text-[#c44a4a] text-xl font-semibold">{error}</h1>
+          )}
+          {match && viewer && (
+            <>
+              <div className="flex flex-wrap items-center gap-3">
+                <img
+                  src={championIconUrl(viewer.champion_name)}
+                  alt=""
+                  className="size-12 rounded"
+                />
+                <div>
+                  <h1 className={`text-2xl font-semibold ${resultClass}`}>
+                    {resultLabel}
+                  </h1>
+                  <p id="match-detail-desc" className="text-[#757575] text-sm">
+                    {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
+                    {viewer.assists} KDA
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-[#757575] mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                <span>{formatDuration(match.game_duration)}</span>
+                <span>·</span>
+                <span>{match.queue_label}</span>
+                <span>·</span>
+                <span>{match.map_label}</span>
+                <span>·</span>
+                <span>v{match.game_version}</span>
+                <span>·</span>
+                <span>{formatGameDate(match.game_creation)}</span>
+              </p>
+            </>
+          )}
+          {match && !viewer && (
+            <h1 className="text-[#1e1e1e] text-xl font-semibold">
+              Match details
+            </h1>
+          )}
+        </header>
+
+        <div className="flex flex-col gap-6">
           {loading && <LoadingSkeleton />}
           {error && !loading && (
             <p className="text-sm text-[#757575]">
@@ -390,21 +436,21 @@ export default function MatchDetailModal({
                 <TeamScoreboard team={redTeam} sideLabel="Red Team" />
               </div>
               <section>
-                <h4 className="text-sm font-semibold text-[#1e1e1e] mb-3">
+                <h2 className="text-sm font-semibold text-[#1e1e1e] mb-3">
                   Objectives
-                </h4>
+                </h2>
                 <ObjectivesRow teams={match.teams} />
               </section>
               <section>
-                <h4 className="text-sm font-semibold text-[#1e1e1e] mb-3">
+                <h2 className="text-sm font-semibold text-[#1e1e1e] mb-3">
                   Bans
-                </h4>
+                </h2>
                 <BansRow teams={match.teams} />
               </section>
             </>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
