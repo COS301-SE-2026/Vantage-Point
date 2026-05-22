@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import col, select
 
 from app.database.models import Champions, Matches, Participants
 from app.schemas.match import MatchHistorySummaryResponse
@@ -11,10 +11,10 @@ async def list_match_history(
 ) -> list[MatchHistorySummaryResponse]:
     result = await session.execute(
         select(Participants, Matches, Champions)
-        .join(Matches, Matches.match_id == Participants.match_id)
-        .join(Champions, Champions.champion_id == Participants.champion_id)
-        .where(Participants.puuid == puuid)
-        .order_by(Matches.game_creation.desc(), Matches.match_id.desc())
+        .join(Matches, col(Matches.match_id) == col(Participants.match_id))
+        .join(Champions, col(Champions.champion_id) == col(Participants.champion_id))
+        .where(col(Participants.puuid) == puuid)
+        .order_by(col(Matches.game_creation).desc(), col(Matches.match_id).desc())
     )
     rows = result.all()
     summaries: list[MatchHistorySummaryResponse] = []

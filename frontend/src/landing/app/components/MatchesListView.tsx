@@ -95,10 +95,7 @@ function MatchHistoryListHeader() {
       >
         CS
       </span>
-      <span
-        role="columnheader"
-        className={`${STAT_LABEL_CLASS} text-right`}
-      >
+      <span role="columnheader" className={`${STAT_LABEL_CLASS} text-right`}>
         Duration
       </span>
       <span role="columnheader" aria-hidden />
@@ -162,18 +159,21 @@ function MatchHistoryDaySection({
   onOpenMatch: (matchId: string) => void;
 }>) {
   return (
-    <section className="flex flex-col gap-3" aria-label={`Matches on ${dayRow.dateLabel}`}>
+    <section
+      className="flex flex-col gap-3"
+      aria-label={`Matches on ${dayRow.dateLabel}`}
+    >
       <h2 className="font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] text-[#1e1e1e]">
         {dayRow.dateLabel}
       </h2>
       <div role="table" className="flex flex-col gap-2">
         <MatchHistoryListHeader />
         <ul className="flex flex-col gap-2" role="rowgroup">
-        {dayRow.matches.map((item) => (
-          <li key={item.matchId}>
-            <MatchHistoryListRow item={item} onOpenMatch={onOpenMatch} />
-          </li>
-        ))}
+          {dayRow.matches.map((item) => (
+            <li key={item.matchId}>
+              <MatchHistoryListRow item={item} onOpenMatch={onOpenMatch} />
+            </li>
+          ))}
         </ul>
       </div>
     </section>
@@ -181,7 +181,7 @@ function MatchHistoryDaySection({
 }
 
 export default function MatchesListView(
-  props: Readonly<MatchesListViewProps> = {}
+  props: Readonly<MatchesListViewProps> = {},
 ) {
   const { sidebarOpen: sidebarOpenProp } = props;
   const navigate = useNavigate();
@@ -192,11 +192,15 @@ export default function MatchesListView(
     navigate(`/dashboard/matches/${encodeURIComponent(matchId)}`);
   };
 
-  const [allMatches, setAllMatches] = useState<readonly MatchHistorySummary[]>([]);
+  const [allMatches, setAllMatches] = useState<readonly MatchHistorySummary[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterId, setFilterId] = useState<MatchFilterId>(DEFAULT_MATCH_FILTER_ID);
+  const [filterId, setFilterId] = useState<MatchFilterId>(
+    DEFAULT_MATCH_FILTER_ID,
+  );
   const [sortId, setSortId] = useState<MatchSortId>(DEFAULT_MATCH_SORT_ID);
 
   useEffect(() => {
@@ -211,7 +215,9 @@ export default function MatchesListView(
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load matches");
+          setError(
+            err instanceof Error ? err.message : "Failed to load matches",
+          );
           setAllMatches([]);
         }
       })
@@ -229,9 +235,9 @@ export default function MatchesListView(
     () =>
       groupDashboardMatchesByDay(
         applyMatchListControls(allMatches, { filterId, sortId, searchQuery }),
-        { oldestDaysFirst: matchListDaySortAscending(sortId) }
+        { oldestDaysFirst: matchListDaySortAscending(sortId) },
       ),
-    [allMatches, filterId, searchQuery, sortId]
+    [allMatches, filterId, searchQuery, sortId],
   );
 
   const hasNoMatches = !loading && !error && allMatches.length === 0;
@@ -269,7 +275,8 @@ export default function MatchesListView(
         ) : null}
         {hasNoMatches ? (
           <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
-            No matches yet. Link your Riot ID or sign in with the seeded test account.
+            No matches yet. Link your Riot ID or sign in with the seeded test
+            account.
           </p>
         ) : null}
         {hasNoVisibleMatches ? (

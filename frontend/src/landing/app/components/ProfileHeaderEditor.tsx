@@ -24,10 +24,10 @@ export default function ProfileHeaderEditor({
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile.display_name);
   const [riotId, setRiotId] = useState(
-    profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag
+    profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag,
   );
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-    resolveAvatarUrl(profile.avatar_url)
+    resolveAvatarUrl(profile.avatar_url),
   );
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
@@ -38,7 +38,9 @@ export default function ProfileHeaderEditor({
   useEffect(() => {
     if (!editing) {
       setDisplayName(profile.display_name);
-      setRiotId(profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag);
+      setRiotId(
+        profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag,
+      );
       setAvatarPreview(resolveAvatarUrl(profile.avatar_url));
       setPendingFile(null);
       setRemoveAvatar(false);
@@ -121,7 +123,11 @@ export default function ProfileHeaderEditor({
         <div className="flex min-w-0 items-center gap-6">
           <Avatar className="size-[96px]">
             {viewAvatarSrc ? (
-              <AvatarImage src={viewAvatarSrc} alt="" className="object-cover" />
+              <AvatarImage
+                src={viewAvatarSrc}
+                alt=""
+                className="object-cover"
+              />
             ) : null}
             <AvatarFallback className="bg-[#404040] font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white">
               {profile.avatar_initials}
@@ -170,7 +176,11 @@ export default function ProfileHeaderEditor({
               aria-hidden
             >
               <span className="flex flex-col items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                <Camera className="size-6 text-white" strokeWidth={2} aria-hidden />
+                <Camera
+                  className="size-6 text-white"
+                  strokeWidth={2}
+                  aria-hidden
+                />
                 <span className="font-['Inter:Semi_Bold',sans-serif] text-[11px] font-semibold text-white">
                   Change
                 </span>
@@ -178,7 +188,11 @@ export default function ProfileHeaderEditor({
             </span>
             <Avatar className="size-[96px]">
               {avatarPreview ? (
-                <AvatarImage src={avatarPreview} alt="" className="object-cover" />
+                <AvatarImage
+                  src={avatarPreview}
+                  alt=""
+                  className="object-cover"
+                />
               ) : null}
               <AvatarFallback className="bg-[#404040] font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white">
                 {profile.avatar_initials}
@@ -252,7 +266,10 @@ export default function ProfileHeaderEditor({
       </div>
 
       {error ? (
-        <p className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600" role="alert">
+        <p
+          className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

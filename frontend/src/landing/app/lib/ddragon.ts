@@ -18,7 +18,7 @@ const CHAMPION_DDRAGON_KEY_OVERRIDES: Record<string, string> = {
   "Tahm Kench": "TahmKench",
   "Twisted Fate": "TwistedFate",
   "Vel'Koz": "Velkoz",
-  "Wukong": "MonkeyKing",
+  Wukong: "MonkeyKing",
   "Xin Zhao": "XinZhao",
 };
 

@@ -7,7 +7,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { loginUser, registerUser, type LoginPayload, type RegisterPayload } from "../api/auth";
+import {
+  loginUser,
+  registerUser,
+  type LoginPayload,
+  type RegisterPayload,
+} from "../api/auth";
 import { getMe, linkGameAccount } from "../api/user";
 import { clearStoredTokens, hasStoredAccessToken } from "../lib/tokens";
 import type { UserMe } from "../types/auth";
@@ -51,36 +56,33 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     })();
   }, [refreshUser]);
 
-  const login = useCallback(
-    async (payload: LoginPayload): Promise<UserMe> => {
-      await loginUser(payload);
-      const me = await getMe();
-      setUser(me);
-      return me;
-    },
-    []
-  );
-
-  const register = useCallback(async (payload: RegisterPayload): Promise<void> => {
-    await registerUser(payload);
+  const login = useCallback(async (payload: LoginPayload): Promise<UserMe> => {
+    await loginUser(payload);
     const me = await getMe();
     setUser(me);
+    return me;
   }, []);
+
+  const register = useCallback(
+    async (payload: RegisterPayload): Promise<void> => {
+      await registerUser(payload);
+      const me = await getMe();
+      setUser(me);
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     clearStoredTokens();
     setUser(null);
   }, []);
 
-  const linkRiot = useCallback(
-    async (riotId: string): Promise<UserMe> => {
-      await linkGameAccount(riotId);
-      const me = await getMe();
-      setUser(me);
-      return me;
-    },
-    []
-  );
+  const linkRiot = useCallback(async (riotId: string): Promise<UserMe> => {
+    await linkGameAccount(riotId);
+    const me = await getMe();
+    setUser(me);
+    return me;
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -92,7 +94,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       refreshUser,
       linkRiot,
     }),
-    [user, loading, login, register, logout, refreshUser, linkRiot]
+    [user, loading, login, register, logout, refreshUser, linkRiot],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

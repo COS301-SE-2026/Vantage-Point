@@ -364,7 +364,9 @@ function Login({
   );
 }
 
-export default function Register({ form }: Readonly<{ form: RegisterFormProps }>) {
+export default function Register({
+  form,
+}: Readonly<{ form: RegisterFormProps }>) {
   const [showPassword, setShowPassword] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 

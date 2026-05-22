@@ -9,7 +9,7 @@ import {
 import { toDashboardListItem } from "./matchHistoryGroup";
 
 function makeMatch(
-  overrides: Partial<MatchHistorySummary> = {}
+  overrides: Partial<MatchHistorySummary> = {},
 ): MatchHistorySummary {
   return {
     matchId: "match-1",
@@ -62,9 +62,24 @@ describe("filterMatches", () => {
 
 describe("sortMatches", () => {
   const matches = [
-    makeMatch({ matchId: "b", played_on: "2026-04-18", duration_minutes: 20, cs: 100 }),
-    makeMatch({ matchId: "a", played_on: "2026-04-19", duration_minutes: 40, cs: 200 }),
-    makeMatch({ matchId: "c", played_on: "2026-04-17", duration_minutes: 30, cs: 150 }),
+    makeMatch({
+      matchId: "b",
+      played_on: "2026-04-18",
+      duration_minutes: 20,
+      cs: 100,
+    }),
+    makeMatch({
+      matchId: "a",
+      played_on: "2026-04-19",
+      duration_minutes: 40,
+      cs: 200,
+    }),
+    makeMatch({
+      matchId: "c",
+      played_on: "2026-04-17",
+      duration_minutes: 30,
+      cs: 150,
+    }),
   ];
 
   it("sorts newest first by date", () => {
@@ -101,7 +116,7 @@ describe("searchMatches", () => {
   const items = [
     toDashboardListItem(makeMatch({ champion_name: "Darius" })),
     toDashboardListItem(
-      makeMatch({ champion_name: "Caitlyn", position: "BOTTOM" })
+      makeMatch({ champion_name: "Caitlyn", position: "BOTTOM" }),
     ),
   ];
 

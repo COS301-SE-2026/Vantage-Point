@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
-import RiotIdComponent, { type RiotIdFormProps } from "../../imports/RiotId/RiotId";
+import RiotIdComponent, {
+  type RiotIdFormProps,
+} from "../../imports/RiotId/RiotId";
 
 export default function LinkRiotPage() {
   const navigate = useNavigate();

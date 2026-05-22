@@ -291,9 +291,7 @@ SEED_MATCH_BOT_ROSTERS: dict[str, MatchBotRoster] = {
     ),
 }
 
-_VIEWER_BY_MATCH: dict[str, SeedViewerParticipant] = {
-    v.match_id: v for v in []  # filled after SEED_VIEWER_PARTICIPANTS
-}
+_VIEWER_BY_MATCH: dict[str, SeedViewerParticipant] = {}
 
 
 def _champion_name(champion_id: int) -> str:
@@ -387,6 +385,10 @@ def _build_teams_for_match(
     blue_win = ally_win if viewer.team_id == 100 else enemy_win
     red_win = ally_win if viewer.team_id == 200 else enemy_win
 
+    blue_bots: tuple[BotSlot, ...]
+    red_bots: tuple[BotSlot, ...]
+    blue_bans: tuple[int, ...]
+    red_bans: tuple[int, ...]
     if viewer.team_id == 100:
         blue_bots, red_bots = roster.allies, roster.enemies
         blue_bans, red_bans = roster.ally_bans, roster.enemy_bans

@@ -1,7 +1,7 @@
 import json
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import col, select
 
 from app.database.models import Champions, Matches, Participants
 from app.schemas.match import (
@@ -22,8 +22,8 @@ async def user_has_match_access(
     result = await session.execute(
         select(Participants.internal_id)
         .where(
-            Participants.match_id == match_id,
-            Participants.puuid.in_(user_puuids),
+            col(Participants.match_id) == match_id,
+            col(Participants.puuid).in_(user_puuids),
         )
         .limit(1)
     )
@@ -33,7 +33,9 @@ async def user_has_match_access(
 async def get_match_detail(
     session: AsyncSession, match_id: str, viewer_puuid: str | None
 ) -> MatchDetailResponse | None:
-    result = await session.execute(select(Matches).where(Matches.match_id == match_id))
+    result = await session.execute(
+        select(Matches).where(col(Matches.match_id) == match_id)
+    )
     match = result.scalar_one_or_none()
     if not match or not match.detail_json:
         return None
@@ -49,10 +51,12 @@ async def get_match_detail(
     if ban_ids:
         champ_result = await session.execute(
             select(Champions.champion_id, Champions.name).where(
-                Champions.champion_id.in_(ban_ids)
+                col(Champions.champion_id).in_(ban_ids)
             )
         )
-        name_by_id = dict(champ_result.all())
+        name_by_id = {
+            int(champion_id): str(name) for champion_id, name in champ_result.all()
+        }
 
     teams: list[TeamDetailResponse] = []
 

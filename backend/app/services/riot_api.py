@@ -44,7 +44,8 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
             response = await client.get(url, headers=headers)
 
             if response.status_code == 200:
-                return response.json().get("puuid")
+                puuid = response.json().get("puuid")
+                return str(puuid) if puuid else None
 
             if response.status_code == 401:
                 raise RiotApiUnauthorizedError(

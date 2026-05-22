@@ -24,7 +24,9 @@ export default function LoginPage() {
       }
     } catch (err) {
       const message =
-        err instanceof ApiError ? err.message : "Sign in failed. Please try again.";
+        err instanceof ApiError
+          ? err.message
+          : "Sign in failed. Please try again.";
       setError(message);
     } finally {
       setLoading(false);

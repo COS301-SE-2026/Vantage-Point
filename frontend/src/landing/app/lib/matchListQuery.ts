@@ -24,10 +24,7 @@ function kdaRatio(match: MatchHistorySummary): number {
   return (match.kills + match.assists) / Math.max(match.deaths, 1);
 }
 
-function compareNewest(
-  a: MatchHistorySummary,
-  b: MatchHistorySummary
-): number {
+function compareNewest(a: MatchHistorySummary, b: MatchHistorySummary): number {
   const dayCompare = b.played_on.localeCompare(a.played_on);
   if (dayCompare !== 0) {
     return dayCompare;
@@ -35,10 +32,7 @@ function compareNewest(
   return b.matchId.localeCompare(a.matchId);
 }
 
-function compareOldest(
-  a: MatchHistorySummary,
-  b: MatchHistorySummary
-): number {
+function compareOldest(a: MatchHistorySummary, b: MatchHistorySummary): number {
   return -compareNewest(a, b);
 }
 
@@ -60,7 +54,7 @@ function sortComparator(sortId: MatchSortId) {
 
 export function filterMatches(
   matches: readonly MatchHistorySummary[],
-  filterId: MatchFilterId
+  filterId: MatchFilterId,
 ): MatchHistorySummary[] {
   if (filterId === "all") {
     return [...matches];
@@ -77,14 +71,14 @@ export function filterMatches(
 
 export function sortMatches(
   matches: readonly MatchHistorySummary[],
-  sortId: MatchSortId
+  sortId: MatchSortId,
 ): MatchHistorySummary[] {
   return [...matches].sort(sortComparator(sortId));
 }
 
 export function searchMatches(
   items: readonly DashboardMatchListItem[],
-  searchQuery: string
+  searchQuery: string,
 ): DashboardMatchListItem[] {
   const query = searchQuery.trim().toLowerCase();
   if (!query) {
@@ -105,7 +99,7 @@ export function searchMatches(
 
 export function applyMatchListControls(
   matches: readonly MatchHistorySummary[],
-  options: MatchListQueryOptions
+  options: MatchListQueryOptions,
 ): DashboardMatchListItem[] {
   const filtered = filterMatches(matches, options.filterId);
   const sorted = sortMatches(filtered, options.sortId);

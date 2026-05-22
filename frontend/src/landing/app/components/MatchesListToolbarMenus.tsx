@@ -44,7 +44,11 @@ export default function MatchesListToolbarMenus({
             <Filter className="size-[22px]" strokeWidth={2} aria-hidden />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end" className="min-w-[10rem]">
+        <DropdownMenuContent
+          side="bottom"
+          align="end"
+          className="min-w-[10rem]"
+        >
           <DropdownMenuLabel>Filter</DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={filterId}
@@ -69,7 +73,11 @@ export default function MatchesListToolbarMenus({
             <ArrowUpDown className="size-[22px]" strokeWidth={2} aria-hidden />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end" className="min-w-[10rem]">
+        <DropdownMenuContent
+          side="bottom"
+          align="end"
+          className="min-w-[10rem]"
+        >
           <DropdownMenuLabel>Sort</DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={sortId}

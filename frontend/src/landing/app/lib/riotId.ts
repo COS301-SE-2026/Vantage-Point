@@ -1,4 +1,7 @@
-export function parseRiotId(riotId: string): { gameName: string; tagLine: string } {
+export function parseRiotId(riotId: string): {
+  gameName: string;
+  tagLine: string;
+} {
   const trimmed = riotId.trim();
   const idx = trimmed.lastIndexOf("#");
   if (idx <= 0 || idx === trimmed.length - 1) {

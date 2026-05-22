@@ -23,7 +23,7 @@ export async function uploadAvatar(file: File): Promise<AvatarUploadResponse> {
   formData.append("file", file);
   return apiFetchFormData<AvatarUploadResponse>(
     "/api/v1/users/me/avatar",
-    formData
+    formData,
   );
 }
 
@@ -34,7 +34,7 @@ export async function deleteAvatar(): Promise<void> {
 }
 
 export async function linkGameAccount(
-  riotId: string
+  riotId: string,
 ): Promise<LinkGameAccountResponse> {
   return apiFetch<LinkGameAccountResponse>("/api/v1/users/me/game-accounts", {
     method: "POST",
@@ -43,7 +43,7 @@ export async function linkGameAccount(
 }
 
 export async function updateRiotId(
-  riotId: string
+  riotId: string,
 ): Promise<LinkGameAccountResponse> {
   return apiFetch<LinkGameAccountResponse>("/api/v1/users/me/game-accounts", {
     method: "PUT",

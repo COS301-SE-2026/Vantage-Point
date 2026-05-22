@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy import BigInteger, UniqueConstraint
+from sqlalchemy import BigInteger, Column, UniqueConstraint
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
@@ -101,7 +101,7 @@ class Matches(SQLModel, table=True):
     game_version: str  # Patch the game was played on, e.g. "13.12" - this is important for tracking balance changes and how they affect champion performance over time.
     game_duration: int  # in seconds;
     queue_id: int
-    game_creation: int = Field(default=0, sa_type=BigInteger())  # epoch ms
+    game_creation: int = Field(default=0, sa_column=Column(BigInteger()))  # epoch ms
     map_id: int = 11
     played_on: date = Field(default_factory=lambda: date.today())
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
