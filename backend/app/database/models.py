@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -6,6 +7,21 @@ from sqlmodel import SQLModel, Field, Relationship
 # I also added some comments to explain the purpose of each table and field.
 # Let me know if you have any questions or want me to change anything!
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
+
+
+# added for profile
+class UserProfile(SQLModel, table=True):
+    user_id: str = Field(primary_key=True)
+    username: str
+    riot_puuid: Optional[str] = Field(default=None, foreign_key="game_accounts.puuid")
+
+    deletion_scheduled_at: Optional[datetime] = None
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
 
 
 # Champions
@@ -19,18 +35,49 @@ class Champions(SQLModel, table=True):
     participants: List["Participants"] = Relationship(back_populates="champion")
 
 
-# Summoners
+# Users
+# Represents a registered Vantage Point account.
+# We don't store passwords — Cognito owns that.
+# cognito_sub is the 'sub' claim from the Cognito JWT token,
+# it's the stable unique identifier for a user.
+class Users(SQLModel, table=True):
+    cognito_sub: str = Field(primary_key=True)
+    email: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
+
+
+# GameAccounts
 # THIS IS A PLAYER ACCOUNT.
 # PUUID is Riot's global unique identifier for a player SO DO NOT TOUCH IT
 # I REPEAT DO NOT MESS WITH PUUID.
 # this stays the same acorss regions and name changes which is why we use it as the primary key. We can always look up the current name and tag using the PUUID.
-class Summoners(SQLModel, table=True):
+class GameAccounts(SQLModel, table=True):
+    __tablename__ = "game_accounts"
+
     puuid: str = Field(primary_key=True)
+    game: str  # identifies which game this account belongs to e.g. "league_of_legends", "dota2"
     game_name: str
     tag_line: str  # the part after '#' in Riot ID, e.g. "EUW" in "Player#EUW"
     summoner_level: int
 
-    participations: List["Participants"] = Relationship(back_populates="summoner")
+    linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
+    participations: List["Participants"] = Relationship(back_populates="game_account")
+
+
+# UserGameAccounts
+# Join table: tracks which game accounts a user has linked to their account.
+# A user can track many game accounts, and a game account can be tracked by many users.
+class UserGameAccounts(SQLModel, table=True):
+    __tablename__ = "user_game_accounts"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    cognito_sub: str = Field(foreign_key="users.cognito_sub")
+    puuid: str = Field(foreign_key="game_accounts.puuid")
+
+    user: "Users" = Relationship(back_populates="linked_game_accounts")
+    game_account: "GameAccounts" = Relationship(back_populates="linked_users")
 
 
 # Matches
@@ -45,6 +92,7 @@ class Matches(SQLModel, table=True):
     game_version: str  # Patch the game was played on, e.g. "13.12" - this is important for tracking balance changes and how they affect champion performance over time.
     game_duration: int  # in seconds;
     queue_id: int
+    game_creation: int
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -57,8 +105,9 @@ class Participants(SQLModel, table=True):
     internal_id: Optional[int] = Field(default=None, primary_key=True)
 
     match_id: str = Field(foreign_key="matches.match_id")
-    puuid: str = Field(foreign_key="summoners.puuid")
+    puuid: str = Field(foreign_key="game_accounts.puuid")
     champion_id: int = Field(foreign_key="champions.champion_id")
+    team_id: int
 
     win: bool
     kills: int
@@ -68,5 +117,5 @@ class Participants(SQLModel, table=True):
 
     # Below are back-references so we can navigate from a participant to its match/player/champion
     match: "Matches" = Relationship(back_populates="participants")
-    summoner: "Summoners" = Relationship(back_populates="participations")
+    game_account: "GameAccounts" = Relationship(back_populates="participations")
     champion: "Champions" = Relationship(back_populates="participants")
