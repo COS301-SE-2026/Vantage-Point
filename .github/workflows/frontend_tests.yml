@@ -154,13 +154,14 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Commit coverage badge
+      - name: Commit and push coverage badge
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
         working-directory: frontend
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git checkout -b badges 2>/dev/null || git checkout badges
-          cp coverage-badge.svg ../frontend-coverage-badge.svg
-          git add ../frontend-coverage-badge.svg
-          git commit -m "Update frontend coverage badge" || true
-          git push origin badges -f
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add coverage-badge.svg
+          git commit -m "chore: update frontend coverage badge" || true
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
