@@ -182,8 +182,8 @@ class TestRegisterSummonerRoute:
     Tests the summoner registration endpoint that integrates with Riot API.
     """
 
-    @patch("app.main.get_puuid_by_riot_id")
-    @patch("app.main.async_session_maker")
+    @patch("app.services.riot_api.get_puuid_by_riot_id")
+    @patch("app.database.session.async_session_maker")
     async def test_register_summoner_success(
         self, mock_session_maker, mock_get_puuid, client
     ):
@@ -216,7 +216,7 @@ class TestRegisterSummonerRoute:
         assert "Successfully registered" in data["message"]
         assert data["puuid"] == "test-puuid-123"
 
-    @patch("app.main.get_puuid_by_riot_id")
+    @patch("app.services.riot_api.get_puuid_by_riot_id")
     async def test_register_summoner_not_found(self, mock_get_puuid, client):
         """Test registration when player not found on Riot servers.
 
@@ -237,8 +237,8 @@ class TestRegisterSummonerRoute:
         assert "error" in data
         assert "Could not find" in data["error"]
 
-    @patch("app.main.get_puuid_by_riot_id")
-    @patch("app.main.async_session_maker")
+    @patch("app.services.riot_api.get_puuid_by_riot_id")
+    @patch("app.database.session.async_session_maker")
     async def test_register_summoner_already_exists(
         self, mock_session_maker, mock_get_puuid, client
     ):

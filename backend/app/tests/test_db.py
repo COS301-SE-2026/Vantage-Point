@@ -51,7 +51,7 @@ DATABASE_URL = os.getenv(
 
 
 @pytest.fixture
-async def engine():
+def engine():
     """Create async engine fixture for database tests.
 
     echo=True shows the raw SQL for debugging.
@@ -59,7 +59,6 @@ async def engine():
     """
     _engine = create_async_engine(DATABASE_URL, echo=True)
     yield _engine
-    await _engine.dispose()
 
 
 # @pytest.mark.skip(reason="Database not available")
