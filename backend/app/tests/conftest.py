@@ -18,7 +18,6 @@ from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
 
-
 @pytest.fixture(scope="function")
 def client():
     """
