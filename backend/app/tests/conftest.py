@@ -17,6 +17,7 @@ import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
+from typing import Any
 
 @pytest.fixture(scope="function")
 def client():
@@ -44,7 +45,7 @@ def test_user_data():
 
 
 @pytest.fixture
-def test_user_response():
+def test_user_response() -> dict[str, Any]:
     """
     Provide sample user response data (as returned from the API).
 
@@ -61,7 +62,7 @@ def test_user_response():
 
 
 @pytest.fixture
-def test_match_data():
+def test_match_data() -> dict[str, Any]:
     """
     Provide sample match data for testing match-related endpoints.
 
@@ -76,7 +77,7 @@ def test_match_data():
 
 
 @pytest.fixture
-def test_match_response():
+def test_match_response() -> dict[str, Any]:
     """
     Provide sample match response data (as returned from the API).
 
