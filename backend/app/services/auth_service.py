@@ -37,7 +37,7 @@ def log_registration(username: str, email: str):
         f.write(f"User: {username} | Email: {email} | Status: REGISTERED\n")
 
 
-def _handle_cognito_error(e: ClientError) -> NoReturn:
+def handle_cognito_error(e: ClientError) -> NoReturn:
     """Helper to extract Cognito errors and raise a standardized HTTP exception."""
     error_code = e.response.get("Error", {}).get("Code", "UnknownError")
     error_message = e.response.get("Error", {}).get("Message", str(e))
@@ -76,7 +76,7 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
         return response
 
     except ClientError as e:
-        _handle_cognito_error(e)
+        handle_cognito_error(e)
 
 
 async def login_user(username: str, password: str) -> Mapping[str, Any]:
@@ -94,7 +94,7 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
         # This returns the AccessToken, IdToken, and RefreshToken
         return response["AuthenticationResult"]
     except ClientError as e:
-        _handle_cognito_error(e)
+        handle_cognito_error(e)
 
 
 async def confirm_user(username: str, code: str):
@@ -109,7 +109,7 @@ async def confirm_user(username: str, code: str):
         )
         return {"status": "success"}
     except ClientError as e:
-        _handle_cognito_error(e)
+        handle_cognito_error(e)
 
 
 async def logout_user(access_token: str) -> dict[str, str]:
@@ -120,7 +120,7 @@ async def logout_user(access_token: str) -> dict[str, str]:
         await asyncio.to_thread(client.global_sign_out, AccessToken=access_token)
         return {"status": "success", "message": "Logged out from all devices"}
     except ClientError as e:
-        _handle_cognito_error(e)
+        handle_cognito_error(e)
 
 
 async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
@@ -138,4 +138,4 @@ async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
         )
         return {"status": "success", "message": "Refresh token revoked."}
     except ClientError as e:
-        _handle_cognito_error(e)
+        handle_cognito_error(e)
