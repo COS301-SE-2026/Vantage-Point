@@ -8,5 +8,7 @@ data = file.read()
 file.close()
 
 # json to object conversion
-x = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-print(x.info.endOfGameResult, x.info.gameId)
+match_TL = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
+
+#temp print for basic testing
+print(match_TL.info.endOfGameResult, match_TL.info.gameId)

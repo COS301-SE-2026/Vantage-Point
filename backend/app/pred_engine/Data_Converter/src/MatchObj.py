@@ -3,16 +3,19 @@
 #Shared Internal Objects
 ########################################################
 
+#X.metadata
 class MetaObj:
     dataVersion = 0
     matchId = ""
-    participants = [""]
-
-
+    participants = [""] #puuids,k can use to check match data string
 
 #Match Timeline
 #########################################################
 
+#MatchTimeObj.info.[frames].[events].victimDamageDealt
+#MatchTimeObj.info.[frames].[events].victimDamageReceived
+#MatchTimeObj.info.[frames].[events].victimTeamfightDamageDealt
+#MatchTimeObj.info.[frames].[events].victimTeamfightDamageReceived
 class VicDamObj:
     basic = True
     magicDamage = 0
@@ -24,12 +27,13 @@ class VicDamObj:
     trueDamage = 0
     type = ""
 
-
+#MatchTimeObj.info.[frames].participantFrames.{all vars}.position
+#MatchTimeObj.info.[frames].[events].position
 class PositionObj:
     x = 0
     y = 0
 
-
+#MatchTimeObj.info.[frames].[events]
 class EventObj:
     timeStamp = 0
     realTimestamp = 0
@@ -69,7 +73,7 @@ class EventObj:
     gameId = 0
     winningTeam = 0
 
-
+#MatchTimeObj.info.[frames].participantFrames.{all vars}.championStats
 class ChampionStatsObj:
     abilityHaste = 0
     abilityPower = 0
@@ -96,7 +100,7 @@ class ChampionStatsObj:
     powerMax = 0
     spellVamp = 0
 
-
+#MatchTimeObj.info.[frames].participantFrames.{all vars}.damageStats
 class damageStatsObj:
     magicDamageDone = 0
     magicDamageDoneToChampions = 0
@@ -111,7 +115,7 @@ class damageStatsObj:
     trueDamageDoneToChampions = 0
     trueDamageTaken = 0
 
-
+#MatchTimeObj.info.[frames].participantFrames.{all vars}
 class playerFrameObj:
     championStats = ChampionStatsObj
     currentGold = 0
@@ -126,7 +130,7 @@ class playerFrameObj:
     totalGold = 0
     xp = 0
 
-
+#MatchTimeObj.info.[frames].participantFrames
 class PartFramesObj:
     _1 = playerFrameObj
     _2 = playerFrameObj
@@ -139,25 +143,24 @@ class PartFramesObj:
     _9 = playerFrameObj
     _10 = playerFrameObj
 
-
+#MatchTimeObj.info.[frames]
 class FrameObj:
     events = [EventObj]
     participantFrames = PartFramesObj
     timestamp = 0
 
-
+#MatchTimeObj.info.[participants]
 class MT_ParticipantObj:
     participantId = 0
     puuid = ""
 
-
+#MatchTimeObj.info
 class MT_InfoObj:
     endOfGameResult = ""
     frameInterval = 0
     frames = [FrameObj]
     gameId = 0
     participants = [MT_ParticipantObj]
-
 
 class MatchTimeObj:
     metadata = MetaObj
@@ -167,26 +170,31 @@ class MatchTimeObj:
 #Match data
 #########################################################
 
+#MatchDataObj.info.[participants].perks.statPerks
 class PerkStatObj:
     defence = 0
     flex = 0
     offense = 0
 
+#MatchDataObj.info.[participants].perks.[styles].[selections]
 class PerkStyleSelectObj:
     perk = 0
     var1 = 0
     var2 = 0
     var3 = 0
 
+#MatchDataObj.info.[participants].perks.[styles]
 class PerkStyleObj:
     description = ""
     selections = [PerkStyleSelectObj]
     style = 0
 
+#MatchDataObj.info.[participants].perks
 class PerkObj:
     statPerks = PerkStatObj
     styles = [PerkStyleObj]
 
+#MatchDataObj.info.[participants].mission
 class MissionObj:
     playerScore0 = 0
     playerScore1 = 0
@@ -201,6 +209,7 @@ class MissionObj:
     playerScore10 = 0
     playerScore11 = 0
 
+#MatchDataObj.info.[participants].challenges
 class ChallengesObj:
     _12AssistStreakCount = 0
     baronBuffGoldAdvantageOverThreshold = 0
@@ -349,6 +358,7 @@ class ChallengesObj:
     wardTakedowns = 0
     wardTakedownsBefore20M = 0
 
+#MatchDataObj.info.[participants]
 class M_ParticipantObj:
     allInPings = 0
     assistMePings = 0
@@ -491,14 +501,17 @@ class M_ParticipantObj:
     wardsPlaced = 0
     win = True
 
+#MatchDataObj.info.[teams].[bans]
 class BanObj:
     championId = 0
     pickTurn = 0
 
+#MatchDataObj.info.[teams].objectives.{all variables}
 class ObjectiveObj:
     first = True
     kills = 0
 
+#MatchDataObj.info.[teams].objectives
 class ObjectiveMultiObj:
     baron = ObjectiveObj
     champion = ObjectiveObj
@@ -508,14 +521,15 @@ class ObjectiveMultiObj:
     riftHerald = ObjectiveObj
     tower = ObjectiveObj
 
-
+#MatchDataObj.info.[teams]
 class TeamObj:
     bans = [BanObj]
     objectives = ObjectiveMultiObj
     teamId = 0
     win = True
 
-class M_InfoObj:
+#MatchDataObj.info
+class M_InfoObj: 
     endOfGameResult = ""
     gameCreation = 0
     gameDuration = 0
@@ -536,3 +550,4 @@ class M_InfoObj:
 class MatchDataObj:
     metadata = MetaObj
     info = M_InfoObj
+#########################################################
