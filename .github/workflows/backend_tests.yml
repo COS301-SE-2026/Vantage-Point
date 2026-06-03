@@ -28,12 +28,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Format check with Black
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && black --check app
 
       - name: Lint with Ruff
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && ruff check app
 
       - name: Type check with MyPy
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && mypy app
 
   test:
@@ -70,6 +79,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests with coverage
+        env:
+          JWT_SECRET: test-ci-secret
+          TEST_USER_PASSWORD: test-ci-user-password
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term
 
       - name: Upload coverage artifact
@@ -101,3 +114,15 @@ jobs:
           name: coverage-badge
           path: backend/coverage-badge.svg
           retention-days: 30
+
+      - name: Commit and push coverage badge
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+        run: |
+          cd backend
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add coverage-badge.svg
+          git commit -m "chore: update backend coverage badge" || true
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

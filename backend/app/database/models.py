@@ -1,5 +1,7 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import List, Optional
+
+from sqlalchemy import BigInteger, Column, UniqueConstraint
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
@@ -37,13 +39,15 @@ class Champions(SQLModel, table=True):
 
 # Users
 # Represents a registered Vantage Point account.
-# We don't store passwords — Cognito owns that.
-# cognito_sub is the 'sub' claim from the Cognito JWT token,
-# it's the stable unique identifier for a user.
 class Users(SQLModel, table=True):
-    cognito_sub: str = Field(primary_key=True)
-    email: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    id: str = Field(primary_key=True)
+    email: str = Field(unique=True, index=True)
+    password_hash: str
+    display_name: str
+    avatar_url: str | None = None
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
 
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
 
@@ -60,10 +64,15 @@ class GameAccounts(SQLModel, table=True):
     game: str  # identifies which game this account belongs to e.g. "league_of_legends", "dota2"
     game_name: str
     tag_line: str  # the part after '#' in Riot ID, e.g. "EUW" in "Player#EUW"
-    summoner_level: int
+    account_level: int
+    profile_matches_sampled: Optional[int] = None
 
     linked_users: List["UserGameAccounts"] = Relationship(back_populates="game_account")
     participations: List["Participants"] = Relationship(back_populates="game_account")
+    achievements: List["UserAchievements"] = Relationship(back_populates="game_account")
+    featured_games: List["UserFeaturedGames"] = Relationship(
+        back_populates="game_account"
+    )
 
 
 # UserGameAccounts
@@ -73,7 +82,7 @@ class UserGameAccounts(SQLModel, table=True):
     __tablename__ = "user_game_accounts"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    cognito_sub: str = Field(foreign_key="users.cognito_sub")
+    user_id: str = Field(foreign_key="users.id")
     puuid: str = Field(foreign_key="game_accounts.puuid")
 
     user: "Users" = Relationship(back_populates="linked_game_accounts")
@@ -92,7 +101,10 @@ class Matches(SQLModel, table=True):
     game_version: str  # Patch the game was played on, e.g. "13.12" - this is important for tracking balance changes and how they affect champion performance over time.
     game_duration: int  # in seconds;
     queue_id: int
-    game_creation: int
+    game_creation: int = Field(default=0, sa_column=Column(BigInteger()))  # epoch ms
+    map_id: int = 11
+    played_on: date = Field(default_factory=lambda: date.today())
+    detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -107,15 +119,75 @@ class Participants(SQLModel, table=True):
     match_id: str = Field(foreign_key="matches.match_id")
     puuid: str = Field(foreign_key="game_accounts.puuid")
     champion_id: int = Field(foreign_key="champions.champion_id")
-    team_id: int
+    team_id: int = 100
 
     win: bool
     kills: int
     deaths: int
     assists: int
     individual_position: str  # Riot's assigned lane: "TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY" ; will use this later to determine role for champion mastery and other stats
+    cs: int = 0
+    gold_earned: int = 0
+    damage_to_champions: int = 0
+    vision_score: int = 0
+    items_json: str = "[]"
+    summoner_spells_json: str = "[4, 14]"
+    riot_id_display: Optional[str] = None
+    kill_participation: Optional[float] = None
 
     # Below are back-references so we can navigate from a participant to its match/player/champion
     match: "Matches" = Relationship(back_populates="participants")
     game_account: "GameAccounts" = Relationship(back_populates="participations")
     champion: "Champions" = Relationship(back_populates="participants")
+
+
+# AchievementDefinitions
+# Catalog of achievement types shown on the profile (labels map to frontend icon ids).
+class AchievementDefinitions(SQLModel, table=True):
+    __tablename__ = "achievement_definitions"
+
+    id: str = Field(primary_key=True)
+    label: str
+    description: str
+    source_field: str
+
+    user_achievements: List["UserAchievements"] = Relationship(
+        back_populates="definition"
+    )
+
+
+# UserAchievements
+# Per-player achievement counts for the profile achievements row.
+class UserAchievements(SQLModel, table=True):
+    __tablename__ = "user_achievements"
+    __table_args__ = (UniqueConstraint("puuid", "achievement_id"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    puuid: str = Field(foreign_key="game_accounts.puuid")
+    achievement_id: str = Field(foreign_key="achievement_definitions.id")
+    count: int
+
+    game_account: "GameAccounts" = Relationship(back_populates="achievements")
+    definition: "AchievementDefinitions" = Relationship(
+        back_populates="user_achievements"
+    )
+
+
+# UserFeaturedGames
+# Featured-game banner slides on the profile (marketing / summary cards).
+class UserFeaturedGames(SQLModel, table=True):
+    __tablename__ = "user_featured_games"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    puuid: str = Field(foreign_key="game_accounts.puuid")
+    sort_order: int = 0
+    game_name: str
+    cover_image_key: str
+    card_image_key: Optional[str] = None
+    efficiency_score: int
+    time_spent_seconds: int
+    wins: int
+    losses: int
+    average_kda: float
+
+    game_account: "GameAccounts" = Relationship(back_populates="featured_games")
