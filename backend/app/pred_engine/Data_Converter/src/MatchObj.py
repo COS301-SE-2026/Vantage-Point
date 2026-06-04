@@ -11,12 +11,22 @@ class MetaObj:
 
 #Match Timeline
 #########################################################
+#DATA GROUPS#
+
+#Map replay
+#Map suggestion overlay
+#Map timeline info (goes with map page but not on the map itself)
+#Profile data
+#Match data
+#General data
+#XX -> goes to db
+
 
 #MatchTimeObj.info.[frames].[events].victimDamageDealt
 #MatchTimeObj.info.[frames].[events].victimDamageReceived
 #MatchTimeObj.info.[frames].[events].victimTeamfightDamageDealt
 #MatchTimeObj.info.[frames].[events].victimTeamfightDamageReceived
-class VicDamObj:
+class VicDamObj: 
     basic = True
     magicDamage = 0
     name = ""
@@ -29,13 +39,13 @@ class VicDamObj:
 
 #MatchTimeObj.info.[frames].participantFrames.{all vars}.position
 #MatchTimeObj.info.[frames].[events].position
-class PositionObj:
+class PositionObj: 
     x = 0
     y = 0
 
 #MatchTimeObj.info.[frames].[events]
-class EventObj:
-    timeStamp = 0
+class EventObj: #Map timeline info (dependent on what event happened)
+    timeStamp = 0 
     realTimestamp = 0
     type = ""
     itemId = 0
@@ -77,18 +87,18 @@ class EventObj:
 class ChampionStatsObj:
     abilityHaste = 0
     abilityPower = 0
-    armor = 0
+    armor = 0 #Map suggestion overlay
     armorPen = 0
     armorPenPercent = 0
-    attackDamage = 0
-    attackSpeed = 0
+    attackDamage = 0 #Map suggestion overlay
+    attackSpeed = 0 #Map suggestion overlay
     bonusArmorPenPercent = 0
     bonusMagicPenPercent = 0
     ccReduction = 0
     cooldownReduction = 0
-    health = 0
-    healthMax = 0
-    healthRegen = 0
+    health = 0 #Map suggestion overlay
+    healthMax = 0 #Map suggestion overlay
+    healthRegen = 0 #Map suggestion overlay
     lifesteal = 0
     magicPen = 0
     MagicPenPercent = 0
@@ -111,27 +121,27 @@ class damageStatsObj:
     totalDamageDone = 0
     totalDamageDoneToChampions = 0
     totalDamageTaken = 0
-    trueDamageDone = 0
-    trueDamageDoneToChampions = 0
-    trueDamageTaken = 0
+    trueDamageDone = 0 #Map suggestion overlay
+    trueDamageDoneToChampions = 0 #Map suggestion overlay
+    trueDamageTaken = 0 #Map suggestion overlay
 
 #MatchTimeObj.info.[frames].participantFrames.{all vars}
 class playerFrameObj:
-    championStats = ChampionStatsObj
+    championStats = ChampionStatsObj #Map suggestion overlay
     currentGold = 0
-    damageStats = damageStatsObj
-    goldPerSecond = 0
+    damageStats = damageStatsObj #Map suggestion overlay
+    goldPerSecond = 0 #Map suggestion overlay
     jungleMinionsKilled = 0
-    level = 0
+    level = 0 #Map suggestion overlay
     minionsKilled = 0
     participantId = 0
-    position = PositionObj
+    position = PositionObj #Map replay
     timeEnemySpentControlled = 0
     totalGold = 0
-    xp = 0
+    xp = 0 #Map suggestion overlay
 
 #MatchTimeObj.info.[frames].participantFrames
-class PartFramesObj:
+class PartFramesObj: #Map replay
     _1 = playerFrameObj
     _2 = playerFrameObj
     _3 = playerFrameObj
@@ -145,9 +155,9 @@ class PartFramesObj:
 
 #MatchTimeObj.info.[frames]
 class FrameObj:
-    events = [EventObj]
-    participantFrames = PartFramesObj
-    timestamp = 0
+    events = [EventObj] #Map timeline info
+    participantFrames = PartFramesObj #Map replay #Map suggestion overlay
+    timestamp = 0 #Map replay #Map suggestion overlay
 
 #MatchTimeObj.info.[participants]
 class MT_ParticipantObj:
@@ -157,8 +167,8 @@ class MT_ParticipantObj:
 #MatchTimeObj.info
 class MT_InfoObj:
     endOfGameResult = ""
-    frameInterval = 0
-    frames = [FrameObj]
+    frameInterval = 0 #Map replay #Map suggestion overlay
+    frames = [FrameObj] #Map replay #Map suggestion overlay
     gameId = 0
     participants = [MT_ParticipantObj]
 
@@ -171,26 +181,26 @@ class MatchTimeObj:
 #########################################################
 
 #MatchDataObj.info.[participants].perks.statPerks
-class PerkStatObj:
+class PerkStatObj: #general data
     defence = 0
     flex = 0
     offense = 0
 
 #MatchDataObj.info.[participants].perks.[styles].[selections]
-class PerkStyleSelectObj:
+class PerkStyleSelectObj: #general data
     perk = 0
     var1 = 0
     var2 = 0
     var3 = 0
 
 #MatchDataObj.info.[participants].perks.[styles]
-class PerkStyleObj:
+class PerkStyleObj: #general data
     description = ""
     selections = [PerkStyleSelectObj]
     style = 0
 
 #MatchDataObj.info.[participants].perks
-class PerkObj:
+class PerkObj: #general data
     statPerks = PerkStatObj
     styles = [PerkStyleObj]
 
@@ -210,7 +220,7 @@ class MissionObj:
     playerScore11 = 0
 
 #MatchDataObj.info.[participants].challenges
-class ChallengesObj:
+class ChallengesObj: #Match data (need to sort throught this an decide importance)
     _12AssistStreakCount = 0
     baronBuffGoldAdvantageOverThreshold = 0
     controlWardTimeCoverageInRiverOrEnemyHalf = 0.0
@@ -331,7 +341,7 @@ class ChallengesObj:
     SWARM_ReachLevel50 = 0
     SWARM_Survive15Min = 0
     SWARM_WinWith5EvolvedWeapons = 0
-    soloKills = 0
+    soloKills = 0 
     stealthWardsPlaced = 0
     survivedSingleDigitHpCount = 0
     survivedThreeImmobilizesInFight = 0
@@ -365,34 +375,34 @@ class M_ParticipantObj:
     assists = 0
     baronKills = 0
     bountyLevel = 0
-    champExperience = 0
-    champLevel = 0
+    champExperience = 0 #Profile data #Match data
+    champLevel = 0 #Profile data #Match data
     championId = 0
-    championName = ""
+    championName = "" #Match data
     commandPings = 0
     championTransform = 0
     consumablesPurchased = 0
-    challenges = ChallengesObj
+    challenges = ChallengesObj #Match data
     damageDealtToBuildings = 0
     damageDealtToBjectives = 0
     damageDealtToTurrets = 0
     damageSelfMitigated = 0
-    deaths = 0
+    deaths = 0 #Profile data
     detectorWardsPlaced = 0
-    doubleKills = 0
+    doubleKills = 0 #Profile data
     dragonKills = 0
     eligibleForProgression = True
     enemyMissingPings = 0
     enemyVisionPings = 0
-    firstBloodAssist = True
-    firstBloodKill = True
-    firstTowerAssist = True
-    firstTowerKill = True
-    gameEndedInEarlySurrender = True
-    gameEndedInSurrender = True
+    firstBloodAssist = True #Match data
+    firstBloodKill = True #Match data
+    firstTowerAssist = True #Match data
+    firstTowerKill = True #Match data
+    gameEndedInEarlySurrender = True #Match data
+    gameEndedInSurrender = True #Match data
     holdPings = 0
     getBackPings = 0
-    goldEarned = 0
+    goldEarned = 0 #Match data
     goldSpent = 0
     individualPosition = "" #recommended to use teamPosistion rather
     inhibitorKills = 0
@@ -405,18 +415,18 @@ class M_ParticipantObj:
     item4 = 0
     item5 = 0
     item6 = 0
-    itemsPurchased = 0
-    killingSprees = 0
+    itemsPurchased = 0 #Match data
+    killingSprees = 0 #Profile data
     kills = 0
-    lane = ""
+    lane = "" #Match data
     largestCriticalStrike = 0
-    largestKillingSpree = 0
-    largestMultiKill = 0
+    largestKillingSpree = 0 #Profile data
+    largestMultiKill = 0 #Profile data
     logestTimeSpentLiving = 0
     magicDamageDealt = 0
     magicDamageDealtToChampions = 0
     magicDamageTaken = 0
-    mission = MissionObj
+    mission = MissionObj #Match data
     neutralMinionsKilled = 0
     needVisionPings = 0
     nexusKills = 0
@@ -426,19 +436,19 @@ class M_ParticipantObj:
     objectivesStolenAssists = 0
     onMyWayPings = 0
     participantId = 0
-    playerScore0 = 0
-    playerScore1 = 0
-    playerScore2 = 0
-    playerScore3 = 0
-    playerScore4 = 0
-    playerScore5 = 0
-    playerScore6 = 0
-    playerScore7 = 0
-    playerScore8 = 0
-    playerScore9 = 0
-    playerScore10 = 0
-    playerScore11 = 0
-    pentakills = 0
+    playerScore0 = 0 #Profile data
+    playerScore1 = 0 #Profile data
+    playerScore2 = 0 #Profile data
+    playerScore3 = 0 #Profile data
+    playerScore4 = 0 #Profile data
+    playerScore5 = 0 #Profile data
+    playerScore6 = 0 #Profile data
+    playerScore7 = 0 #Profile data
+    playerScore8 = 0 #Profile data
+    playerScore9 = 0 #Profile data
+    playerScore10 = 0 #Profile data
+    playerScore11 = 0 #Profile data
+    pentakills = 0 #Profile data
     perks = PerkObj
     physicalDamageDealt = 0
     physicalDamageDealtToChampions = 0
@@ -451,10 +461,10 @@ class M_ParticipantObj:
     playerSubteamId = 0
     pushPings = 0
     profileIcon = 0
-    puuid = ""
-    quadrakills = 0
-    riotIdGameName = ""
-    riodItTagline = ""
+    puuid = "" #Profile data
+    quadrakills = 0 #Profile data
+    riotIdGameName = "" #Profile data
+    riodItTagline = "" #Profile data
     role = ""
     sightWardsBoughtInGame = 0
     spell1Casts = 0
@@ -467,13 +477,13 @@ class M_ParticipantObj:
     summoner2Casts = 0
     summoner2Id = 0
     summonerId = 0
-    summonerLevel = 0
-    summonerName = ""
-    teamEarlySurrender = ""
-    teamId = 0
-    teamPosition = ""
+    summonerLevel = 0 
+    summonerName = "" 
+    teamEarlySurrender = "" #Match data
+    teamId = 0 #Match data 
+    teamPosition = "" #Match data
     timeCCingOthers = 0
-    timePlayed = 0
+    timePlayed = 0 #Profile data
     totalAllyJongleMinionsKilled = 0
     totalDamageDealt = 0
     totalDamageDealtToChampions = 0
@@ -486,15 +496,15 @@ class M_ParticipantObj:
     totalTimeCCDealt = 0
     totolTimeSpentDead = 0
     totalUnitsHealed = 0
-    tripleKills = 0
+    tripleKills = 0  #Profile data
     trueDamageDealt = 0
     trueDamageDealtToChampions = 0
     trueDamageTaken = 0
     turretKills = 0
     turretTakedowns = 0
     turretsLost = 0
-    unrealKills = 0
-    visionScore = 0
+    unrealKills = 0 #Profile data
+    visionScore = 0 #Match data
     visionClearedPings = 0
     visionWardsBoughtInGame = 0
     wardsKilled = 0
@@ -502,17 +512,17 @@ class M_ParticipantObj:
     win = True
 
 #MatchDataObj.info.[teams].[bans]
-class BanObj:
+class BanObj: #Match data
     championId = 0
     pickTurn = 0
 
 #MatchDataObj.info.[teams].objectives.{all variables}
-class ObjectiveObj:
+class ObjectiveObj: #Match data
     first = True
     kills = 0
 
 #MatchDataObj.info.[teams].objectives
-class ObjectiveMultiObj:
+class ObjectiveMultiObj: #Match data
     baron = ObjectiveObj
     champion = ObjectiveObj
     dragon = ObjectiveObj
@@ -522,7 +532,7 @@ class ObjectiveMultiObj:
     tower = ObjectiveObj
 
 #MatchDataObj.info.[teams]
-class TeamObj:
+class TeamObj: #Match data
     bans = [BanObj]
     objectives = ObjectiveMultiObj
     teamId = 0
@@ -530,21 +540,21 @@ class TeamObj:
 
 #MatchDataObj.info
 class M_InfoObj: 
-    endOfGameResult = ""
+    endOfGameResult = "" #Profile data #Match data
     gameCreation = 0
-    gameDuration = 0
-    gameEndTimeStamp = 0
+    gameDuration = 0 #Profile data
+    gameEndTimeStamp = 0 #Match data
     gameId = 0
-    gameMode = ""
-    gameName = ""
+    gameMode = "" #Match data
+    gameName = "" #Match data
     gameStartTimestamp = 0
     gameType = ""
     gameVersion = ""
-    mapId = 0
-    participants = [M_ParticipantObj]
-    platformId = ""
+    mapId = 0 #Match data
+    participants = [M_ParticipantObj] #Match data
+    platformId = "" #Match data
     queueId = 0
-    teams = [TeamObj]
+    teams = [TeamObj] #Match data
     tournamentCode = ""
 
 class MatchDataObj:
