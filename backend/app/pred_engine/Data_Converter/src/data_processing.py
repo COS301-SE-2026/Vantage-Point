@@ -6,21 +6,27 @@ from MatchInfoObjects import MatchDataObj
 tempMatch = MatchDataObj
 tempTimeline = MatchTimeObj
 
-def team_data_extract(puuid):
-    #extract data from team that has puuid
+#all data is converted to record form for ease of ML use
 
+    #for i in MatchTimeObj.info.participants:
+    #    if i.puuid == puuid:
+    #        partID = i.partcipantId
+
+def map_replay(puuid):
     print()
 
-def player_data_extract(puuid):
-    #extract data of specific player according to puuid
-
-    #get participant id that matches puuid
-    for i in MatchTimeObj.info.participants:
-        if i.puuid == puuid:
-            partID = i.partcipantId
-    
-    #pull out all data from MatchObj file that is relevant to player
-
-def map_data_extract(puuid):
-    #extract data fro map overlay
+def profile_data(puuid):
     print()
+
+def map_suggest_data():
+    print()
+    #this goes into overlay suggestion generation KNN model
+
+def match_data():
+    print()
+    #this goes onto the match page on frontend
+
+def match_rec_data():
+    print()
+    #data that goes into RF to get gameplay tips
+

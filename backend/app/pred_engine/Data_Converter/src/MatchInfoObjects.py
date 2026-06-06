@@ -13,11 +13,11 @@ class MetaObj:
 #########################################################
 #DATA GROUPS#
 
-#Map replay
+#Map replay #XX
 #Map suggestion overlay
-#Map timeline info (goes with map page but not on the map itself)
-#Profile data
-#Match data
+#Map timeline info (goes with map page but not on the map itself) (gets repulled through api every time)
+#Profile data #XX
+#Match data #XX
 #General data
 #XX -> goes to db
 
