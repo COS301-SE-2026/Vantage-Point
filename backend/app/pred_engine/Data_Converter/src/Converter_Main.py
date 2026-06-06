@@ -10,5 +10,5 @@ file.close()
 # json to object conversion
 match_TL = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
 
-#temp print for basic testing
+# temp print for basic testing
 print(match_TL.info.endOfGameResult, match_TL.info.gameId)
