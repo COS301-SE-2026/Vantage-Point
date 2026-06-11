@@ -267,19 +267,20 @@ class MissionObj:
     playerScore11 = 0
 
 
+
 # MatchDataObj.info.[participants].challenges
 class ChallengesObj:  # Match data (need to sort throught this an decide importance)
     _12AssistStreakCount = 0
     baronBuffGoldAdvantageOverThreshold = 0
     controlWardTimeCoverageInRiverOrEnemyHalf = 0.0
-    earliestBaron = 0
-    earliestDragonTakedown = 0
-    earliestElderDragon = 0
+    earliestBaron = 0 # Match data
+    earliestDragonTakedown = 0 # Match data
+    earliestElderDragon = 0 # Match data
     earlyLaningPhaseGoldExpAdvantage = 0
     fasterSupportQuestCompletion = 0
-    fastestLegendary = 0
-    hadAfkTeammate = 0
-    highestChampionDamage = 0
+    fastestLegendary = 0 # Match data
+    hadAfkTeammate = 0 # Match data
+    highestChampionDamage = 0 # Match data
     highestCrowdControlScore = 0
     highestWardKills = 0
     junglerKillsEarlyJungle = 0
@@ -292,57 +293,57 @@ class ChallengesObj:  # Match data (need to sort throught this an decide importa
     mythicItemUsed = 0
     playedChampSelectPosition = 0
     soloTurretsLategame = 0
-    takedownsFirst25Minutes = 0
-    teleportTakedowns = 0
-    thirdInhibitorDestroyedTime = 0
+    takedownsFirst25Minutes = 0 # Match data
+    teleportTakedowns = 0 # Match data
+    thirdInhibitorDestroyedTime = 0 # Match data
     threeWardsOneSweeperCount = 0
     visionScoreAdvantageLaneOpponent = 0.0
     InfernalScalePickup = 0
-    fistBumpParticipation = 0
+    fistBumpParticipation = 0 # Match data #for funzies
     voidMonsterKill = 0
     abilityUses = 0
     acesBefore15Minutes = 0
     alliedJungleMonsterKills = 0.0
-    baronTakedowns = 0
+    baronTakedowns = 0 # Match data
     blastConeOppositeOpponentCount = 0
-    bountyGold = 0
+    bountyGold = 0 # Match data
     buffsStolen = 0
     completeSupportQuestInTime = 0
     controlWardsPlaced = 0
-    damagePerMinute = 0
+    damagePerMinute = 0 # Match data
     damageTakenOnTeamPercentage = 0
     dancedWithRiftHerald = 0
-    deathsByEnemyChamps = 0
+    deathsByEnemyChamps = 0 # Match data
     dodgeSkillShotsSmallWindow = 0
     doubleAces = 0
     dragonTakedowns = 0
     legendaryItemUsed = [0]
     effectiveHealAndShielding = 0.0
-    elderDragonKillsWithOpposingSoul = 0
-    elderDragonMultikills = 0
+    elderDragonKillsWithOpposingSoul = 0 # Match data
+    elderDragonMultikills = 0 # Match data
     enemyChampionImmobilizations = 0
-    enemyJungleMonsterKills = 0.0
+    enemyJungleMonsterKills = 0.0 # Match data
     epicMonsterKillsNearEnemyJungler = 0
     epicMonsterKillsWithin30SecondsOfSpawn = 0
     epicMonsterSteals = 0
     epicMonsterStolenWithoutSmite = 0
-    firstTurretKilled = 0
-    firstTurretKilledTime = 0.0
+    firstTurretKilled = 0 # Match data
+    firstTurretKilledTime = 0.0 # Match data
     flawlessAces = 0
     fullTeamTakedown = 0
-    gameLength = 0.0
+    gameLength = 0.0 # Match data
     getTakedownsInAllLanesEarlyJungleAsLaner = 0
-    goldPerMinute = 0.0
+    goldPerMinute = 0.0 # Match data # Profile data
     hadOpenNexus = 0
     immobilizeAndKillWithAlly = 0
     initialBuffCount = 0
     initialCrabCount = 0
     jungleCsBefore10Minutes = 0.0
     junglerTakedownsNearDamagedEpicMonster = 0
-    kda = 0.0
+    kda = 0.0 # Match data # Profile data
     killAfterHiddenWithAlly = 0
     killedChampTookFullTeamDamageSurvived = 0
-    killingSprees = 0
+    killingSprees = 0 # Match data
     killParticipation = 0.0
     killsNearEnemyTurret = 0
     killsOnOtherLanesEarlyJungleAsLaner = 0
@@ -353,7 +354,7 @@ class ChallengesObj:  # Match data (need to sort throught this an decide importa
     kTurretsDestroyedBeforePlatesFall = 0
     landSkillShotsEarlyGame = 0
     laneMinionsFirst10Minutes = 0
-    lostAnInhibitor = 0
+    lostAnInhibitor = 0 # Match data
     maxKillDeficit = 0
     mejaisFullStackInTime = 0
     moreEnemyJungleThanOpponent = 0.0
@@ -364,57 +365,107 @@ class ChallengesObj:  # Match data (need to sort throught this an decide importa
     outerTurretExecutesBefore10Minutes = 0
     outnumberedKills = 0
     outnumberedNexusKill = 0
-    perfectDragonSoulsTaken = 0
+    perfectDragonSoulsTaken = 0 # Match data
     perfectGame = 0
     pickKillWithAlly = 0
     poroExplosions = 0
     quickCleanse = 0
-    quickFirstTurret = 0
-    quickSoloKills = 0
+    quickFirstTurret = 0 # Match data
+    quickSoloKills = 0 # Match data
     riftHeraldTakedowns = 0
     saveAllyFromDeath = 0
-    scuttleCrabKills = 0
+    scuttleCrabKills = 0 # Match data
     shortestTimeToAceFromFirstTakedown = 0.0
     skillshotsDodged = 0
     skillshotsHit = 0
     snowballsHit = 0
-    soloBaronKills = 0
-    SWARM_DefeatAatrox = 0
-    SWARM_DefeatBriar = 0
-    SWARM_DefeatMiniBosses = 0
-    SWARM_EvolveWeapon = 0
-    SWARM_Have3Passives = 0
-    SWARM_KillEnemy = 0
-    SWARM_PickupGold = 0.0
-    SWARM_ReachLevel50 = 0
-    SWARM_Survive15Min = 0
-    SWARM_WinWith5EvolvedWeapons = 0
-    soloKills = 0
-    stealthWardsPlaced = 0
+    soloBaronKills = 0 # Match data
+    SWARM_DefeatAatrox = 0 # Match data
+    SWARM_DefeatBriar = 0 # Match data
+    SWARM_DefeatMiniBosses = 0 # Match data
+    SWARM_EvolveWeapon = 0 # Match data
+    SWARM_Have3Passives = 0 # Match data
+    SWARM_KillEnemy = 0 # Match data
+    SWARM_PickupGold = 0.0 # Match data
+    SWARM_ReachLevel50 = 0 # Match data
+    SWARM_Survive15Min = 0 # Match data
+    SWARM_WinWith5EvolvedWeapons = 0 # Match data
+    soloKills = 0 # Match data
+    stealthWardsPlaced = 0 # Match data
     survivedSingleDigitHpCount = 0
     survivedThreeImmobilizesInFight = 0
     takedownOnFirstTurret = 0
-    takedowns = 0
+    takedowns = 0 # Match data
     takedownsAfterGainingLevelAdvantage = 0
     takedownsBeforeJungleMinionSpawn = 0
     takedownsFirstXMinutes = 0
     takedownsInAlcove = 0
     takedownsInEnemyFountain = 0
-    teamBaronKills = 0
+    teamBaronKills = 0 # Match data
     teamDamagePercentage = 0.0
-    teamElderDragonKills = 0
-    teamRiftHeraldKills = 0
+    teamElderDragonKills = 0 # Match data
+    teamRiftHeraldKills = 0 # Match data
     tookLargeDamageSurvived = 0
     turretPlatesTaken = 0
     turretsTakenWithRiftHerald = 0
     turretTakedowns = 0
     twentyMinionsIn3SecondsCount = 0
     twoWardsOneSweeperCount = 0
-    unseenRecalls = 0
-    visionScorePerMinute = 0.0
+    unseenRecalls = 0 # Match data
+    visionScorePerMinute = 0.0 # Match data
     wardsGuarded = 0
-    wardTakedowns = 0
+    wardTakedowns = 0 # Match data
     wardTakedownsBefore20M = 0
+    def append_matchData(self):
+        info = []
+        info.append(self.earliestBaron)
+        info.append(self.earliestDragonTakedown)
+        info.append(self.earliestElderDragon)
+        info.append(self.fastestLegendary)
+        info.append(self.hadAfkTeammate)
+        info.append(self.highestChampionDamage)
+        info.append(self.takedownsFirst25Minutes)
+        info.append(self.teleportTakedowns)
+        info.append(self.thirdInhibitorDestroyedTime)
+        info.append(self.fistBumpParticipation)
+        info.append(self.baronTakedowns)
+        info.append(self.bountyGold)
+        info.append(self.damagePerMinute)
+        info.append(self.deathsByEnemyChamps)
+        info.append(self.elderDragonKillsWithOpposingSoul)
+        info.append(self.elderDragonMultikills)
+        info.append(self.enemyJungleMonsterKills)
+        info.append(self.firstTurretKilled)
+        info.append(self.firstTurretKilledTime)
+        info.append(self.gameLength)
+        info.append(self.goldPerMinute)
+        info.append(self.kda)
+        info.append(self.killingSprees)
+        info.append(self.lostAnInhibitor)
+        info.append(self.perfectDragonSoulsTaken)
+        info.append(self.quickFirstTurret)
+        info.append(self.quickSoloKills)
+        info.append(self.scuttleCrabKills)
+        info.append(self.soloBaronKills)
+        info.append(self.SWARM_DefeatAatrox)
+        info.append(self.SWARM_DefeatBriar)
+        info.append(self.SWARM_DefeatMiniBosses)
+        info.append(self.SWARM_EvolveWeapon)
+        info.append(self.SWARM_Have3Passives)
+        info.append(self.SWARM_KillEnemy)
+        info.append(self.SWARM_PickupGold)
+        info.append(self.SWARM_ReachLevel50)
+        info.append(self.SWARM_WinWith5EvolvedWeapons)
+        info.append(self.soloKills)
+        info.append(self.stealthWardsPlaced)
+        info.append(self.takedowns)
+        info.append(self.teamBaronKills)
+        info.append(self.teamElderDragonKills)
+        info.append(self.teamRiftHeraldKills)
+        info.append(self.unseenRecalls)
+        info.append(self.visionScorePerMinute)
+        info.append(self.wardTakedowns)
+        return info
 
 
 # MatchDataObj.info.[participants]
@@ -431,7 +482,7 @@ class M_ParticipantObj:
     commandPings = 0
     championTransform = 0
     consumablesPurchased = 0
-    challenges = ChallengesObj  # Match data
+    challenges = ChallengesObj  # Profile data # Match data
     damageDealtToBuildings = 0
     damageDealtToBjectives = 0
     damageDealtToTurrets = 0
@@ -560,6 +611,38 @@ class M_ParticipantObj:
     wardsPlaced = 0
     win = True
 
+    def append_matchData(self):
+        info = []
+        info.append(self.champExperience)
+        info.append(self.champLevel)
+        info.append(self.championName)
+        info.extend(self.challenges.append_matchData())
+        info.append(self.firstBloodAssist)
+        info.append(self.firstBloodKill)
+        info.append(self.firstTowerAssist)
+        info.append(self.firstTowerKill)
+        info.append(self.gameEndedInEarlySurrender)
+        info.append(self.gameEndedInSurrender)
+        info.append(self.goldEarned)
+        info.append(self.itemsPurchased)
+        info.append(self.lane)
+        info.append(self.mission.playerScore0)
+        info.append(self.mission.playerScore1)
+        info.append(self.mission.playerScore2)
+        info.append(self.mission.playerScore3)
+        info.append(self.mission.playerScore4)
+        info.append(self.mission.playerScore5)
+        info.append(self.mission.playerScore6)
+        info.append(self.mission.playerScore7)
+        info.append(self.mission.playerScore8)
+        info.append(self.mission.playerScore9)
+        info.append(self.mission.playerScore10)
+        info.append(self.mission.playerScore11)
+        info.append(self.teamEarlySurrender)
+        info.append(self.teamId)
+        info.append(self.teamPosition)
+        info.append(self.visionScore)
+        return info
 
 # MatchDataObj.info.[teams].[bans]
 class BanObj:  # Match data
@@ -590,6 +673,29 @@ class TeamObj:  # Match data
     objectives = ObjectiveMultiObj
     teamId = 0
     win = True
+    def append_matchData(self):
+        info = []
+        for i in self.bans:
+            info.append(i.championId)
+            info.append(i.pickTurn)
+        for i in self.objectives:
+            info.append(i.baron.first)
+            info.append(i.baron.kills)
+            info.append(i.champion.first)
+            info.append(i.champion.kills)
+            info.append(i.dragon.kills)
+            info.append(i.dragon.kills)
+            info.append(i.horde.first)
+            info.append(i.horde.kills)
+            info.append(i.inhibitor.first)
+            info.append(i.inhibitor.kills)
+            info.append(i.riftHerald.first)
+            info.append(i.riftHerald.kills)
+            info.append(i.tower.first)
+            info.append(i.tower.kills)
+        info.append(self.teamId)
+        info.append(self.win)
+        return info
 
 
 # MatchDataObj.info
