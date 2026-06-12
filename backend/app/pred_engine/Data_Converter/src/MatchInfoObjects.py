@@ -702,12 +702,12 @@ class TeamObj:  # Match data
 class M_InfoObj:
     endOfGameResult = ""  # Profile data #Match data #Map suggestion overlay
     gameCreation = 0
-    gameDuration = 0  # Profile data
-    gameEndTimeStamp = 0  # Match data
+    gameDuration = 0  # Profile data #Match data
+    gameEndTimeStamp = 0  
     gameId = 0
     gameMode = ""  # Match data
     gameName = ""  # Match data
-    gameStartTimestamp = 0
+    gameStartTimestamp = 0 
     gameType = ""
     gameVersion = ""
     mapId = 0  # Match data

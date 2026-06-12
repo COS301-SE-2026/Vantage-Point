@@ -9,7 +9,7 @@ from aiolimiter import AsyncLimiter
 ###############################################################################
 # 1. CONFIGURATION - EDIT THESE VALUES
 ###############################################################################
-RIOT_API_KEY = "RGAPI-6fd9fa75-f670-4d9c-812c-3092c6f9ebac" # https://developer.riotgames.com/
+RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
@@ -238,15 +238,15 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
     info = match_data["info"]
     participants = info.get("participants", [])
-    platform_id = info.get("platformId")
+    #platform_id = info.get("platformId")
 
-    keep_game_id = info.get("gameId")
+    #keep_game_id = info.get("gameId")
     keep_game_duration = info.get("gameDuration")
     keep_game_mode = info.get("gameMode")
     keep_game_type = info.get("gameType")
-    keep_game_version = info.get("gameVersion")
+    #keep_game_version = info.get("gameVersion")
     keep_map_id = info.get("mapId")
-    keep_queue_id = info.get("queueId")
+    #keep_queue_id = info.get("queueId")
 
     timestamp_ms = info.get("gameStartTimestamp")
     if timestamp_ms:
@@ -262,7 +262,7 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
             puuid_pool.add(p)
 
         summoner_id = part.get("summonerId")
-        rank_data = await get_summoner_rank(session, p, platform_id)
+        #rank_data = await get_summoner_rank(session, p, platform_id)
 
         champion_id = part.get("championId")
         mastery_data = await get_champion_mastery(session, p, champion_id)
@@ -281,83 +281,46 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
         final_stats = get_final_champion_stats(timeline_data, part.get("participantId"))
 
-        row_data = {
-            "game_id": keep_game_id,
-            "game_start_utc": game_start_utc,
-            "game_duration": keep_game_duration,
-            "game_mode": keep_game_mode,
-            "game_type": keep_game_type,
-            "game_version": keep_game_version,
-            "map_id": keep_map_id,
-            "platform_id": platform_id,
-            "queue_id": keep_queue_id,
-
-            "participant_id": part.get("participantId"),
-            "puuid": p,
-            "summoner_name": part.get("summonerName"),
-            "summoner_id": summoner_id,
-            "summoner_level": part.get("summonerLevel"),
-            "champion_id": champion_id,
-            "champion_name": part.get("championName"),
-            "team_id": part.get("teamId"),
-            "win": part.get("win"),
-
-            "individual_position": part.get("individualPosition"),
-            "team_position": part.get("teamPosition"),
-            "lane": part.get("lane"),
-            "role": part.get("role"),
-
-            "kills": part.get("kills"),
-            "deaths": part.get("deaths"),
-            "assists": part.get("assists"),
-            "baron_kills": part.get("baronKills"),
-            "dragon_kills": part.get("dragonKills"),
-            "gold_earned": part.get("goldEarned"),
-            "gold_spent": part.get("goldSpent"),
-            "total_damage_dealt": part.get("totalDamageDealt"),
-            "total_damage_dealt_to_champions": part.get("totalDamageDealtToChampions"),
-            "physical_damage_dealt_to_champions": part.get("physicalDamageDealtToChampions"),
-            "magic_damage_dealt_to_champions": part.get("magicDamageDealtToChampions"),
-            "true_damage_dealt_to_champions": part.get("trueDamageDealtToChampions"),
-            "damage_dealt_to_objectives": part.get("damageDealtToObjectives"),
-            "damage_dealt_to_turrets": part.get("damageDealtToTurrets"),
-            "total_damage_taken": part.get("totalDamageTaken"),
-            "physical_damage_taken": part.get("physicalDamageTaken"),
-            "magic_damage_taken": part.get("magicDamageTaken"),
-            "true_damage_taken": part.get("trueDamageTaken"),
-            "time_ccing_others": part.get("timeCCingOthers"),
-            "vision_score": part.get("visionScore"),
-            "wards_placed": part.get("wardsPlaced"),
-            "wards_killed": part.get("wardsKilled"),
-            "vision_wards_bought_in_game": part.get("visionWardsBoughtInGame"),
-
-            "item0": part.get("item0"),
-            "item1": part.get("item1"),
-            "item2": part.get("item2"),
-            "item3": part.get("item3"),
-            "item4": part.get("item4"),
-            "item5": part.get("item5"),
-            "item6": part.get("item6"),
-
-            "solo_tier": rank_data.get("solo_tier"),
-            "solo_rank": rank_data.get("solo_rank"),
-            "solo_lp":   rank_data.get("solo_lp"),
-            "solo_wins": rank_data.get("solo_wins"),
-            "solo_losses": rank_data.get("solo_losses"),
-            "flex_tier": rank_data.get("flex_tier"),
-            "flex_rank": rank_data.get("flex_rank"),
-            "flex_lp":   rank_data.get("flex_lp"),
-            "flex_wins": rank_data.get("flex_wins"),
-            "flex_losses": rank_data.get("flex_losses"),
-
-            "champion_mastery_level": mastery_data.get("champion_mastery_level"),
-            "champion_mastery_points": mastery_data.get("champion_mastery_points"),
-            "champion_mastery_lastPlayTime": raw_last_play,
-            "champion_mastery_lastPlayTime_utc": champion_mastery_lastPlayTime_utc,
-            "champion_mastery_pointsSinceLastLevel": mastery_data.get("champion_mastery_pointsSinceLastLevel"),
-            "champion_mastery_pointsUntilNextLevel": mastery_data.get("champion_mastery_pointsUntilNextLevel"),
-            "champion_mastery_tokensEarned": mastery_data.get("champion_mastery_tokensEarned"),
-        }
+        match p:
+            case 1: 
+                row_data = {
+                    "endOfGameResult" : part.get("endOfGameResult"),
+                    "frameInterval" : part.get("frameInterval"),
+                    "timestamp" : part.get("timestamp"),
+                    "armor" : part.get("armor"),
+                    "attackDamage" : part.get("attackDamage"),
+                    "attackSpeed" : part.get("attackSpeed"),
+                    "health" : part.get("health"),
+                    "healthMax" : part.get("healthMax"),
+                    "healthRegen" : part.get("healthRegen"),
+                    "trueDamageDone" : part.get("trueDamageDone"),
+                    "trueDamageDoneToChampions" : part.get("trueDamageDoneToChampions"),
+                    "trueDamageTaken" : part.get("trueDamageTaken"),
+                    "goldPerSecond" : part.get("goldPerSecond"),
+                    "level" : part.get("level"),
+                    "xp" :  part.get("xp"),
+                    "x" : part.get("x"),
+                    "y" : part.get("y")
+                    }
+            
+            case 2:
+                info.extend(i.participantFrames._2.append_mapReplay())
+            case 3:
+                info.extend(i.participantFrames._3.append_mapReplay())
+            case 4:
+                info.extend(i.participantFrames._4.append_mapReplay())
+            case 5:
+                info.extend(i.participantFrames._5.append_mapReplay())
+            case 6:
+                info.extend(i.participantFrames._6.append_mapReplay())
+            case 7:
+                info.extend(i.participantFrames._7.append_mapReplay())
+            case 8:
+                info.extend(i.participantFrames._8.append_mapReplay())
+            case 9:
+                info.extend(i.participantFrames._9.append_mapReplay())
+            case 10:
+                info.extend(i.participantFrames._10.append_mapReplay())
         row_data.update(final_stats)
         rows.append(row_data)
 

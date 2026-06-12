@@ -86,7 +86,6 @@ def map_suggest_data(puuid):
     # this goes into overlay suggestion generation KNN model
     info = map_replay()
     info.append(tempMatch.info.endOfGameResult)
-    info.append(tempTimeline.info.frameInterval)
 
     for i in tempTimeline.info.frames:
         info.append(i.timestamp)
@@ -106,7 +105,7 @@ def match_data():
     # this goes onto the match page on frontend
     info = []
     info.append(tempMatch.info.endOfGameResult)
-    info.append(tempMatch.info.gameEndTimeStamp)
+    info.append(tempMatch.info.gameDuration)
     info.append(tempMatch.info.gameMode)
     info.append(tempMatch.info.gameName)
     info.append(tempMatch.info.mapId)
