@@ -13,8 +13,8 @@ RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 100         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 200      # How many total rows we want to fetch
+CHUNK_SIZE = 200000         # Every how many rows we create a NEW CSV file
+MAX_ROWS = 10      # How many total rows we want to fetch
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -255,6 +255,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     else:
         game_start_utc = None
 
+    timeInfo = timeline_data["info"]
+
     rows = []
     for part in participants:
         p = part.get("puuid")
@@ -280,49 +282,72 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
             champion_mastery_lastPlayTime_utc = None
 
         final_stats = get_final_champion_stats(timeline_data, part.get("participantId"))
+        
+        framePart = timeInfo.get("participants", [])
+        for i in framePart:
+            if i.get("puuid") == p:
+                pId = i.get("participantId")
 
-        match p:
-            case 1: 
-                row_data = {
-                    "endOfGameResult" : part.get("endOfGameResult"),
-                    "frameInterval" : part.get("frameInterval"),
-                    "timestamp" : part.get("timestamp"),
-                    "armor" : part.get("armor"),
-                    "attackDamage" : part.get("attackDamage"),
-                    "attackSpeed" : part.get("attackSpeed"),
-                    "health" : part.get("health"),
-                    "healthMax" : part.get("healthMax"),
-                    "healthRegen" : part.get("healthRegen"),
-                    "trueDamageDone" : part.get("trueDamageDone"),
-                    "trueDamageDoneToChampions" : part.get("trueDamageDoneToChampions"),
-                    "trueDamageTaken" : part.get("trueDamageTaken"),
-                    "goldPerSecond" : part.get("goldPerSecond"),
-                    "level" : part.get("level"),
-                    "xp" :  part.get("xp"),
-                    "x" : part.get("x"),
-                    "y" : part.get("y")
-                    }
+        framesList = timeInfo.get("frames", [])
+
+        for frames in framesList:
+            match pId:
+                case 1: 
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("1")
+                case 2:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("2")
+                case 3:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("3")
+                case 4:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("4")
+                case 5:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("5")
+                case 6:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("6")
+                case 7:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("7")
+                case 8:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("8")
+                case 9:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("9")
+                case 10:
+                    extra = frames.get("participantFrames")
+                    partFrame = extra.get("10")
+
+            pos = partFrame.get("position")
+            champStats = partFrame.get("championStats")
+            damStats = partFrame.get("damageStats")
             
-            case 2:
-                info.extend(i.participantFrames._2.append_mapReplay())
-            case 3:
-                info.extend(i.participantFrames._3.append_mapReplay())
-            case 4:
-                info.extend(i.participantFrames._4.append_mapReplay())
-            case 5:
-                info.extend(i.participantFrames._5.append_mapReplay())
-            case 6:
-                info.extend(i.participantFrames._6.append_mapReplay())
-            case 7:
-                info.extend(i.participantFrames._7.append_mapReplay())
-            case 8:
-                info.extend(i.participantFrames._8.append_mapReplay())
-            case 9:
-                info.extend(i.participantFrames._9.append_mapReplay())
-            case 10:
-                info.extend(i.participantFrames._10.append_mapReplay())
-        row_data.update(final_stats)
-        rows.append(row_data)
+            row_data = {
+                "endOfGameResult" : timeInfo.get("endOfGameResult"),
+                "frameInterval" : timeInfo.get("frameInterval"),
+                "timestamp" : frames.get("timestamp"),
+                "armor" : champStats.get("armor"),
+                "attackDamage" : champStats.get("attackDamage"),
+                "attackSpeed" : champStats.get("attackSpeed"),
+                "health" : champStats.get("health"),
+                "healthMax" : champStats.get("healthMax"),
+                "healthRegen" : champStats.get("healthRegen"),
+                "trueDamageDone" : damStats.get("trueDamageDone"),
+                "trueDamageDoneToChampions" : damStats.get("trueDamageDoneToChampions"),
+                "trueDamageTaken" : damStats.get("trueDamageTaken"),
+                "goldPerSecond" : partFrame.get("goldPerSecond"),
+                "level" : partFrame.get("level"),
+                "xp" :  partFrame.get("xp"),
+                "x" : pos.get("x"),
+                "y" : pos.get("y")
+                }
+            row_data.update(final_stats)
+            rows.append(row_data)
 
     return rows
 
