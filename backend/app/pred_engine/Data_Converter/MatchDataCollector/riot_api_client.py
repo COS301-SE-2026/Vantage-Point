@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import csv
 import os
+#added to installs aiohttp-3.14.1 aiolimiter-1.2.1
 from aiohttp import ClientSession
 from aiolimiter import AsyncLimiter
 
