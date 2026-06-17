@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
-import { DASHBOARD_CONTENT_LEFT_OPEN } from "../../imports/Group14/Group14";
+// import { DASHBOARD_CONTENT_LEFT_OPEN } from "../../imports/Group14/Group14";
 
-export {
-  DASHBOARD_CONTENT_LEFT_OPEN,
-  DASHBOARD_FRAME_W,
-} from "../../imports/Group14/Group14";
+// export {
+//   DASHBOARD_CONTENT_LEFT_OPEN,
+//   DASHBOARD_FRAME_W,
+// } from "../../imports/Group14/Group14";
 
 export const DASHBOARD_CONTENT_TOP = "var(--vp-dashboard-header)";
 
