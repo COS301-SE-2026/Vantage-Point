@@ -1,372 +1,111 @@
+// frontend/src/landing/imports/Register/Register.tsx
 import { useState, useEffect } from "react";
-import svgPaths from "./svg-xwtbp9m57d";
 import {
   landingBackgroundImages,
   landingSlideIndices,
 } from "../../lol-wallpapers/backgrounds";
-import imgLogo from "./798001aef0b2686ac929f8c349135d3326ab65bb.webp";
+
+// Brand & Provider Image Assets
+import imgLogo from "../../../assets/images/logos/logo.webp";
 import imgGoogle from "./e98e9b24669bda4f34daad81de74f1cbc0c60e43.webp";
 import imgAppleInc from "./42dab27d0f348cbd097620054816915a603a2f3b.webp";
 import imgRiotGames from "./da8e2b2b779ebc3b362dbe11022d83a4a28639da.webp";
 
 const backgroundImages = landingBackgroundImages;
+const SLIDE_DOT_INDICES = landingSlideIndices;
 
 const authInputClassName =
   "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
 
-const SLIDE_DOT_INDICES = landingSlideIndices;
-
-type FrameSlideProps = Readonly<{
-  currentSlide: number;
-  onDotClick: (index: number) => void;
-}>;
-
-type ShowPasswordProps = Readonly<{
-  showPassword: boolean;
-  setShowPassword: (value: boolean) => void;
-}>;
-
-type RegisterLoginProps = Readonly<
-  ShowPasswordProps & {
-    currentSlide: number;
-    onDotClick: (index: number) => void;
-  }
->;
+const MARQUEE_ITEMS = [
+  "Spatial Intelligence",
+  "AI Coaching",
+  "Positioning",
+  "Risk Prediction",
+] as const;
 
 function Logo() {
   return (
     <div
-      className="relative z-20 flex w-full shrink-0 flex-col items-center"
+      className="relative z-20 flex w-full shrink-0 flex-col items-center gap-4"
       data-name="logo"
     >
-      <div className="h-[clamp(120px,18vw,200px)] w-[clamp(120px,18vw,200px)]">
+      <div className="w-[120px] h-[110px] flex items-center justify-center">
         <img
-          alt=""
-          className="pointer-events-none h-full w-full object-cover"
+          alt="Vantage Point Logo"
+          className="object-contain size-full max-h-full"
           src={imgLogo}
         />
       </div>
-      <p className="relative z-30 -mt-6 -translate-y-10 text-center font-sarina text-[clamp(20px,2.5vw,32px)] leading-normal not-italic whitespace-nowrap text-black">
+      <p className="font-['Sarina:Regular',sans-serif] leading-none text-[32px] text-black whitespace-nowrap">
         Vantage Point
       </p>
     </div>
   );
 }
 
-function Frame({ currentSlide, onDotClick }: FrameSlideProps) {
+function SocialProviders() {
+  const providers = [
+    { id: "google", src: imgGoogle, alt: "Google logo" },
+    { id: "apple", src: imgAppleInc, alt: "Apple logo" },
+    { id: "riot", src: imgRiotGames, alt: "Riot Games logo" },
+  ];
+
   return (
-    <div
-      className="-translate-x-1/2 -translate-y-1/2 absolute content-stretch flex gap-[8px] items-center justify-center left-[calc(50%-1px)] px-[12px] py-[8px] rounded-[50px] top-1/2"
-      data-name="Frame"
-      role="tablist"
-      aria-label="Background slides"
-    >
-      {SLIDE_DOT_INDICES.map((index) => (
-        <button
-          type="button"
-          key={`register-slide-dot-${String(index)}`}
-          aria-label={`Show slide ${String(index + 1)}`}
-          aria-current={index === currentSlide ? "true" : undefined}
-          className={`relative rounded-[50px] shrink-0 size-[8px] cursor-pointer border-0 p-0 transition-opacity duration-300 ${
-            index === currentSlide
-              ? "bg-black opacity-100"
-              : "bg-black opacity-30"
-          }`}
-          onClick={() => onDotClick(index)}
-        />
+    <div className="flex flex-col gap-4 w-full mt-6">
+      <p className="text-center text-sm text-[#b3b3b3] font-medium uppercase tracking-wider">
+        Or sign up with
+      </p>
+      <div className="flex gap-4 items-center justify-between w-full">
+        {providers.map((provider) => (
+          <button
+            key={provider.id}
+            type="button"
+            className="flex flex-1 items-center justify-center h-[54px] border border-[#d9d9d9] rounded-[8px] hover:bg-neutral-50 transition-colors cursor-pointer"
+          >
+            <img
+              src={provider.src}
+              alt={provider.alt}
+              className="h-6 w-auto object-contain"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Marquee() {
+  return (
+    <div className="flex flex-row gap-[48px] items-center min-w-full shrink-0 animate-marquee whitespace-nowrap">
+      {MARQUEE_ITEMS.map((item) => (
+        <div
+          key={`reg-marquee-1-${item}`}
+          className="flex flex-row gap-[48px] items-center shrink-0"
+        >
+          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
+            {item}
+          </p>
+          <div className="bg-[#f5f5f5] rounded-[50px] shrink-0 size-[6px]" />
+        </div>
+      ))}
+      {MARQUEE_ITEMS.map((item) => (
+        <div
+          key={`reg-marquee-2-${item}`}
+          className="flex flex-row gap-[48px] items-center shrink-0"
+          aria-hidden="true"
+        >
+          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
+            {item}
+          </p>
+          <div className="bg-[#f5f5f5] rounded-[50px] shrink-0 size-[6px]" />
+        </div>
       ))}
     </div>
   );
 }
 
-function Group({ onSocialClick }: Readonly<{ onSocialClick?: () => void }>) {
-  return (
-    <div className="flex gap-[clamp(20px,5vw,80px)] items-center justify-center w-full">
-      <button
-        type="button"
-        onClick={onSocialClick}
-        className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer"
-        data-name="Google"
-      >
-        <img
-          alt="Sign up with Google"
-          className="w-full h-full object-contain pointer-events-none"
-          src={imgGoogle}
-        />
-      </button>
-      <button
-        type="button"
-        onClick={onSocialClick}
-        className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer"
-        data-name="Apple Inc"
-      >
-        <img
-          alt="Sign up with Apple"
-          className="w-full h-full object-contain pointer-events-none"
-          src={imgAppleInc}
-        />
-      </button>
-      <button
-        type="button"
-        onClick={onSocialClick}
-        className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer"
-        data-name="Riot Games"
-      >
-        <img
-          alt="Sign up with Riot Games"
-          className="w-full h-full object-contain pointer-events-none"
-          src={imgRiotGames}
-        />
-      </button>
-    </div>
-  );
-}
-
-function InputButtons1({
-  email,
-  displayName,
-  onEmailChange,
-  onDisplayNameChange,
-}: Readonly<{
-  email: string;
-  displayName: string;
-  onEmailChange: (value: string) => void;
-  onDisplayNameChange: (value: string) => void;
-}>) {
-  return (
-    <div className="space-y-4 w-full">
-      <div className="flex flex-col gap-[8px]" data-name="Input Field">
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
-          Email
-        </p>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => onEmailChange(e.target.value)}
-          placeholder="Enter email"
-          className={authInputClassName}
-        />
-      </div>
-      <div className="flex flex-col gap-[8px]" data-name="Input Field">
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
-          User name
-        </p>
-        <input
-          type="text"
-          value={displayName}
-          onChange={(e) => onDisplayNameChange(e.target.value)}
-          placeholder="Enter username"
-          className={authInputClassName}
-        />
-      </div>
-    </div>
-  );
-}
-
-function InputButtons({
-  showPassword,
-  password,
-  confirmPassword,
-  onPasswordChange,
-  onConfirmPasswordChange,
-}: Readonly<{
-  showPassword: boolean;
-  password: string;
-  confirmPassword: string;
-  onPasswordChange: (value: string) => void;
-  onConfirmPasswordChange: (value: string) => void;
-}>) {
-  return (
-    <div className="space-y-4 w-full">
-      <div className="flex flex-col gap-[8px]" data-name="Input Field">
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
-          Password
-        </p>
-        <input
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => onPasswordChange(e.target.value)}
-          placeholder="Enter password"
-          className={authInputClassName}
-        />
-      </div>
-      <div className="flex flex-col gap-[8px]" data-name="Input Field">
-        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
-          Confirm password
-        </p>
-        <input
-          type={showPassword ? "text" : "password"}
-          value={confirmPassword}
-          onChange={(e) => onConfirmPasswordChange(e.target.value)}
-          placeholder="Confirm password"
-          className={authInputClassName}
-        />
-      </div>
-    </div>
-  );
-}
-
-function CheckboxAndLabel({
-  showPassword,
-  setShowPassword,
-}: ShowPasswordProps) {
-  return (
-    <label
-      className="flex gap-[12px] items-center cursor-pointer self-start mt-1"
-      data-name="Checkbox and Label"
-    >
-      <input
-        type="checkbox"
-        checked={showPassword}
-        onChange={(e) => setShowPassword(e.target.checked)}
-        className="sr-only"
-      />
-      <div
-        className={`flex shrink-0 items-center justify-center rounded-[4px] size-[16px] transition-colors ${showPassword ? "bg-[#2c2c2c]" : "bg-white border border-[#d9d9d9]"}`}
-      >
-        {showPassword && (
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 12.2667 8.93333">
-            <path
-              d={svgPaths.p2ea7ce0}
-              stroke="#F5F5F5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.6"
-            />
-          </svg>
-        )}
-      </div>
-      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
-        Show password
-      </p>
-    </label>
-  );
-}
-
-export type RegisterFormProps = Readonly<{
-  email: string;
-  displayName: string;
-  password: string;
-  confirmPassword: string;
-  error?: string | null;
-  loading?: boolean;
-  onEmailChange: (value: string) => void;
-  onDisplayNameChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onConfirmPasswordChange: (value: string) => void;
-  onSubmit: () => void;
-  onSocialClick?: () => void;
-}>;
-
-function LeftPanelForm({
-  showPassword,
-  setShowPassword,
-  form,
-}: ShowPasswordProps & { form: RegisterFormProps }) {
-  return (
-    <div
-      className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(20px,4vh,40px)]"
-      data-name="left-panel"
-    >
-      <div className="flex w-full max-w-[min(378px,100%)] flex-col items-center gap-6">
-        <Logo />
-        <Group onSocialClick={form.onSocialClick} />
-        {form.error ? (
-          <p
-            className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center w-full"
-            role="alert"
-          >
-            {form.error}
-          </p>
-        ) : null}
-        <InputButtons1
-          email={form.email}
-          displayName={form.displayName}
-          onEmailChange={form.onEmailChange}
-          onDisplayNameChange={form.onDisplayNameChange}
-        />
-        <div className="w-full flex flex-col gap-4">
-          <InputButtons
-            showPassword={showPassword}
-            password={form.password}
-            confirmPassword={form.confirmPassword}
-            onPasswordChange={form.onPasswordChange}
-            onConfirmPasswordChange={form.onConfirmPasswordChange}
-          />
-          <CheckboxAndLabel
-            showPassword={showPassword}
-            setShowPassword={setShowPassword}
-          />
-        </div>
-        <button
-          type="button"
-          disabled={form.loading}
-          onClick={form.onSubmit}
-          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
-            <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
-              {form.loading ? "Signing up…" : "Sign Up"}
-            </p>
-          </div>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function LogIn({ currentSlide, onDotClick }: FrameSlideProps) {
-  return (
-    <div
-      className="absolute bg-white h-full left-0 overflow-clip top-0 w-full"
-      data-name="Log In"
-    >
-      <div className="absolute h-full left-[30%] top-0 right-0">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {backgroundImages.map((img, index) => (
-            <img
-              key={img}
-              alt=""
-              className={`absolute h-full w-full object-cover transition-opacity duration-1000 ${
-                index === currentSlide ? "opacity-100" : "opacity-0"
-              }`}
-              src={img}
-            />
-          ))}
-        </div>
-      </div>
-      <div
-        className="absolute h-[44px] right-[5%] bottom-[5%] w-[clamp(200px,30vw,402px)]"
-        data-name="Page control"
-      >
-        <Frame currentSlide={currentSlide} onDotClick={onDotClick} />
-      </div>
-    </div>
-  );
-}
-
-function Login({
-  showPassword,
-  setShowPassword,
-  currentSlide,
-  onDotClick,
-  form,
-}: RegisterLoginProps & { form: RegisterFormProps }) {
-  return (
-    <div className="absolute contents left-0 top-0" data-name="Login">
-      <LogIn currentSlide={currentSlide} onDotClick={onDotClick} />
-      <LeftPanelForm
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
-        form={form}
-      />
-    </div>
-  );
-}
-
-export default function Register({
-  form,
-}: Readonly<{ form: RegisterFormProps }>) {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -374,23 +113,134 @@ export default function Register({
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % backgroundImages.length);
     }, 3000);
-
     return () => clearInterval(interval);
   }, []);
 
-  const handleDotClick = (index: number) => {
-    setCurrentSlide(index);
-  };
-
   return (
-    <div className="relative size-full" data-name="Register">
-      <Login
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
-        currentSlide={currentSlide}
-        onDotClick={handleDotClick}
-        form={form}
-      />
+    <div className="relative flex w-screen h-screen min-h-[100dvh] overflow-hidden bg-white select-none">
+      {/* LEFT FORM COLUMN */}
+      <div className="w-[463px] h-full bg-white z-20 shadow-2xl flex flex-col justify-between items-center py-10 px-8 border-r border-neutral-100 shrink-0">
+        <Logo />
+
+        <form
+          className="w-full flex flex-col gap-5 mt-4"
+          onSubmit={(e) => e.preventDefault()}
+        >
+          {/* Email Field Group */}
+          <div className="flex flex-col gap-1 w-full">
+            <label
+              htmlFor="register-email"
+              className="text-sm font-semibold text-neutral-700"
+            >
+              Email Address
+            </label>
+            <input
+              id="register-email"
+              type="email"
+              placeholder="name@domain.com"
+              className={authInputClassName}
+              required
+            />
+          </div>
+
+          {/* Password Field Group */}
+          <div className="flex flex-col gap-1 w-full">
+            <label
+              htmlFor="register-password"
+              className="text-sm font-semibold text-neutral-700"
+            >
+              Password
+            </label>
+            <div className="relative w-full">
+              <input
+                id="register-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className={authInputClassName}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-sm font-medium transition-colors"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full h-[54px] bg-[#2c2c2c] hover:bg-black text-white font-medium rounded-[8px] transition-colors mt-2"
+          >
+            Create Account
+          </button>
+
+          <SocialProviders />
+        </form>
+
+        <p className="text-sm text-neutral-500">
+          Already have an account?{" "}
+          <a href="/login" className="text-black font-semibold hover:underline">
+            Sign In
+          </a>
+        </p>
+      </div>
+
+      {/* RIGHT WALLPAPER SLIDER COLUMN */}
+      <div className="relative flex-1 h-full z-10 bg-neutral-900">
+        {backgroundImages.map((bgImage) => (
+          <div
+            key={bgImage} // Using the unique file path asset string as the key
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              backgroundImages.indexOf(bgImage) === currentSlide
+                ? "opacity-100 z-10"
+                : "opacity-0 z-0"
+            }`}
+          >
+            <img
+              alt="League Gameplay Context"
+              className="w-full h-full object-cover pointer-events-none filter brightness-[0.4]"
+              src={bgImage}
+            />
+          </div>
+        ))}
+
+        {/* Hero Copy Overlay */}
+        <section className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-12 pb-24 pointer-events-none">
+          <h1 className="text-5xl font-black text-white leading-tight tracking-tight drop-shadow-md">
+            Master the Map,
+            <br />
+            Own Your Games.
+          </h1>
+          <p className="mt-4 max-w-md text-lg text-white/80 drop-shadow-sm">
+            Advanced AI telemetry built to transform complex match tracking
+            arrays into sharp decisions.
+          </p>
+        </section>
+
+        {/* Endless rolling marquee info bar */}
+        <div className="absolute bg-white/10 backdrop-blur-md border-y border-white/20 bottom-[142px] flex flex-row items-center left-0 overflow-hidden py-4 w-full z-20">
+          <Marquee />
+        </div>
+
+        {/* Dots Navigation indicators control */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 items-center justify-center px-4 py-2 bg-white/10 backdrop-blur-md rounded-full z-30">
+          {SLIDE_DOT_INDICES.map((slideNum) => (
+            <button
+              type="button"
+              key={`slide-dot-control-${slideNum}`} // slideNum is a standalone distinct value [0, 1, 2, ...]
+              aria-label={`Go to slide ${slideNum + 1}`}
+              onClick={() => setCurrentSlide(slideNum)}
+              className={`size-2.5 rounded-full border-0 p-0 transition-all duration-300 cursor-pointer ${
+                slideNum === currentSlide
+                  ? "bg-white scale-110 opacity-100"
+                  : "bg-white/40 opacity-50"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
