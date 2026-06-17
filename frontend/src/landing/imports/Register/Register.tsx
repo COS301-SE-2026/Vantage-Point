@@ -172,15 +172,15 @@ export default function Register() {
 
       {/* RIGHT WALLPAPER SLIDER COLUMN */}
       <div className="relative flex-1 h-full z-10 bg-neutral-900">
-        {backgroundImages.map((bgImage, idx) => (
+        {backgroundImages.map((bgImage) => (
           <div
-            key={`slide-img-${idx}`}
+            key={bgImage} // Using the unique file path asset string as the key
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+              backgroundImages.indexOf(bgImage) === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
             <img
-              alt="League Gameplay Landscape context"
+              alt="League Gameplay Context"
               className="w-full h-full object-cover pointer-events-none filter brightness-[0.4]"
               src={bgImage}
             />
