@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import csv
 import os
 #added to installs aiohttp-3.14.1 aiolimiter-1.2.1
@@ -124,111 +123,6 @@ async def get_match_timeline(session, match_id):
         return data
     return None
 
-async def get_summoner_rank(session, puuid, platform_id):
-    if not puuid or not platform_id:
-        return {}
-    cache_key = f"{platform_id}:{puuid}"
-    if cache_key in summoner_rank_cache:
-        return summoner_rank_cache[cache_key]
-
-    base_domain = PLATFORM_MAP.get(platform_id.upper(), BASE_DOMAIN)
-    url = f"https://{base_domain}/lol/league/v4/entries/by-puuid/{puuid}"
-    resp = await do_request(session, url, "GET", headers=HEADERS)
-
-    rank_info = {
-        "solo_tier": None, "solo_rank": None, "solo_lp": None,
-        "solo_wins": None, "solo_losses": None,
-        "flex_tier": None, "flex_rank": None, "flex_lp": None,
-        "flex_wins": None, "flex_losses": None,
-    }
-    if resp:
-        data = await resp.json()
-        for entry in data:
-            q_type = entry.get("queueType")
-            if q_type == "RANKED_SOLO_5x5":
-                rank_info["solo_tier"] = entry.get("tier")
-                rank_info["solo_rank"] = entry.get("rank")
-                rank_info["solo_lp"]   = entry.get("leaguePoints")
-                rank_info["solo_wins"] = entry.get("wins")
-                rank_info["solo_losses"] = entry.get("losses")
-            elif q_type == "RANKED_FLEX_SR":
-                rank_info["flex_tier"] = entry.get("tier")
-                rank_info["flex_rank"] = entry.get("rank")
-                rank_info["flex_lp"]   = entry.get("leaguePoints")
-                rank_info["flex_wins"] = entry.get("wins")
-                rank_info["flex_losses"] = entry.get("losses")
-
-    summoner_rank_cache[cache_key] = rank_info
-    return rank_info
-
-async def get_champion_mastery(session, puuid, champion_id):
-    if not puuid or champion_id is None:
-        return {
-            "champion_mastery_level": None,
-            "champion_mastery_points": None,
-            "champion_mastery_lastPlayTime": None,
-            "champion_mastery_pointsSinceLastLevel": None,
-            "champion_mastery_pointsUntilNextLevel": None,
-            "champion_mastery_tokensEarned": None,
-        }
-
-    if puuid not in champion_mastery_cache:
-        url = f"https://{BASE_DOMAIN}/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
-        resp = await do_request(session, url, "GET", headers=HEADERS)
-        mastery_dict = {}
-        if resp:
-            mastery_list = await resp.json()
-            for item in mastery_list:
-                c_id = item.get("championId")
-                mastery_dict[c_id] = {
-                    "champion_mastery_level": item.get("championLevel"),
-                    "champion_mastery_points": item.get("championPoints"),
-                    "champion_mastery_lastPlayTime": item.get("lastPlayTime"),
-                    "champion_mastery_pointsSinceLastLevel": item.get("championPointsSinceLastLevel"),
-                    "champion_mastery_pointsUntilNextLevel": item.get("championPointsUntilNextLevel"),
-                    "champion_mastery_tokensEarned": item.get("tokensEarned"),
-                }
-        champion_mastery_cache[puuid] = mastery_dict
-
-    return champion_mastery_cache[puuid].get(champion_id, {
-        "champion_mastery_level": None,
-        "champion_mastery_points": None,
-        "champion_mastery_lastPlayTime": None,
-        "champion_mastery_pointsSinceLastLevel": None,
-        "champion_mastery_pointsUntilNextLevel": None,
-        "champion_mastery_tokensEarned": None,
-    })
-
-###############################################################################
-# 5. FINAL CHAMPION STATS
-###############################################################################
-def get_final_champion_stats(timeline_data, participant_id):
-    result = {}
-    if not timeline_data:
-        return result
-
-    info = timeline_data.get("info", {})
-    frames = info.get("frames", [])
-    if not frames:
-        return result
-
-    last_frame = frames[-1]
-    participant_frames = last_frame.get("participantFrames", {})
-    p_key = str(participant_id)
-    frame_data = participant_frames.get(p_key, {})
-    champ_stats = frame_data.get("championStats", {})
-
-    for field in [
-        "abilityHaste","abilityPower","armor","armorPen","armorPenPercent",
-        "attackDamage","attackSpeed","bonusArmorPenPercent","bonusMagicPenPercent",
-        "ccReduction","cooldownReduction","health","healthMax","healthRegen",
-        "lifesteal","magicPen","magicPenPercent","magicResist","movementSpeed",
-        "omnivamp","physicalVamp","power","powerMax","powerRegen","spellVamp"
-    ]:
-        val = champ_stats.get(field, None)
-        result[f"final_{field}"] = val
-    return result
-
 ###############################################################################
 # 6. DATA PROCESSING
 ###############################################################################
@@ -238,22 +132,6 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
     info = match_data["info"]
     participants = info.get("participants", [])
-    #platform_id = info.get("platformId")
-
-    #keep_game_id = info.get("gameId")
-    keep_game_duration = info.get("gameDuration")
-    keep_game_mode = info.get("gameMode")
-    keep_game_type = info.get("gameType")
-    #keep_game_version = info.get("gameVersion")
-    keep_map_id = info.get("mapId")
-    #keep_queue_id = info.get("queueId")
-
-    timestamp_ms = info.get("gameStartTimestamp")
-    if timestamp_ms:
-        dt_utc = datetime.datetime.utcfromtimestamp(timestamp_ms / 1000.0)
-        game_start_utc = dt_utc.isoformat() + "Z"
-    else:
-        game_start_utc = None
 
     timeInfo = timeline_data["info"]
 
@@ -262,26 +140,6 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
         p = part.get("puuid")
         if p:
             puuid_pool.add(p)
-
-        summoner_id = part.get("summonerId")
-        #rank_data = await get_summoner_rank(session, p, platform_id)
-
-        champion_id = part.get("championId")
-        mastery_data = await get_champion_mastery(session, p, champion_id)
-
-        # Convert champion_mastery_lastPlayTime -> int
-        raw_last_play = mastery_data.get("champion_mastery_lastPlayTime")
-        if isinstance(raw_last_play, float):
-            raw_last_play = int(raw_last_play)
-
-        # Potential date conversion
-        if raw_last_play:
-            dt_lp = datetime.datetime.utcfromtimestamp(raw_last_play / 1000.0)
-            champion_mastery_lastPlayTime_utc = dt_lp.isoformat() + "Z"
-        else:
-            champion_mastery_lastPlayTime_utc = None
-
-        final_stats = get_final_champion_stats(timeline_data, part.get("participantId"))
         
         framePart = timeInfo.get("participants", [])
         for i in framePart:
@@ -348,7 +206,6 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
                 "teamPosition" : part.get("teamPosition"),
                 "lane" : part.get("lane")
                 }
-            row_data.update(final_stats)
             rows.append(row_data)
 
     return rows
@@ -446,3 +303,5 @@ async def main():
 ###############################################################################
 if __name__ == "__main__":
     asyncio.run(main())
+
+    
