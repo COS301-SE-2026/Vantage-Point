@@ -37,7 +37,10 @@ interface LoginProps {
 
 function Logo() {
   return (
-    <div className="relative z-20 flex w-full shrink-0 flex-col items-center" data-name="logo">
+    <div
+      className="relative z-20 flex w-full shrink-0 flex-col items-center"
+      data-name="logo"
+    >
       <div className="h-[clamp(120px,18vw,200px)] w-[clamp(120px,18vw,200px)]">
         <img
           alt="Vantage Point Logo"
@@ -52,16 +55,25 @@ function Logo() {
   );
 }
 
-function SocialLoginButtons({ onSocialClick }: Readonly<{ onSocialClick?: () => void }>) {
+function SocialLoginButtons({
+  onSocialClick,
+}: Readonly<{ onSocialClick?: () => void }>) {
   return (
-    <div className="flex w-full gap-[clamp(20px,5vw,80px)] items-center justify-center" data-name="Social login">
+    <div
+      className="flex w-full gap-[clamp(20px,5vw,80px)] items-center justify-center"
+      data-name="Social login"
+    >
       <button
         type="button"
         onClick={onSocialClick}
         className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
         data-name="Google"
       >
-        <img alt="Sign in with Google" className="w-full h-full object-contain pointer-events-none" src={imgGoogle} />
+        <img
+          alt="Sign in with Google"
+          className="w-full h-full object-contain pointer-events-none"
+          src={imgGoogle}
+        />
       </button>
       <button
         type="button"
@@ -69,7 +81,11 @@ function SocialLoginButtons({ onSocialClick }: Readonly<{ onSocialClick?: () => 
         className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
         data-name="Apple Inc"
       >
-        <img alt="Sign in with Apple" className="w-full h-full object-contain pointer-events-none" src={imgAppleInc} />
+        <img
+          alt="Sign in with Apple"
+          className="w-full h-full object-contain pointer-events-none"
+          src={imgAppleInc}
+        />
       </button>
       <button
         type="button"
@@ -77,13 +93,20 @@ function SocialLoginButtons({ onSocialClick }: Readonly<{ onSocialClick?: () => 
         className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
         data-name="Riot Games"
       >
-        <img alt="Sign in with Riot Games" className="w-full h-full object-contain pointer-events-none" src={imgRiotGames} />
+        <img
+          alt="Sign in with Riot Games"
+          className="w-full h-full object-contain pointer-events-none"
+          src={imgRiotGames}
+        />
       </button>
     </div>
   );
 }
 
-function Frame({ currentSlide, onDotClick }: Readonly<{ currentSlide: number; onDotClick: (index: number) => void }>) {
+function Frame({
+  currentSlide,
+  onDotClick,
+}: Readonly<{ currentSlide: number; onDotClick: (index: number) => void }>) {
   return (
     <div
       className="-translate-x-1/2 -translate-y-1/2 absolute content-stretch flex gap-[8px] items-center justify-center left-[calc(50%-1px)] px-[12px] py-[8px] rounded-[50px] top-1/2"
@@ -98,7 +121,9 @@ function Frame({ currentSlide, onDotClick }: Readonly<{ currentSlide: number; on
           aria-label={`Show slide ${String(index + 1)}`}
           aria-current={index === currentSlide ? "true" : undefined}
           className={`relative rounded-[50px] shrink-0 size-[8px] cursor-pointer border-0 p-0 transition-opacity duration-300 ${
-            index === currentSlide ? "bg-black opacity-100" : "bg-black opacity-30"
+            index === currentSlide
+              ? "bg-black opacity-100"
+              : "bg-black opacity-30"
           }`}
           onClick={() => onDotClick(index)}
         />
@@ -113,9 +138,18 @@ function InputField({
   type = "text",
   value,
   onChange,
-}: Readonly<{ label: string; placeholder: string; type?: string; value: string; onChange: (value: string) => void }>) {
+}: Readonly<{
+  label: string;
+  placeholder: string;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+}>) {
   return (
-    <div className="content-stretch flex flex-col gap-[8px] items-stretch" data-name="Input Field">
+    <div
+      className="content-stretch flex flex-col gap-[8px] items-stretch"
+      data-name="Input Field"
+    >
       <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
         {label}
       </p>
@@ -130,9 +164,18 @@ function InputField({
   );
 }
 
-function CheckboxAndLabel({ showPassword, setShowPassword }: Readonly<{ showPassword: boolean; setShowPassword: (value: boolean) => void }>) {
+function CheckboxAndLabel({
+  showPassword,
+  setShowPassword,
+}: Readonly<{
+  showPassword: boolean;
+  setShowPassword: (value: boolean) => void;
+}>) {
   return (
-    <label className="flex gap-[12px] items-center cursor-pointer self-start mt-1" data-name="Checkbox and Label">
+    <label
+      className="flex gap-[12px] items-center cursor-pointer self-start mt-1"
+      data-name="Checkbox and Label"
+    >
       <input
         type="checkbox"
         checked={showPassword}
@@ -144,9 +187,16 @@ function CheckboxAndLabel({ showPassword, setShowPassword }: Readonly<{ showPass
           showPassword ? "bg-[#2c2c2c]" : "bg-white border border-[#d9d9d9]"
         }`}
       >
-        ={showPassword && (
+        =
+        {showPassword && (
           <svg className="w-3 h-3" fill="none" viewBox="0 0 12.2667 8.93333">
-            <path d={checkmarkPath} stroke="#F5F5F5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+            <path
+              d={checkmarkPath}
+              stroke="#F5F5F5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.6"
+            />
           </svg>
         )}
       </div>
@@ -160,7 +210,10 @@ function CheckboxAndLabel({ showPassword, setShowPassword }: Readonly<{ showPass
 function RegistrationLink() {
   const navigate = useNavigate();
   return (
-    <div className="flex items-center justify-center w-full" data-name="Checkbox and Label">
+    <div
+      className="flex items-center justify-center w-full"
+      data-name="Checkbox and Label"
+    >
       <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] text-[16px] leading-[1.4] text-center">
         {`Don't have an account? `}
         <button
@@ -189,8 +242,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
   }, [backgroundImage]);
 
   return (
-    <div className="relative size-full bg-white overflow-clip" data-name="Login">
-
+    <div
+      className="relative size-full bg-white overflow-clip"
+      data-name="Login"
+    >
       {/* Right Side Wallpaper Area (Takes 70% width exactly like your old layout view) */}
       <div className="absolute h-full left-[30%] top-0 right-0 z-0">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -219,7 +274,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
 
       {/* Slide Pagination Dots Indicator */}
       {!backgroundImage && (
-        <div className="absolute h-[44px] right-[5%] bottom-[5%] w-[clamp(200px,30vw,402px)] z-10" data-name="Page control">
+        <div
+          className="absolute h-[44px] right-[5%] bottom-[5%] w-[clamp(200px,30vw,402px)] z-10"
+          data-name="Page control"
+        >
           <Frame currentSlide={currentSlide} onDotClick={setCurrentSlide} />
         </div>
       )}
@@ -234,11 +292,17 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
           <SocialLoginButtons onSocialClick={form.onSocialClick} />
 
           <form
-            onSubmit={(e) => { e.preventDefault(); form.onSubmit(); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.onSubmit();
+            }}
             className="flex w-full flex-col gap-6"
           >
             {form.error && (
-              <p className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center" role="alert">
+              <p
+                className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center"
+                role="alert"
+              >
                 {form.error}
               </p>
             )}
@@ -259,7 +323,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
                 value={form.password}
                 onChange={form.onPasswordChange}
               />
-              <CheckboxAndLabel showPassword={showPassword} setShowPassword={setShowPassword} />
+              <CheckboxAndLabel
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+              />
             </div>
 
             <button
@@ -278,7 +345,6 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
           </form>
         </div>
       </div>
-
     </div>
   );
 }

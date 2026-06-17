@@ -26,7 +26,10 @@ const MARQUEE_ITEMS = [
 
 function Logo() {
   return (
-    <div className="relative z-20 flex w-full shrink-0 flex-col items-center gap-4" data-name="logo">
+    <div
+      className="relative z-20 flex w-full shrink-0 flex-col items-center gap-4"
+      data-name="logo"
+    >
       <div className="w-[120px] h-[110px] flex items-center justify-center">
         <img
           alt="Vantage Point Logo"
@@ -60,7 +63,11 @@ function SocialProviders() {
             type="button"
             className="flex flex-1 items-center justify-center h-[54px] border border-[#d9d9d9] rounded-[8px] hover:bg-neutral-50 transition-colors cursor-pointer"
           >
-            <img src={provider.src} alt={provider.alt} className="h-6 w-auto object-contain" />
+            <img
+              src={provider.src}
+              alt={provider.alt}
+              className="h-6 w-auto object-contain"
+            />
           </button>
         ))}
       </div>
@@ -72,7 +79,10 @@ function Marquee() {
   return (
     <div className="flex flex-row gap-[48px] items-center min-w-full shrink-0 animate-marquee whitespace-nowrap">
       {MARQUEE_ITEMS.map((item, index) => (
-        <div key={`reg-marquee-1-${index}`} className="flex flex-row gap-[48px] items-center shrink-0">
+        <div
+          key={`reg-marquee-1-${index}`}
+          className="flex flex-row gap-[48px] items-center shrink-0"
+        >
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
             {item}
           </p>
@@ -80,7 +90,11 @@ function Marquee() {
         </div>
       ))}
       {MARQUEE_ITEMS.map((item, index) => (
-        <div key={`reg-marquee-2-${index}`} className="flex flex-row gap-[48px] items-center shrink-0" aria-hidden="true">
+        <div
+          key={`reg-marquee-2-${index}`}
+          className="flex flex-row gap-[48px] items-center shrink-0"
+          aria-hidden="true"
+        >
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
             {item}
           </p>
@@ -104,19 +118,30 @@ export default function Register() {
 
   return (
     <div className="relative flex w-screen h-screen min-h-[100dvh] overflow-hidden bg-white select-none">
-
       {/* LEFT FORM COLUMN */}
       <div className="w-[463px] h-full bg-white z-20 shadow-2xl flex flex-col justify-between items-center py-10 px-8 border-r border-neutral-100 shrink-0">
         <Logo />
 
-        <form className="w-full flex flex-col gap-5 mt-4" onSubmit={(e) => e.preventDefault()}>
+        <form
+          className="w-full flex flex-col gap-5 mt-4"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm font-semibold text-neutral-700">Email Address</label>
-            <input type="email" placeholder="name@domain.com" className={authInputClassName} required />
+            <label className="text-sm font-semibold text-neutral-700">
+              Email Address
+            </label>
+            <input
+              type="email"
+              placeholder="name@domain.com"
+              className={authInputClassName}
+              required
+            />
           </div>
 
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm font-semibold text-neutral-700">Password</label>
+            <label className="text-sm font-semibold text-neutral-700">
+              Password
+            </label>
             <div className="relative w-full">
               <input
                 type={showPassword ? "text" : "password"}
@@ -177,7 +202,8 @@ export default function Register() {
             Own Your Games.
           </h1>
           <p className="mt-4 max-w-md text-lg text-white/80 drop-shadow-sm">
-            Advanced AI telemetry built to transform complex match tracking arrays into sharp decisions.
+            Advanced AI telemetry built to transform complex match tracking
+            arrays into sharp decisions.
           </p>
         </section>
 
@@ -195,7 +221,9 @@ export default function Register() {
               aria-label={`Go to slide ${index + 1}`}
               onClick={() => setCurrentSlide(index)}
               className={`size-2.5 rounded-full border-0 p-0 transition-all duration-300 cursor-pointer ${
-                index === currentSlide ? "bg-white scale-110 opacity-100" : "bg-white/40 opacity-50"
+                index === currentSlide
+                  ? "bg-white scale-110 opacity-100"
+                  : "bg-white/40 opacity-50"
               }`}
             />
           ))}
