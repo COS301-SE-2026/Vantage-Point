@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
-import imgLogo from "../../imports/Login/798001aef0b2686ac929f8c349135d3326ab65bb.webp";
+import imgLogo from "../../../assets/images/logos/logo.webp";
 
 const MIN_DISPLAY_MS = 1500;
 const DOT_DELAYS_S = [0, 0.9, 1.8] as const;
