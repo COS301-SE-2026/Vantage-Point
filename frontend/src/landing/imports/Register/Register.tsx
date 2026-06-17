@@ -79,7 +79,10 @@ function Marquee() {
   return (
     <div className="flex flex-row gap-[48px] items-center min-w-full shrink-0 animate-marquee whitespace-nowrap">
       {MARQUEE_ITEMS.map((item) => (
-        <div key={`reg-marquee-1-${item}`} className="flex flex-row gap-[48px] items-center shrink-0">
+        <div
+          key={`reg-marquee-1-${item}`}
+          className="flex flex-row gap-[48px] items-center shrink-0"
+        >
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
             {item}
           </p>
@@ -87,7 +90,11 @@ function Marquee() {
         </div>
       ))}
       {MARQUEE_ITEMS.map((item) => (
-        <div key={`reg-marquee-2-${item}`} className="flex flex-row gap-[48px] items-center shrink-0" aria-hidden="true">
+        <div
+          key={`reg-marquee-2-${item}`}
+          className="flex flex-row gap-[48px] items-center shrink-0"
+          aria-hidden="true"
+        >
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
             {item}
           </p>
@@ -176,7 +183,9 @@ export default function Register() {
           <div
             key={bgImage} // Using the unique file path asset string as the key
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              backgroundImages.indexOf(bgImage) === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+              backgroundImages.indexOf(bgImage) === currentSlide
+                ? "opacity-100 z-10"
+                : "opacity-0 z-0"
             }`}
           >
             <img
@@ -207,14 +216,14 @@ export default function Register() {
 
         {/* Dots Navigation indicators control */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 items-center justify-center px-4 py-2 bg-white/10 backdrop-blur-md rounded-full z-30">
-          {SLIDE_DOT_INDICES.map((index) => (
+          {SLIDE_DOT_INDICES.map((slideNum) => (
             <button
               type="button"
-              key={`dot-${index}`}
-              aria-label={`Go to slide ${index + 1}`}
-              onClick={() => setCurrentSlide(index)}
+              key={`slide-dot-control-${slideNum}`} // slideNum is a standalone distinct value [0, 1, 2, ...]
+              aria-label={`Go to slide ${slideNum + 1}`}
+              onClick={() => setCurrentSlide(slideNum)}
               className={`size-2.5 rounded-full border-0 p-0 transition-all duration-300 cursor-pointer ${
-                index === currentSlide
+                slideNum === currentSlide
                   ? "bg-white scale-110 opacity-100"
                   : "bg-white/40 opacity-50"
               }`}
