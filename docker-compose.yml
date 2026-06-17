@@ -1,3 +1,5 @@
+# The docker-compose configuration is for production, to use containers when developing please use the devcontainers
+
 services:
   # Main database
   postgres-db:
