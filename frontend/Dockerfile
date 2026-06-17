@@ -4,7 +4,7 @@ WORKDIR /src
 
 # Copy dependency manifests first to leverage Docker caching
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --target_arch=x64 --target_platform=linux --target_libc=musl
 
 # Copy the rest of the frontend source code and compile
 COPY . .
