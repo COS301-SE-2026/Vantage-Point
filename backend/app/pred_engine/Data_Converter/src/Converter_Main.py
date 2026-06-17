@@ -21,9 +21,7 @@ def getFromAPI():
     print(match_TL.info.endOfGameResult, match_TL.info.gameId)
     
 #need to seperate out pos data as X -> to be predicted
-#knn is not currently able to make predictions from this
-#X rows are seemingly too large to predict
-#maybe dont group data with one array row for each player
+#maybe dont group data with one array row for each player?
 #keep timeframes are entirely seperate entities/array rows?
 def formatTrainTestData(data):
     r, c = (1, 1)
@@ -54,7 +52,7 @@ def formatTrainTestData(data):
     #find way to work out n_samples
     return X, dataArr
 
-def getTrainTestData(fileName):
+def getTrainTestDataKNN(fileName):
     with open(fileName, "r") as f:
         data = csv.reader(f)
         xData, yData = formatTrainTestData(data)
@@ -65,8 +63,3 @@ def getTrainTestData(fileName):
     )
     #return train,test
     return X_train, X_test, y_train, y_test
-
-#testing
-x1, x2, y1, y2 = getTrainTestData("backend/app/pred_engine/Data_Converter/src/test.csv")
-
-
