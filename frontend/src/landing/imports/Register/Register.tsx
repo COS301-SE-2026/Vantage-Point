@@ -46,9 +46,9 @@ function Logo() {
 
 function SocialProviders() {
   const providers = [
-    { src: imgGoogle, alt: "Google logo" },
-    { src: imgAppleInc, alt: "Apple logo" },
-    { src: imgRiotGames, alt: "Riot Games logo" },
+    { id: "google", src: imgGoogle, alt: "Google logo" },
+    { id: "apple", src: imgAppleInc, alt: "Apple logo" },
+    { id: "riot", src: imgRiotGames, alt: "Riot Games logo" },
   ];
 
   return (
@@ -57,9 +57,9 @@ function SocialProviders() {
         Or sign up with
       </p>
       <div className="flex gap-4 items-center justify-between w-full">
-        {providers.map((provider, index) => (
+        {providers.map((provider) => (
           <button
-            key={`provider-${index}`}
+            key={provider.id}
             type="button"
             className="flex flex-1 items-center justify-center h-[54px] border border-[#d9d9d9] rounded-[8px] hover:bg-neutral-50 transition-colors cursor-pointer"
           >
