@@ -78,23 +78,16 @@ function SocialProviders() {
 function Marquee() {
   return (
     <div className="flex flex-row gap-[48px] items-center min-w-full shrink-0 animate-marquee whitespace-nowrap">
-      {MARQUEE_ITEMS.map((item, index) => (
-        <div
-          key={`reg-marquee-1-${index}`}
-          className="flex flex-row gap-[48px] items-center shrink-0"
-        >
+      {MARQUEE_ITEMS.map((item) => (
+        <div key={`reg-marquee-1-${item}`} className="flex flex-row gap-[48px] items-center shrink-0">
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
             {item}
           </p>
           <div className="bg-[#f5f5f5] rounded-[50px] shrink-0 size-[6px]" />
         </div>
       ))}
-      {MARQUEE_ITEMS.map((item, index) => (
-        <div
-          key={`reg-marquee-2-${index}`}
-          className="flex flex-row gap-[48px] items-center shrink-0"
-          aria-hidden="true"
-        >
+      {MARQUEE_ITEMS.map((item) => (
+        <div key={`reg-marquee-2-${item}`} className="flex flex-row gap-[48px] items-center shrink-0" aria-hidden="true">
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.4] text-[#f5f5f5] text-[16px] uppercase tracking-wider">
             {item}
           </p>
