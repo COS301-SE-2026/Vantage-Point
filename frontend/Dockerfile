@@ -10,17 +10,13 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Serve the compiled static assets
-FROM nginx:1.25-alpine
+# Move assets to the shared volume
+FROM alpine:3.19
 WORKDIR /usr/share/nginx/html
 
-# Clean the default static files out of Nginx
-RUN rm -rf ./*
-
-# Copy the static production build files
+# Copy the static production build files from the builder stage
 COPY --from=builder /src/dist .
 
-# Expose Nginx port 80 internally
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# When the container starts, copy files into the mounted shared volume,
+# then echo a success message and exit.
+CMD ["sh", "-c", "cp -r ./* /target_volume/ && echo 'Frontend assets synced successfully!'"]
