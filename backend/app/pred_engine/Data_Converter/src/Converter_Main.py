@@ -21,8 +21,10 @@ def getFromAPI():
     print(match_TL.info.endOfGameResult, match_TL.info.gameId)
     
 #need to seperate out pos data as X -> to be predicted
-#group by player, multiple row needed because timeline and frames
-#X is all position data in order
+#knn is not currently able to make predictions from this
+#X rows are seemingly too large to predict
+#maybe dont group data with one array row for each player
+#keep timeframes are entirely seperate entities/array rows?
 def formatTrainTestData(data):
     r, c = (1, 1)
     dataArr = []
@@ -35,13 +37,11 @@ def formatTrainTestData(data):
                 row[j] = 1
             else:
                 row[j] = int(row[j])
-        #if timestamp == 0 increment x, reset c
-        timestamp = row[2]
-        if timestamp == 0:
-            dataArr.append([])
-            X.append([])
-            r = r + 1
-            c = 0
+        
+        dataArr.append([])
+        X.append([])
+        r = r + 1
+        c = 0
         #add row items to array
         for i in row:
             #x coord = pos 15 y coord = pos 16
@@ -52,26 +52,21 @@ def formatTrainTestData(data):
             c = c + 1
         print()
     #find way to work out n_samples
-    return X, dataArr, n_samples
+    return X, dataArr
 
 def getTrainTestData(fileName):
     with open(fileName, "r") as f:
         data = csv.reader(f)
-        xData, yData, val = formatTrainTestData(data)
+        xData, yData = formatTrainTestData(data)
     #Do train/test split
-    xData = np.arange(val) 
-    yData = np.arange(val)
-    X_train, X_test, y_train, y_test = train_test_split(
+
+    X_train, X_test, y_train,y_test = train_test_split(
         xData, yData, test_size=0.2, train_size=0.8, random_state=42
-    
     )
     #return train,test
     return X_train, X_test, y_train, y_test
 
 #testing
 x1, x2, y1, y2 = getTrainTestData("backend/app/pred_engine/Data_Converter/src/test.csv")
-print(x1)
-print(x2)
-print("")
-print(y1)
-print(y2)
+
+
