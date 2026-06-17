@@ -13,8 +13,8 @@ RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 200000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 10      # How many total rows we want to fetch
+CHUNK_SIZE = 2000         # Every how many rows we create a NEW CSV file
+MAX_ROWS = 200000      # How many total rows we want to fetch
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -344,7 +344,9 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
                 "level" : partFrame.get("level"),
                 "xp" :  partFrame.get("xp"),
                 "x" : pos.get("x"),
-                "y" : pos.get("y")
+                "y" : pos.get("y"),
+                "teamPosition" : part.get("teamPosition"),
+                "lane" : part.get("lane")
                 }
             row_data.update(final_stats)
             rows.append(row_data)

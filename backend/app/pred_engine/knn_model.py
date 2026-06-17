@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 # temp dataset to get the code functional
 X, y = make_regression(n_samples=200, n_features=1, noise=0.1, random_state=42)
 
-# split the dataset
+# split the dataset (X and y are multi dimensional arrays)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
