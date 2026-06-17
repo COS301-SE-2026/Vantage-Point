@@ -126,11 +126,16 @@ export default function Register() {
           className="w-full flex flex-col gap-5 mt-4"
           onSubmit={(e) => e.preventDefault()}
         >
+          {/* Email Field Group */}
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm font-semibold text-neutral-700">
+            <label
+              htmlFor="register-email"
+              className="text-sm font-semibold text-neutral-700"
+            >
               Email Address
             </label>
             <input
+              id="register-email"
               type="email"
               placeholder="name@domain.com"
               className={authInputClassName}
@@ -138,12 +143,17 @@ export default function Register() {
             />
           </div>
 
+          {/* Password Field Group */}
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm font-semibold text-neutral-700">
+            <label
+              htmlFor="register-password"
+              className="text-sm font-semibold text-neutral-700"
+            >
               Password
             </label>
             <div className="relative w-full">
               <input
+                id="register-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 className={authInputClassName}
