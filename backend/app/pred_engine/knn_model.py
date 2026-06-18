@@ -13,18 +13,18 @@ bar = Bar(num_step)
 #the x and y is swapped in Converter_Main because I am a moron
 #y is what we want
 #x is given data
-y_train, y_test, X_train, X_test = converter.getTrainTestData("backend/app/pred_engine/Data_Converter/src/test.csv")
+y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("backend/app/pred_engine/MatchDataCollector/test.csv")
 bar.next()
 
 # train model
-knn_regressor = KNeighborsRegressor(n_neighbors=49)
+knn_regressor = KNeighborsRegressor(n_neighbors=5)
 bar.next()
 knn_regressor.fit(X_train, y_train)
 bar.next()
 
 def optimizeGridSearch():
     parameters = {
-        "n_neighbors": range(1, 50),
+        "n_neighbors": range(1, 35),
         "weights": ["uniform", "distance"],
     }  
     gridsearch = GridSearchCV(KNeighborsRegressor(), parameters)
@@ -80,22 +80,22 @@ def run_knn(X_val):
 
 mse, r2 = testPredict()
 p1, p2, grid_mse, grid_r2 = optimizeGridSearch()
-bag_mse, bag_r2 = optimizeBagging()
+bag_mse, bag_r2 = optimizeBagging(p1, p2)
 
 with open("output.txt", "w", encoding="utf-8") as f:
     f.write("initail results:\n")
-    f.write("mse: " + mse + "\n")
-    f.write("r2: " + r2 + "\n")
+    f.write("mse: " + str(mse) + "\n")
+    f.write("r2: " + str(r2) + "\n")
     f.write("\n")
     bar.next()
     f.write("grid optimize results:\n")
-    f.write("grid_mse: " + grid_mse + "\n")
-    f.write("grid_r2: " + grid_r2 + "\n")
+    f.write("grid_mse: " + str(grid_mse) + "\n")
+    f.write("grid_r2: " + str(grid_r2) + "\n")
     f.write("\n")
     bar.next()
     f.write("bag optimize results:\n")
-    f.write("bag_mse: " + bag_mse + "\n")
-    f.write("bag_r2: " + bag_r2 + "\n")
+    f.write("bag_mse: " + str(bag_mse) + "\n")
+    f.write("bag_r2: " + str(bag_r2) + "\n")
     f.write("\n")
     bar.next()
 

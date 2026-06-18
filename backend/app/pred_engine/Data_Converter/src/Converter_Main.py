@@ -4,8 +4,6 @@ import numpy as np
 from types import SimpleNamespace
 from sklearn.model_selection import train_test_split
 
-COL_COUNT = 42
-
 #needs to be changed still
 def getFromAPI():
     # temp read from file logic
@@ -30,12 +28,22 @@ def formatTrainTestData(data):
     r, c, cPos = (-1, 0, 0)
     for row in data:
         #add logic to convert everything to int
+        row[0] = 1
+        val = row[17]
+        match val:
+            case 'TOP':
+                row[17] = 1
+            case 'JUNGLE':
+                row[17] = 2
+            case 'MIDDLE':
+                row[17] = 3
+            case 'BOTTOM':
+                row[17] = 4
+            case 'UTILITY':
+                row[17] = 5
+        row[18] = 0
         for j in range(len(row)):
-            if row[j] == "GameComplete":
-                row[j] = 1
-            else:
-                row[j] = int(row[j])
-        
+            row[j] = int(row[j])     
         dataArr.append([])
         X.append([])
         r = r + 1
@@ -43,7 +51,7 @@ def formatTrainTestData(data):
         #add row items to array
         for i in row:
             #x coord = pos 15 y coord = pos 16
-            if c % COL_COUNT == 15 or c % COL_COUNT == 16:
+            if c == 15 or c == 16:
                 X[r].append(i)
             else:
                 dataArr[r].append(i)
@@ -63,3 +71,12 @@ def getTrainTestDataKNN(fileName):
     )
     #return train,test
     return X_train, X_test, y_train, y_test
+
+#x1, x2, y1, y2 = getTrainTestDataKNN("backend/app/pred_engine/MatchDataCollector/test.csv")
+
+#print(x1)
+#print(x2)
+#print()
+#print()
+#print(y1)
+#print(y2)
