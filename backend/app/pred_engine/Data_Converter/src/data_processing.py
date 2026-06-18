@@ -86,9 +86,12 @@ def map_suggest_data(puuid):
     # this goes into overlay suggestion generation KNN model
     info = map_replay()
     info.append(tempMatch.info.endOfGameResult)
-
+    for i in tempMatch.info.participants:
+        if i.puuid == puuid:
+            info.append(i.championId)
+            info.append(i.teamPosition)
+            info.append(i.lane)
     for i in tempTimeline.info.frames:
-        info.append(i.timestamp)
         info.extend(i.participantFrames._1.append_mapSuggest())
         info.extend(i.participantFrames._2.append_mapSuggest())
         info.extend(i.participantFrames._3.append_mapSuggest())
@@ -117,8 +120,8 @@ def match_data():
     return info
 
 
-def match_rec_data():
-    # data that goes into RF to get gameplay tips
-    #match data + additions
-    info = match_data()
-    return []
+#def match_rec_data():
+#    # data that goes into RF to get gameplay tips
+#    #match data + additions
+#    info = match_data()
+#    return []

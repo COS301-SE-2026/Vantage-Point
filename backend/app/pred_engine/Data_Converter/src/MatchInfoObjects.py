@@ -15,11 +15,11 @@ class MetaObj:
 #########################################################
 # DATA GROUPS#
 
-# Map replay #XX
+# Map replay
 # Map suggestion overlay
 # Map timeline info (goes with map page but not on the map itself) (gets repulled through api every time)
-# Profile data #XX
-# Match data #XX
+# Profile data
+# Match data
 # General data
 # XX -> goes to db
 
@@ -269,7 +269,7 @@ class MissionObj:
 
 
 # MatchDataObj.info.[participants].challenges
-class ChallengesObj:  # Match data (need to sort throught this an decide importance)
+class ChallengesObj:  # Match data
     _12AssistStreakCount = 0
     baronBuffGoldAdvantageOverThreshold = 0
     controlWardTimeCoverageInRiverOrEnemyHalf = 0.0
@@ -644,6 +644,7 @@ class M_ParticipantObj:
         info.append(self.visionScore)
         return info
 
+
 # MatchDataObj.info.[teams].[bans]
 class BanObj:  # Match data
     championId = 0
@@ -683,7 +684,7 @@ class TeamObj:  # Match data
             info.append(i.baron.kills)
             info.append(i.champion.first)
             info.append(i.champion.kills)
-            info.append(i.dragon.kills)
+            info.append(i.dragon.first)
             info.append(i.dragon.kills)
             info.append(i.horde.first)
             info.append(i.horde.kills)

@@ -8,16 +8,16 @@ from aiolimiter import AsyncLimiter
 ###############################################################################
 # 1. CONFIGURATION - EDIT THESE VALUES
 ###############################################################################
-RIOT_API_KEY = "" # https://developer.riotgames.com/
+RIOT_API_KEY = "RGAPI-733ac11a-9c78-4598-8e79-80488d30d5c5" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 2000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 200000      # How many total rows we want to fetch
+MAX_ROWS = 200      # How many total rows we want to fetch
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
-INITIAL_PUUID = "gf5s9szyePziDLDV2a9Ntn8LqYvYI0StFWUnX7cTtBTjZvqhsU_9KB-XQdhEKVBeCeEtIty467jfCQ" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
+INITIAL_PUUID = "4-GEPC9UQbnSCPrA5KWpvs0SahgJcHWvnS49oF2cCwTASobXIxl85MtL_wK7JWxkkQOyvy_DF-RWRQ" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
 
 # Asynchronous limit to ~15 RPS (avoid console spam and hitting rate limits)
 RATE_LIMIT = AsyncLimiter(15, 1.0)
@@ -143,8 +143,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
         
         framePart = timeInfo.get("participants", [])
         for i in framePart:
-            if i.get("puuid") == p:
-                pId = i.get("participantId")
+            if i.get("puuid") == p: 
+                pId = i.get("participantId") 
 
         framesList = timeInfo.get("frames", [])
 
@@ -204,7 +204,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
                 "x" : pos.get("x"),
                 "y" : pos.get("y"),
                 "teamPosition" : part.get("teamPosition"),
-                "lane" : part.get("lane")
+                "lane" : part.get("lane"),
+                "championId" : part.get("championId")
                 }
             rows.append(row_data)
 
