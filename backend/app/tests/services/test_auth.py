@@ -35,28 +35,32 @@ def register_payload(email: str):
         "password": TEST_USER_PASSWORD,
     }
 
+
 # =====================================================
 # Helpers for Unit Testing
 # =====================================================
 
-#function to be used in unit testing as this gets repeated at multiple places and it led to continous error for the same part
-#hence I created this helper to replace those places
-def make_client_error(code: str, msg: str, operation: str, http_status: int = 400,) -> ClientError:
+
+# function to be used in unit testing as this gets repeated at multiple places and it led to continous error for the same part
+# hence I created this helper to replace those places
+def make_client_error(
+    code: str,
+    msg: str,
+    operation: str,
+    http_status: int = 400,
+) -> ClientError:
     error_response: Any = {
-        "Error": {
-            "Code": code,
-            "Message": msg
-        },
+        "Error": {"Code": code, "Message": msg},
         "RespondMetaData": {
             "RequestID": "test-access-token",
             "HTTPStatusCode": http_status,
             "HTTPHeaders": {},
-            "RetryAttempts": 0
-        }
+            "RetryAttempts": 0,
+        },
     }
 
     return ClientError(error_response, operation)
-    
+
 
 # =====================================================
 # Unit Tests - Service Layer
@@ -135,8 +139,10 @@ class TestHandleCognitoError:
     """
 
     def test_handle_cognito_error_not_auth_exception(self):
-        """Test that NotAuthorizedException returns 401."""      
-        client_error = client_error = make_client_error("NotAuthorizedException", "User not Found", "sign_up", 401)
+        """Test that NotAuthorizedException returns 401."""
+        client_error = client_error = make_client_error(
+            "NotAuthorizedException", "User not Found", "sign_up", 401
+        )
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
@@ -145,8 +151,10 @@ class TestHandleCognitoError:
         assert exc_info.value.status_code == 401
 
     def test_handle_cognito_error_too_many_requests(self):
-        """Test that TooManyRequestsException returns 429."""      
-        client_error = make_client_error("TooManyRequestsException","Rate Limited", "sign_up",429 )
+        """Test that TooManyRequestsException returns 429."""
+        client_error = make_client_error(
+            "TooManyRequestsException", "Rate Limited", "sign_up", 429
+        )
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
@@ -156,13 +164,16 @@ class TestHandleCognitoError:
 
     def test_handle_cognito_error_default_status_code(self):
         """Test that unknown errors return 400."""
-        client_error = make_client_error("SomeUnknownError", "Something went wrong", "sign_up",400)
+        client_error = make_client_error(
+            "SomeUnknownError", "Something went wrong", "sign_up", 400
+        )
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
             handle_cognito_error(client_error)
 
         assert exc_info.value.status_code == 400
+
 
 @pytest.mark.anyio
 class TestRegisterUser:
@@ -198,7 +209,9 @@ class TestRegisterUser:
         """
         # Mock the client to raise error
         mock_client.sign_up = MagicMock(
-            side_effect= make_client_error("UsernameExistsException", "User already Exists", "sign_up", 400)
+            side_effect=make_client_error(
+                "UsernameExistsException", "User already Exists", "sign_up", 400
+            )
         )
 
         # Real function executes and handles error
@@ -246,9 +259,15 @@ class TestLoginUser:
         """Test login failure with invalid credentials.
 
         Real login_user() executes and handles error.
-        """     
+        """
+
         def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
-            raise make_client_error("NotAuthorizedException", "Incorrect username or password", "initiate_auth", 401)
+            raise make_client_error(
+                "NotAuthorizedException",
+                "Incorrect username or password",
+                "initiate_auth",
+                401,
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -289,9 +308,14 @@ class TestConfirmUser:
         """Test confirmation failure with invalid code.
 
         Real confirm_user() executes and handles error.
-        """       
+        """
+
         def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
-            raise make_client_error("InvalidParamaterException", "Invalid verification code", "confirm_sign_up")
+            raise make_client_error(
+                "InvalidParamaterException",
+                "Invalid verification code",
+                "confirm_sign_up",
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -331,9 +355,12 @@ class TestLogoutUser:
         """Test logout failure with invalid token.
 
         Real logout_user() executes and handles error.
-        """      
+        """
+
         def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
-            raise make_client_error("NotAuthorizedException", "Invalid Access Token", "global_sign_out")
+            raise make_client_error(
+                "NotAuthorizedException", "Invalid Access Token", "global_sign_out"
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -375,9 +402,12 @@ class TestRevokeRefreshToken:
         """Test revocation failure with invalid token.
 
         Real revoke_refresh_token() executes and handles error.
-        """      
+        """
+
         def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
-            raise make_client_error("InvalidParamaterException", "Invalid refresh token", "revoke_token")
+            raise make_client_error(
+                "InvalidParamaterException", "Invalid refresh token", "revoke_token"
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 

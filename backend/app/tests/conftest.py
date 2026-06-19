@@ -19,6 +19,7 @@ from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
 from typing import Any
 
+
 @pytest.fixture(scope="function")
 def client():
     """

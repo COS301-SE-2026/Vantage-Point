@@ -62,7 +62,9 @@ def test_match_list_detail_and_profile(seeded_db_client: TestClient):
     assert viewer_5["win"] is True
     assert match_5_list["outcome"] == "Victory"
 
-    detail_6_response = client.get("/api/v1/matches/EUW1_700000006", headers=headers).json()
+    detail_6_response = client.get(
+        "/api/v1/matches/EUW1_700000006", headers=headers
+    ).json()
     assert detail_6_response.status_code == 200
     detail_6 = detail_6_response.json()
     viewer_6 = viewer_from_detail(detail_6)
