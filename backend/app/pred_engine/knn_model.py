@@ -13,30 +13,30 @@ bar = Bar(num_step)
 #the x and y is swapped in Converter_Main because I am a moron
 #y is what we want
 #x is given data
-y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("backend/app/pred_engine/MatchDataCollector/test.csv")
-bar.next()
+y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test.csv")
+bar.next() #5%
 
 # train model
 knn_regressor = KNeighborsRegressor(n_neighbors=5)
-bar.next()
+bar.next() #10%
 knn_regressor.fit(X_train, y_train)
-bar.next()
+bar.next() #15%
 
 def optimizeGridSearch():
     parameters = {
         "n_neighbors": range(1, 35),
         "weights": ["uniform", "distance"],
     }  
-    gridsearch = GridSearchCV(KNeighborsRegressor(), parameters)
-    bar.next()
-    gridsearch.fit(X_train, y_train)
-    bar.next()
+    gridsearch = GridSearchCV(KNeighborsRegressor(), parameters) 
+    bar.next() #35%
+    gridsearch.fit(X_train, y_train) #slow here
+    bar.next() #40%
     test_preds_grid = gridsearch.predict(X_test)
-    bar.next()
+    bar.next() #45%
     test_mse = mean_squared_error(y_test, test_preds_grid) 
-    bar.next()
+    bar.next() #50%
     test_r2 = r2_score(y_test, test_preds_grid)
-    bar.next()
+    bar.next() #55%
     return gridsearch.best_params_["n_neighbors"], gridsearch.best_params_["weights"], test_mse, test_r2
 
 def optimizeBagging(p1,p2):
@@ -45,32 +45,30 @@ def optimizeBagging(p1,p2):
     bagged_knn = KNeighborsRegressor(
         n_neighbors=best_k, weights=best_weights
     )
-    bar.next()
+    bar.next() #60%
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
-    bar.next()
-    bagging_model.fit(X_train, y_train)
-    bar.next()
+    bar.next() #65%
+    bagging_model.fit(X_train, y_train) #slow here
+    bar.next() #70%
     test_preds_grid = bagging_model.predict(X_test)
-    bar.next()
+    bar.next() #75%
     test_mse = mean_squared_error(y_test, test_preds_grid) 
-    bar.next()
+    bar.next() #80%
     test_r2 = r2_score(y_test, test_preds_grid)
-    bar.next()
+    bar.next() #85%
     return test_mse, test_r2
 
 def testPredict():
     # make prdictions
     y_pred = knn_regressor.predict(X_test)
-    bar.next()
+    bar.next() #20%
     # evaluate model
     mse = mean_squared_error(y_test, y_pred)
-    bar.next()
+    bar.next() #35%
     r2 = r2_score(y_test, y_pred)
-    bar.next()
+    bar.next() #30%
     # want lowest possible mse
     # want r2 as close as possible to 1
-    #print(mse) current = 5073598934.481382
-    #print(r2) current = 0.26642693078753066
     return mse, r2
 
 # value going in to function is in format [[decimal]]
@@ -87,17 +85,30 @@ with open("output.txt", "w", encoding="utf-8") as f:
     f.write("mse: " + str(mse) + "\n")
     f.write("r2: " + str(r2) + "\n")
     f.write("\n")
-    bar.next()
+    bar.next() #90%
     f.write("grid optimize results:\n")
     f.write("grid_mse: " + str(grid_mse) + "\n")
     f.write("grid_r2: " + str(grid_r2) + "\n")
     f.write("\n")
-    bar.next()
+    bar.next() #95%
     f.write("bag optimize results:\n")
     f.write("bag_mse: " + str(bag_mse) + "\n")
     f.write("bag_r2: " + str(bag_r2) + "\n")
     f.write("\n")
-    bar.next()
+    bar.next() #100%
 
+##################################################
+#results with 20000 rows
+# about double the runs with 200 rows
 
+#initail results:
+#mse: 11680512.064259995
+#r2: 0.2801380122572488
 
+#grid optimize results:
+#grid_mse: 11023449.667127294
+#grid_r2: 0.3204628019463509
+
+#bag optimize results:
+#bag_mse: 10956324.517077383
+#bag_r2: 0.32458748375109797

@@ -54,7 +54,7 @@ class PositionObj:
 
 
 # MatchTimeObj.info.[frames].[events]
-class EventObj:  # Map timeline info (dependent on what event happened)
+class EventObj:  
     timeStamp = 0
     realTimestamp = 0
     type = ""
@@ -98,18 +98,18 @@ class EventObj:  # Map timeline info (dependent on what event happened)
 class ChampionStatsObj:
     abilityHaste = 0
     abilityPower = 0
-    armor = 0  # Map suggestion overlay
+    armor = 0  
     armorPen = 0
     armorPenPercent = 0
-    attackDamage = 0  # Map suggestion overlay
-    attackSpeed = 0  # Map suggestion overlay
+    attackDamage = 0  
+    attackSpeed = 0  
     bonusArmorPenPercent = 0
     bonusMagicPenPercent = 0
     ccReduction = 0
     cooldownReduction = 0
-    health = 0  # Map suggestion overlay
-    healthMax = 0  # Map suggestion overlay
-    healthRegen = 0  # Map suggestion overlay
+    health = 0  
+    healthMax = 0  
+    healthRegen = 0  
     lifesteal = 0
     magicPen = 0
     MagicPenPercent = 0
@@ -133,25 +133,25 @@ class damageStatsObj:
     totalDamageDone = 0
     totalDamageDoneToChampions = 0
     totalDamageTaken = 0
-    trueDamageDone = 0  # Map suggestion overlay
-    trueDamageDoneToChampions = 0  # Map suggestion overlay
-    trueDamageTaken = 0  # Map suggestion overlay
+    trueDamageDone = 0  
+    trueDamageDoneToChampions = 0 
+    trueDamageTaken = 0  
 
 
 # MatchTimeObj.info.[frames].participantFrames.{all vars}
 class playerFrameObj:
-    championStats = ChampionStatsObj  # Map suggestion overlay
+    championStats = ChampionStatsObj  
     currentGold = 0
-    damageStats = damageStatsObj  # Map suggestion overlay
-    goldPerSecond = 0  # Map suggestion overlay
+    damageStats = damageStatsObj  
+    goldPerSecond = 0  
     jungleMinionsKilled = 0
-    level = 0  # Map suggestion overlay
+    level = 0  
     minionsKilled = 0
     participantId = 0
-    position = PositionObj  # Map replay
+    position = PositionObj  
     timeEnemySpentControlled = 0
     totalGold = 0
-    xp = 0  # Map suggestion overlay
+    xp = 0  
 
     def append_mapSuggest(self):
         info = []
@@ -192,9 +192,9 @@ class PartFramesObj:  # Map replay takes first the info of the player themselves
 
 # MatchTimeObj.info.[frames]
 class FrameObj:
-    events = [EventObj]  # Map timeline info
-    participantFrames = PartFramesObj  # Map replay #Map suggestion overlay
-    timestamp = 0  # Map replay #Map suggestion overlay
+    events = [EventObj]  
+    participantFrames = PartFramesObj  
+    timestamp = 0  
 
 
 # MatchTimeObj.info.[participants]
@@ -206,8 +206,8 @@ class MT_ParticipantObj:
 # MatchTimeObj.info
 class MT_InfoObj:
     endOfGameResult = ""
-    frameInterval = 0  # Map replay #Map suggestion overlay
-    frames = [FrameObj]  # Map replay #Map suggestion overlay
+    frameInterval = 0  
+    frames = [FrameObj]  
     gameId = 0
     participants = [MT_ParticipantObj]
 
@@ -224,14 +224,14 @@ class MatchTimeObj:
 
 
 # MatchDataObj.info.[participants].perks.statPerks
-class PerkStatObj:  # general data
+class PerkStatObj:  
     defence = 0
     flex = 0
     offense = 0
 
 
 # MatchDataObj.info.[participants].perks.[styles].[selections]
-class PerkStyleSelectObj:  # general data
+class PerkStyleSelectObj:  
     perk = 0
     var1 = 0
     var2 = 0
@@ -239,14 +239,14 @@ class PerkStyleSelectObj:  # general data
 
 
 # MatchDataObj.info.[participants].perks.[styles]
-class PerkStyleObj:  # general data
+class PerkStyleObj:  
     description = ""
     selections = [PerkStyleSelectObj]
     style = 0
 
 
 # MatchDataObj.info.[participants].perks
-class PerkObj:  # general data
+class PerkObj:  
     statPerks = PerkStatObj
     styles = [PerkStyleObj]
 
@@ -269,18 +269,18 @@ class MissionObj:
 
 
 # MatchDataObj.info.[participants].challenges
-class ChallengesObj:  # Match data
+class ChallengesObj:  
     _12AssistStreakCount = 0
     baronBuffGoldAdvantageOverThreshold = 0
     controlWardTimeCoverageInRiverOrEnemyHalf = 0.0
-    earliestBaron = 0 # Match data
-    earliestDragonTakedown = 0 # Match data
-    earliestElderDragon = 0 # Match data
+    earliestBaron = 0 
+    earliestDragonTakedown = 0 
+    earliestElderDragon = 0 
     earlyLaningPhaseGoldExpAdvantage = 0
     fasterSupportQuestCompletion = 0
-    fastestLegendary = 0 # Match data
-    hadAfkTeammate = 0 # Match data
-    highestChampionDamage = 0 # Match data
+    fastestLegendary = 0 
+    hadAfkTeammate = 0 
+    highestChampionDamage = 0 
     highestCrowdControlScore = 0
     highestWardKills = 0
     junglerKillsEarlyJungle = 0
@@ -293,57 +293,57 @@ class ChallengesObj:  # Match data
     mythicItemUsed = 0
     playedChampSelectPosition = 0
     soloTurretsLategame = 0
-    takedownsFirst25Minutes = 0 # Match data
-    teleportTakedowns = 0 # Match data
-    thirdInhibitorDestroyedTime = 0 # Match data
+    takedownsFirst25Minutes = 0 
+    teleportTakedowns = 0 
+    thirdInhibitorDestroyedTime = 0 
     threeWardsOneSweeperCount = 0
     visionScoreAdvantageLaneOpponent = 0.0
     InfernalScalePickup = 0
-    fistBumpParticipation = 0 # Match data #for funzies
+    fistBumpParticipation = 0 
     voidMonsterKill = 0
     abilityUses = 0
     acesBefore15Minutes = 0
     alliedJungleMonsterKills = 0.0
-    baronTakedowns = 0 # Match data
+    baronTakedowns = 0 
     blastConeOppositeOpponentCount = 0
-    bountyGold = 0 # Match data
+    bountyGold = 0 
     buffsStolen = 0
     completeSupportQuestInTime = 0
     controlWardsPlaced = 0
-    damagePerMinute = 0 # Match data
+    damagePerMinute = 0 
     damageTakenOnTeamPercentage = 0
     dancedWithRiftHerald = 0
-    deathsByEnemyChamps = 0 # Match data
+    deathsByEnemyChamps = 0 
     dodgeSkillShotsSmallWindow = 0
     doubleAces = 0
     dragonTakedowns = 0
     legendaryItemUsed = [0]
     effectiveHealAndShielding = 0.0
-    elderDragonKillsWithOpposingSoul = 0 # Match data
-    elderDragonMultikills = 0 # Match data
+    elderDragonKillsWithOpposingSoul = 0 
+    elderDragonMultikills = 0 
     enemyChampionImmobilizations = 0
-    enemyJungleMonsterKills = 0.0 # Match data
+    enemyJungleMonsterKills = 0.0 
     epicMonsterKillsNearEnemyJungler = 0
     epicMonsterKillsWithin30SecondsOfSpawn = 0
     epicMonsterSteals = 0
     epicMonsterStolenWithoutSmite = 0
-    firstTurretKilled = 0 # Match data
-    firstTurretKilledTime = 0.0 # Match data
+    firstTurretKilled = 0 
+    firstTurretKilledTime = 0.0 
     flawlessAces = 0
     fullTeamTakedown = 0
-    gameLength = 0.0 # Match data
+    gameLength = 0.0 
     getTakedownsInAllLanesEarlyJungleAsLaner = 0
-    goldPerMinute = 0.0 # Match data # Profile data
+    goldPerMinute = 0.0 
     hadOpenNexus = 0
     immobilizeAndKillWithAlly = 0
     initialBuffCount = 0
     initialCrabCount = 0
     jungleCsBefore10Minutes = 0.0
     junglerTakedownsNearDamagedEpicMonster = 0
-    kda = 0.0 # Match data # Profile data
+    kda = 0.0 
     killAfterHiddenWithAlly = 0
     killedChampTookFullTeamDamageSurvived = 0
-    killingSprees = 0 # Match data
+    killingSprees = 0 
     killParticipation = 0.0
     killsNearEnemyTurret = 0
     killsOnOtherLanesEarlyJungleAsLaner = 0
@@ -354,7 +354,7 @@ class ChallengesObj:  # Match data
     kTurretsDestroyedBeforePlatesFall = 0
     landSkillShotsEarlyGame = 0
     laneMinionsFirst10Minutes = 0
-    lostAnInhibitor = 0 # Match data
+    lostAnInhibitor = 0 
     maxKillDeficit = 0
     mejaisFullStackInTime = 0
     moreEnemyJungleThanOpponent = 0.0
@@ -365,56 +365,56 @@ class ChallengesObj:  # Match data
     outerTurretExecutesBefore10Minutes = 0
     outnumberedKills = 0
     outnumberedNexusKill = 0
-    perfectDragonSoulsTaken = 0 # Match data
+    perfectDragonSoulsTaken = 0 
     perfectGame = 0
     pickKillWithAlly = 0
     poroExplosions = 0
     quickCleanse = 0
-    quickFirstTurret = 0 # Match data
-    quickSoloKills = 0 # Match data
+    quickFirstTurret = 0 
+    quickSoloKills = 0 
     riftHeraldTakedowns = 0
     saveAllyFromDeath = 0
-    scuttleCrabKills = 0 # Match data
+    scuttleCrabKills = 0 
     shortestTimeToAceFromFirstTakedown = 0.0
     skillshotsDodged = 0
     skillshotsHit = 0
     snowballsHit = 0
-    soloBaronKills = 0 # Match data
-    SWARM_DefeatAatrox = 0 # Match data
-    SWARM_DefeatBriar = 0 # Match data
-    SWARM_DefeatMiniBosses = 0 # Match data
-    SWARM_EvolveWeapon = 0 # Match data
-    SWARM_Have3Passives = 0 # Match data
-    SWARM_KillEnemy = 0 # Match data
-    SWARM_PickupGold = 0.0 # Match data
-    SWARM_ReachLevel50 = 0 # Match data
-    SWARM_Survive15Min = 0 # Match data
-    SWARM_WinWith5EvolvedWeapons = 0 # Match data
-    soloKills = 0 # Match data
-    stealthWardsPlaced = 0 # Match data
+    soloBaronKills = 0 
+    SWARM_DefeatAatrox = 0
+    SWARM_DefeatBriar = 0 
+    SWARM_DefeatMiniBosses = 0 
+    SWARM_EvolveWeapon = 0 
+    SWARM_Have3Passives = 0 
+    SWARM_KillEnemy = 0
+    SWARM_PickupGold = 0.0 
+    SWARM_ReachLevel50 = 0 
+    SWARM_Survive15Min = 0 
+    SWARM_WinWith5EvolvedWeapons = 0 
+    soloKills = 0 
+    stealthWardsPlaced = 0 
     survivedSingleDigitHpCount = 0
     survivedThreeImmobilizesInFight = 0
     takedownOnFirstTurret = 0
-    takedowns = 0 # Match data
+    takedowns = 0 
     takedownsAfterGainingLevelAdvantage = 0
     takedownsBeforeJungleMinionSpawn = 0
     takedownsFirstXMinutes = 0
     takedownsInAlcove = 0
     takedownsInEnemyFountain = 0
-    teamBaronKills = 0 # Match data
+    teamBaronKills = 0 
     teamDamagePercentage = 0.0
-    teamElderDragonKills = 0 # Match data
-    teamRiftHeraldKills = 0 # Match data
+    teamElderDragonKills = 0 
+    teamRiftHeraldKills = 0 
     tookLargeDamageSurvived = 0
     turretPlatesTaken = 0
     turretsTakenWithRiftHerald = 0
     turretTakedowns = 0
     twentyMinionsIn3SecondsCount = 0
     twoWardsOneSweeperCount = 0
-    unseenRecalls = 0 # Match data
-    visionScorePerMinute = 0.0 # Match data
+    unseenRecalls = 0 
+    visionScorePerMinute = 0.0 
     wardsGuarded = 0
-    wardTakedowns = 0 # Match data
+    wardTakedowns = 0 
     wardTakedownsBefore20M = 0
     def append_matchData(self):
         info = []
@@ -475,36 +475,36 @@ class M_ParticipantObj:
     assists = 0
     baronKills = 0
     bountyLevel = 0
-    champExperience = 0  # Profile data #Match data
-    champLevel = 0  # Profile data #Match data
+    champExperience = 0  
+    champLevel = 0  
     championId = 0
-    championName = ""  # Match data
+    championName = ""  
     commandPings = 0
     championTransform = 0
     consumablesPurchased = 0
-    challenges = ChallengesObj  # Profile data # Match data
+    challenges = ChallengesObj  
     damageDealtToBuildings = 0
     damageDealtToBjectives = 0
     damageDealtToTurrets = 0
     damageSelfMitigated = 0
-    deaths = 0  # Profile data
+    deaths = 0  
     detectorWardsPlaced = 0
-    doubleKills = 0  # Profile data
+    doubleKills = 0  
     dragonKills = 0
     eligibleForProgression = True
     enemyMissingPings = 0
     enemyVisionPings = 0
-    firstBloodAssist = True  # Match data
-    firstBloodKill = True  # Match data
-    firstTowerAssist = True  # Match data
-    firstTowerKill = True  # Match data
-    gameEndedInEarlySurrender = True  # Match data
-    gameEndedInSurrender = True  # Match data
+    firstBloodAssist = True 
+    firstBloodKill = True  
+    firstTowerAssist = True  
+    firstTowerKill = True  
+    gameEndedInEarlySurrender = True  
+    gameEndedInSurrender = True  
     holdPings = 0
     getBackPings = 0
-    goldEarned = 0  # Match data
+    goldEarned = 0  
     goldSpent = 0
-    individualPosition = ""  # recommended to use teamPosistion rather
+    individualPosition = ""  
     inhibitorKills = 0
     inhibitorTakedowns = 0
     inhibitorsLost = 0
@@ -515,18 +515,18 @@ class M_ParticipantObj:
     item4 = 0
     item5 = 0
     item6 = 0
-    itemsPurchased = 0  # Match data
-    killingSprees = 0  # Profile data
+    itemsPurchased = 0  
+    killingSprees = 0  
     kills = 0
-    lane = ""  # Match data
+    lane = ""  
     largestCriticalStrike = 0
-    largestKillingSpree = 0  # Profile data
-    largestMultiKill = 0  # Profile data
+    largestKillingSpree = 0  
+    largestMultiKill = 0  
     logestTimeSpentLiving = 0
     magicDamageDealt = 0
     magicDamageDealtToChampions = 0
     magicDamageTaken = 0
-    mission = MissionObj  # Match data
+    mission = MissionObj  
     neutralMinionsKilled = 0
     needVisionPings = 0
     nexusKills = 0
@@ -536,19 +536,19 @@ class M_ParticipantObj:
     objectivesStolenAssists = 0
     onMyWayPings = 0
     participantId = 0
-    playerScore0 = 0  # Profile data
-    playerScore1 = 0  # Profile data
-    playerScore2 = 0  # Profile data
-    playerScore3 = 0  # Profile data
-    playerScore4 = 0  # Profile data
-    playerScore5 = 0  # Profile data
-    playerScore6 = 0  # Profile data
-    playerScore7 = 0  # Profile data
-    playerScore8 = 0  # Profile data
-    playerScore9 = 0  # Profile data
-    playerScore10 = 0  # Profile data
-    playerScore11 = 0  # Profile data
-    pentakills = 0  # Profile data
+    playerScore0 = 0  
+    playerScore1 = 0  
+    playerScore2 = 0  
+    playerScore3 = 0  
+    playerScore4 = 0  
+    playerScore5 = 0  
+    playerScore6 = 0  
+    playerScore7 = 0  
+    playerScore8 = 0  
+    playerScore9 = 0  
+    playerScore10 = 0  
+    playerScore11 = 0  
+    pentakills = 0  
     perks = PerkObj
     physicalDamageDealt = 0
     physicalDamageDealtToChampions = 0
@@ -561,10 +561,10 @@ class M_ParticipantObj:
     playerSubteamId = 0
     pushPings = 0
     profileIcon = 0
-    puuid = ""  # Profile data
-    quadrakills = 0  # Profile data
-    riotIdGameName = ""  # Profile data
-    riodItTagline = ""  # Profile data
+    puuid = ""  
+    quadrakills = 0  
+    riotIdGameName = ""  
+    riodItTagline = ""  
     role = ""
     sightWardsBoughtInGame = 0
     spell1Casts = 0
@@ -579,11 +579,11 @@ class M_ParticipantObj:
     summonerId = 0
     summonerLevel = 0
     summonerName = ""
-    teamEarlySurrender = ""  # Match data
-    teamId = 0  # Match data
-    teamPosition = ""  # Match data
+    teamEarlySurrender = ""  
+    teamId = 0  
+    teamPosition = ""  
     timeCCingOthers = 0
-    timePlayed = 0  # Profile data
+    timePlayed = 0  
     totalAllyJongleMinionsKilled = 0
     totalDamageDealt = 0
     totalDamageDealtToChampions = 0
@@ -596,15 +596,15 @@ class M_ParticipantObj:
     totalTimeCCDealt = 0
     totolTimeSpentDead = 0
     totalUnitsHealed = 0
-    tripleKills = 0  # Profile data
+    tripleKills = 0  
     trueDamageDealt = 0
     trueDamageDealtToChampions = 0
     trueDamageTaken = 0
     turretKills = 0
     turretTakedowns = 0
     turretsLost = 0
-    unrealKills = 0  # Profile data
-    visionScore = 0  # Match data
+    unrealKills = 0  
+    visionScore = 0  
     visionClearedPings = 0
     visionWardsBoughtInGame = 0
     wardsKilled = 0
@@ -646,19 +646,19 @@ class M_ParticipantObj:
 
 
 # MatchDataObj.info.[teams].[bans]
-class BanObj:  # Match data
+class BanObj:  
     championId = 0
     pickTurn = 0
 
 
 # MatchDataObj.info.[teams].objectives.{all variables}
-class ObjectiveObj:  # Match data
+class ObjectiveObj:  
     first = True
     kills = 0
 
 
 # MatchDataObj.info.[teams].objectives
-class ObjectiveMultiObj:  # Match data
+class ObjectiveMultiObj: 
     baron = ObjectiveObj
     champion = ObjectiveObj
     dragon = ObjectiveObj
@@ -669,7 +669,7 @@ class ObjectiveMultiObj:  # Match data
 
 
 # MatchDataObj.info.[teams]
-class TeamObj:  # Match data
+class TeamObj: 
     bans = [BanObj]
     objectives = ObjectiveMultiObj
     teamId = 0
@@ -701,21 +701,21 @@ class TeamObj:  # Match data
 
 # MatchDataObj.info
 class M_InfoObj:
-    endOfGameResult = ""  # Profile data #Match data #Map suggestion overlay
+    endOfGameResult = ""  
     gameCreation = 0
-    gameDuration = 0  # Profile data #Match data
+    gameDuration = 0  
     gameEndTimeStamp = 0  
     gameId = 0
-    gameMode = ""  # Match data
-    gameName = ""  # Match data
+    gameMode = ""  
+    gameName = ""  
     gameStartTimestamp = 0 
     gameType = ""
     gameVersion = ""
-    mapId = 0  # Match data
-    participants = [M_ParticipantObj]  # Match data
-    platformId = ""  # Match data
+    mapId = 0  
+    participants = [M_ParticipantObj]  
+    platformId = ""  
     queueId = 0
-    teams = [TeamObj]  # Match data
+    teams = [TeamObj]  
     tournamentCode = ""
 
 

@@ -8,16 +8,16 @@ from aiolimiter import AsyncLimiter
 ###############################################################################
 # 1. CONFIGURATION - EDIT THESE VALUES
 ###############################################################################
-RIOT_API_KEY = "RGAPI-733ac11a-9c78-4598-8e79-80488d30d5c5" # https://developer.riotgames.com/
+RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 2000         # Every how many rows we create a NEW CSV file
+CHUNK_SIZE = 20000         # Every how many rows we create a NEW CSV file
 MAX_ROWS = 200      # How many total rows we want to fetch
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
-INITIAL_PUUID = "4-GEPC9UQbnSCPrA5KWpvs0SahgJcHWvnS49oF2cCwTASobXIxl85MtL_wK7JWxkkQOyvy_DF-RWRQ" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
+INITIAL_PUUID = "bsuc47FJnJ3F_C6HcVbrmr7y3T7Vl6wMksDoiC9M0hyUJHcFsHk0se5DnwutWJ0QXhWynFcD2-2kig" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
 
 # Asynchronous limit to ~15 RPS (avoid console spam and hitting rate limits)
 RATE_LIMIT = AsyncLimiter(15, 1.0)
@@ -149,67 +149,91 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
         framesList = timeInfo.get("frames", [])
 
         for frames in framesList:
+            extra = frames.get("participantFrames")
             match pId:
                 case 1: 
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("1")
+                    num = 1
                 case 2:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("2")
+                    num = 2
                 case 3:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("3")
+                    num = 3
                 case 4:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("4")
+                    num = 4
                 case 5:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("5")
+                    num = 5
                 case 6:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("6")
+                    num = 6
                 case 7:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("7")
+                    num = 7
                 case 8:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("8")
+                    num = 8
                 case 9:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("9")
+                    num = 9
                 case 10:
-                    extra = frames.get("participantFrames")
                     partFrame = extra.get("10")
+                    num = 10
 
             pos = partFrame.get("position")
             champStats = partFrame.get("championStats")
-            damStats = partFrame.get("damageStats")
             
             row_data = {
                 "endOfGameResult" : timeInfo.get("endOfGameResult"),
+                "teamPosition" : part.get("teamPosition"),
+                "lane" : part.get("lane"),
+                "x" : pos.get("x"),
+                "y" : pos.get("y"),
                 "frameInterval" : timeInfo.get("frameInterval"),
                 "timestamp" : frames.get("timestamp"),
                 "armor" : champStats.get("armor"),
                 "attackDamage" : champStats.get("attackDamage"),
-                "attackSpeed" : champStats.get("attackSpeed"),
                 "health" : champStats.get("health"),
-                "healthMax" : champStats.get("healthMax"),
-                "healthRegen" : champStats.get("healthRegen"),
-                "trueDamageDone" : damStats.get("trueDamageDone"),
-                "trueDamageDoneToChampions" : damStats.get("trueDamageDoneToChampions"),
-                "trueDamageTaken" : damStats.get("trueDamageTaken"),
-                "goldPerSecond" : partFrame.get("goldPerSecond"),
                 "level" : partFrame.get("level"),
                 "xp" :  partFrame.get("xp"),
-                "x" : pos.get("x"),
-                "y" : pos.get("y"),
-                "teamPosition" : part.get("teamPosition"),
-                "lane" : part.get("lane"),
-                "championId" : part.get("championId")
-                }
+                "championId" : part.get("championId"),
+                "healthMax" : champStats.get("healthMax"),
+                "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
+                "movementSpeed" : champStats.get("movementSpeed"),
+            }
+
+            c = 0
+            for i in range(1,11):
+                if i != num:
+                    p = extra.get(str(i))
+                    pos = p.get("position")
+                    addPos = {
+                        "x"+str(c) : pos.get("x"),
+                        "y"+str(c) : pos.get("y")
+                    }
+                    row_data.update(addPos)
+                    c = c + 1
+
             rows.append(row_data)
 
+#events
+
     return rows
+
+###############################################################################
+# 7. VARIABLES NOT GOOD FOR OPTIMIZATION
+###############################################################################
+
+                #"healthRegen" : champStats.get("healthRegen"),
+                #"trueDamageDone" : damStats.get("trueDamageDone"),
+                #"trueDamageDoneToChampions" : damStats.get("trueDamageDoneToChampions"),
+                #"trueDamageTaken" : damStats.get("trueDamageTaken"),
+                #"goldPerSecond" : partFrame.get("goldPerSecond"),
+                #"attackSpeed" : champStats.get("attackSpeed"),
+                #"abilityHaste" : champStats.get("abilityHaste"),
+                #"power" : champStats.get("power"),
 
 ###############################################################################
 # 7. SAVING IN CHUNKS AND REMOVING THE PREVIOUS FILE
@@ -223,7 +247,7 @@ def save_chunk_to_csv(all_data, total_rows):
         return
 
     row_count = len(all_data)
-    filename = f"new_league_data_{total_rows}.csv"
+    filename = f"test.csv"
     keys = all_data[0].keys()
 
     with open(filename, "w", newline="", encoding="utf-8") as f:
@@ -235,7 +259,7 @@ def save_chunk_to_csv(all_data, total_rows):
 
     prev_count = total_rows - CHUNK_SIZE
     if prev_count > 0:
-        prev_filename = f"new_league_data_{prev_count}.csv"
+        prev_filename = f"test.csv"
         if os.path.exists(prev_filename):
             os.remove(prev_filename)
             print(f"Removed previous file: {prev_filename}")

@@ -26,24 +26,43 @@ def formatTrainTestData(data):
     dataArr = []
     X = []
     r, c, cPos = (-1, 0, 0)
+    rCount = 0
     for row in data:
+        if rCount == 0:
+            rCount = rCount + 1
+            continue
         #add logic to convert everything to int
+        for j in range(len(row)):
+            if any(char.isdigit() for char in row[j]):
+                row[j] = int(row[j])  
         row[0] = 1
-        val = row[17]
+        val = row[1]
         match val:
             case 'TOP':
-                row[17] = 1
+                row[1] = 1
             case 'JUNGLE':
-                row[17] = 2
+                row[1] = 2
             case 'MIDDLE':
-                row[17] = 3
+                row[1] = 3
             case 'BOTTOM':
-                row[17] = 4
+                row[1] = 4
             case 'UTILITY':
-                row[17] = 5
-        row[18] = 0
+                row[1] = 5
+        val = row[2]
+        match val:
+            case 'TOP':
+                row[2] = 1
+            case 'MIDDLE':
+                row[2] = 2
+            case 'BOTTOM':
+                row[2] = 3
+            case 'JUNGLE':
+                row[2] = 4
+            case 'NONE':
+                row[2] = 0  
         for j in range(len(row)):
-            row[j] = int(row[j])     
+            if not isinstance(row[j], int):
+                row[j] = 0 
         dataArr.append([])
         X.append([])
         r = r + 1
@@ -51,7 +70,7 @@ def formatTrainTestData(data):
         #add row items to array
         for i in row:
             #x coord = pos 15 y coord = pos 16
-            if c == 15 or c == 16:
+            if c == 3 or c == 4:
                 X[r].append(i)
             else:
                 dataArr[r].append(i)
@@ -72,7 +91,7 @@ def getTrainTestDataKNN(fileName):
     #return train,test
     return X_train, X_test, y_train, y_test
 
-#x1, x2, y1, y2 = getTrainTestDataKNN("backend/app/pred_engine/MatchDataCollector/test.csv")
+#x1, x2, y1, y2 = getTrainTestDataKNN("test.csv")
 
 #print(x1)
 #print(x2)
