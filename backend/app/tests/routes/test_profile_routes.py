@@ -7,6 +7,7 @@ from app.main import app
 from typing import Any
 from app.api.auth import get_current_user
 
+
 @pytest.mark.anyio
 class TestProfileRoutes:
     """Test suite for /api/profile endpoints."""
@@ -22,7 +23,9 @@ class TestProfileRoutes:
 
     @patch("app.services.profile_services.ProfileService.get_or_create_profile")
     @patch("app.services.profile_services.ProfileService.build_player_summary")
-    async def test_get_profile_success(self, mock_summary: MagicMock, mock_get_profile: MagicMock, client: TestClient):
+    async def test_get_profile_success(
+        self, mock_summary: MagicMock, mock_get_profile: MagicMock, client: TestClient
+    ):
         """Test GET /api/profile returns 200 and profile data."""
         # Mock auth to return a fake user ID
         mock_auth_id = "test-uuid-123"
@@ -53,7 +56,9 @@ class TestProfileRoutes:
 
     @patch("app.services.profile_services.ProfileService.create_profile")
     @patch("app.services.profile_services.ProfileService.build_player_summary")
-    async def test_create_profile_success(self, mock_summary: MagicMock, mock_create: MagicMock, client: TestClient):
+    async def test_create_profile_success(
+        self, mock_summary: MagicMock, mock_create: MagicMock, client: TestClient
+    ):
         """Test POST /api/profile success."""
         mock_profile = MagicMock()
         mock_profile.user_id = "test-uuid-123"
@@ -78,7 +83,9 @@ class TestProfileRoutes:
         assert response.json()["username"] == "NewUser"
 
     @patch("app.services.profile_services.ProfileService.schedule_account_deletion")
-    async def test_delete_profile_success(self, mock_schedule: MagicMock, client: TestClient):
+    async def test_delete_profile_success(
+        self, mock_schedule: MagicMock, client: TestClient
+    ):
         """Test DELETE /api/profile success."""
         mock_schedule.return_value = datetime.now(timezone.utc) + timedelta(days=30)
 
@@ -97,7 +104,9 @@ class TestProfileRoutes:
         assert response.status_code == status.HTTP_200_OK
 
     @patch("app.services.profile_services.ProfileService.undo_account_deletion")
-    async def test_undo_delete_not_found(self, mock_undo: MagicMock, client: TestClient):
+    async def test_undo_delete_not_found(
+        self, mock_undo: MagicMock, client: TestClient
+    ):
         """Test POST /api/profile/undo-delete failure when not marked."""
         mock_undo.return_value = False
 

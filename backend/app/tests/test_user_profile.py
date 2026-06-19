@@ -48,7 +48,7 @@ def test_upload_and_delete_avatar(db_client: TestClient):
         b"\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
     )
 
-    files: dict[str, Any]={"file": ("avatar.png", BytesIO(png_bytes), "image/png")}
+    files: dict[str, Any] = {"file": ("avatar.png", BytesIO(png_bytes), "image/png")}
 
     upload = client.post(
         "/api/v1/users/me/avatar",
