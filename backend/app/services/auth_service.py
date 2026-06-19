@@ -12,7 +12,6 @@ from collections.abc import Mapping
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-
 settings = get_settings()
 
 # Initialize the Cognito Client

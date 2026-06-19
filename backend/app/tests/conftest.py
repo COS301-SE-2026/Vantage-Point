@@ -5,10 +5,18 @@ This setup uses simple mocks instead of database connections,
 allowing tests to run while the database is still being set up.
 """
 
-import pytest
-from fastapi.testclient import TestClient
-from unittest.mock import MagicMock, AsyncMock
-from app.main import app
+pytest_plugins = ["app.tests.postgres_fixtures"]
+
+import os  # noqa: E402
+
+from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E402
+
+os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from unittest.mock import MagicMock, AsyncMock  # noqa: E402
+from app.main import app  # noqa: E402
 
 
 @pytest.fixture(scope="function")
@@ -27,11 +35,12 @@ def test_user_data():
     Provide sample user data for testing user-related endpoints.
 
     Returns:
-        dict: User data with username, email
+        dict: User data with display_name, email, password
     """
     return {
-        "username": "testuser",
+        "display_name": "testuser",
         "email": "test@example.com",
+        "password": TEST_USER_PASSWORD,
     }
 
 
@@ -41,13 +50,14 @@ def test_user_response():
     Provide sample user response data (as returned from the API).
 
     Returns:
-        dict: User response with id, username, email, and timestamp
+        dict: User profile fields from GET /api/v1/users/me
     """
     return {
-        "id": 1,
-        "username": "testuser",
+        "id": "00000000-0000-4000-8000-000000000099",
         "email": "test@example.com",
-        "created_at": "2024-01-15T10:30:00Z",
+        "display_name": "testuser",
+        "riot_id_tag": None,
+        "has_linked_riot": False,
     }
 
 

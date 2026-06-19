@@ -1,23 +1,27 @@
-import os
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 from typing import Any, Dict
+
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
+
+from app.api.middleware import ProcessTimeMiddleware
+from app.api.routes import router
+from app.database.models import GameAccounts
+from app.database.session import async_session_maker, init_db
+from app.schemas.generic_schemas import get_error_reason
+from app.services.riot_api import get_puuid_by_riot_id
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
 
 # (Make sure riot_api.py is in backend/app/services/)
 # (make sure models.py is in backend/app/database/ )
-from app.config import get_settings
-from app.api.routes import router
-from app.api.middleware import ProcessTimeMiddleware
-from app.schemas.generic_schemas import get_error_reason
 
 load_dotenv()
 
@@ -30,7 +34,16 @@ load_dotenv()
 
 # limiter = Limiter(key_func=get_remote_address)
 
-settings = get_settings()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        await init_db()
+    except Exception as exc:
+        print(f"Database initialization skipped: {exc}")
+    yield
+
+
 app = FastAPI(
     title="Vantage Point Backend",
     description=(
@@ -38,19 +51,8 @@ app = FastAPI(
         "intelligence features."
     ),
     version="0.1.0",
+    lifespan=lifespan,
 )
-
-# Get the URL from the docker-compose environment variable
-# points to the db service not localhost hopfully, this should only work inside the container.
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    print(
-        "DATABASE_URL not set. Using default local Postgres URL for development/ Testing."
-    )
-    DATABASE_URL = (
-        "postgresql+asyncpg://postgres:password@localhost:5432/vantage_point_db"
-    )
-engine = create_async_engine(DATABASE_URL)
 
 # app.state.limiter = limiter
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -60,7 +62,7 @@ engine = create_async_engine(DATABASE_URL)
 # 3000 = React default, 5173 = Vite default.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins,
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -155,3 +157,39 @@ async def health() -> HealthResponse:
 async def test_endpoint(data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"Test endpoint called with data: {data}")
     return {"received": data, "message": "Test successful"}
+
+
+# below is not really so self explanatory so i just added comments to the code to explain the steps.
+# let me know if you want me to add more comments or if you have any questions about the code!
+# Neo
+@app.post("/summoners/register")
+async def register_summoner(game_name: str, tag_line: str):
+    # 1. Get PUUID from Riot Service; Gets name + tag
+    puuid = await get_puuid_by_riot_id(game_name, tag_line)
+    if not puuid:
+        return {"error": "Could not find player on Riot servers."}
+
+    # 2. Save to Database; should only do so if this player is not in the DB already
+    async with async_session_maker() as session:
+        statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
+        result = await session.execute(statement)
+        existing_account = result.scalar_one_or_none()
+
+        # adding this check just to be safe and security even if no exist is already below it
+        if existing_account:
+            return {"message": "Summoner already in database."}
+
+        new_account = GameAccounts(
+            puuid=puuid,
+            game="league_of_legends",
+            game_name=game_name,
+            tag_line=tag_line,
+            summoner_level=0,
+        )
+        session.add(new_account)
+        await session.commit()
+
+    return {
+        "message": f"Successfully registered {game_name}#{tag_line}",
+        "puuid": puuid,
+    }
