@@ -248,7 +248,7 @@ class TestLoginUser:
         Real login_user() executes and handles error.
         """     
         def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
-            raise make_client_error("NotAuthorizedException0", "Incorrect username or password", "initiate_auth", 401)
+            raise make_client_error("NotAuthorizedException", "Incorrect username or password", "initiate_auth", 401)
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -333,7 +333,7 @@ class TestLogoutUser:
         Real logout_user() executes and handles error.
         """      
         def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
-            raise make_client_error("NotAuthorizedExcepton", "Invalid Access Token", "global_sign_out")
+            raise make_client_error("NotAuthorizedException", "Invalid Access Token", "global_sign_out")
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
