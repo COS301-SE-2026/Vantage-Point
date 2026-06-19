@@ -5,7 +5,7 @@ This setup uses simple mocks instead of database connections,
 allowing tests to run while the database is still being set up.
 """
 
-pytest_plugins = ["app.tests.postgres_fixtures"]
+# pytest_plugins = ["app.tests.postgres_fixtures"]
 
 import os  # noqa: E402
 

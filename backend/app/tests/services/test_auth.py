@@ -164,7 +164,7 @@ class TestHandleCognitoError:
 
         assert exc_info.value.status_code == 400
 
-
+@pytest.mark.anyio
 class TestRegisterUser:
     """Test suite for user registration.
 
@@ -208,6 +208,7 @@ class TestRegisterUser:
         assert exc_info.value.status_code == 400
 
 
+@pytest.mark.anyio
 class TestLoginUser:
     """Test suite for user login.
 
@@ -258,6 +259,7 @@ class TestLoginUser:
         assert exc_info.value.status_code == 401
 
 
+@pytest.mark.anyio
 class TestConfirmUser:
     """Test suite for user confirmation.
 
@@ -298,6 +300,7 @@ class TestConfirmUser:
             await confirm_user("testuser", "000000")
 
 
+@pytest.mark.anyio
 class TestLogoutUser:
     """Test suite for user logout.
 
@@ -341,6 +344,7 @@ class TestLogoutUser:
         assert exc_info.value.status_code == 401
 
 
+@pytest.mark.anyio
 class TestRevokeRefreshToken:
     """Test suite for refresh token revocation.
 
