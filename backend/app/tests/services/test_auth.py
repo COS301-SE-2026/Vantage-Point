@@ -174,7 +174,7 @@ class TestRegisterUser:
 
     @patch("app.services.auth_service.client")
     @patch("app.services.auth_service.log_registration")
-    async def test_register_user_success(self, mock_log, mock_client):
+    async def test_register_user_success(self, _mock_log: Any, mock_client: MagicMock):
         """Test successful user registration.
 
         Real register_user() executes with mocked Cognito client.
@@ -191,7 +191,7 @@ class TestRegisterUser:
         mock_client.sign_up.assert_called_once()
 
     @patch("app.services.auth_service.client")
-    async def test_register_user_cognito_error(self, mock_client):
+    async def test_register_user_cognito_error(self, mock_client: MagicMock):
         """Test registration failure with Cognito error.
 
         Real register_user() executes and handles errors.
@@ -216,7 +216,7 @@ class TestLoginUser:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_login_user_success(self, mock_to_thread):
+    async def test_login_user_success(self, mock_to_thread: MagicMock):
         """Test successful user login.
 
         Real login_user() executes.
@@ -229,7 +229,7 @@ class TestLoginUser:
             }
         }
 
-        def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
             return mock_response
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -241,12 +241,12 @@ class TestLoginUser:
         assert result["AccessToken"] == "access_token_123"
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_login_user_invalid_credentials(self, mock_to_thread):
+    async def test_login_user_invalid_credentials(self, mock_to_thread: MagicMock):
         """Test login failure with invalid credentials.
 
         Real login_user() executes and handles error.
         """     
-        def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
             raise make_client_error("NotAuthorizedException0", "Incorrect username or password", "initiate_auth", 401)
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -266,14 +266,14 @@ class TestConfirmUser:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_confirm_user_success(self, mock_to_thread):
+    async def test_confirm_user_success(self, mock_to_thread: MagicMock):
         """Test successful user confirmation.
 
         Real confirm_user() executes.
         """
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            return {}
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            return {""}
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -283,12 +283,12 @@ class TestConfirmUser:
         assert result == {"status": "success"}
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_confirm_user_invalid_code(self, mock_to_thread):
+    async def test_confirm_user_invalid_code(self, mock_to_thread: MagicMock):
         """Test confirmation failure with invalid code.
 
         Real confirm_user() executes and handles error.
         """       
-        def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
             raise make_client_error("InvalidParamaterException", "Invalid verification code", "confirm_sign_up")
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -306,14 +306,14 @@ class TestLogoutUser:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_logout_user_success(self, mock_to_thread):
+    async def test_logout_user_success(self, mock_to_thread: MagicMock):
         """Test successful user logout.
 
         Real logout_user() executes.
         """
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            return {}
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            return {""}
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -324,12 +324,12 @@ class TestLogoutUser:
         assert "Logged out" in result["message"]
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_logout_user_invalid_token(self, mock_to_thread):
+    async def test_logout_user_invalid_token(self, mock_to_thread: MagicMock):
         """Test logout failure with invalid token.
 
         Real logout_user() executes and handles error.
         """      
-        def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
             raise make_client_error("NotAuthorizedExcepton", "Invalid Access Token", "global_sign_out")
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -349,14 +349,14 @@ class TestRevokeRefreshToken:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_revoke_refresh_token_success(self, mock_to_thread):
+    async def test_revoke_refresh_token_success(self, mock_to_thread: MagicMock):
         """Test successful refresh token revocation.
 
         Real revoke_refresh_token() executes.
         """
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            return {}
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            return {""}
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -367,12 +367,12 @@ class TestRevokeRefreshToken:
         assert "revoked" in result["message"]
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_revoke_refresh_token_invalid_token(self, mock_to_thread):
+    async def test_revoke_refresh_token_invalid_token(self, mock_to_thread: MagicMock):
         """Test revocation failure with invalid token.
 
         Real revoke_refresh_token() executes and handles error.
         """      
-        def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
             raise make_client_error("InvalidParamaterException", "Invalid refresh token", "revoke_token")
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -393,7 +393,7 @@ class TestAuthEndpoints:
     Tests the actual HTTP endpoints with mocked Cognito backend.
     """
 
-    # @requires_postgres
+    # @pytets.mark.requires_postgres
     # def test_register_login_and_me(self, db_client: TestClient):
     #     """Test registration and login flow."""
     #     email = "auth_test@vantagepoint.dev"
@@ -409,7 +409,7 @@ class TestAuthEndpoints:
     #     )
     #     assert login.status_code == 200
 
-    # @requires_postgres
+    # @pytest.mark.requires_postgres
     # def test_login_wrong_password(self, db_client: TestClient):
     #     """Test login with incorrect password."""
     #     email = "wrong_pass@vantagepoint.dev"
