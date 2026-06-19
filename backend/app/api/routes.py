@@ -4,12 +4,12 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
 from app.services import auth_service
-from app.schemas.auth_schemas import (
+from app.Models.auth_schemas import (
     UserRegister,
     UserLogin,
     UserConfirm,
 )
-from app.schemas.profile_schemas import (
+from app.Models.profile_schemas import (
     MatchSummary,
     MessageResponse,
     ProfileResponse,
@@ -18,13 +18,13 @@ from app.schemas.profile_schemas import (
     ProfileCreateRequest,
     ProfileUpdateRequest,
 )
-from app.schemas.generic_schemas import ErrorResponse
+from app.Models.generic_schemas import ErrorResponse
 from typing import Annotated, Any
 from pydantic import BaseModel, Field
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
-from app.schemas.riot_schemas import SimplifiedMatchResponse
+from app.Models.riot_schemas import SimplifiedMatchResponse
 from app.services.profile_services import ProfileService
 from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import riot_service, filter_match_for_players

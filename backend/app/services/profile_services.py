@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
 from app.database.models import Champions, Participants, UserProfile, GameAccounts
-from app.schemas.profile_schemas import (
+from app.Models.profile_schemas import (
     PlayerSummary,
     ProfileCreateRequest,
     ProfileUpdateRequest,

@@ -13,7 +13,7 @@ from app.database.models import (
     UserFeaturedGames,
     Users,
 )
-from app.schemas.profile import (
+from app.Models.profile import (
     FeaturedGameSlideResponse,
     PlayerAchievementResponse,
     PlayerProfileResponse,

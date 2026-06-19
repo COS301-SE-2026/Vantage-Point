@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.deps import get_current_user
 from app.database.models import Users
 from app.database.session import get_session
-from app.schemas.profile import PlayerProfileResponse
-from app.schemas.user import (
+from app.Models.profile import PlayerProfileResponse
+from app.Models.user import (
     AvatarUploadResponse,
     LinkGameAccountRequest,
     LinkGameAccountResponse,

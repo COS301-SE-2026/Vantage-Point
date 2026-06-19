@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any
-from app.schemas.profile_schemas import LiveAdvancedMetrics
+from app.Models.profile_schemas import LiveAdvancedMetrics
 from app.services.riot_service import riot_service
 
 
@@ -145,3 +145,6 @@ class LiveAnalyticsService:
             avg_gold_per_minute=round(stats["gold"] / duration, 1),
             win_rate=f"{round((stats['wins'] / games) * 100)}%",
         )
+
+    async def map_replay(self, matchId: str) -> Any:
+        

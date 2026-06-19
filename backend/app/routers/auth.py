@@ -8,7 +8,7 @@ from app.auth.jwt import create_access_token, create_refresh_token, verify_refre
 from app.auth.passwords import hash_password, verify_password
 from app.database.models import Users
 from app.database.session import get_session
-from app.schemas.auth import (
+from app.Models.auth import (
     LoginRequest,
     RefreshRequest,
     RegisterRequest,

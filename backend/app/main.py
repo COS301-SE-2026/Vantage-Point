@@ -14,7 +14,7 @@ from app.api.middleware import ProcessTimeMiddleware
 from app.api.routes import router
 from app.database.models import GameAccounts
 from app.database.session import async_session_maker, init_db
-from app.schemas.generic_schemas import get_error_reason
+from app.Models.generic_schemas import get_error_reason
 from app.services.riot_api import get_puuid_by_riot_id
 
 # from typing import List, Optional
