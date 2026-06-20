@@ -146,5 +146,6 @@ class LiveAnalyticsService:
             win_rate=f"{round((stats['wins'] / games) * 100)}%",
         )
 
-    async def map_replay(self, matchId: str) -> Any:
+    async def map_replay(self, match_id: str) -> Any:
+        data: Any = riot_service.get_match_timeline(match_id)
         

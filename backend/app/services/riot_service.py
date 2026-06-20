@@ -204,7 +204,7 @@ class RiotService:
             elif response.status_code == 403:
                 raise HTTPException(
                     status_code=403,
-                    detail=f"Riot API key is invalid or expired."
+                    detail="Riot API key is invalid or expired."
                 )
             elif response.status_code == 404:
                 raise HTTPException(

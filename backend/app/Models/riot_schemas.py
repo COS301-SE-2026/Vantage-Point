@@ -304,3 +304,30 @@ class SimplifiedMatchResponse(BaseModel):
                 "your_team_won": True,
             }
         }
+
+class MapReplay(BaseModel):
+    puuid: str
+    participant_id: str
+    frame_interval: int
+    timestamp: int
+    position_x = []
+    position_y = []
+
+class MapSuggestData(BaseModel):
+    map_replay: MapReplay
+    game_result: str
+    armor = []
+    attack_damage: int
+    attack_speed: int
+    health: int
+    health_max: int
+    health_regen: int
+    champion_id: int
+    true_damage_done = []
+    true_damage_done_to_champion = []
+    true_damage_taken = []
+    gold_per_second = []
+    level: int
+    xp: int
+    team_position: int
+    lane: str
