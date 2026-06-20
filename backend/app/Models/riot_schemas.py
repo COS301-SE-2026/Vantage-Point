@@ -327,7 +327,44 @@ class MapSuggestData(BaseModel):
     true_damage_done_to_champion = []
     true_damage_taken = []
     gold_per_second = []
-    level: int
-    xp: int
+    level = []
+    xp = []
     team_position: int
     lane: str
+
+class MatchData(BaseModel):
+    match_id: int # used for caching trying to reduce the calls to the api
+    match_start: MatchInfo
+    champExperience: int
+    champLevel: int
+    championName: str
+    earliestBaron: int
+    earliestDragonTakedown: int
+    earliestElderDragon: int
+    fastestLegendary: int
+    highestChampionDamage: int
+    takedownFirst25Min: int
+    teleportTakedowns: int
+    thirdInhibitorDestroyedTime: int
+    fistBumpTakedowns: int
+    baronTakedowns: int
+    bountyGold: int
+    damagePerMinute: int
+    deatshByEnemyChamps: int
+    elderDragonMultikill: int
+    enemyJungleMonsterKills: int
+    firstTurretKilled: bool
+    firstTuttetKilledTime: int
+    gameLength: int
+    goldPerMinute: int
+    kda: float
+    killingSprees: int
+    lostAnInhibitor: int
+    perfectDragonSoulsTaken: int
+    quickFirstTurrentKills: int
+    quickSoloKills: int
+    scuttleCrabKills: int
+    soloBaronKills: int
+    SWARM_DefeatAatrox: int
+    SWARM_DefeatBriar: int
+    
