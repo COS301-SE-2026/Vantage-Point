@@ -13,9 +13,10 @@ RUN npm run build
 # Move assets to the shared volume
 FROM alpine:3.19
 WORKDIR /usr/share/nginx/html
+RUN apk add --no-cache rsync
 
 # Create a non-root system user and group inside Alpine
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -s /bin/sh
 
 # Copy the static production build files from the builder stage
 COPY --from=builder /src/dist .
@@ -23,9 +24,10 @@ COPY --from=builder /src/dist .
 # Fix ownership of the target directory for our new user
 RUN chown -R appuser:appgroup /usr/share/nginx/html
 
-# Switch away from root
-USER appuser
-
 # When the container starts, copy files into the mounted shared volume.
-# Added a mkdir -p for the target_volume to ensure it handles permissions cleanly.
-CMD ["sh", "-c", "mkdir -p /target_volume && cp -rf ./* /target_volume/ && echo 'Assets copied!' && sleep infinity"]
+CMD ["sh", "-c", "\
+  echo 'Syncing and cleaning assets...' && \
+  rsync -av --delete /usr/share/nginx/html/ /target_volume/ && \
+  chown -R appuser:appgroup /target_volume && \
+  echo 'Assets copied!' && \
+  su appuser -c 'sleep infinity'"]

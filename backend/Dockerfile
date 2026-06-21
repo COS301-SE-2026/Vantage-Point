@@ -7,8 +7,10 @@ ENV PYTHONUNBUFFERED=1
 
 # Tell Python where the application root is
 ENV PYTHONPATH=/app
+# Override the Home directory target so Gunicorn uses a folder it explicitly owns
+ENV HOME=/app
 
-RUN groupadd -r pyrunner && useradd -r -g pyrunner pyrunner
+RUN groupadd -r pyrunner && useradd -r -m -g pyrunner pyrunner
 
 WORKDIR /app
 
@@ -23,11 +25,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy backend application files
-COPY . .
+COPY app/ app/
 
 # Change ownership of the app directory to pyrunner
-RUN chown -R pyrunner:pyrunner /app
+RUN chown -R pyrunner:pyrunner /app && \
+    chown -R pyrunner:pyrunner /home/pyrunner
 
 USER pyrunner
 
