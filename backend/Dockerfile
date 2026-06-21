@@ -7,6 +7,9 @@ ENV PYTHONUNBUFFERED=1
 
 # Tell Python where the application root is
 ENV PYTHONPATH=/app
+
+RUN groupadd -r pyrunner && useradd -r -g pyrunner pyrunner
+
 WORKDIR /app
 
 # Install native system dependencies required for compilation
@@ -22,6 +25,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copy backend application files
 COPY . .
+
+# Change ownership of the app directory to pyrunner
+RUN chown -R pyrunner:pyrunner /app
+
+USER pyrunner
 
 EXPOSE 8000
 
