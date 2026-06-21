@@ -14,7 +14,8 @@ import RegisterPage from "./components/RegisterPage";
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: LandingPage,
+    // Component: LandingPage,
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "/login",
