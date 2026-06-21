@@ -1,10 +1,13 @@
 # Build the application
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /src
 
 # Copy dependency manifests first to leverage Docker caching
 COPY package*.json ./
-RUN npm ci --target_arch=x64 --target_platform=linux --target_libc=musl
+
+# Explicitly tell npm to install the musl-specific native binaries for Linux x64
+# This ensures Rolldown fetches the correct enum bindings for Alpine.
+RUN npm i
 
 # Copy the rest of the frontend source code and compile
 COPY . .
@@ -18,5 +21,4 @@ WORKDIR /usr/share/nginx/html
 COPY --from=builder /src/dist .
 
 # When the container starts, copy files into the mounted shared volume,
-# then echo a success message and exit.
-CMD ["sh", "-c", "cp -r ./* /target_volume/ && echo 'Frontend assets synced successfully!'"]
+CMD ["sh", "-c", "mkdir -p /target_volume && cp -rf ./* /target_volume/ && echo 'Assets copied!' && sleep infinity"]

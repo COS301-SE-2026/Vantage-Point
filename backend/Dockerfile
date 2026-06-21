@@ -5,6 +5,8 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Tell Python where the application root is
+ENV PYTHONPATH=/app
 WORKDIR /app
 
 # Install native system dependencies required for compilation
@@ -15,16 +17,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Python requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy backend application files
 COPY . .
 
-# Create a non-privileged security user to run the processes safely
-RUN useradd -u 8888 pyrunner && chown -R pyrunner /app
-USER pyrunner
-
 EXPOSE 8000
 
 # Execute using Gunicorn binding to all container interfaces
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "main:app", "-k", "uvicorn.workers.UvicornWorker"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "app.main:app", "-k", "uvicorn.workers.UvicornWorker"]
