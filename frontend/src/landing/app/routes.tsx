@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import DashboardPage from "./components/DashboardPage";
-import LandingPage from "./components/LandingPage";
 import LinkRiotPage from "./components/LinkRiotPage";
 import LoadingPage from "./components/LoadingPage";
 import LoginPage from "./components/LoginPage";
@@ -14,7 +13,7 @@ import RegisterPage from "./components/RegisterPage";
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: LandingPage,
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "/login",

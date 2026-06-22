@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+gunicorn
 sqlalchemy
 asyncpg
 sqlmodel
@@ -18,3 +19,5 @@ email-validator
 joblib
 idna
 starlette
+psycopg2-binary
+asyncpg
