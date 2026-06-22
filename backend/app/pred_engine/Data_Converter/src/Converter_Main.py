@@ -22,7 +22,7 @@ def formatTrainTestDataKNN(data):
     r, c = (1, 1)
     dataArr = []
     X = []
-    r, c, cPos = (-1, 0, 0)
+    r, c = (-1, 0, )
     rCount = 0
     for row in data:
         if rCount == 0:
@@ -89,22 +89,54 @@ def getTrainTestDataKNN(fileName):
     #x is target, y is given
     return X_train, X_test, y_train, y_test
 
-#x1, x2, y1, y2 = getTrainTestDataKNN("test.csv")
+#-----------------------------------------------------------------------------------#
 
-#print(x1)
-#print(x2)
-#print()
-#print()
-#print(y1)
-#print(y2)
-
+#returns champion id
+#data going in:
+    #team position
+    #role?
+    #lane
+    #Previous champs
+    #bans
+#data will be in the above format by column
 def formatChampionData(data):
-    print(data)
+    dataArr = []
+    y = []
+    r = -1
+    for row in data:
+        if r == -1:
+            r = r + 1
+            continue
+        dataArr.append([])
+        y.append([])
 
+        c = 0
+        for i in row:
+            if c == 0:
+                y[r].append(i)
+                c = c + 1
+            else:
+                dataArr[r].append(i)
+                c = c + 1
+    return dataArr, y
+
+
+#returns itemId
+#data going in:
+    #champion id
+    #other items you have
+    #health
+    #damage
+    #visionScore
+    #armor
+    #gold
+    #eventObj info ITEM_PURCHASED event
+        #timestamp
 def formatItemData(data):
     print(data)
 
-def formatSkillData(data):
+#????????????????
+def formatPerkData(data):
     print(data)
 
 def getTrainTestDataRF(fileName, category):
@@ -118,8 +150,8 @@ def getTrainTestDataRF(fileName, category):
             xData, yData = formatChampionData(data)
         case 'item':
             xData, yData = formatItemData(data)
-        case 'skill':
-            xData, yData = formatSkillData(data)
+        case 'perk':
+            xData, yData = formatPerkData(data)
 
     X_train, X_test, y_train, y_test = train_test_split(
         xData, yData, test_size=0.2, random_state=42, stratify=yData

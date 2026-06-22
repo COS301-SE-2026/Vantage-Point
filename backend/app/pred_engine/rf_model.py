@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 #decisions to implement
     #items to buy
     #champion to use
-    #skills to upgrade
+    #perks to upgrade????
 
 
 ## categorical
@@ -20,6 +20,5 @@ def rf_items():
 def rf_champions():
     print()
 
-def rf_skills():
-    
-
+def rf_perks():
+    print()
