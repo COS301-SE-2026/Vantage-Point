@@ -158,8 +158,8 @@ class LiveAnalyticsService:
         else:
             _data = data
 
-        x_values = {}
-        y_values = {}
+        x_values: dict[str, list[int]] = {}
+        y_values: dict[str, list[int]] = {}
         frames = _data["info"]["frames"]
         for i in range(1, 10):
             x_values[str(i)] = [
@@ -186,52 +186,65 @@ class LiveAnalyticsService:
         # cover part of knn required data
         map_replay: MapReplay = await self.map_replay(timeline)
 
-        armor = {}
-        attack_damage = {}
-        attack_speed = {}
-        health = {}
-        health_max = {}
-        health_regen = {}
-        true_damage_done = {}
-        true_damage_done_to_champions = {}
-        true_damage_taken = {}
-        gold_per_second = {}
-        level = {}
-        xp = {}
+        armor: dict[str, list[int]] = {}
+        attack_damage: dict[str, list[int]] = {}
+        attack_speed: dict[str, list[int]] = {}
+        health: dict[str, list[int]] = {}
+        health_max: dict[str, list[int]] = {}
+        health_regen: dict[str, list[int]] = {}
+        true_damage_done: dict[str, list[int]] = {}
+        true_damage_done_to_champions: dict[str, list[int]] = {}
+        true_damage_taken: dict[str, list[int]] = {}
+        gold_per_second: dict[str, list[int]] = {}
+        level: dict[str, list[int]] = {}
+        xp: dict[str, list[int]] = {}
         frames = timeline["info"]["frames"]
         for i in range(1, 10):
             armor[str(i)] = [
-                frames["participantFrames"][str(i)]["championStats"]["armor"]
+                frame["participantFrames"][str(i)]["championStats"]["armor"]
+                for frame in frames
             ]
             attack_damage[str(i)] = [
-                frames["participantFrames"][str(i)]["championStats"]["attackDamage"]
+                frame["participantFrames"][str(i)]["championStats"]["attackDamage"]
+                for frame in frames
             ]
             attack_speed[str(i)] = [
-                frames["participantFrames"][str(i)]["championStats"]["attackSpeed"]
+                frame["participantFrames"][str(i)]["championStats"]["attackSpeed"]
+                for frame in frames
             ]
             health[str(i)] = [
-                frames["participantFrames"][str(i)]["championStats"]["health"]
+                frame["participantFrames"][str(i)]["championStats"]["health"]
+                for frame in frames
             ]
             health_max[str(i)] = [
-                frames["participantFrames"][str(i)]["championStats"]["healthMax"]
+                frame["participantFrames"][str(i)]["championStats"]["healthMax"]
+                for frame in frames
             ]
             health_regen[str(i)] = [
-                frames["participantFrames"][str(i)]["championStats"]["healthRegen"]
+                frame["participantFrames"][str(i)]["championStats"]["healthRegen"]
+                for frame in frames
             ]
-            true_damage_done = [
-                frames["participantFrames"][str(i)]["damageStats"]["trueDamageDone"]
+            true_damage_done[str(i)] = [
+                frame["participantFrames"][str(i)]["damageStats"]["trueDamageDone"]
+                for frame in frames
             ]
-            true_damage_done_to_champions = [
-                frames["participantFrames"][str(i)]["damageStats"][
+            true_damage_done_to_champions[str(i)] = [
+                frame["participantFrames"][str(i)]["damageStats"][
                     "trueDamageDoneToChampions"
                 ]
+                for frame in frames
             ]
-            true_damage_taken = [
-                frames["participantFrames"][str(i)]["damageStats"]["trueDamageTaken"]
+            true_damage_taken[str(i)] = [
+                frame["participantFrames"][str(i)]["damageStats"]["trueDamageTaken"]
+                for frame in frames
             ]
-            gold_per_second = [frames["participantFrames"][str(i)]["goldPerSecond"]]
-            level = [frames["participantFrames"][str(i)]["level"]]
-            xp = [frames["participantFrames"][str(i)]["xp"]]
+            gold_per_second[str(i)] = [
+                frame["participantFrames"][str(i)]["goldPerSecond"] for frame in frames
+            ]
+            level[str(i)] = [
+                frame["participantFrames"][str(i)]["level"] for frame in frames
+            ]
+            xp[str(i)] = [frame["participantFrames"][str(i)]["xp"] for frame in frames]
 
         return MapSuggestData(
             map_replay=map_replay,
