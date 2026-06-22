@@ -18,10 +18,7 @@ def getFromAPI():
     # temp print for basic testing
     print(match_TL.info.endOfGameResult, match_TL.info.gameId)
     
-#need to seperate out pos data as X -> to be predicted
-#maybe dont group data with one array row for each player?
-#keep timeframes are entirely seperate entities/array rows?
-def formatTrainTestData(data):
+def formatTrainTestDataKNN(data):
     r, c = (1, 1)
     dataArr = []
     X = []
@@ -82,13 +79,14 @@ def formatTrainTestData(data):
 def getTrainTestDataKNN(fileName):
     with open(fileName, "r") as f:
         data = csv.reader(f)
-        xData, yData = formatTrainTestData(data)
+        xData, yData = formatTrainTestDataKNN(data)
     #Do train/test split
 
     X_train, X_test, y_train,y_test = train_test_split(
         xData, yData, test_size=0.2, train_size=0.8, random_state=42
     )
     #return train,test
+    #x is target, y is given
     return X_train, X_test, y_train, y_test
 
 #x1, x2, y1, y2 = getTrainTestDataKNN("test.csv")
@@ -99,3 +97,33 @@ def getTrainTestDataKNN(fileName):
 #print()
 #print(y1)
 #print(y2)
+
+def formatChampionData(data):
+    print(data)
+
+def formatItemData(data):
+    print(data)
+
+def formatSkillData(data):
+    print(data)
+
+def getTrainTestDataRF(fileName, category):
+    with open(fileName, "r") as f:
+        data = csv.reader(f)
+        
+    #kinds of decisions to be made
+    #content of data depends on this
+    match category:
+        case 'champion':
+            xData, yData = formatChampionData(data)
+        case 'item':
+            xData, yData = formatItemData(data)
+        case 'skill':
+            xData, yData = formatSkillData(data)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        xData, yData, test_size=0.2, random_state=42, stratify=yData
+    )
+
+    #X is given, y is target
+    return X_train, X_test, y_train, y_test
