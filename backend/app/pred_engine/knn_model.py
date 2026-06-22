@@ -6,6 +6,10 @@ from sklearn.ensemble import BaggingRegressor
 #add import
 from pyloading_bar import Bar
 
+import time
+
+start = time.time()
+
 num_step = 20
 bar = Bar(num_step)
 
@@ -21,6 +25,8 @@ knn_regressor = KNeighborsRegressor(n_neighbors=5)
 bar.next() #10%
 knn_regressor.fit(X_train, y_train)
 bar.next() #15%
+t = time.time()
+print(f'\nTime: {t - start:.2f} seconds')
 
 def optimizeGridSearch():
     parameters = {
@@ -29,8 +35,12 @@ def optimizeGridSearch():
     }  
     gridsearch = GridSearchCV(KNeighborsRegressor(), parameters) 
     bar.next() #35%
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
     gridsearch.fit(X_train, y_train) #slow here
     bar.next() #40%
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
     test_preds_grid = gridsearch.predict(X_test)
     bar.next() #45%
     test_mse = mean_squared_error(y_test, test_preds_grid) 
@@ -48,8 +58,12 @@ def optimizeBagging(p1,p2):
     bar.next() #60%
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
     bar.next() #65%
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
     bagging_model.fit(X_train, y_train) #slow here
     bar.next() #70%
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
     test_preds_grid = bagging_model.predict(X_test)
     bar.next() #75%
     test_mse = mean_squared_error(y_test, test_preds_grid) 
@@ -59,7 +73,7 @@ def optimizeBagging(p1,p2):
     return test_mse, test_r2
 
 def testPredict():
-    # make prdictions
+    # make predictions
     y_pred = knn_regressor.predict(X_test)
     bar.next() #20%
     # evaluate model
@@ -67,6 +81,8 @@ def testPredict():
     bar.next() #35%
     r2 = r2_score(y_test, y_pred)
     bar.next() #30%
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
     # want lowest possible mse
     # want r2 as close as possible to 1
     return mse, r2
@@ -96,6 +112,11 @@ with open("output.txt", "w", encoding="utf-8") as f:
     f.write("bag_r2: " + str(bag_r2) + "\n")
     f.write("\n")
     bar.next() #100%
+
+end = time.time()
+print('')
+print('')
+print(f'Final Time: {end - start:.2f} seconds')
 
 ##################################################
 #results with 20000 rows
