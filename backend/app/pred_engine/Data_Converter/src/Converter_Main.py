@@ -94,9 +94,9 @@ def getTrainTestDataKNN(fileName):
 #returns champion id
 #data going in:
     #team position
-    #role?
+    #role
     #lane
-    #Previous champs
+    #other champs
     #bans
 #data will be in the above format by column
 def formatChampionData(data):
@@ -107,6 +107,47 @@ def formatChampionData(data):
         if r == -1:
             r = r + 1
             continue
+
+        for j in range(len(row)):
+            if any(char.isdigit() for char in row[j]):
+                row[j] = int(row[j])  
+        val = row[1]
+        match val:
+            case 'TOP':
+                row[1] = 1
+            case 'JUNGLE':
+                row[1] = 2
+            case 'MIDDLE':
+                row[1] = 3
+            case 'BOTTOM':
+                row[1] = 4
+            case 'UTILITY':
+                row[1] = 5
+        val = row[2]
+        match val:
+            case 'NONE':
+                row[2] = 0
+            case 'SOLO':
+                row[2] = 1
+            case 'CARRY':
+                row[2] = 2
+            case 'SUPPORT':
+                row[2] = 3
+            case 'DUO':
+                row[2] = 4
+        val = row[3]
+        match val:
+            case 'TOP':
+                row[3] = 1
+            case 'MIDDLE':
+                row[3] = 2
+            case 'BOTTOM':
+                row[3] = 3
+            case 'JUNGLE':
+                row[3] = 4
+            case 'NONE':
+                row[3] = 0  
+
         dataArr.append([])
         y.append([])
 
@@ -118,6 +159,8 @@ def formatChampionData(data):
             else:
                 dataArr[r].append(i)
                 c = c + 1
+        r = r + 1
+
     return dataArr, y
 
 
@@ -142,20 +185,31 @@ def formatPerkData(data):
 def getTrainTestDataRF(fileName, category):
     with open(fileName, "r") as f:
         data = csv.reader(f)
-        
-    #kinds of decisions to be made
-    #content of data depends on this
-    match category:
-        case 'champion':
-            xData, yData = formatChampionData(data)
-        case 'item':
-            xData, yData = formatItemData(data)
-        case 'perk':
-            xData, yData = formatPerkData(data)
+        #kinds of decisions to be made
+        #content of data depends on this
+        match category:
+            case 'champion':
+                xData, yData = formatChampionData(data)
+            case 'item':
+                xData, yData = formatItemData(data)
+            case 'perk':
+                xData, yData = formatPerkData(data)
+
+    print(xData)
+    print(yData)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        xData, yData, test_size=0.2, random_state=42, stratify=yData
+        xData, yData, test_size=0.2, random_state=42, stratify=None
     )
 
     #X is given, y is target
     return X_train, X_test, y_train, y_test
+
+xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'champion')
+
+print(xtr)
+print(xt)
+print()
+print()
+print(ytr)
+print(yt)

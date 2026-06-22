@@ -12,8 +12,8 @@ RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 20000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 2000      # How many total rows we want to fetch
+CHUNK_SIZE = 100000         # Every how many rows we create a NEW CSV file
+MAX_ROWS = 100      # How many total rows we want to fetch
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -126,15 +126,8 @@ async def get_match_timeline(session, match_id):
 ###############################################################################
 # 6. DATA PROCESSING
 ###############################################################################
-async def process_match_data(session, match_data, timeline_data, puuid_pool):
-    if not match_data:
-        return []
 
-    info = match_data["info"]
-    participants = info.get("participants", [])
-
-    timeInfo = timeline_data["info"]
-
+def knn(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
         p = part.get("puuid")
@@ -217,8 +210,79 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
                     c = c + 1
 
             rows.append(row_data)
+            #events?
+    return rows
 
-#events
+#returns champion id
+#data going in:
+    #team position
+    #role
+    #lane
+    #other champs
+    #bans
+def rf_champion(info, participants, puuid_pool):
+    rows = []
+
+    teams = info.get('teams', [])
+    
+    for part in participants:
+        p = part.get("puuid")
+        if p:
+            puuid_pool.add(p)
+
+        row_data = {
+            "championId" : part.get("championId"),
+            "teamPosition" : part.get("teamPosition"),
+            "role": part.get("role"),
+            "lane" : part.get("lane"),
+        }
+
+        c = 0
+        for t in teams:
+            bans = t.get("bans")
+            for b in bans:
+                addInfo = {
+                    "championId"+str("c") : b.get("championId")
+                }
+                c = c + 1
+                row_data.update(addInfo)
+
+        c = 0
+        otherPart = info.get("participants")
+        for op in otherPart:
+            if op.get("puuid") != p:
+                addInfo = {
+                    "champ"+str(c) : op.get("championId")
+                }
+                c = c + 1
+                row_data.update(addInfo)
+            #endif
+
+        rows.append(row_data)
+
+    return rows
+
+def rf_item(info, participants, timeInfo, puuid_pool):
+    rows = []
+    return rows
+
+def rf_perk(info, participants, timeInfo, puuid_pool):
+    rows = []
+    return rows
+
+async def process_match_data(session, match_data, timeline_data, puuid_pool):
+    if not match_data:
+        return []
+
+    info = match_data["info"]
+    participants = info.get("participants", [])
+    timeInfo = timeline_data["info"]
+
+    #different data set collections
+    #rows = knn(participants, timeInfo, puuid_pool)
+    rows = rf_champion(info, participants, puuid_pool)
+    #rows = rf_item()
+    #rows = rf_perk()
 
     return rows
 
