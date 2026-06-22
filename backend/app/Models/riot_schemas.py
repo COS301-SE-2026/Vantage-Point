@@ -306,12 +306,12 @@ class SimplifiedMatchResponse(BaseModel):
         }
 
 class MapReplay(BaseModel):
-    puuid: str
-    participant_id: str
+    puuid: List[str]
+    participant_id: List[str]
     frame_interval: int
     timestamp: int
-    position_x = []
-    position_y = []
+    position_x: Any
+    position_y: Any
 
 class MapSuggestData(BaseModel):
     map_replay: MapReplay

@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
+from app.Models.riot_schemas import MapReplay
 from app.services.riot_service import riot_service
 
 
@@ -146,6 +147,29 @@ class LiveAnalyticsService:
             win_rate=f"{round((stats['wins'] / games) * 100)}%",
         )
 
-    async def map_replay(self, match_id: str) -> Any:
+#at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it 
+#to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
+    async def map_replay(self, match_id: str, puuid: str) -> Any:
         data: Any = riot_service.get_match_timeline(match_id)
+
+        x_values = {}
+        y_values = {}
+        frames = data["info"]["frames"]
+        for i in range(1, 10):
+            x_values[str(i)] = [
+                frame["participantFrames"][str(i)]["position"]["x"]
+                for frame in frames
+            ]
+            y_values[str(i)] = [
+                frame["participantFrames"][str(i)]["position"]["y"]
+                for frame in frames
+            ]
         
+        return MapReplay(          
+                puuid=[p["puuid"] for p in data["info"]["participants"]],
+                participant_id=[p["participantId"] for p in data["info"]["participants"]],#is a list need to change/update the model as it stands
+                frame_interval=data["info"]["frameInterval"],
+                timestamp=data["info"]["frames"]["timestamp"],
+                position_x=x_values,
+                position_y=y_values,          
+        )

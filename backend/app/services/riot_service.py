@@ -221,7 +221,7 @@ class RiotService:
                 raise HTTPException(
                     status_code=response.status_code,
                     detail=f"Riot API Error: {error_text}"
-                )
+                ) 
 
 riot_service = RiotService()
 
