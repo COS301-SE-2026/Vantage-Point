@@ -99,7 +99,7 @@ with open("output.txt", "w", encoding="utf-8") as f:
 
 ##################################################
 #results with 20000 rows
-# about double the runs with 200 rows
+# about double the runs with 2000 rows
 
 #initail results:
 #mse: 11680512.064259995
