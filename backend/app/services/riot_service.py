@@ -188,40 +188,38 @@ class RiotService:
 
     async def get_match_timeline(self, match_id: str) -> Any:
         """
-            Going to be used when we need to get timeline data. Then will be filtered at perspective endpoints
+        Going to be used when we need to get timeline data. Then will be filtered at perspective endpoints
         """
         server_region = match_id.split("_")[0].lower()
         macro_region = get_macro_region(server_region)
-        url = (
-            f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
-        )
+        url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
             if response.status_code == 200:
                 return response.json()
-            
+
             elif response.status_code == 403:
                 raise HTTPException(
-                    status_code=403,
-                    detail="Riot API key is invalid or expired."
+                    status_code=403, detail="Riot API key is invalid or expired."
                 )
             elif response.status_code == 404:
                 raise HTTPException(
-                    status_code=404, 
-                    detail=f"Match {match_id} not found on Riot servers"
+                    status_code=404,
+                    detail=f"Match {match_id} not found on Riot servers",
                 )
             elif response.status_code == 429:
                 raise HTTPException(
                     status_code=429,
-                    detail="Rate limit exceeded. Please try again later."
+                    detail="Rate limit exceeded. Please try again later.",
                 )
             else:
                 error_text: str = str(response.text)
                 raise HTTPException(
                     status_code=response.status_code,
-                    detail=f"Riot API Error: {error_text}"
-                ) 
+                    detail=f"Riot API Error: {error_text}",
+                )
+
 
 riot_service = RiotService()
 

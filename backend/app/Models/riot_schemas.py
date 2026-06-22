@@ -305,6 +305,7 @@ class SimplifiedMatchResponse(BaseModel):
             }
         }
 
+
 class MapReplay(BaseModel):
     puuid: List[str]
     participant_id: List[str]
@@ -313,27 +314,29 @@ class MapReplay(BaseModel):
     position_x: Any
     position_y: Any
 
+
 class MapSuggestData(BaseModel):
     map_replay: MapReplay
-    game_result: str
-    armor = []
-    attack_damage: int
-    attack_speed: int
-    health: int
-    health_max: int
-    health_regen: int
-    champion_id: int
-    true_damage_done = []
-    true_damage_done_to_champion = []
-    true_damage_taken = []
-    gold_per_second = []
-    level = []
-    xp = []
-    team_position: int
-    lane: str
+    end_of_game_result: str
+    armor: Any
+    attack_damage: Any
+    attack_speed: Any
+    health: Any
+    health_max: Any
+    health_regen: Any
+    champion_id: Any
+    true_damage_done: Any
+    true_damage_done_to_champion: Any
+    true_damage_taken: Any
+    gold_per_second: Any
+    level: Any
+    xp: Any
+    team_position: Any
+    lane: Any
+
 
 class MatchData(BaseModel):
-    match_id: int # used for caching trying to reduce the calls to the api
+    match_id: int  # used for caching trying to reduce the calls to the api
     match_start: MatchInfo
     champExperience: int
     champLevel: int
@@ -367,4 +370,3 @@ class MatchData(BaseModel):
     soloBaronKills: int
     SWARM_DefeatAatrox: int
     SWARM_DefeatBriar: int
-    

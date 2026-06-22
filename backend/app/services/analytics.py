@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import MapReplay
+from app.Models.riot_schemas import MapReplay, MapSuggestData
 from app.services.riot_service import riot_service
 
 
@@ -147,29 +147,112 @@ class LiveAnalyticsService:
             win_rate=f"{round((stats['wins'] / games) * 100)}%",
         )
 
-#at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it 
-#to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
-    async def map_replay(self, match_id: str, puuid: str) -> Any:
-        data: Any = riot_service.get_match_timeline(match_id)
+    # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
+    # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
+    # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
+    async def map_replay(
+        self, match_id: str, puuid: str | None = None, data: MapReplay | None = None
+    ) -> MapReplay:
+        if data is None:
+            _data: Any = await riot_service.get_match_timeline(match_id)
+        else:
+            _data = data
 
         x_values = {}
         y_values = {}
-        frames = data["info"]["frames"]
+        frames = _data["info"]["frames"]
         for i in range(1, 10):
             x_values[str(i)] = [
-                frame["participantFrames"][str(i)]["position"]["x"]
-                for frame in frames
+                frame["participantFrames"][str(i)]["position"]["x"] for frame in frames
             ]
             y_values[str(i)] = [
-                frame["participantFrames"][str(i)]["position"]["y"]
-                for frame in frames
+                frame["participantFrames"][str(i)]["position"]["y"] for frame in frames
             ]
-        
-        return MapReplay(          
-                puuid=[p["puuid"] for p in data["info"]["participants"]],
-                participant_id=[p["participantId"] for p in data["info"]["participants"]],#is a list need to change/update the model as it stands
-                frame_interval=data["info"]["frameInterval"],
-                timestamp=data["info"]["frames"]["timestamp"],
-                position_x=x_values,
-                position_y=y_values,          
+
+        return MapReplay(
+            puuid=[p["puuid"] for p in _data["info"]["participants"]],
+            participant_id=[
+                p["participantId"] for p in _data["info"]["participants"]
+            ],  # is a list need to change/update the model as it stands
+            frame_interval=_data["info"]["frameInterval"],
+            timestamp=_data["info"]["frames"]["timestamp"],
+            position_x=x_values,
+            position_y=y_values,
+        )
+
+    async def map_suggest_data(self, match_id: str) -> MapSuggestData:
+        timeline = await riot_service.get_match_timeline(match_id)
+        match = await riot_service.get_match_detail(match_id)
+        # cover part of knn required data
+        map_replay: MapReplay = await self.map_replay(timeline)
+
+        armor = {}
+        attack_damage = {}
+        attack_speed = {}
+        health = {}
+        health_max = {}
+        health_regen = {}
+        true_damage_done = {}
+        true_damage_done_to_champions = {}
+        true_damage_taken = {}
+        gold_per_second = {}
+        level = {}
+        xp = {}
+        frames = timeline["info"]["frames"]
+        for i in range(1, 10):
+            armor[str(i)] = [
+                frames["participantFrames"][str(i)]["championStats"]["armor"]
+            ]
+            attack_damage[str(i)] = [
+                frames["participantFrames"][str(i)]["championStats"]["attackDamage"]
+            ]
+            attack_speed[str(i)] = [
+                frames["participantFrames"][str(i)]["championStats"]["attackSpeed"]
+            ]
+            health[str(i)] = [
+                frames["participantFrames"][str(i)]["championStats"]["health"]
+            ]
+            health_max[str(i)] = [
+                frames["participantFrames"][str(i)]["championStats"]["healthMax"]
+            ]
+            health_regen[str(i)] = [
+                frames["participantFrames"][str(i)]["championStats"]["healthRegen"]
+            ]
+            true_damage_done = [
+                frames["participantFrames"][str(i)]["damageStats"]["trueDamageDone"]
+            ]
+            true_damage_done_to_champions = [
+                frames["participantFrames"][str(i)]["damageStats"][
+                    "trueDamageDoneToChampions"
+                ]
+            ]
+            true_damage_taken = [
+                frames["participantFrames"][str(i)]["damageStats"]["trueDamageTaken"]
+            ]
+            gold_per_second = [frames["participantFrames"][str(i)]["goldPerSecond"]]
+            level = [frames["participantFrames"][str(i)]["level"]]
+            xp = [frames["participantFrames"][str(i)]["xp"]]
+
+        return MapSuggestData(
+            map_replay=map_replay,
+            end_of_game_result=match["info"]["endOfGameResult"],
+            armor=armor,
+            attack_damage=attack_damage,
+            attack_speed=attack_speed,
+            health=health,
+            health_max=health_max,
+            health_regen=health_regen,
+            champion_id=[
+                p["championId"] for p in match["info"]["participants"]["championId"]
+            ],
+            true_damage_done=true_damage_done,
+            true_damage_done_to_champion=true_damage_done_to_champions,
+            true_damage_taken=true_damage_taken,
+            gold_per_second=gold_per_second,
+            level=level,
+            xp=xp,
+            team_position=[
+                p["teamPosition"] for p in match["info"]["participants"]["championId"]
+            ],
+            lane=[p["lane"] for p in match["info"]["participants"]["championId"]],
         )
