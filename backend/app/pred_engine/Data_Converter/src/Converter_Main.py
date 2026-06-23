@@ -195,9 +195,6 @@ def getTrainTestDataRF(fileName, category):
             case 'perk':
                 xData, yData = formatPerkData(data)
 
-    print(xData)
-    print(yData)
-
     X_train, X_test, y_train, y_test = train_test_split(
         xData, yData, test_size=0.2, random_state=42, stratify=None
     )
@@ -205,11 +202,11 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'champion')
+#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'champion')
 
-print(xtr)
-print(xt)
-print()
-print()
-print(ytr)
-print(yt)
+#print(xtr)
+#print(xt)
+#print()
+#print()
+#print(ytr)
+#print(yt)

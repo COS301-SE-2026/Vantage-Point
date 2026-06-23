@@ -1,9 +1,7 @@
 import warnings
-
-from sklearn.model_selection import train_test_split
+import Data_Converter.src.Converter_Main as converter
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
-from sklearn.preprocessing import LabelEncoder
 
 warnings.filterwarnings("ignore")
 
@@ -18,7 +16,18 @@ def rf_items():
     print()
 
 def rf_champions():
-    print()
+    X_train, X_test, y_train, y_test = converter.getTrainTestDataRF('test.csv', 'champion')
+
+    rf = RandomForestClassifier()
+    rf.fit(X_train, y_train)
+
+    y_pred = rf.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print("Accuracy:", accuracy)
+    
 
 def rf_perks():
     print()
+
+
+rf_champions()

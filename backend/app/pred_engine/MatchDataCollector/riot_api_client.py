@@ -13,7 +13,7 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 100000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 100      # How many total rows we want to fetch
+MAX_ROWS = 1000      # How many total rows we want to fetch
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -242,7 +242,7 @@ def rf_champion(info, participants, puuid_pool):
             bans = t.get("bans")
             for b in bans:
                 addInfo = {
-                    "championId"+str("c") : b.get("championId")
+                    "championId"+str(c) : b.get("championId")
                 }
                 c = c + 1
                 row_data.update(addInfo)
