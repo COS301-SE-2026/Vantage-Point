@@ -1,5 +1,4 @@
 from datetime import date, datetime, timezone
-from email.policy import default
 from typing import List, Optional
 
 from sqlalchemy import BigInteger, Column, UniqueConstraint
@@ -37,7 +36,7 @@ class Users(SQLModel, table=True):
     )
 
     linked_puuids_cache : Optional[str] = Field(
-        default"[]",
+        default ="[]",
         # JSON array of PUUIDs linked to this account e.g. ["puuid1", "puuid2"].
         # Denormalized cache of UserGameAccounts for fast autocomplete lookups.
         # Source of truth is still UserGameAccounts — update this whenever a
