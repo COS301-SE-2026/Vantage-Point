@@ -1,4 +1,5 @@
 from datetime import date, datetime, timezone
+from email.policy import default
 from typing import List, Optional
 
 from sqlalchemy import BigInteger, Column, UniqueConstraint
@@ -35,6 +36,13 @@ class Users(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
 
+    linked_puuids_cache : Optional[str] = Field(
+        default"[]",
+        # JSON array of PUUIDs linked to this account e.g. ["puuid1", "puuid2"].
+        # Denormalized cache of UserGameAccounts for fast autocomplete lookups.
+        # Source of truth is still UserGameAccounts — update this whenever a
+        # link is added or removed, or invalidate and rebuild from UserGameAccounts.
+    )
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
 
 
@@ -68,6 +76,8 @@ class GameAccounts(SQLModel, table=True):
 # a coach can track a player's account without it being "their" account,
 # and the same Riot account can appear on multiple VP profiles.
 # Deletion of a link here does not delete the underlying game account.
+# When adding or removing a link here, also update Users.linked_puuids_cache
+# so the fast-read cache stays in sync.
 
 class UserGameAccounts(SQLModel, table=True):
     __tablename__ = "user_game_accounts"
