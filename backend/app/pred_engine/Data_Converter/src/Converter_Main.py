@@ -147,6 +147,9 @@ def formatChampionData(data):
                 row[3] = 4
             case 'NONE':
                 row[3] = 0  
+        for j in range(len(row)):
+            if not isinstance(row[j], int):
+                row[j] = 0 
 
         dataArr.append([])
         y.append([])

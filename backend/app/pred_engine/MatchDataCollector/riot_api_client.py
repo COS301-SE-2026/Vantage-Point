@@ -241,6 +241,8 @@ def rf_champion(info, participants, puuid_pool):
         for t in teams:
             bans = t.get("bans")
             for b in bans:
+                if c == 10:
+                    continue
                 addInfo = {
                     "championId"+str(c) : b.get("championId")
                 }
@@ -251,6 +253,8 @@ def rf_champion(info, participants, puuid_pool):
         otherPart = info.get("participants")
         for op in otherPart:
             if op.get("puuid") != p:
+                if c == 9:
+                    continue
                 addInfo = {
                     "champ"+str(c) : op.get("championId")
                 }
