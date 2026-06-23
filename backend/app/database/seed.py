@@ -323,7 +323,7 @@ async def seed():
     print(f"  Champions:      {len(CHAMPIONS)}")
     print("  Users:          2")
     print("  Game accounts:  2")
-    print("  User-GA links:  3")
+    print("  User-GA links:  2")
     print(f"  Matches:        {len(SEED_MATCHES)}")
     print(f"  Participants:   {len(SEED_VIEWER_PARTICIPANTS)} (viewer)")
     print(f"  Achievements:   {len(SEED_USER_ACHIEVEMENTS)} (viewer)")
