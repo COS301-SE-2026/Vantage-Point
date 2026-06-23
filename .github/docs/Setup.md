@@ -186,17 +186,62 @@ The `ckolkman.vscode-postgres` extension is installed automatically when you ope
 
 
 ## Manual Setup
-# Backend
+
+### First-time setup
+
+**Backend** — from the repo root:
+
 ```sh
 cd backend
 python3.11 -m venv venv
-source venv/bin/activate # macOS/Linux
-venv\Scripts\activate  # Windows
-uvicorn app.main:app --reload
+source venv/bin/activate   # macOS/Linux
+# venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+cp .env.example .env       # then edit values
 ```
 
-# Frontend
+**Frontend**:
+
 ```sh
+cd frontend
+npm install
+cp .env.example .env       # set VITE_API_URL=http://localhost:8000
+```
+
+Seed the database once `backend/.env` is configured (see [Dev-Quickstart.md](./Dev-Quickstart.md)):
+
+```sh
+cd backend
+python -m app.database.seed
+```
+
+### Quick start — run dev servers
+
+Start scripts live in each package and at the repo root. They activate the backend venv and load nvm when available.
+
+From the **repo root**:
+
+```sh
+# Backend + frontend (one terminal; Ctrl+C stops both)
+./scripts/start.sh
+```
+
+Or run each service in its own terminal:
+
+```sh
+./backend/start.sh    # http://localhost:8000
+./frontend/start.sh   # http://localhost:5173 (URL printed by Vite)
+```
+
+**Manual alternative** (same result without the scripts):
+
+```sh
+# Terminal 1 — backend
+cd backend
+source venv/bin/activate
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2 — frontend
 cd frontend
 npm run dev
 ```
