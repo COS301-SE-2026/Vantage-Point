@@ -11,20 +11,6 @@ from sqlmodel import SQLModel, Field, Relationship
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
 
 
-# added for profile
-class UserProfile(SQLModel, table=True):
-    user_id: str = Field(primary_key=True)
-    username: str
-    riot_puuid: Optional[str] = Field(default=None, foreign_key="game_accounts.puuid")
-
-    deletion_scheduled_at: Optional[datetime] = None
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
-    )
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
-    )
-
 
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
@@ -40,12 +26,12 @@ class Champions(SQLModel, table=True):
 # Users
 # Represents a registered Vantage Point account.
 class Users(SQLModel, table=True):
-    id: str = Field(primary_key=True)
+    cognito_sub: str = Field(primary_key=True)
     email: str = Field(unique=True, index=True)
-    password_hash: str
-    display_name: str
-    avatar_url: str | None = None
     created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
 
@@ -82,7 +68,7 @@ class UserGameAccounts(SQLModel, table=True):
     __tablename__ = "user_game_accounts"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: str = Field(foreign_key="users.id")
+    user_id: str = Field(foreign_key="users.cognito_sub")
     puuid: str = Field(foreign_key="game_accounts.puuid")
 
     user: "Users" = Relationship(back_populates="linked_game_accounts")
