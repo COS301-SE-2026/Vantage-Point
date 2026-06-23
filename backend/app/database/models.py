@@ -62,8 +62,13 @@ class GameAccounts(SQLModel, table=True):
 
 
 # UserGameAccounts
-# Join table: tracks which game accounts a user has linked to their account.
-# A user can track many game accounts, and a game account can be tracked by many users.
+# Join table: one VP account (identified by Cognito sub) can track many Riot
+# game accounts, and one Riot account can be tracked by many VP users.
+# Keeping this separate from GameAccounts means ownership is flexible:
+# a coach can track a player's account without it being "their" account,
+# and the same Riot account can appear on multiple VP profiles.
+# Deletion of a link here does not delete the underlying game account.
+
 class UserGameAccounts(SQLModel, table=True):
     __tablename__ = "user_game_accounts"
 
