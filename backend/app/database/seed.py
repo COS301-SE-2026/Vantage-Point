@@ -220,28 +220,18 @@ async def seed():
         )
 
         # --- Users ---
-        from app.auth.passwords import hash_password
-
-        seed_password = os.getenv("SEED_DEV_PASSWORD")
-        if not seed_password:
-            raise RuntimeError(
-                "Set SEED_DEV_PASSWORD in the environment before running seed (see .env.example)"
-            )
-
         users = [
             Users(
-                id="00000000-0000-4000-8000-000000000001",
+                cognito_sub="fake-cognito-sub-0001",
                 email="testuser1@vantagepoint.dev",
-                password_hash=hash_password(seed_password),
-                display_name="TestUser1",
                 created_at=datetime.now(timezone.utc).replace(tzinfo=None),
+                updated_at=datetime.now(timezone.utc).replace(tzinfo=None),
             ),
             Users(
-                id="00000000-0000-4000-8000-000000000002",
+                cognito_sub="fake-cognito-sub-0002",
                 email="testuser2@vantagepoint.dev",
-                password_hash=hash_password(seed_password),
-                display_name="TestUser2",
                 created_at=datetime.now(timezone.utc).replace(tzinfo=None),
+                updated_at=datetime.now(timezone.utc).replace(tzinfo=None),
             ),
         ]
         session.add_all(users)
@@ -271,11 +261,11 @@ async def seed():
         session.add_all(
             [
                 UserGameAccounts(
-                    user_id="00000000-0000-4000-8000-000000000001",
+                    user_id="fake-cognito-sub-0001",
                     puuid=VIEWER_PUUID,
                 ),
                 UserGameAccounts(
-                    user_id="00000000-0000-4000-8000-000000000002",
+                    user_id="fake-cognito-sub-0002",
                     puuid="FAKE-PUUID-LOL-00000000000000000000000000000000000000000000000002",
                 ),
             ]
@@ -338,9 +328,6 @@ async def seed():
     print(f"  Participants:   {len(SEED_VIEWER_PARTICIPANTS)} (viewer)")
     print(f"  Achievements:   {len(SEED_USER_ACHIEVEMENTS)} (viewer)")
     print(f"  Featured games: {len(SEED_FEATURED_GAMES)} (viewer)")
-    print(
-        "  Dev login:      testuser1@vantagepoint.dev (password from SEED_DEV_PASSWORD)"
-    )
 
 
 if __name__ == "__main__":
