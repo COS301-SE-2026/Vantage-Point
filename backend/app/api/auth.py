@@ -118,22 +118,26 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
             detail="Could not fetch Cognito public keys",
         ) from exc
 
-# Role_Levels = {
-#     "User": 1,
-#     "Admin": 2
-# }
+role_levels = {
+    "User": 1,
+    "Admin": 2
+}
 #idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
-# def get_user_level(user:)
+def get_user_highest_level(user: Annotated[Any, Depends(get_current_user)]):
+    #get highest level user has. Admin then user
+    return max(
+        role_levels.get(group, 0)
+        for group in user.groups
+    )
 
-def require_group(allowed_groups: list[str] | str):
+def require_group(required_value: int):
     def checker(user: Annotated[Any, Depends(get_current_user)]):
-        if not any(
-            group in user.groups
-            for group in allowed_groups
-        ):
+        user_level = get_user_highest_level(user)
+        if (user_level >= required_value):
+            return user
+        else:
             raise HTTPException(
-                status_code=404,
+                status_code=403,
                 detail=f"Invalid Permission {user.groups}"
             )
-        return user
     return checker
