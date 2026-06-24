@@ -11,7 +11,6 @@ from sqlmodel import SQLModel, Field, Relationship
 # Likely to get more complex as we add more features but this is a good starting point for the basic match/summoner/champion data we need to store.
 
 
-
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
 # we can cross reference api responses directly without a lookup step making it easier to confirm data integrity.
@@ -28,6 +27,9 @@ class Champions(SQLModel, table=True):
 class Users(SQLModel, table=True):
     cognito_sub: str = Field(primary_key=True)
     email: str = Field(unique=True, index=True)
+    display_name: Optional[str] = Field(default=None)
+    avatar_url: Optional[str] = Field(default=None)
+    deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
@@ -35,8 +37,8 @@ class Users(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
 
-    linked_puuids_cache : Optional[str] = Field(
-        default ="[]",
+    linked_puuids_cache: Optional[str] = Field(
+        default="[]",
         # JSON array of PUUIDs linked to this account e.g. ["puuid1", "puuid2"].
         # Denormalized cache of UserGameAccounts for fast autocomplete lookups.
         # Source of truth is still UserGameAccounts — update this whenever a
@@ -77,6 +79,7 @@ class GameAccounts(SQLModel, table=True):
 # Deletion of a link here does not delete the underlying game account.
 # When adding or removing a link here, also update Users.linked_puuids_cache
 # so the fast-read cache stays in sync.
+
 
 class UserGameAccounts(SQLModel, table=True):
     __tablename__ = "user_game_accounts"
