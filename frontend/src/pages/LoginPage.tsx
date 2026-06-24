@@ -2,68 +2,51 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
-import RegisterComponent, {
-  type RegisterFormProps,
-} from "../../imports/Register/Register";
+import LoginComponent, { type LoginFormProps } from "../components/auth/Login";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setError(null);
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
     setLoading(true);
     try {
-      await register({
-        email: email.trim(),
-        display_name: displayName.trim(),
-        password,
-      });
-      navigate("/link-riot", { replace: true });
+      const me = await login({ email: email.trim(), password });
+      if (me.has_linked_riot) {
+        navigate("/loading", { replace: true });
+      } else {
+        navigate("/link-riot", { replace: true });
+      }
     } catch (err) {
       const message =
         err instanceof ApiError
           ? err.message
-          : "Registration failed. Please try again.";
+          : "Sign in failed. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const formProps: RegisterFormProps = {
+  const formProps: LoginFormProps = {
     email,
-    displayName,
     password,
-    confirmPassword,
     error,
     loading,
     onEmailChange: setEmail,
-    onDisplayNameChange: setDisplayName,
     onPasswordChange: setPassword,
-    onConfirmPasswordChange: setConfirmPassword,
     onSubmit: () => void handleSubmit(),
     onSocialClick: () => setError("Social sign-in is coming soon."),
   };
 
   return (
     <div className="w-screen h-screen bg-white overflow-hidden">
-      <RegisterComponent form={formProps} />
+      <LoginComponent form={formProps} />
     </div>
   );
 }
