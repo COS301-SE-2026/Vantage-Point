@@ -3,19 +3,10 @@ import Data_Converter.src.Converter_Main as converter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import GridSearchCV
-
+import time
 warnings.filterwarnings("ignore")
 
-#decisions to implement
-    #items to buy
-    #champion to use
-    #perks to upgrade????
-
-
-## categorical
-def rf_items():
-    print()
-
+#evaluation/tuning
 
 def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
     param_grid = {
@@ -39,7 +30,18 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
     model_grid.fit(X_train, y_train)
     y_pred_grid = model_grid.predict(X_test)
 
-    print(accuracy_score(y_pred_grid, y_test))
+    return accuracy_score(y_pred_grid, y_test)
+
+def giniImportance():
+    print()
+
+#decisions to implement
+    #items to buy
+    #champion to use
+    #perks to upgrade????
+## categorical
+def rf_items():
+    print()
 
 
 def rf_champions(X_train, X_test, y_train, y_test):
@@ -47,15 +49,24 @@ def rf_champions(X_train, X_test, y_train, y_test):
     rf.fit(X_train, y_train)
 
     y_pred = rf.predict(X_test)
-    print(accuracy_score(y_pred, y_test))
+    return accuracy_score(y_pred, y_test)
     
 
 def rf_perks():
     print()
 
+start = time.time()
 X_train, X_test, y_train, y_test = converter.getTrainTestDataRF('test.csv', 'champion')
-rf_champions(X_train, X_test, y_train, y_test)
-hyperparam_gridSearch(X_train, X_test, y_train, y_test)
+base_ac = rf_champions(X_train, X_test, y_train, y_test)
+t = time.time()
+print(f'\nTime: {t - start:.2f} seconds')
+param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
+end = time.time()
+print(f'Final Time: {end - start:.2f} seconds')
+
+print("")
+print(f'Base accuracy: {base_ac}')
+print(f'Parameter tuned accuracy: {param_ac}')
 
 
 
