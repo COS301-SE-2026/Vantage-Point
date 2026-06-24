@@ -1,0 +1,6 @@
+# .gitattributes
+# Force LF line endings for shell scripts — CRLF breaks bash in Linux containers
+*.sh text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+*.md text eol=lf
