@@ -5,7 +5,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor
 #add import
 from pyloading_bar import Bar
-
 import time
 
 start = time.time()
