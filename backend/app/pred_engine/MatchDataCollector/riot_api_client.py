@@ -219,11 +219,8 @@ def knn(participants, timeInfo, puuid_pool):
     #role
     #lane
     #other champs
-    #bans
 def rf_champion(info, participants, puuid_pool):
     rows = []
-
-    teams = info.get('teams', [])
     
     for part in participants:
         p = part.get("puuid")
@@ -236,18 +233,6 @@ def rf_champion(info, participants, puuid_pool):
             "role": part.get("role"),
             "lane" : part.get("lane"),
         }
-
-        c = 0
-        for t in teams:
-            bans = t.get("bans")
-            for b in bans:
-                if c == 10:
-                    continue
-                addInfo = {
-                    "championId"+str(c) : b.get("championId")
-                }
-                c = c + 1
-                row_data.update(addInfo)
 
         c = 0
         otherPart = info.get("participants")

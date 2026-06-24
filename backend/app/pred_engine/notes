@@ -1,7 +1,0 @@
-player position api call:
-    /lol/match/v5/matches/{matchId}/timeline
-        ParticipantFrameDto 
-            PositionDto (X and Y values)
-
-get data thru api directly with pro tournament match ids
-need to find database of pro matchid

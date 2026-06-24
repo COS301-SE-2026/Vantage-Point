@@ -1,7 +1,7 @@
 import warnings
 import Data_Converter.src.Converter_Main as converter
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 
 warnings.filterwarnings("ignore")
 
