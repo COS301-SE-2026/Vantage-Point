@@ -3,7 +3,7 @@ import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.config import get_settings
-from typing import Any, cast
+from typing import Any, cast, Annotated
 
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -76,7 +76,7 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
     global jwks_cache
     issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
 
@@ -92,7 +92,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
             audience=settings.cognito_client_id,
             issuer=issuer,
         )
-
+        #add username as well in return over here
         user_id = payload.get("sub")
         if user_id is None:
             raise HTTPException(
@@ -100,8 +100,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
                 detail="Token missing subject",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
-        return str(user_id)  # Return the Cognito User ID
+        #need to chnage all annotated that used str. Either to Any or Create a model for it.
+        return {
+            "sub": payload["sub"],
+            "email": payload.get("email"),
+            "groups": payload.get("cognito:groups",[])
+        }
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -113,3 +117,23 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Could not fetch Cognito public keys",
         ) from exc
+
+# Role_Levels = {
+#     "User": 1,
+#     "Admin": 2
+# }
+#idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
+# def get_user_level(user:)
+
+def require_group(allowed_groups: list[str] | str):
+    def checker(user: Annotated[Any, Depends(get_current_user)]):
+        if not any(
+            group in user.groups
+            for group in allowed_groups
+        ):
+            raise HTTPException(
+                status_code=404,
+                detail=f"Invalid Permission {user.groups}"
+            )
+        return user
+    return checker
