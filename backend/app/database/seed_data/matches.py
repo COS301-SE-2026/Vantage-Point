@@ -1,4 +1,5 @@
 """Seed payloads for dev match history and detail scoreboards."""
+
 # TODO: move this file to backend/app/tests/seed_data/ once the test structure is finalised
 
 import json
