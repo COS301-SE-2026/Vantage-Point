@@ -38,10 +38,12 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
     if runCat == 'skill':
         rfMulti = MultiOutputClassifier(model_grid, n_jobs=-1)
         rfMulti.fit(X_train, y_train)
-        score = cross_validate(
-            rfMulti, X_train, y_train, cv=2, scoring=['accuracy']
-        )
-        scores = score.get('test_accuracy')
+        y_pred_grid = rfMulti.predict(X_test)
+
+        y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
+        y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
+        
+        scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
     else:
         model_grid.fit(X_train, y_train)
         y_pred_grid = model_grid.predict(X_test)
@@ -107,10 +109,13 @@ def rf_skills(X_train, X_test, y_train, y_test):
     rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
     rfMulti.fit(X_train, y_train)
 
-    scores = cross_validate(
-        rfMulti, X_train, y_train, cv=2, scoring=['accuracy']
-    )
-    return scores.get('test_accuracy'), rfMulti
+    y_pred_grid = rfMulti.predict(X_test)
+
+    y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
+    y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
+        
+    scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
+    return scores, rfMulti
 
 
 def rf_lane(X_train, X_test, y_train, y_test):
