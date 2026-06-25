@@ -293,8 +293,76 @@ def rf_item(participants, timeInfo, puuid_pool):
     return rows
 
 
+#return skillSlot#,leveluptype#
+#data goes in
+    #event
+        #timestamp#
+    #level#
+    #championId#
+    #goldPerSecond#
+    #magicDamageDone#
+    #physicalDamageDone#
+    #totalDamageDone#
+    #abilityHaste#
+    #armor#
+    #attackDamage#
+    #attackSpeed#
+    #cooldownReduction#
+    #health#
+    #healthMax#
+    #healthRegen#
+    #lifesteal#
+    #movementSpeed#
+    #power
+    #magicPen
 def rf_skill(info, participants, timeInfo, puuid_pool):
     rows = []
+    for part in participants:
+        p = part.get('puuid')
+        if p:
+            puuid_pool.add(p)
+
+        framePart = timeInfo.get("participants", [])
+        for i in framePart:
+            if i.get("puuid") == p: 
+                pId = i.get("participantId") 
+
+        framesList = timeInfo.get("frames", [])
+        
+        for frame in framesList:
+            partFrames = frame.get("participantFrames", [])
+            partFrame = partFrames.get(str(pId))
+            damage = partFrame.get("damageStats", [])
+            champStat = partFrame.get("championStats", [])
+
+            eventList = frame.get("events", [])
+            for e in eventList:
+                if e.get("type") == "SKILL_LEVEL_UP" and e.get("participantId") == pId: 
+                    row_data = {
+                        "skillSlot" : e.get("skillSlot"),
+                        "levelUpType" : e.get("levelUpType"),
+                        "timestamp" : e.get("timestamp"),
+                        "level" : partFrame.get("level"),
+                        "championId" : part.get("championId"),
+                        "goldPerSecond" : partFrame.get("goldPerSecond"),
+                        "magicDamageDone" : damage.get("magicDamageDone"),
+                        "physicalDamageDone" : damage.get("physicalDamageDone"),
+                        "totalDamageDone" : damage.get("totalDamageDone"),
+                        "abilityHaste" : champStat.get("abilityHaste"),
+                        "armor" : champStat.get("armor"),
+                        "attackDamage" : champStat.get("attackDamage"),
+                        "attackSpeed" : champStat.get("attackSpeed"),
+                        "cooldownReduction" : champStat.get("cooldownReduction"),
+                        "health" : champStat.get("health"),
+                        "healthMax" : champStat.get("healthMax"),
+                        "healthRegen" : champStat.get("healthRegen"),
+                        "lifesteal" : champStat.get("lifesteal"),
+                        "movementSpeed" : champStat.get("movementSpeed"),
+                        "power" : champStat.get("power"),
+                        "magicPen" : champStat.get("magicPen")
+                    }
+                    rows.append(row_data)
+        
     return rows
 
 
@@ -308,9 +376,9 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
     #different data set collections
     #rows = knn(participants, timeInfo, puuid_pool)
-    rows = rf_champion(info, participants, puuid_pool)
+    #rows = rf_champion(info, participants, puuid_pool)
     #rows = rf_item(participants, timeInfo, puuid_pool)
-    #rows = rf_perk(info, participants, timeInfo, puuid_pool)
+    rows = rf_skill(info, participants, timeInfo, puuid_pool)
 
     return rows
 

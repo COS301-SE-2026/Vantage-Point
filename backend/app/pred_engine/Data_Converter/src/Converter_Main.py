@@ -219,7 +219,28 @@ def formatItemData(data):
     
     return dataArr, y
 
-#return skillSlot
+#return skillSlot,leveluptype
+#data goes in
+    #event
+        #timestamp
+    #level
+    #championId
+    #goldPerSecond
+    #magicDamageDone
+    #physicalDamageDone
+    #totalDamageDone
+    #abilityHast
+    #armor
+    #attackDamage
+    #attackSpeed
+    #cooldownReduction
+    #health
+    #healthMax
+    #healthRegen
+    #lifesteal
+    #movementSpeed
+    #power
+    #magicPen
 def formatSkillData(data):
     print(data)
 
