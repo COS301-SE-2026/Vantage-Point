@@ -30,7 +30,7 @@ def get_secret_hash(username: str):
     ).digest()
     return base64.b64encode(dig).decode()
 
-
+#might change to do all over log and then move to another functionality
 def log_registration(username: str, email: str):
     """Writes new user info to a local text file"""
     with open("registrations.txt", "a") as f:
@@ -71,6 +71,8 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
+            #add code to use cognito auto built in email confirmation
+            #email being sent also need to check, because if remember correctly restricted to 10000 email sent if using only cognito. 
 
         await asyncio.to_thread(log_registration, username, email)
         return response

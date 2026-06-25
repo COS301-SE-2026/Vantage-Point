@@ -9,6 +9,7 @@ settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 # Cache keys to avoid hitting AWS on every single request
+#need to make it not sterile. Will do later.
 jwks_cache: dict[str, Any] | None = None
 
 
@@ -92,6 +93,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
             audience=settings.cognito_client_id,
             issuer=issuer,
         )
+
+        #ensure we only get access tokens in and raise exception if we receive id token
+        if (payload["token_use"] != "access"):
+            raise HTTPException(
+                status_code=400,
+                detail="Wrong Token sent in header."
+            )
         #add username as well in return over here
         user_id = payload.get("sub")
         if user_id is None:
@@ -103,7 +111,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
         #need to chnage all annotated that used str. Either to Any or Create a model for it.
         return {
             "sub": payload["sub"],
-            "email": payload.get("email"),
             "groups": payload.get("cognito:groups",[])
         }
     except JWTError as exc:
