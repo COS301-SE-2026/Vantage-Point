@@ -242,7 +242,42 @@ def formatItemData(data):
     #power
     #magicPen
 def formatSkillData(data):
-    print(data)
+    dataArr = []
+    y = []
+    r = -1
+
+    for row in data:
+        if r == -1:
+            r = r + 1
+            continue
+
+        for j in range(len(row)):
+            if any(char.isdigit() for char in row[j]):
+                row[j] = int(row[j]) 
+        val = row[1]
+        match val:
+            case 'NORMAL':
+                row[1] = 1 
+            case 'EVOLVE':
+                row[1] = 2
+        for j in range(len(row)):
+            if not isinstance(row[j], int):
+                row[j] = 0 
+        
+        dataArr.append([])
+        y.append([])
+
+        c = 0
+        for i in row:
+            if c == 0 or c == 1:
+                y[r].append(i)
+                c = c + 1
+            else:
+                dataArr[r].append(i)
+                c = c + 1
+        r = r + 1
+    
+    return dataArr, y
 
 
 def formatLaneData(data):
@@ -271,11 +306,11 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'item')
+xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'skill')
 
-#print(xtr)
-#print(xt)
-#print()
-#print()
-#print(ytr)
-#print(yt)
+print(xtr)
+print(xt)
+print()
+print()
+print(ytr)
+print(yt)
