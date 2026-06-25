@@ -59,7 +59,7 @@ jobs:
         env:
           JWT_SECRET: test-ci-secret
           DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
-        run: cd backend && pylint app --disable=all --enable=W0511,W0105,W0611
+        run: cd backend && pylint app --disable=all --enable=W0511,W0611
 
   # ============================================================================
   # LEVEL 2: UNIT TESTS & COVERAGE (With DB Integration Container)
