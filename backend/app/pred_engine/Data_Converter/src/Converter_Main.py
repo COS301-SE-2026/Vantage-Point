@@ -169,15 +169,21 @@ def formatChampionData(data):
 
 #returns itemId
 #data going in:
-    #champion id
-    #other items you have
+    #event timestamp
+    #championId
+    #champLevel
+    #currentGold
+    #level
+    #xp
+    #totalDamageDone
+    #totalDamagetake
     #health
-    #damage
-    #visionScore
+    #healthmax
+    #healthRegen
+    #lifesteal
+    #power
+    #powerMax
     #armor
-    #gold
-    #eventObj info ITEM_PURCHASED event
-        #timestamp
 def formatItemData(data):
     print(data)
 

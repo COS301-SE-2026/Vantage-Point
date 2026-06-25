@@ -13,7 +13,7 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 100000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 1000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+MAX_ROWS = 100      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -213,12 +213,7 @@ def knn(participants, timeInfo, puuid_pool):
             #events?
     return rows
 
-#returns champion id
-#data going in:
-    #team position
-    #role
-    #lane
-    #other champs
+
 def rf_champion(info, participants, puuid_pool):
     rows = []
     
@@ -251,8 +246,50 @@ def rf_champion(info, participants, puuid_pool):
 
     return rows
 
-def rf_item(info, participants, timeInfo, puuid_pool):
+
+def rf_item(participants, timeInfo, puuid_pool):
     rows = []
+    for part in participants:
+        p = part.get('puuid')
+        if p:
+            puuid_pool.add(p)
+
+        framePart = timeInfo.get("participants", [])
+        for i in framePart:
+            if i.get("puuid") == p: 
+                pId = i.get("participantId") 
+
+        framesList = timeInfo.get("frames", [])
+
+        for frame in framesList:
+            partFrames = frame.get("participantFrames", [])
+            partFrame = partFrames.get(str(pId))
+            damage = partFrame.get("damageStats", [])
+            champStat = partFrame.get("championStats", [])
+
+            eventList = frame.get("events", [])
+            for e in eventList:
+                if e.get("type") == "ITEM_PURCHASED" and e.get("participantId") == pId:                    
+                    row_data = {
+                        "itemId" : e.get("itemId"),
+                        "timestamp" : e.get("timestamp"),
+                        "championId" : part.get("championId"),
+                        "champLevel" : part.get("champLevel"),
+                        "currentGold" : partFrame.get("currentGold"),
+                        "level" : partFrame.get("level"),
+                        "xp" : partFrame.get("xp"),
+                        "totalDamageDone" : damage.get("totalDamageDone"),
+                        "totalDamageTaken" : damage.get("totalDamageTaken"),
+                        "health" : champStat.get("health"),
+                        "healthMax" : champStat.get("healthMax"),
+                        "healthRegen" : champStat.get("healthRegen"),
+                        "lifesteal" : champStat.get("lifesteal"),
+                        "power" : champStat.get("power"),
+                        "powerMax" : champStat.get("powerMax"),
+                        "armor" : champStat.get("armor"),
+                    }
+                    rows.append(row_data)
+            
     return rows
 
 def rf_perk(info, participants, timeInfo, puuid_pool):
@@ -269,8 +306,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
     #different data set collections
     #rows = knn(participants, timeInfo, puuid_pool)
-    rows = rf_champion(info, participants, puuid_pool)
-    #rows = rf_item()
+    #rows = rf_champion(info, participants, puuid_pool)
+    rows = rf_item(participants, timeInfo, puuid_pool)
     #rows = rf_perk()
 
     return rows

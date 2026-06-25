@@ -8,7 +8,7 @@ import pandas as pd
 import time
 warnings.filterwarnings("ignore")
 
-fileName = 'test.csv'
+fileName = 'test5000.csv'
 
 #evaluation/tuning
 
@@ -55,6 +55,26 @@ def giniImportance(rf):
     #champion to use
     #perks to upgrade????
 ## categorical
+
+######group by frames
+#event type=ITEM_PURCHASED
+    #itemId
+    #timestamp
+#championId
+#champLevel
+#frame timestamp
+#currentGold
+#level
+#xp
+#totalDamageDone
+#totalDamageTaken
+#health
+#healthMax
+#healthRegen
+#lifesteal
+#power
+#powerMax
+#armor
 def rf_items():
     print()
 
@@ -77,9 +97,9 @@ base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')
 
-#param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
-#t = time.time()
-#print(f'\nTime: {t - start:.2f} seconds')
+param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
+t = time.time()
+print(f'\nTime: {t - start:.2f} seconds')
 
 feature_dif = giniImportance(rf_model)
 end = time.time()
@@ -87,7 +107,7 @@ print(f'Final Time: {end - start:.2f} seconds')
 
 print("")
 print(f'Base accuracy: {base_ac}')
-#print(f'Parameter tuned accuracy: {param_ac}')
+print(f'Parameter tuned accuracy: {param_ac}')
 print(feature_dif)
 
 
