@@ -45,6 +45,18 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
         run: cd backend && mypy app
 
+      - name: Security check with Bandit
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
+        run: cd backend && bandit -r app
+
+      - name: Dead code & style check with Pylint
+        env:
+          JWT_SECRET: test-ci-secret
+          DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
+        run: cd backend && pylint app --disable=all --enable=W0511,W0105,W0611
+
   test:
     name: Unit Tests and Coverage
     runs-on: ubuntu-latest
