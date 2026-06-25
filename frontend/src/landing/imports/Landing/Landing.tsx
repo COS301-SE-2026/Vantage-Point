@@ -192,10 +192,7 @@ export default function Landing() {
         <AuthActions />
       </div>
       <div className="absolute h-[44px] left-1/2 -translate-x-1/2 bottom-[5%] w-[clamp(200px,30vw,402px)]">
-        <SlideDots
-          currentSlide={currentSlide}
-          onDotClick={setCurrentSlide}
-        />
+        <SlideDots currentSlide={currentSlide} onDotClick={setCurrentSlide} />
       </div>
     </div>
   );
