@@ -2,13 +2,15 @@ import warnings
 import csv
 import Data_Converter.src.Converter_Main as converter
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import time
 warnings.filterwarnings("ignore")
 
-fileName = 'test5000.csv'
+fileName = 'test.csv'
+runCat = 'champion' #champion; item
+yVal = 'championId' #championId, itemId
 
 #evaluation/tuning
 
@@ -42,7 +44,7 @@ def giniImportance(rf):
         feature_names = []
         for row in data:
             for i in row:
-                if i == 'championId':
+                if i == yVal:
                     continue
                 feature_names.append(i)
             break
@@ -54,6 +56,7 @@ def giniImportance(rf):
     #items to buy
     #champion to use
     #perks to upgrade????
+    #what lane/role/team position you should play in
 ## categorical
 
 ######group by frames
@@ -75,8 +78,12 @@ def giniImportance(rf):
 #power
 #powerMax
 #armor
-def rf_items():
-    print()
+def rf_items(X_train, X_test, y_train, y_test):
+    rf = RandomForestClassifier()
+    rf.fit(X_train, y_train)
+
+    y_pred = rf.predict(X_test)
+    return accuracy_score(y_pred, y_test), rf
 
 
 def rf_champions(X_train, X_test, y_train, y_test):
@@ -87,13 +94,28 @@ def rf_champions(X_train, X_test, y_train, y_test):
     return accuracy_score(y_pred, y_test), rf
     
 
-def rf_perks():
+def rf_perks(X_train, X_test, y_train, y_test):
     print()
+
+
+def rf_lane(X_train, X_test, y_train, y_test):
+    print()
+
 
 start = time.time()
 
-X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, 'champion')
-base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
+
+match runCat:
+    case 'champion':
+        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+    case 'item':
+        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+    case 'perk':
+        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+    case 'lane':
+        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')
 

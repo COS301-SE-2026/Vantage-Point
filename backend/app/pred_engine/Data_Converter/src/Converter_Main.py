@@ -185,11 +185,45 @@ def formatChampionData(data):
     #powerMax
     #armor
 def formatItemData(data):
-    print(data)
+    dataArr = []
+    y = []
+    r = -1
 
-#????????????????
+    for row in data:
+        if r == -1:
+            r = r + 1
+            continue
+
+        for j in range(len(row)):
+            if any(char.isdigit() for char in row[j]):
+                row[j] = int(row[j])  
+        for j in range(len(row)):
+            if not isinstance(row[j], int):
+                row[j] = 0 
+        
+        dataArr.append([])
+        y.append([])
+
+        c = 0
+        for i in row:
+            if c == 0:
+                y[r].append(i)
+                c = c + 1
+            else:
+                dataArr[r].append(i)
+                c = c + 1
+        r = r + 1
+    
+    return dataArr, y
+
+
 def formatPerkData(data):
     print(data)
+
+
+def formatLaneData(data):
+    print()
+
 
 def getTrainTestDataRF(fileName, category):
     with open(fileName, "r") as f:
@@ -203,6 +237,8 @@ def getTrainTestDataRF(fileName, category):
                 xData, yData = formatItemData(data)
             case 'perk':
                 xData, yData = formatPerkData(data)
+            case 'lane':
+                xData, yData = formatLaneData(data)
 
     X_train, X_test, y_train, y_test = train_test_split(
         xData, yData, test_size=0.2, random_state=42, stratify=None
@@ -211,7 +247,7 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'champion')
+#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'item')
 
 #print(xtr)
 #print(xt)

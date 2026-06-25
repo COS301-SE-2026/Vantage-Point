@@ -292,9 +292,11 @@ def rf_item(participants, timeInfo, puuid_pool):
             
     return rows
 
+
 def rf_perk(info, participants, timeInfo, puuid_pool):
     rows = []
     return rows
+
 
 async def process_match_data(session, match_data, timeline_data, puuid_pool):
     if not match_data:
@@ -306,8 +308,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
     #different data set collections
     #rows = knn(participants, timeInfo, puuid_pool)
-    #rows = rf_champion(info, participants, puuid_pool)
-    rows = rf_item(participants, timeInfo, puuid_pool)
+    rows = rf_champion(info, participants, puuid_pool)
+    #rows = rf_item(participants, timeInfo, puuid_pool)
     #rows = rf_perk()
 
     return rows
