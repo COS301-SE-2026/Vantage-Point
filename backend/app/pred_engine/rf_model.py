@@ -3,14 +3,16 @@ import csv
 import Data_Converter.src.Converter_Main as converter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV,cross_validate
+from sklearn.multioutput import MultiOutputClassifier
 import pandas as pd
+import numpy as np
 import time
 warnings.filterwarnings("ignore")
 
 fileName = 'test.csv'
-runCat = 'champion' #champion; item; skill; 
-yVal = 'championId' #championId, itemId; skillSlot
+runCat = 'skill' #champion; item; skill; 
+yVal = 'skillSlot' #championId, itemId; skillSlot
 
 #evaluation/tuning
 
@@ -33,10 +35,19 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
                                         bootstrap = grid_search.best_params_.get('bootstrap')
                                     )
     
-    model_grid.fit(X_train, y_train)
-    y_pred_grid = model_grid.predict(X_test)
+    if runCat == 'skill':
+        rfMulti = MultiOutputClassifier(model_grid, n_jobs=-1)
+        rfMulti.fit(X_train, y_train)
+        score = cross_validate(
+            rfMulti, X_train, y_train, cv=2, scoring=['accuracy']
+        )
+        scores = score.get('test_accuracy')
+    else:
+        model_grid.fit(X_train, y_train)
+        y_pred_grid = model_grid.predict(X_test)
+        scores = accuracy_score(y_pred_grid, y_test)
 
-    return accuracy_score(y_pred_grid, y_test)
+    return scores
 
 def giniImportance(rf):
     with open(fileName, 'r') as f:
@@ -46,9 +57,20 @@ def giniImportance(rf):
             for i in row:
                 if i == yVal:
                     continue
+                if runCat == 'skill':
+                    if i == 'levelUpType':
+                        continue
                 feature_names.append(i)
             break
-    importances = rf.feature_importances_
+
+    if runCat == 'skill':
+        feature_impts = []
+        for clf in rf.estimators_:
+            feature_impts.append(clf.feature_importances_)
+        importances = np.mean(feature_impts, axis=0)
+    else:
+        importances = rf.feature_importances_
+    
     feature_imp_df = pd.DataFrame({'Feature': feature_names, 'Gini Importance': importances}).sort_values('Gini Importance', ascending=False)
     return feature_imp_df
 
@@ -81,7 +103,14 @@ def rf_champions(X_train, X_test, y_train, y_test):
     
 
 def rf_skills(X_train, X_test, y_train, y_test):
-    print()
+    rf = RandomForestClassifier()
+    rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
+    rfMulti.fit(X_train, y_train)
+
+    scores = cross_validate(
+        rfMulti, X_train, y_train, cv=2, scoring=['accuracy']
+    )
+    return scores.get('test_accuracy'), rfMulti
 
 
 def rf_lane(X_train, X_test, y_train, y_test):
@@ -111,6 +140,7 @@ print(f'\nTime: {t - start:.2f} seconds')
 
 feature_dif = giniImportance(rf_model)
 end = time.time()
+print()
 print(f'Final Time: {end - start:.2f} seconds')
 
 print("")
