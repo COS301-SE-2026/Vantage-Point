@@ -26,14 +26,14 @@ services:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: riot_user
-      POSTGRES_PASSWORD: riot_password
-      POSTGRES_DB: riot_db
+      # POSTGRES_USER: riot_user
+      # POSTGRES_PASSWORD: riot_password
+      # POSTGRES_DB: riot_db
 
       # above is hardcoded for now, when movign to production MAKE SURE TO UNCOMMENT THE BELOW LINES AND REMOVE THE ABOVE LINES, so that we can use the .env file to set the values for these variables
-      # POSTGRES_USER: ${POSTGRES_USER}
-      # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      # POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     # Persistent storage: data stays even if you stop the container
     volumes:
       - postgres_data:/var/lib/postgresql/data
