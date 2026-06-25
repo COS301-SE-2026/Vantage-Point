@@ -97,7 +97,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
         #ensure we only get access tokens in and raise exception if we receive id token
         if (payload["token_use"] != "access"):
             raise HTTPException(
-                status_code=400,
+                status_code=401,
                 detail="Wrong Token sent in header."
             )
         #add username as well in return over here
@@ -126,15 +126,15 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
         ) from exc
 
 role_levels = {
-    "User": 1,
-    "Admin": 2
+    "User": 10,
+    "Admin": 20
 }
 #idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
 def get_user_highest_level(user: Annotated[Any, Depends(get_current_user)]):
     #get highest level user has. Admin then user
     return max(
-        role_levels.get(group, 0)
-        for group in user.groups
+        (role_levels.get(group, 0)
+        for group in user.groups), default=0
     )
 
 def require_group(required_value: int):
