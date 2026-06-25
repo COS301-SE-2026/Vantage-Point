@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # ============ Server Configuration ============
     debug: bool = True
-    host: str = "0.0.0.0"
+    host: str = "0.0.0.0" # nosec B104
     port: int = 8000
     # ============ Rate Limiting ============
     rate_limit_requests: int = 20

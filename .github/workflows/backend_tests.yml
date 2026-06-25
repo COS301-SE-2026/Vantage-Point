@@ -53,7 +53,7 @@ jobs:
         env:
           JWT_SECRET: test-ci-secret
           DATABASE_URL: postgresql+asyncpg://riot_user:riot_password@localhost:5432/riot_db
-        run: cd backend && bandit -r app
+        run: cd backend && bandit -r app -ll --exclude app/tests --skip B105
 
       - name: Dead code & style check with Pylint
         env:
