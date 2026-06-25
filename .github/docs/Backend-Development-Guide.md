@@ -74,6 +74,14 @@ pytest -m slow
 # Run only async tests
 pytest -m asyncio
 ```
+### Platform Notes
+
+- **Inside the dev container** – use the `.env` file as is (the database host is `db`).
+- **On the Windows host (outside Docker)** – the database is published to `127.0.0.1`.
+  1. Create a `.env.windows` file from the example and fill in your local credentials:
+     ```powershell
+     copy backend\.env.windows.example backend\.env.windows
+     # edit backend\.env.windows with your actual values
 
 ## Code Quality & Formatting
 ```bash
