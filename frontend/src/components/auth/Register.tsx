@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  authBackgroundImages,
-  authSlideIndices,
-} from "../../lib/backgrounds";
+import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
 import imgLogo from "../../assets/images/logos/logo.webp";
 import imgGoogle from "../../assets/images/providers/google.webp";
 import imgAppleInc from "../../assets/images/providers/apple.webp";
