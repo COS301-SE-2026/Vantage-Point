@@ -9,8 +9,8 @@ import time
 warnings.filterwarnings("ignore")
 
 fileName = 'test.csv'
-runCat = 'champion' #champion; item
-yVal = 'championId' #championId, itemId
+runCat = 'champion' #champion; item; skill; 
+yVal = 'championId' #championId, itemId; skillSlot
 
 #evaluation/tuning
 
@@ -53,31 +53,17 @@ def giniImportance(rf):
     return feature_imp_df
 
 #decisions to implement
-    #items to buy
-    #champion to use
-    #perks to upgrade????
-    #what lane/role/team position you should play in
+    #match frame
+        #items to buy
+        #skills to upgrade
+    #global match
+        #champion to use
+        #what lane/role/team_position you should play in
+    #####MAYBES#####
+    #Ward placement
 ## categorical
 
-######group by frames
-#event type=ITEM_PURCHASED
-    #itemId
-    #timestamp
-#championId
-#champLevel
-#frame timestamp
-#currentGold
-#level
-#xp
-#totalDamageDone
-#totalDamageTaken
-#health
-#healthMax
-#healthRegen
-#lifesteal
-#power
-#powerMax
-#armor
+
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rf.fit(X_train, y_train)
@@ -94,7 +80,7 @@ def rf_champions(X_train, X_test, y_train, y_test):
     return accuracy_score(y_pred, y_test), rf
     
 
-def rf_perks(X_train, X_test, y_train, y_test):
+def rf_skills(X_train, X_test, y_train, y_test):
     print()
 
 
@@ -110,11 +96,11 @@ match runCat:
     case 'champion':
         base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
     case 'item':
-        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
-    case 'perk':
-        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+        base_ac, rf_model = rf_items(X_train, X_test, y_train, y_test)
+    case 'skill':
+        base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
     case 'lane':
-        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+        base_ac, rf_model = rf_lane(X_train, X_test, y_train, y_test)
 
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')

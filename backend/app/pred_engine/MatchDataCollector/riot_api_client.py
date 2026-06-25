@@ -293,7 +293,7 @@ def rf_item(participants, timeInfo, puuid_pool):
     return rows
 
 
-def rf_perk(info, participants, timeInfo, puuid_pool):
+def rf_skill(info, participants, timeInfo, puuid_pool):
     rows = []
     return rows
 
@@ -310,7 +310,7 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     #rows = knn(participants, timeInfo, puuid_pool)
     rows = rf_champion(info, participants, puuid_pool)
     #rows = rf_item(participants, timeInfo, puuid_pool)
-    #rows = rf_perk()
+    #rows = rf_perk(info, participants, timeInfo, puuid_pool)
 
     return rows
 

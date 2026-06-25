@@ -168,17 +168,20 @@ def formatChampionData(data):
 
 
 #returns itemId
-#data going in:
-    #event timestamp
+#data going in
+    #event type=ITEM_PURCHASED
+
+        #timestamp
     #championId
     #champLevel
+    #frame timestamp
     #currentGold
     #level
     #xp
     #totalDamageDone
-    #totalDamagetake
+    #totalDamageTaken
     #health
-    #healthmax
+    #healthMax
     #healthRegen
     #lifesteal
     #power
@@ -216,8 +219,8 @@ def formatItemData(data):
     
     return dataArr, y
 
-
-def formatPerkData(data):
+#return skillSlot
+def formatSkillData(data):
     print(data)
 
 
@@ -235,8 +238,8 @@ def getTrainTestDataRF(fileName, category):
                 xData, yData = formatChampionData(data)
             case 'item':
                 xData, yData = formatItemData(data)
-            case 'perk':
-                xData, yData = formatPerkData(data)
+            case 'skill':
+                xData, yData = formatSkillData(data)
             case 'lane':
                 xData, yData = formatLaneData(data)
 
