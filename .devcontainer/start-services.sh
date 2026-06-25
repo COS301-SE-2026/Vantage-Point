@@ -3,7 +3,7 @@ set -e
 
 # --- Load nvm so npm and node are in the PATH ---
 export NVM_DIR="/usr/local/share/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
 
 # Also ensure user-installed Python packages (uvicorn) are available
 export PATH="/home/vscode/.local/bin:$PATH"
