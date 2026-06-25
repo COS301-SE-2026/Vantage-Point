@@ -8,7 +8,7 @@ FRONTEND_PID=""
 
 stop_pid() {
   local pid=$1
-  [ -z "$pid" ] && return
+  [[ -z "$pid" ]] && return
   kill "$pid" 2>/dev/null || true
   pkill -P "$pid" 2>/dev/null || true
 }
