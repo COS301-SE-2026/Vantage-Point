@@ -10,6 +10,8 @@ pytest-asyncio
 black==26.3.1
 ruff==0.1.11
 mypy==1.8.0
+pylint>=3.0.0
+bandit>=1.8.2
 
 # Type stubs for third-party libraries
 types-python-jose==3.5.0.20260408
