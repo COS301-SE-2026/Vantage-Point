@@ -295,7 +295,64 @@ def formatSkillData(data):
     #wardsPlaced
     #detectorWardsPlaced
 def formatRoleData(data):
-    print()
+    dataArr = []
+    y = []
+    r = -1
+
+    for row in data:
+        if r == -1:
+            r = r + 1
+            continue
+
+        if row[0] == '':
+            #is a blank
+            continue
+
+        for j in range(len(row)):
+            if any(char.isdigit() for char in row[j]):
+                row[j] = int(row[j]) 
+        val = row[0]
+        match val:
+            case 'TOP':
+                row[0] = 1
+            case 'JUNGLE':
+                row[0] = 2
+            case 'MIDDLE':
+                row[0] = 3
+            case 'BOTTOM':
+                row[0] = 4
+            case 'UTILITY':
+                row[0] = 5
+        val = row[1]
+        match val:
+            case 'TOP':
+                row[1] = 1
+            case 'JUNGLE':
+                row[1] = 2
+            case 'MIDDLE':
+                row[1] = 3
+            case 'BOTTOM':
+                row[1] = 4
+            case 'NONE':
+                row[1] = 0
+        for j in range(len(row)):
+            if not isinstance(row[j], int):
+                row[j] = 0 
+
+        dataArr.append([])
+        y.append([])
+
+        c = 0
+        for i in row:
+            if c == 0 or c == 1:
+                y[r].append(i)
+                c = c + 1
+            else:
+                dataArr[r].append(i)
+                c = c + 1
+        r = r + 1
+
+    return dataArr, y
 
 
 def getTrainTestDataRF(fileName, category):
@@ -320,11 +377,11 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'skill')
+xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'role')
 
-#print(xtr)
-#print(xt)
-#print()
-#print()
-#print(ytr)
-#print(yt)
+print(xtr)
+print(xt)
+print()
+print()
+print(ytr)
+print(yt)
