@@ -377,11 +377,11 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'role')
+#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'role')
 
-print(xtr)
-print(xt)
-print()
-print()
-print(ytr)
-print(yt)
+#print(xtr)
+#print(xt)
+#print()
+#print()
+#print(ytr)
+#print(yt)

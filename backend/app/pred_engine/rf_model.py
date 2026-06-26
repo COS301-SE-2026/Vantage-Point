@@ -11,8 +11,8 @@ import time
 warnings.filterwarnings("ignore")
 
 fileName = 'test.csv'
-runCat = 'skill' #champion; item; skill; role
-yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition
+runCat = 'role' #champion; item; skill; role
+yVal = 'teamPosition' #championId, itemId; skillSlot; teamPosition
 
 #evaluation/tuning
 
@@ -35,7 +35,7 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
                                         bootstrap = grid_search.best_params_.get('bootstrap')
                                     )
     
-    if runCat == 'skill':
+    if runCat == 'skill' or runCat == 'role':
         rfMulti = MultiOutputClassifier(model_grid, n_jobs=-1)
         rfMulti.fit(X_train, y_train)
         y_pred_grid = rfMulti.predict(X_test)
@@ -62,10 +62,13 @@ def giniImportance(rf):
                 if runCat == 'skill':
                     if i == 'levelUpType':
                         continue
+                if runCat == "role":
+                    if i == 'lane':
+                        continue
                 feature_names.append(i)
             break
 
-    if runCat == 'skill':
+    if runCat == 'skill' or runCat == 'role':
         feature_impts = []
         for clf in rf.estimators_:
             feature_impts.append(clf.feature_importances_)
@@ -119,7 +122,17 @@ def rf_skills(X_train, X_test, y_train, y_test):
 
 
 def rf_role(X_train, X_test, y_train, y_test):
-    print()
+    rf = RandomForestClassifier()
+    rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
+    rfMulti.fit(X_train, y_train)
+
+    y_pred_grid = rfMulti.predict(X_test)
+
+    y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
+    y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
+        
+    scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
+    return scores, rfMulti
 
 
 start = time.time()
