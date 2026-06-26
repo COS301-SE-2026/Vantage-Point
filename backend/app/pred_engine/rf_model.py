@@ -11,8 +11,8 @@ import time
 warnings.filterwarnings("ignore")
 
 fileName = 'test.csv'
-runCat = 'skill' #champion; item; skill; 
-yVal = 'skillSlot' #championId, itemId; skillSlot
+runCat = 'skill' #champion; item; skill; role
+yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition
 
 #evaluation/tuning
 
@@ -118,7 +118,7 @@ def rf_skills(X_train, X_test, y_train, y_test):
     return scores, rfMulti
 
 
-def rf_lane(X_train, X_test, y_train, y_test):
+def rf_role(X_train, X_test, y_train, y_test):
     print()
 
 
@@ -133,8 +133,8 @@ match runCat:
         base_ac, rf_model = rf_items(X_train, X_test, y_train, y_test)
     case 'skill':
         base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
-    case 'lane':
-        base_ac, rf_model = rf_lane(X_train, X_test, y_train, y_test)
+    case 'role':
+        base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
 
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')

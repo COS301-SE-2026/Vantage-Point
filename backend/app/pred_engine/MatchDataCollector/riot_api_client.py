@@ -13,7 +13,7 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 100000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 1000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+MAX_ROWS = 100      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -293,8 +293,7 @@ def rf_item(participants, timeInfo, puuid_pool):
     return rows
 
 
-
-def rf_skill(info, participants, timeInfo, puuid_pool):
+def rf_skill(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
         p = part.get('puuid')
@@ -344,6 +343,71 @@ def rf_skill(info, participants, timeInfo, puuid_pool):
         
     return rows
 
+#teamPosition sometimes turns up empty, this is unusable for training
+#need to add edge case resolution somewhere
+def rf_role(info, participants, timeInfo, puuid_pool):
+    rows = []
+    for part in participants:
+        p = part.get('puuid')
+        if p:
+            puuid_pool.add(p)
+
+        framePart = timeInfo.get("participants", [])
+        for i in framePart:
+            if i.get("puuid") == p: 
+                pId = i.get("participantId") 
+
+        framesList = timeInfo.get("frames", [])
+
+        c = 0
+        for frame in framesList:
+            c = c + 1
+            partFrames = frame.get("participantFrames", [])
+            partFrame = partFrames.get(str(pId))
+            champStat = partFrame.get("championStats", [])
+            if c == 1:
+                start_movementSpeed = champStat.get("movementSpeed")
+                start_health = champStat.get("health")
+                start_healthMax = champStat.get("healthMax")
+                start_healthRegen = champStat.get("healthRegen")
+                start_armor = champStat.get("armor")
+            if c == len(framesList):
+                end_movementSpeed = champStat.get("movementSpeed")
+                end_health = champStat.get("health")
+                end_healthMax = champStat.get("healthMax")
+                end_healthRegen = champStat.get("healthRegen")
+                end_armor = champStat.get("armor")
+        
+        row_data = {
+            "teamPosition" : part.get("teamPosition"),
+            "lane" : part.get("lane"),
+            "championId" : part.get("championId"),
+            "kills" : part.get("kills"),
+            "physicalDamageDealt" : part.get("physicalDamageDealt"),
+            "totalDamagedealt" : part.get("totalDamageDealt"),
+            "magicDamageDealt" : part.get("magicDamageDealt"),
+            "totalHeal" : part.get("totalHeal"),
+            "totalEnemyJungleMinionsKilled" : part.get("totalEnemyJungleMinionsKilled"),
+            "totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
+            "totalUnitsHealed" : part.get("totalUnitsHealed"),
+            "wardsKilled" : part.get("wardsKilled"),
+            "wardsPlaced" : part.get("wardsPlaced"),
+            "detectorWardsPlaced" : part.get("detectorWardsPlaced"),
+            "start_movementSpeed" : start_movementSpeed,
+            "start_health" : start_health,
+            "start_healthMax" : start_healthMax,
+            "start_healthRegen" : start_healthRegen,
+            "start_armor" : start_armor,
+            "end_movementSpeed" : end_movementSpeed,
+            "end_health" : end_health,
+            "end_healthMax" : end_healthMax,
+            "end_healthRegen" : end_healthRegen,
+            "end_armor" : end_armor,
+        }
+        rows.append(row_data)
+    return rows
+
+        
 
 async def process_match_data(session, match_data, timeline_data, puuid_pool):
     if not match_data:
@@ -357,7 +421,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     #rows = knn(participants, timeInfo, puuid_pool)
     #rows = rf_champion(info, participants, puuid_pool)
     #rows = rf_item(participants, timeInfo, puuid_pool)
-    rows = rf_skill(info, participants, timeInfo, puuid_pool)
+    #rows = rf_skill(participants, timeInfo, puuid_pool)
+    rows = rf_role(info, participants, timeInfo, puuid_pool)
 
     return rows
 

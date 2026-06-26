@@ -219,6 +219,7 @@ def formatItemData(data):
     
     return dataArr, y
 
+
 #return skillSlot,leveluptype
 #data goes in
     #event
@@ -280,7 +281,20 @@ def formatSkillData(data):
     return dataArr, y
 
 
-def formatLaneData(data):
+#return lane/teamPosition
+#data goes in
+    #championId
+    #kills
+    #physicalDamageDealt
+    #totalDamageDealt
+    #totalHeal
+    #totalEnemyJungleMinionsKilled
+    #totalHealsOnTeammates
+    #totalUnitsHealed
+    #wardsKilled
+    #wardsPlaced
+    #detectorWardsPlaced
+def formatRoleData(data):
     print()
 
 
@@ -296,8 +310,8 @@ def getTrainTestDataRF(fileName, category):
                 xData, yData = formatItemData(data)
             case 'skill':
                 xData, yData = formatSkillData(data)
-            case 'lane':
-                xData, yData = formatLaneData(data)
+            case 'role':
+                xData, yData = formatRoleData(data)
 
     X_train, X_test, y_train, y_test = train_test_split(
         xData, yData, test_size=0.2, random_state=42, stratify=None
