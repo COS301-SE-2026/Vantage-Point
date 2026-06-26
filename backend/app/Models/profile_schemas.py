@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-
+from datetime import datetime
+class User(BaseModel):
+    sub: str
+    groups: list[str]
+    username: str | None
+    email: str | None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    scheduled_deletion: datetime | None = None
 
 class MessageResponse(BaseModel):
     message: str = Field(..., description="Human-readable operation result")

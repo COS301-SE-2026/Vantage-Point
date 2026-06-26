@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.config import get_settings
 from typing import Any, cast, Annotated
+from app.Models.profile_schemas import User
 
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -77,7 +78,7 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     global jwks_cache
     issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
 
@@ -109,10 +110,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
                 headers={"WWW-Authenticate": "Bearer"},
             )
         #need to chnage all annotated that used str. Either to Any or Create a model for it.
-        return {
-            "sub": payload["sub"],
-            "groups": payload.get("cognito:groups",[])
-        }
+        return User(
+            sub=payload["sub"],
+            groups=payload.get("cognito:groups",[]),
+            username=payload.get("username"),
+            email=payload.get("email")
+        )
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -130,7 +133,7 @@ role_levels = {
     "Admin": 20
 }
 #idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
-def get_user_highest_level(user: Annotated[Any, Depends(get_current_user)]):
+def get_user_highest_level(user: User):
     #get highest level user has. Admin then user
     return max(
         (role_levels.get(group, 0)
