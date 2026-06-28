@@ -92,21 +92,6 @@ from app.config import get_settings
 #         return total_matches, summary
 
 #     @staticmethod
-#     async def undo_account_deletion(session: AsyncSession, user_id: str) -> bool:
-#         statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
-#         result = await session.execute(statement)
-#         profile = result.scalar_one_or_none()
-
-#         if not profile or not profile.deletion_scheduled_at:
-#             return False
-
-#         profile.deletion_scheduled_at = None
-#         profile.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-#         session.add(profile)
-#         await session.commit()
-#         return True
-
-#     @staticmethod
 #     async def update_profile(
 #         session: AsyncSession,
 #         user_id: str,
@@ -148,6 +133,7 @@ from app.config import get_settings
 
 
 settings = get_settings()
+
 class ProfileService:
     #need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
@@ -169,7 +155,7 @@ class ProfileService:
         return await ProfileService.create_profile(session, user, "jjjjjj")
 
     @staticmethod
-    async def create_profile(session: AsyncSession, user: User | None, accessToken: str) -> User:#none is there for incase we only want ti use this endpoint in admin. More flexibility
+    async def create_profile(session: AsyncSession, user: User | None) -> User:#none is there for incase we only want ti use this endpoint in admin. More flexibility
         if user is None:
             raise HTTPException(
                 status_code=400,
@@ -203,7 +189,7 @@ class ProfileService:
         return user
 
     @staticmethod
-    async def schelude_account_deletion(session: AsyncSession, user: User| None, password: str) -> datetime:
+    async def schelude_account_deletion(session: AsyncSession, user: User| None) -> datetime:
         if user is None: 
             raise HTTPException(
                 status_code=400,
@@ -226,31 +212,49 @@ class ProfileService:
                 detail="User does not exist"
             )
         
-        updated_profile = UserProfile(
-            user_id=user.sub,
-            username=user.username,
-            created_at=profile.created_at,
-            updated_at=datetime.now(),
-            deletion_scheduled_at=datetime.now() + timedelta(30)
-        )
+        profile.updated_at= datetime.now()
+        profile.deletion_scheduled_at= datetime.now() + timedelta(30)
 
-        session.add(updated_profile)
         await session.commit()
-        await session.refresh(user)
+        await session.refresh(profile)
 
-        return datetime.now() + timedelta(30)
-        
+        return profile.deletion_scheduled_at
+
     @staticmethod
-    async def update_profile(session: AsyncSession, user: User | None) -> User:
-        if user is None: 
+    async def undo_account_deletion(session: AsyncSession, sub: str | None):
+        if sub is None:
             raise HTTPException(
                 status_code=400,
-                detail="User object is empty"
+                detail="No id given to undo deletion"
+            )
+        
+        statement = select(UserProfile).where(UserProfile.user_id == sub)
+        result = await session.execute(statement)
+        profile = result.scalar_one_or_none()
+
+        if profile is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Account not Found !"
+            )
+        
+        profile.deletion_scheduled_at = datetime(1999, 12, 31)
+        await session.commit()
+        await session.refresh(profile)
+        return profile.username
+
+   #just db update, different endpoints for cognito updates     
+    @staticmethod
+    async def update_email(session: AsyncSession, email: str | None, access_token: str) -> User:
+        if email is None: 
+            raise HTTPException(
+                status_code=400,
+                detail="Email is empty"
             )
         
         client = boto3.client('cognito-idp', region_name=settings.aws_region)
 
-        statement = select(UserProfile).where(UserProfile.user_id == user.sub)
+        statement = select(UserProfile).where(UserProfile.user_id == email)#need to change when email gets added to db
         result: Any = await session.execute(statement)
         profile: User | None = result.scalar_one_or_none()
 
@@ -259,8 +263,22 @@ class ProfileService:
                 status_code=400,
                 detail="User does not exist."
             )
-        #pass in to be updated. Will pass in all of the objects meaning. Name, email & pswd
-        attr = [{
-            "Name"
-        }]
+        profile.email = email
+
+        await session.commit()
+        client.update_user_attributes(
+            AccessToken=access_token,
+            UserAttributes=[{
+                "Name": "email",
+                "Value": email
+            }]
+        )
+        await session.refresh(profile)
+        return profile
+
+    
+    #todo update pswd and confirm update
+
+        
+        
         
