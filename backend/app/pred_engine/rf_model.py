@@ -10,9 +10,9 @@ import numpy as np
 import time
 warnings.filterwarnings("ignore")
 
-fileName = 'test.csv'
-runCat = 'role' #champion; item; skill; role
-yVal = 'teamPosition' #championId, itemId; skillSlot; teamPosition
+fileName = 'test5000.csv'
+runCat = 'skill' #champion; item; skill; role
+yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition
 
 #evaluation/tuning
 
@@ -27,6 +27,8 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
 
     grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, cv=2)
     grid_search.fit(X_train, y_train)
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
 
     model_grid = RandomForestClassifier(max_depth = grid_search.best_params_.get('max_depth'),
                                         n_estimators = grid_search.best_params_.get('n_estimators'),
@@ -34,20 +36,36 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
                                         min_samples_split = grid_search.best_params_.get('min_samples_split'),
                                         bootstrap = grid_search.best_params_.get('bootstrap')
                                     )
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
     
     if runCat == 'skill' or runCat == 'role':
         rfMulti = MultiOutputClassifier(model_grid, n_jobs=-1)
         rfMulti.fit(X_train, y_train)
         y_pred_grid = rfMulti.predict(X_test)
+        t = time.time()
+        print(f'\nTime: {t - start:.2f} seconds')
 
         y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
         y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
+        t = time.time()
+        print(f'\nTime: {t - start:.2f} seconds')
         
         scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
+        t = time.time()
+        print(f'\nTime: {t - start:.2f} seconds')
     else:
         model_grid.fit(X_train, y_train)
+        t = time.time()
+        print(f'\nTime: {t - start:.2f} seconds')
+
         y_pred_grid = model_grid.predict(X_test)
+        t = time.time()
+        print(f'\nTime: {t - start:.2f} seconds')
+
         scores = accuracy_score(y_pred_grid, y_test)
+        t = time.time()
+        print(f'\nTime: {t - start:.2f} seconds')
 
     return scores
 
@@ -108,6 +126,7 @@ def rf_champions(X_train, X_test, y_train, y_test):
 def rf_skills(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
+
     rfMulti.fit(X_train, y_train)
 
     y_pred_grid = rfMulti.predict(X_test)
@@ -118,7 +137,7 @@ def rf_skills(X_train, X_test, y_train, y_test):
     scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
     return scores, rfMulti
 
-
+#done
 def rf_role(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rfMulti = MultiOutputClassifier(rf, n_jobs=-1)

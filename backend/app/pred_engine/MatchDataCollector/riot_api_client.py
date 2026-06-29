@@ -1,7 +1,6 @@
 import asyncio
 import csv
 import os
-#added to installs aiohttp-3.14.1 aiolimiter-1.2.1
 from aiohttp import ClientSession
 from aiolimiter import AsyncLimiter
 
@@ -12,7 +11,7 @@ RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 5000         # Every how many rows we create a NEW CSV file
+CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
 MAX_ROWS = 5000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
@@ -313,6 +312,8 @@ def rf_skill(participants, timeInfo, puuid_pool):
             damage = partFrame.get("damageStats", [])
             champStat = partFrame.get("championStats", [])
 
+            pos = partFrame.get("position")
+
             eventList = frame.get("events", [])
             for e in eventList:
                 if e.get("type") == "SKILL_LEVEL_UP" and e.get("participantId") == pId: 
@@ -321,11 +322,27 @@ def rf_skill(participants, timeInfo, puuid_pool):
                         "levelUpType" : e.get("levelUpType"),
                         "timestamp" : e.get("timestamp"),
                         "level" : partFrame.get("level"),
+                        "currentGold" : partFrame.get("currentGold"),
+                        "jungleMinionsKilled" : partFrame.get("jungleMinionsKilled"),
+                        "minionsKilled" : partFrame.get("minionsKilled"),
+                        "x" : pos.get("x"),
+                        "y" : pos.get("y"),
+                        "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
+                        "totalGold" : partFrame.get("totalGold"),
+                        "xp" : partFrame.get("xp"),
                         "championId" : part.get("championId"),
-                        "goldPerSecond" : partFrame.get("goldPerSecond"),
                         "magicDamageDone" : damage.get("magicDamageDone"),
+                        "magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
+                        "magicDamageTaken" : damage.get("magicDamageTaken"),
                         "physicalDamageDone" : damage.get("physicalDamageDone"),
+                        "physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
+                        "physicalDamageTaken" : damage.get("physicalDamageTaken"),
                         "totalDamageDone" : damage.get("totalDamageDone"),
+                        "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
+                        "totalDamageTaken" : damage.get("totalDamageTaken"),
+                        "trueDamageDone" : damage.get("trueDamageDone"),
+                        "trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
+                        "trueDamageTaken" : damage.get("trueDamageTaken"),
                         "armor" : champStat.get("armor"),
                         "attackDamage" : champStat.get("attackDamage"),
                         "attackSpeed" : champStat.get("attackSpeed"),
@@ -335,7 +352,10 @@ def rf_skill(participants, timeInfo, puuid_pool):
                         "lifesteal" : champStat.get("lifesteal"),
                         "movementSpeed" : champStat.get("movementSpeed"),
                         "power" : champStat.get("power"),
-                        "magicPen" : champStat.get("magicPen")
+                        "abilityPower" : champStat.get("abilityPower"),
+                        "ccReduction" : champStat.get("ccReduction"),
+                        "magicResist" : champStat.get("magicResist"),
+                        "powerMax" : champStat.get("powerMax"),
                     }
                     rows.append(row_data)
         
@@ -407,7 +427,7 @@ def rf_role(participants, timeInfo, puuid_pool):
         rows.append(row_data)
     return rows
 
-        
+
 
 async def process_match_data(session, match_data, timeline_data, puuid_pool):
     if not match_data:
@@ -451,7 +471,7 @@ def save_chunk_to_csv(all_data, total_rows):
         return
 
     row_count = len(all_data)
-    filename = f"test.csv"
+    filename = f"test{row_count}.csv"
     keys = all_data[0].keys()
 
     with open(filename, "w", newline="", encoding="utf-8") as f:
@@ -463,7 +483,7 @@ def save_chunk_to_csv(all_data, total_rows):
 
     prev_count = total_rows - CHUNK_SIZE
     if prev_count > 0:
-        prev_filename = f"test.csv"
+        prev_filename = f"test{prev_count}.csv"
         if os.path.exists(prev_filename):
             os.remove(prev_filename)
             print(f"Removed previous file: {prev_filename}")
@@ -507,7 +527,7 @@ async def main():
                         total_rows += 1
                         rows_since_last_save += 1
 
-                        print(f"Processed a total of {total_rows} rows.")
+                        #print(f"Processed a total of {total_rows} rows.")
 
                         if rows_since_last_save >= CHUNK_SIZE:
                             save_chunk_to_csv(all_data, total_rows)
