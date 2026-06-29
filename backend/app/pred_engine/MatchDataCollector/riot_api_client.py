@@ -359,6 +359,8 @@ def rf_role(info, participants, timeInfo, puuid_pool):
 
         framesList = timeInfo.get("frames", [])
 
+        #gives first and last frame
+        #ending and starting stats
         c = 0
         for frame in framesList:
             c = c + 1

@@ -3,7 +3,7 @@ import csv
 import Data_Converter.src.Converter_Main as converter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV,cross_validate
+from sklearn.model_selection import GridSearchCV
 from sklearn.multioutput import MultiOutputClassifier
 import pandas as pd
 import numpy as np
@@ -88,8 +88,6 @@ def giniImportance(rf):
         #what lane/role/team_position you should play in
     #####MAYBES#####
     #Ward placement
-## categorical
-
 
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
@@ -135,8 +133,9 @@ def rf_role(X_train, X_test, y_train, y_test):
     return scores, rfMulti
 
 
-start = time.time()
+###### TESTING AND EVALUATION #######
 
+start = time.time()
 X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
 
 match runCat:
@@ -148,6 +147,8 @@ match runCat:
         base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
     case 'role':
         base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
+
+
 
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')
@@ -166,9 +167,5 @@ print(f'Base accuracy: {base_ac}')
 print(f'Parameter tuned accuracy: {param_ac}')
 print(feature_dif)
 
-
-#Feature Importance and Dimensionality Reduction
-#Hyperparameter Tuning and Model Selection
-    #Grid Search
-    #Random Search
-    #Bayesian Optimization
+#accuracy score as close to 1 as possible
+#remove features with the lowest scores

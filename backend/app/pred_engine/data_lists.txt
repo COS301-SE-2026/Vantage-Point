@@ -54,7 +54,7 @@ info.participants.puuid.unreal
 //teamPosition
 //lane
 
-#######################################################################
+###########################################################################
 map_suggest_data
 
 used for KNN to predict best position
@@ -83,7 +83,7 @@ info.frames.participantFrames.{1..10}.xp
 info.participants.teamPosition
 info.participants.lane
 
-#########################################################################
+###########################################################################
 match_data
 
 data that goes to match page on frontend
@@ -166,7 +166,98 @@ info.teams.objectives.tower.kills
 info.teams.teamId
 info.teams.win
 
-###############################################################
+###########################################################################
+RANDOM FOREST
+###########################################################################
+Champion data
 
+info.participants.championId
+info.participants.teamPosition
+info.participants.roles
+info.participants.lane
+info.participants.championId (Other champions)
 
+###########################################################################
+Item data
+
+the events are labled type=ITEM_PURCHASED
+
+info.frames.events.itemId
+info.frames.events.timestamp
+info.participants.championId
+info.participants.champLevel
+info.frames.participantFrames.currentGold
+info.frames.participantFrames.level
+info.frames.participantFrames.xp
+info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.damageStats.totalDamageTaken
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
+info.frames.participantFrames.championStats.armor
+
+###########################################################################
+Skill data
+
+the events are labled type=SKILL_LEVEL_UP
+
+info.frames.events.skillslot
+info.frames.events.levelUpType
+info.frames.events.timestamp
+info.frames.participantFrames.level
+info.participants.championId
+info.frames.participantFrames.goldPerSecond
+info.frames.participantFrames.damageStats.magicDamageDone
+info.frames.participantFrames.damageStats.physicalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.championStats.abilityHaste
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.cooldownReduction
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.magicPen
+
+###########################################################################
+Role data
+
+regular data taken from static match data
+
+info.participants.teamPosition
+info.participants.lane
+info.participants.championId
+info.participants.kills
+info.participants.physicalDamageDealt
+info.participants.totalDamageDealt
+info.participants.magicDamageDealt
+info.participants.totalHeal
+info.participants.totalEnemyJungleMinionsKilled
+info.participants.totalHealsOnTeammates
+info.participants.totalUnitsHealed
+info.participants.wardsKilled
+info.participants.wardsPlaced
+info.participants.detectorWardsPlaced
+
+take the first and last frames and pull data from them
+
+start_movementSpeed = info.frames.participantFrames.championStats.movementSpeed
+start_health = info.frames.participantFrames.championStats.health
+start_healthMax = info.frames.participantFrames.championStats.healthMax
+start_healthRegen = info.frames.participantFrames.championStats.healthRegen
+start_armor = info.frames.participantFrames.championStats.armor
+end_movementSpeed = info.frames.participantFrames.championStats.movementSpeed
+end_health = info.frames.participantFrames.championStats.health
+end_healthMax = info.frames.participantFrames.championStats.healthMax
+end_healthRegen = info.frames.participantFrames.championStats.healthRegen
+end_armor = info.frames.participantFrames.championStats.armor
+
+###########################################################################
 
