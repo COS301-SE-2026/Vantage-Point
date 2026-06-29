@@ -115,7 +115,7 @@ async def build_player_profile(
     puuid: str | None,
     riot_id_tag: str | None,
 ) -> PlayerProfileResponse:
-    display_name = user.display_name
+    display_name = user.display_name or user.email
     tag = riot_id_tag or "Not linked"
     initials = _avatar_initials(display_name)
     avatar_url = user.avatar_url

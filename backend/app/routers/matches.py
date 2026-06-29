@@ -17,7 +17,7 @@ async def get_matches(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    puuid = await get_primary_linked_puuid(session, current_user.id)
+    puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
     if not puuid:
         return []
     return await list_match_history(session, puuid)
@@ -29,14 +29,14 @@ async def get_match_by_id(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    puuids = await get_linked_puuids(session, current_user.id)
+    puuids = await get_linked_puuids(session, current_user.cognito_sub)
     if not await user_has_match_access(session, puuids, match_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Match not found",
         )
 
-    viewer_puuid = await get_primary_linked_puuid(session, current_user.id)
+    viewer_puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
     detail = await get_match_detail(session, match_id, viewer_puuid)
     if not detail:
         raise HTTPException(
