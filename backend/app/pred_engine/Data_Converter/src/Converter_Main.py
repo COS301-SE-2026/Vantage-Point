@@ -170,7 +170,6 @@ def formatChampionData(data):
 #returns itemId
 #data going in
     #event type=ITEM_PURCHASED
-
         #timestamp
     #championId
     #champLevel
@@ -230,11 +229,9 @@ def formatItemData(data):
     #magicDamageDone
     #physicalDamageDone
     #totalDamageDone
-    #abilityHast
     #armor
     #attackDamage
     #attackSpeed
-    #cooldownReduction
     #health
     #healthMax
     #healthRegen

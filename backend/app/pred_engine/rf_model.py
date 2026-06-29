@@ -87,7 +87,7 @@ def giniImportance(rf):
         #champion to use
         #what lane/role/team_position you should play in
     #####MAYBES#####
-    #Ward placement
+        #Ward placement
 
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
@@ -147,9 +147,6 @@ match runCat:
         base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
     case 'role':
         base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
-
-
-
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')
 

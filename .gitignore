@@ -75,6 +75,6 @@ backend/uploads/
 
 # Other
 .postman
-*.csv
+test.csv
 output.txt
 frame events.txt

@@ -213,11 +213,9 @@ info.frames.participantFrames.goldPerSecond
 info.frames.participantFrames.damageStats.magicDamageDone
 info.frames.participantFrames.damageStats.physicalDamageDone
 info.frames.participantFrames.damageStats.totalDamageDone
-info.frames.participantFrames.championStats.abilityHaste
 info.frames.participantFrames.championStats.armor
 info.frames.participantFrames.championStats.attackDamage
 info.frames.participantFrames.championStats.attackSpeed
-info.frames.participantFrames.championStats.cooldownReduction
 info.frames.participantFrames.championStats.health
 info.frames.participantFrames.championStats.healthMax
 info.frames.participantFrames.championStats.healthRegen
