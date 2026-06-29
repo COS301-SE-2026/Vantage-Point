@@ -132,8 +132,8 @@ async def get_profile(
     )
 
     return ProfileResponse(
-        uuid=profile.user_id,
-        username=profile.username,
+        cognito_sub=profile.cognito_sub,
+        display_name=profile.display_name,
         total_matches=total_matches,
         player_summary=summary,
     )
@@ -410,8 +410,8 @@ async def create_profile(
     )
 
     return ProfileResponse(
-        uuid=profile.user_id,
-        username=profile.username,
+        cognito_sub=profile.cognito_sub,
+        display_name=profile.display_name,
         total_matches=total_matches,
         player_summary=summary,
     )
@@ -447,8 +447,8 @@ async def update_profile(
     )
 
     return ProfileResponse(
-        uuid=profile.user_id,
-        username=profile.username,
+        cognito_sub=profile.cognito_sub,
+        display_name=profile.display_name,
         total_matches=total_matches,
         player_summary=summary,
     )

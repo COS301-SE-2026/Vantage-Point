@@ -29,7 +29,7 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    result = await session.execute(select(Users).where(Users.id == user_id))
+    result = await session.execute(select(Users).where(Users.cognito_sub == user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(
