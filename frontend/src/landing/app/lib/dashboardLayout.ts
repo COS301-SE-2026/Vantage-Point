@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react";
-// import { DASHBOARD_CONTENT_LEFT_OPEN } from "../../imports/Group14/Group14";
 
-// export {
-//   DASHBOARD_CONTENT_LEFT_OPEN,
-//   DASHBOARD_FRAME_W,
-// } from "../../imports/Group14/Group14";
+export const DASHBOARD_FRAME_W = 1512;
+const DASHBOARD_SIDEBAR_LEFT = 28;
+const DASHBOARD_SIDEBAR_WIDTH = 220;
+const DASHBOARD_CONTENT_GAP = 51;
+
+export const DASHBOARD_CONTENT_LEFT_OPEN =
+  DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_CONTENT_GAP;
 
 export const DASHBOARD_CONTENT_TOP = "var(--vp-dashboard-header)";
 
