@@ -123,3 +123,41 @@ class TestMiscRoutes:
         payload = {"riot_api_key": "RGAPI-test-key-123"}
         response = client.put("/api/profile/riot-key", json=payload)
         assert response.status_code == status.HTTP_200_OK
+
+
+# Below is Integration test using the real database
+@pytest.mark.usefixtures("seeded_db_client")  # provides TestClient with seeded DB
+class TestProfileIntegration:
+    """Integration tests for /api/profile using a seeded test database."""
+
+    def test_get_profile_returns_valid_schema(self, seeded_db_client):
+        client = seeded_db_client
+        # override auth to match the seeded user_id
+        # the seeded user has cognito ssub = "00000000-0000-4000-8000-000000000099"
+        user_id = "00000000-0000-4000-8000-000000000099"
+        app.dependency_overrides[get_current_user] = lambda: user_id
+
+        response = client.get("/api/profile")
+
+        # Clean up the override so it doesn't affect other tests like the aboeve ones or the ones that come after
+        app.dependency_overrides.clear()
+
+        assert response.status_code == status.HTTP_200_OK
+        # wouldve just made response.status_code == 200 but i am following previous tests' style
+        data = response.json()
+
+        # verify structure matches ProfileResponse
+        assert "cognito_sub" in data
+        assert data["cognito_sub"] == user_id
+        assert "display_name" in data
+        assert isinstance(data["display_name"], str) or data["display_name"] is None
+        assert "total_matches" in data
+        assert isinstance(data["total_matches"], int)
+        assert "player_summary" in data
+
+        summary = data["player_summary"]
+        assert "most_played_character" in summary
+        assert "common_mistakes" in summary
+        assert isinstance(summary["common_mistakes"], list)
+        assert "avg_kda" in summary
+        assert "win_rate" in summary
