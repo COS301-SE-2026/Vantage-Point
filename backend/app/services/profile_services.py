@@ -4,7 +4,7 @@ from sqlalchemy import Integer, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
-from app.database.models import Champions, Participants, UserProfile, GameAccounts
+from app.database.models import Champions, Participants, Users, GameAccounts
 from app.schemas.profile_schemas import (
     PlayerSummary,
     ProfileCreateRequest,
@@ -18,23 +18,23 @@ def utc_now_naive() -> datetime:
 
 class ProfileService:
     @staticmethod
-    async def get_or_create_profile(session: AsyncSession, user_id: str) -> UserProfile:
-        statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
+    async def get_or_create_profile(session: AsyncSession, user_id: str) -> Users:
+        statement = select(Users).where(col(Users.cognito_sub) == user_id)
         result = await session.execute(statement)
-        profile = result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
 
-        if profile:
-            return profile
+        if user:
+            return user
 
-        profile = UserProfile(
-            user_id=user_id,
-            username=f"Summoner_{user_id[:8]}",
+        user = Users(
+            cognito_sub=user_id,
+            email=f"{user_id[:8]}@placeholder.invalid",
         )
-        session.add(profile)
+        session.add(user)
         await session.commit()
-        await session.refresh(profile)
+        await session.refresh(user)
 
-        return profile
+        return user
 
     @staticmethod
     async def build_player_summary(
@@ -115,38 +115,38 @@ class ProfileService:
     async def schedule_account_deletion(
         session: AsyncSession, user_id: str
     ) -> datetime:
-        profile = await ProfileService.get_or_create_profile(session, user_id)
+        user = await ProfileService.get_or_create_profile(session, user_id)
 
         deletion_date = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(
             days=30
         )
-        profile.deletion_scheduled_at = deletion_date
-        profile.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        session.add(profile)
+        user.deletion_scheduled_at = deletion_date
+        user.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        session.add(user)
         await session.commit()
-        await session.refresh(profile)
+        await session.refresh(user)
         return deletion_date
 
     @staticmethod
     async def undo_account_deletion(session: AsyncSession, user_id: str) -> bool:
-        statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
+        statement = select(Users).where(col(Users.cognito_sub) == user_id)
         result = await session.execute(statement)
-        profile = result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
 
-        if not profile or not profile.deletion_scheduled_at:
+        if not user or not user.deletion_scheduled_at:
             return False
 
-        profile.deletion_scheduled_at = None
-        profile.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        session.add(profile)
+        user.deletion_scheduled_at = None
+        user.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        session.add(user)
         await session.commit()
         return True
 
     @staticmethod
     async def create_profile(
         session: AsyncSession, user_id: str, request: ProfileCreateRequest
-    ) -> UserProfile:
-        statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
+    ) -> Users:
+        statement = select(Users).where(col(Users.cognito_sub) == user_id)
         result = await session.execute(statement)
         existing_profile = result.scalar_one_or_none()
 
@@ -169,8 +169,8 @@ class ProfileService:
 
         now = utc_now_naive()
 
-        profile = UserProfile(
-            user_id=user_id,
+        profile = Users(
+            cognito_sub=user_id,
             username=request.username,
             riot_puuid=request.riot_puuid,
             created_at=now,
@@ -188,12 +188,12 @@ class ProfileService:
         session: AsyncSession,
         user_id: str,
         request: ProfileUpdateRequest,
-    ) -> UserProfile:
-        statement = select(UserProfile).where(col(UserProfile.user_id) == user_id)
+    ) -> Users:
+        statement = select(Users).where(col(Users.cognito_sub) == user_id)
         result = await session.execute(statement)
-        profile = result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
 
-        if profile is None:
+        if user is None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, detail="Profile not found."
             )
@@ -210,15 +210,15 @@ class ProfileService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Linked Riot account was not found.",
                 )
-            profile.riot_puuid = request.riot_puuid
+            user.riot_puuid = request.riot_puuid
 
         if request.username is not None:
-            profile.username = request.username
+            user.username = request.username
 
-        profile.updated_at = utc_now_naive()
+        user.updated_at = utc_now_naive()
 
-        session.add(profile)
+        session.add(user)
         await session.commit()
-        await session.refresh(profile)
+        await session.refresh(user)
 
-        return profile
+        return user
