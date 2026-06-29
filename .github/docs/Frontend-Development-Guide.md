@@ -70,7 +70,7 @@ npm run lint
 npm run format:check
 
 # Format code (apply changes)
-npm run format
+npm run format:write
 
 # Production build
 npm run build
