@@ -1,19 +1,19 @@
-from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, status
-from sqlalchemy import Integer, cast, func, select
+from datetime import datetime, timedelta
+from fastapi import HTTPException#, status
+from sqlalchemy import select #Integer, cast, func,
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col
+# from sqlmodel import col
 from typing import Any
-from app.database.models import Champions, Participants, UserProfile, GameAccounts
+from app.database.models import UserProfile 
 from app.Models.profile_schemas import User
-from app.Models.profile_schemas import (
-    PlayerSummary,
-    ProfileCreateRequest,
-    ProfileUpdateRequest,
-)
+# from app.Models.profile_schemas import (
+#     PlayerSummary,
+#     ProfileCreateRequest,
+#     ProfileUpdateRequest,
+# )
 import boto3
-from botocore.exceptions import ClientError
+from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
 
 #     @staticmethod
@@ -152,7 +152,7 @@ class ProfileService:
         if profile is not None:
             return profile
 
-        return await ProfileService.create_profile(session, user, "jjjjjj")
+        return await ProfileService.create_profile(session, user)
 
     @staticmethod
     async def create_profile(session: AsyncSession, user: User | None) -> User:#none is there for incase we only want ti use this endpoint in admin. More flexibility
@@ -251,8 +251,8 @@ class ProfileService:
                 status_code=400,
                 detail="Email is empty"
             )
-        
-        client = boto3.client('cognito-idp', region_name=settings.aws_region)
+        #will fix this a bit later
+        client: CognitoIdentityProviderClient = boto3.client('cognito-idp', region_name=settings.aws_region) #pyright: ignore
 
         statement = select(UserProfile).where(UserProfile.user_id == email)#need to change when email gets added to db
         result: Any = await session.execute(statement)
