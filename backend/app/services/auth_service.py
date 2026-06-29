@@ -8,6 +8,7 @@ from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
+from app.Models.auth_model import User
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
@@ -52,8 +53,8 @@ def _handle_cognito_error(e: ClientError) -> NoReturn:
     raise HTTPException(status_code=status_code, detail=error_message)
 
 
-async def register_user(username: str, password: str, email: str):
-    if not (("@" in email) and (len(password) >= 8) and (len(username) > 0)):
+async def register_user(user: User):
+    if not (("@" in user.email) and (len(user.password) >= 8) and (len(user.username) > 0)):
         raise HTTPException(
             status_code=400,detail="Param does not met min requirements"
         )
@@ -62,9 +63,9 @@ async def register_user(username: str, password: str, email: str):
         response = await asyncio.to_thread(
             client.sign_up,
             ClientId=settings.cognito_client_id,
-            SecretHash=get_secret_hash(username),
-            Username=username,
-            Password=password,
+            SecretHash=get_secret_hash(user.username),
+            Username=user.username,
+            Password=user.password,
             UserAttributes= [{"Name": "Email", "Value": "email"}]
         )
         return response
@@ -98,7 +99,6 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
     except ClientError as e:
         _handle_cognito_error(e)
 
-
 async def confirm_user(username: str, code: str):
     """Confirm the user using the code sent to their email."""
     if not (len(username) > 0 & len(code) == 6):
@@ -118,7 +118,6 @@ async def confirm_user(username: str, code: str):
     except ClientError as e:
         _handle_cognito_error(e)
 
-
 async def logout_user(access_token: str) -> dict[str, str]:
     """
     Invalidates the user's tokens globally in Cognito.
@@ -128,7 +127,6 @@ async def logout_user(access_token: str) -> dict[str, str]:
         return {"status": "success", "message": "Logged out from all devices"}
     except ClientError as e:
         _handle_cognito_error(e)
-
 
 async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
     """
