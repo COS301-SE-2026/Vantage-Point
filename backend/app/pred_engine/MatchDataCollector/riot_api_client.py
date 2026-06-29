@@ -12,7 +12,7 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 5000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+MAX_ROWS = 10000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -320,42 +320,7 @@ def rf_skill(participants, timeInfo, puuid_pool):
                     row_data = {
                         "skillSlot" : e.get("skillSlot"),
                         "levelUpType" : e.get("levelUpType"),
-                        "timestamp" : e.get("timestamp"),
-                        "level" : partFrame.get("level"),
-                        "currentGold" : partFrame.get("currentGold"),
-                        "jungleMinionsKilled" : partFrame.get("jungleMinionsKilled"),
-                        "minionsKilled" : partFrame.get("minionsKilled"),
-                        "x" : pos.get("x"),
-                        "y" : pos.get("y"),
-                        "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-                        "totalGold" : partFrame.get("totalGold"),
-                        "xp" : partFrame.get("xp"),
-                        "championId" : part.get("championId"),
-                        "magicDamageDone" : damage.get("magicDamageDone"),
-                        "magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
-                        "magicDamageTaken" : damage.get("magicDamageTaken"),
-                        "physicalDamageDone" : damage.get("physicalDamageDone"),
-                        "physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
-                        "physicalDamageTaken" : damage.get("physicalDamageTaken"),
-                        "totalDamageDone" : damage.get("totalDamageDone"),
-                        "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
-                        "totalDamageTaken" : damage.get("totalDamageTaken"),
-                        "trueDamageDone" : damage.get("trueDamageDone"),
-                        "trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
-                        "trueDamageTaken" : damage.get("trueDamageTaken"),
-                        "armor" : champStat.get("armor"),
-                        "attackDamage" : champStat.get("attackDamage"),
-                        "attackSpeed" : champStat.get("attackSpeed"),
-                        "health" : champStat.get("health"),
-                        "healthMax" : champStat.get("healthMax"),
-                        "healthRegen" : champStat.get("healthRegen"),
-                        "lifesteal" : champStat.get("lifesteal"),
-                        "movementSpeed" : champStat.get("movementSpeed"),
-                        "power" : champStat.get("power"),
-                        "abilityPower" : champStat.get("abilityPower"),
-                        "ccReduction" : champStat.get("ccReduction"),
-                        "magicResist" : champStat.get("magicResist"),
-                        "powerMax" : champStat.get("powerMax"),
+                        
                     }
                     rows.append(row_data)
         
@@ -426,7 +391,6 @@ def rf_role(participants, timeInfo, puuid_pool):
         }
         rows.append(row_data)
     return rows
-
 
 
 async def process_match_data(session, match_data, timeline_data, puuid_pool):

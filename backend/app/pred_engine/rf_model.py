@@ -1,18 +1,19 @@
-import warnings
-import csv
-import Data_Converter.src.Converter_Main as converter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.multioutput import MultiOutputClassifier
+import Data_Converter.src.Converter_Main as converter
 import pandas as pd
 import numpy as np
 import time
+import warnings
+import csv
+
 warnings.filterwarnings("ignore")
 
-fileName = 'test5000.csv'
-runCat = 'skill' #champion; item; skill; role
-yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition
+fileName = 'test10000.csv'
+runCat = 'skill' #champion; item; skill; role;
+yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition;
 
 #evaluation/tuning
 
