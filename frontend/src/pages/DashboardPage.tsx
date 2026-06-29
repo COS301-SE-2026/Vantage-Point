@@ -5,7 +5,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router";
-import DashboardShell, { type DashboardSection } from "./DashboardShell";
+import DashboardShell, { type DashboardSection } from "../components/DashboardShell";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchPlayerProfile } from "../api/profile";
 import { useAuth } from "../context/AuthContext";
