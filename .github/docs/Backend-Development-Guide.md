@@ -91,6 +91,12 @@ ruff check app --fix
 
 # Type checking
 mypy app
+
+# Security & bug scan (replicates SonarQube security checks)
+bandit -r app -ll
+
+# Dead code, TODO comments, commented-out code (replicates SonarQube style checks)
+pylint app --disable=all --enable=W0511,W0105,W0611
 ```
 
 ## Environment Variables
