@@ -27,8 +27,8 @@ class TestProfileRoutes:
 
         # Mock service responses
         mock_profile = MagicMock()
-        mock_profile.user_id = mock_auth_id
-        mock_profile.username = "TestSummoner"
+        mock_profile.cognito_sub = mock_auth_id
+        mock_profile.display_name = "TestSummoner"
         mock_get_profile.return_value = mock_profile
 
         # COMPLETE MOCK DATA FOR PLAYER SUMMARY
@@ -46,7 +46,8 @@ class TestProfileRoutes:
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert data["uuid"] == mock_auth_id
+        assert data["cognito_sub"] == mock_auth_id
+        assert data["display_name"] == "TestSummoner"
         assert data["player_summary"]["most_played_character"] == "Thresh"
 
     @patch("app.services.profile_services.ProfileService.create_profile")
@@ -54,8 +55,8 @@ class TestProfileRoutes:
     async def test_create_profile_success(self, mock_summary, mock_create, client):
         """Test POST /api/profile success."""
         mock_profile = MagicMock()
-        mock_profile.user_id = "test-uuid-123"
-        mock_profile.username = "NewUser"
+        mock_profile.cognito_sub = "test-uuid-123"
+        mock_profile.display_name = "NewUser"
         mock_create.return_value = mock_profile
 
         # COMPLETE MOCK DATA FOR PLAYER SUMMARY
@@ -73,7 +74,8 @@ class TestProfileRoutes:
         response = client.post("/api/profile", json=payload)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["username"] == "NewUser"
+        assert response.json()["cognito_sub"] == "test-uuid-123"
+        assert response.json()["display_name"] == "NewUser"
 
     @patch("app.services.profile_services.ProfileService.schedule_account_deletion")
     async def test_delete_profile_success(self, mock_schedule, client):
