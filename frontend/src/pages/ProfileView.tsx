@@ -8,9 +8,9 @@ import {
   DASHBOARD_CONTENT_HEIGHT,
   getDashboardContentStyle,
 } from "../lib/dashboardLayout";
-import FeaturedGameCard from "./FeaturedGameCard";
-import ProfileHeaderEditor from "./ProfileHeaderEditor";
-import ProfileRadarChart from "./ProfileRadarChart";
+import FeaturedGameCard from "../components/FeaturedGameCard";
+import ProfileHeaderEditor from "../components/ProfileHeaderEditor";
+import ProfileRadarChart from "../components/ProfileRadarChart";
 import { useAuth } from "../context/AuthContext";
 
 interface ProfileViewProps {

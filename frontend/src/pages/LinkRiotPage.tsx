@@ -4,7 +4,7 @@ import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import RiotIdComponent, {
   type RiotIdFormProps,
-} from "../../imports/RiotId/RiotId";
+} from "../components/auth/RiotId";
 
 export default function LinkRiotPage() {
   const navigate = useNavigate();

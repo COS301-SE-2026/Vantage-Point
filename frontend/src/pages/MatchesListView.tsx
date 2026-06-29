@@ -23,7 +23,7 @@ import {
   type MatchSortId,
 } from "../lib/matchListControls";
 import type { MatchHistorySummary } from "../types/match";
-import MatchesListToolbar from "./MatchesListToolbar";
+import MatchesListToolbar from "../components/MatchesListToolbar";
 
 interface MatchesListViewProps {
   readonly sidebarOpen?: boolean;
