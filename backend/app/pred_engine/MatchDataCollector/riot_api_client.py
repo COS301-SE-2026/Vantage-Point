@@ -12,12 +12,12 @@ RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 100000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 100      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+CHUNK_SIZE = 5000         # Every how many rows we create a NEW CSV file
+MAX_ROWS = 5000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
-INITIAL_PUUID = "bsuc47FJnJ3F_C6HcVbrmr7y3T7Vl6wMksDoiC9M0hyUJHcFsHk0se5DnwutWJ0QXhWynFcD2-2kig" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
+INITIAL_PUUID = "LqFj4hpYKpZZP1lpIFbD3PHR9dz2BVGaMsgwK4VfNxSNzsl_wsoauTYHtUhMNeYKJudqA4LmFfeoQg" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
 
 # Asynchronous limit to ~15 RPS (avoid console spam and hitting rate limits)
 RATE_LIMIT = AsyncLimiter(15, 1.0)
@@ -326,11 +326,9 @@ def rf_skill(participants, timeInfo, puuid_pool):
                         "magicDamageDone" : damage.get("magicDamageDone"),
                         "physicalDamageDone" : damage.get("physicalDamageDone"),
                         "totalDamageDone" : damage.get("totalDamageDone"),
-                        "abilityHaste" : champStat.get("abilityHaste"),
                         "armor" : champStat.get("armor"),
                         "attackDamage" : champStat.get("attackDamage"),
                         "attackSpeed" : champStat.get("attackSpeed"),
-                        "cooldownReduction" : champStat.get("cooldownReduction"),
                         "health" : champStat.get("health"),
                         "healthMax" : champStat.get("healthMax"),
                         "healthRegen" : champStat.get("healthRegen"),
@@ -345,7 +343,7 @@ def rf_skill(participants, timeInfo, puuid_pool):
 
 #teamPosition sometimes turns up empty, this is unusable for training
 #need to add edge case resolution somewhere
-def rf_role(info, participants, timeInfo, puuid_pool):
+def rf_role(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
         p = part.get('puuid')
@@ -423,8 +421,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     #rows = knn(participants, timeInfo, puuid_pool)
     #rows = rf_champion(info, participants, puuid_pool)
     #rows = rf_item(participants, timeInfo, puuid_pool)
-    #rows = rf_skill(participants, timeInfo, puuid_pool)
-    rows = rf_role(info, participants, timeInfo, puuid_pool)
+    rows = rf_skill(participants, timeInfo, puuid_pool)
+    #rows = rf_role(participants, timeInfo, puuid_pool)
 
     return rows
 
