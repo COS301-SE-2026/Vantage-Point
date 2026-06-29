@@ -27,10 +27,25 @@ cp .env.example .env
 ```
 
 ## Running Locally
+
+### Quick start
+
+From the repo root or the `frontend/` directory:
+
 ```sh
-# Start development server
+./frontend/start.sh
+```
+
+The script loads nvm when available, then runs `npm run dev`.
+
+### Manual alternative
+
+```sh
+cd frontend
 npm run dev
 ```
+
+To run backend and frontend together, use `./scripts/start.sh` from the repo root.
 
 ### Access:
 - `http://localhost:5173`
