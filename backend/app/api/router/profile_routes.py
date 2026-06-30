@@ -1,6 +1,3 @@
-#todo
-#get profile/create profile
-##delete, undodelete
 from fastapi import Depends, APIRouter
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
@@ -28,11 +25,11 @@ async def get_or_create_profile(session: Annotated[AsyncSession, Depends(get_ses
         "/profile/schedule_delete",
         response_model=datetime,
         summary="Schedules a account for deletion",
-        description="Schedules account for deletion(soft delete) in 30 days"
+        description="Schedules account for deletion(soft delete) in 30 days",
         tags=["profile"]
 )
 async def schedule_account_deletion(session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
-    return await ProfileService.schelude_account_deletion(session, access_token)
+    return await ProfileService.schedule_account_deletion(session, access_token)
 
 @router.post(
         "/profile/undo_delete",

@@ -3,6 +3,8 @@ services:
   # The Python/FastAPI environment
   app:
     image: mcr.microsoft.com/devcontainers/python:3.12
+    env_file:
+      - ../backend/.env
     volumes:
       - ..:/workspaces:cached
       - pip-cache:/home/vscode/.cache/pip        

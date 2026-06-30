@@ -16,7 +16,7 @@ import boto3
 import asyncio
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
-client: "CognitoIdentityProviderClient" = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
+client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 #     @staticmethod
 #     async def build_player_summary(
 #         session: AsyncSession, current_user: str
@@ -208,7 +208,7 @@ class ProfileService:
         return user
 
     @staticmethod
-    async def schelude_account_deletion(session: AsyncSession, access_token: str) -> datetime:
+    async def schedule_account_deletion(session: AsyncSession, access_token: str) -> datetime:
         if access_token == "":
             raise HTTPException(
                 status_code=400,

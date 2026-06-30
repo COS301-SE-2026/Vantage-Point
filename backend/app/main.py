@@ -1,19 +1,23 @@
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+import asyncio
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Dict
+from urllib.parse import urlparse
 
+from fastapi import Depends, FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-from app.api.middleware import ProcessTimeMiddleware
-from app.api.routes import router
+# from app.api.routes import router
 from app.database.models import GameAccounts
-from app.database.session import async_session_maker, init_db
+from app.database.session import DATABASE_URL, get_session, init_db
 from app.Models.generic_schemas import get_error_reason
 from app.services.riot_api import get_puuid_by_riot_id
 
@@ -35,10 +39,25 @@ load_dotenv()
 # limiter = Limiter(key_func=get_remote_address)
 
 
+def should_skip_startup_db_init() -> bool:
+    if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):
+        return True
+
+    database_host = urlparse(DATABASE_URL or "").hostname
+    return database_host == "db" and not Path("/.dockerenv").exists()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if should_skip_startup_db_init():
+        print("Database initialization skipped: database host is unavailable here")
+        yield
+        return
+
     try:
-        await init_db()
+        await asyncio.wait_for(init_db(), timeout=5)
+    except TimeoutError:
+        print("Database initialization skipped: connection timed out")
     except Exception as exc:
         print(f"Database initialization skipped: {exc}")
     yield
@@ -69,9 +88,8 @@ app.add_middleware(
     expose_headers=["X-Process-Time"],
 )
 
-app.add_middleware(ProcessTimeMiddleware)
 
-app.include_router(router, prefix="/api")
+# app.include_router(router, prefix="/api")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
@@ -154,40 +172,43 @@ async def health() -> HealthResponse:
     description="Accepts any JSON object and echoes it back for quick API testing.",
     response_model=TestResponse,
 )
-async def test_endpoint(data: Dict[str, Any]) -> Dict[str, Any]:
+async def test_endpoint(data: Dict[str, Any]) -> TestResponse:
     print(f"Test endpoint called with data: {data}")
-    return {"received": data, "message": "Test successful"}
+    return TestResponse(received=data, message="Test successful")
 
 
 # below is not really so self explanatory so i just added comments to the code to explain the steps.
 # let me know if you want me to add more comments or if you have any questions about the code!
 # Neo
 @app.post("/summoners/register")
-async def register_summoner(game_name: str, tag_line: str):
+async def register_summoner(
+    game_name: str,
+    tag_line: str,
+    session: AsyncSession = Depends(get_session),
+) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
     puuid = await get_puuid_by_riot_id(game_name, tag_line)
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 
     # 2. Save to Database; should only do so if this player is not in the DB already
-    async with async_session_maker() as session:
-        statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
-        result = await session.execute(statement)
-        existing_account = result.scalar_one_or_none()
+    statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
+    result = await session.execute(statement)
+    existing_account = result.scalar_one_or_none()
 
-        # adding this check just to be safe and security even if no exist is already below it
-        if existing_account:
-            return {"message": "Summoner already in database."}
+    # adding this check just to be safe and security even if no exist is already below it
+    if existing_account:
+        return {"message": "Summoner already in database."}
 
-        new_account = GameAccounts(
-            puuid=puuid,
-            game="league_of_legends",
-            game_name=game_name,
-            tag_line=tag_line,
-            summoner_level=0,
-        )
-        session.add(new_account)
-        await session.commit()
+    new_account = GameAccounts(
+        puuid=puuid,
+        game="league_of_legends",
+        game_name=game_name,
+        tag_line=tag_line,
+        account_level=1,
+    )
+    session.add(new_account)
+    await session.commit()
 
     return {
         "message": f"Successfully registered {game_name}#{tag_line}",
