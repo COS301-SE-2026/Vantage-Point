@@ -1,6 +1,3 @@
-#todo
-#register, login, logout, confirm(email)
-
 from app.services import auth_service
 from app.Models.auth_model import User
 from fastapi import APIRouter
