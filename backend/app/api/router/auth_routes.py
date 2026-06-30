@@ -33,9 +33,26 @@ async def register(user: User):
 )
 async def login(username: str, password: str):
     return await auth_service.login_user(username, password)
-    
+
+@router.post(
+        "/confim-user",
+        response_model=dict[str, str],
+        summary="Confirm user account",
+        description="Confirms a user in cognito pool. Verifies email bny taking in code",
+        tags=["Auth"],
+        responses={
+            400: {"description": "Invalid code"}
+        }
+)
 async def confirm_user(username: str, code: str):
     return await auth_service.confirm_user(username, code)
 
+@router.post(
+        "/logout",
+        response_model=dict[str, str],
+        summary="Logout a user",
+        description="Logout a user globally",
+        tags=["Auth"],       
+)
 async def logout(access_token: str):
     return await auth_service.logout_user(access_token)
