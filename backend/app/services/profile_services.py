@@ -4,7 +4,7 @@ from sqlalchemy import select #Integer, cast, func,
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 # from sqlmodel import col
-from typing import Any, cast
+from typing import Any
 from app.database.models import UserProfile 
 from app.Models.profile_schemas import User
 # from app.Models.profile_schemas import (
@@ -151,11 +151,11 @@ class ProfileService:
             AccessToken=access_token
         )
         #cast to user
-        # attributes: dict[str, str] = {}
         attributes = {
             attr["Name"]: attr.get("Value", "")
             for attr in response["UserAttributes"]
         }
+        #todo need to change object as can't hardcode user type
         user = User(
             sub=attributes["sub"],
             groups=["user"],
@@ -208,18 +208,29 @@ class ProfileService:
         return user
 
     @staticmethod
-    async def schelude_account_deletion(session: AsyncSession, user: User| None) -> datetime:
-        if user is None: 
+    async def schelude_account_deletion(session: AsyncSession, access_token: str) -> datetime:
+        if access_token == "":
             raise HTTPException(
                 status_code=400,
-                detail="User object is empty"
+                detail="Access Token is empty."
             )
         
-        if user.username is None:
-            raise HTTPException(
-                status_code=400,
-                detail="Bad request no username"
-            )
+        response = await asyncio.to_thread(
+            client.get_user,
+            AccessToken=access_token
+        )
+        #cast to user
+        attributes = {
+            attr["Name"]: attr.get("Value", "")
+            for attr in response["UserAttributes"]
+        }
+        #todo need to change object as can't hardcode user type
+        user = User(
+            sub=attributes["sub"],
+            groups=["user"],
+            username=response["Username"],
+            email=attributes["email"]
+        )
         #30 day waiting period
         statement = select(UserProfile).where(UserProfile.user_id == user.sub)
         result = await session.execute(statement=statement)
