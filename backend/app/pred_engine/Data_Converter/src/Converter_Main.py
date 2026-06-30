@@ -1,5 +1,6 @@
 import json
 import csv
+import random
 import numpy as np
 from types import SimpleNamespace
 from sklearn.model_selection import train_test_split
@@ -199,12 +200,37 @@ def formatItemData(data):
         for j in range(len(row)):
             if any(char.isdigit() for char in row[j]):
                 row[j] = int(row[j])  
+        val = row[2]#team position
+        match val:
+            case 'TOP':
+                row[2] = 1
+            case 'JUNGLE':
+                row[2] = 2
+            case 'MIDDLE':
+                row[2] = 3
+            case 'BOTTOM':
+                row[2] = 4
+            case 'UTILITY':
+                row[2] = 5
         for j in range(len(row)):
             if not isinstance(row[j], int):
                 row[j] = 0 
         
-        dataArr.append([])
-        y.append([])
+        #if feature values are identical, take random one only
+        if r!=0 and row[1:] == prevRow[1:]:
+            #random value for if we are gonna use row or prev row
+            num = int(random.random())
+            if num == 0: #take prevRow
+                continue
+            elif num == 1: #take row
+                r = r - 1
+                y[r] = []
+                dataArr[r] = []
+                #y = np.delete(y, (r), axis=0)
+                #dataArr = np.delete(dataArr, (r), axis=0)
+        else:
+            dataArr.append([])
+            y.append([])
 
         c = 0
         for i in row:
@@ -215,6 +241,7 @@ def formatItemData(data):
                 dataArr[r].append(i)
                 c = c + 1
         r = r + 1
+        prevRow = row
     
     return dataArr, y
 
@@ -274,8 +301,21 @@ def formatSkillData(data):
             if not isinstance(row[j], int):
                 row[j] = 0 
         
-        dataArr.append([])
-        y.append([])
+        #if feature values are identical, take random one only
+        if r!=0 and row[1:] == prevRow[1:]:
+            #random value for if we are gonna use row or prev row
+            num = int(random.random())
+            if num == 0: #take prevRow
+                continue
+            elif num == 1: #take row
+                r = r - 1
+                y[r] = []
+                dataArr[r] = []
+                #y = np.delete(y, (r), axis=0)
+                #dataArr = np.delete(dataArr, (r), axis=0)
+        else:
+            dataArr.append([])
+            y.append([])
 
         c = 0
         for i in row:
@@ -286,6 +326,7 @@ def formatSkillData(data):
                 dataArr[r].append(i)
                 c = c + 1
         r = r + 1
+        prevRow = row
     
     return dataArr, y
 
@@ -386,7 +427,9 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-#xtr, xt, ytr, yt = getTrainTestDataRF('test.csv', 'role')
+#xtr, xt, ytr, yt, skip = getTrainTestDataRF('test5000.csv', 'item')
+#print(len(xtr)+len(xt))
+#print(skip)
 
 #print(xtr)
 #print(xt)
