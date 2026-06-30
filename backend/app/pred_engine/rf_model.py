@@ -12,8 +12,8 @@ import csv
 warnings.filterwarnings("ignore")
 
 fileName = 'test5000.csv'
-runCat = 'skill' #champion; item; skill; role;
-yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition;
+runCat = 'item' #champion; item; skill; role;
+yVal = 'itemId' #championId, itemId; skillSlot; teamPosition;
 
 #evaluation/tuning
 
@@ -108,7 +108,7 @@ def giniImportance(rf):
     #####MAYBES#####
         #Ward placement
 
-
+#accuracy stuck below 50% for 5000
 #returns itemId
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
@@ -117,7 +117,7 @@ def rf_items(X_train, X_test, y_train, y_test):
     y_pred = rf.predict(X_test)
     return accuracy_score(y_pred, y_test), rf
 
-#has same accuracy problem as skills, to lesser extent, attempting to fix
+
 #returns champion id
 def rf_champions(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
@@ -162,6 +162,7 @@ def rf_role(X_train, X_test, y_train, y_test):
 
 start = time.time()
 X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
+print(len(X_train) + len(X_test))
 
 match runCat:
     case 'champion':
@@ -188,6 +189,7 @@ print("")
 print(f'Base accuracy: {base_ac}')
 print(f'Parameter tuned accuracy: {param_ac}')
 print(feature_dif)
+
 
 #accuracy score as close to 1 as possible
 #remove features with the lowest scores

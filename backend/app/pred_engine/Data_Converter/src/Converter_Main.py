@@ -226,8 +226,6 @@ def formatItemData(data):
                 r = r - 1
                 y[r] = []
                 dataArr[r] = []
-                #y = np.delete(y, (r), axis=0)
-                #dataArr = np.delete(dataArr, (r), axis=0)
         else:
             dataArr.append([])
             y.append([])
