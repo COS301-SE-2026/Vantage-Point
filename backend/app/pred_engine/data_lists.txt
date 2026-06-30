@@ -207,9 +207,17 @@ the events are labled type=SKILL_LEVEL_UP
 info.frames.events.skillslot
 info.frames.events.levelUpType
 info.frames.events.timestamp
-info.frames.participantFrames.level
 info.participants.championId
-info.frames.participantFrames.goldPerSecond
+info.participants.damageSelfMitigated
+info.participants.deaths
+info.participants.itemsPurchased
+info.participants.kills
+info.participants.totalHeal
+info.frames.participantFrames.level
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.totalGold
+info.frames.participantFrames.position.x
+info.frames.participantFrames.position.y
 info.frames.participantFrames.damageStats.magicDamageDone
 info.frames.participantFrames.damageStats.physicalDamageDone
 info.frames.participantFrames.damageStats.totalDamageDone
@@ -218,11 +226,9 @@ info.frames.participantFrames.championStats.attackDamage
 info.frames.participantFrames.championStats.attackSpeed
 info.frames.participantFrames.championStats.health
 info.frames.participantFrames.championStats.healthMax
-info.frames.participantFrames.championStats.healthRegen
-info.frames.participantFrames.championStats.lifesteal
 info.frames.participantFrames.championStats.movementSpeed
 info.frames.participantFrames.championStats.power
-info.frames.participantFrames.championStats.magicPen
+info.frames.participantFrames.championStats.powerMax
 
 ###########################################################################
 Role data
