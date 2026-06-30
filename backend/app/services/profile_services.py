@@ -4,7 +4,7 @@ from sqlalchemy import select #Integer, cast, func,
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 # from sqlmodel import col
-from typing import Any
+from typing import Any, cast
 from app.database.models import UserProfile 
 from app.Models.profile_schemas import User
 # from app.Models.profile_schemas import (
@@ -13,9 +13,10 @@ from app.Models.profile_schemas import User
 #     ProfileUpdateRequest,
 # )
 import boto3
+import asyncio
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
-
+client: "CognitoIdentityProviderClient" = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 #     @staticmethod
 #     async def build_player_summary(
 #         session: AsyncSession, current_user: str
@@ -137,14 +138,31 @@ settings = get_settings()
 class ProfileService:
     #need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
-    async def get_or_create_profile(session: AsyncSession, user: User | None) -> User:
-        if user is None:
+    async def get_or_create_profile(session: AsyncSession, access_token: str) -> User:
+        if access_token == "":
             raise HTTPException(
                 status_code=400,
-                detail="User objects is empty."
+                detail="Access Token is empty."
             )
 
-        #find in user.sud in db 
+        #find in user.sud in db, due to social login first find in cognito then look for in db, if not create user
+        response = await asyncio.to_thread(
+            client.get_user,
+            AccessToken=access_token
+        )
+        #cast to user
+        # attributes: dict[str, str] = {}
+        attributes = {
+            attr["Name"]: attr.get("Value", "")
+            for attr in response["UserAttributes"]
+        }
+        user = User(
+            sub=attributes["sub"],
+            groups=["user"],
+            username=response["Username"],
+            email=attributes["email"]
+        )
+
         statement = select(UserProfile).where(UserProfile.user_id == user.sub)
         result: Any = await session.execute(statement)
         profile: User | None = result.scalar_one_or_none()
@@ -175,6 +193,7 @@ class ProfileService:
             )
 
         #create profile and get then return profile as is. Used when laod profile. Lazy loading
+        #create in db
         profile = UserProfile(
             user_id=user.sub,
             username=user.username,
