@@ -74,4 +74,17 @@ class admin_service:
     #todo update user attr
 
     async def user_global_sign_out(self, username: str):
-        response = client.admin_user_global_sign_out()
+        response = client.admin_user_global_sign_out(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username
+        )
+
+        return response
+    
+    async def delete_user(self, username: str):
+        response = client.admin_delete_user(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username
+        )
+
+        return response
