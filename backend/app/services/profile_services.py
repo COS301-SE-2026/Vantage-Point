@@ -251,14 +251,31 @@ class ProfileService:
         return profile.deletion_scheduled_at
 
     @staticmethod
-    async def undo_account_deletion(session: AsyncSession, sub: str | None):
-        if sub is None:
+    async def undo_account_deletion(session: AsyncSession, access_token: str):
+        if access_token == "":
             raise HTTPException(
                 status_code=400,
-                detail="No id given to undo deletion"
+                detail="Access Token is empty."
             )
         
-        statement = select(UserProfile).where(UserProfile.user_id == sub)
+        response = await asyncio.to_thread(
+            client.get_user,
+            AccessToken=access_token
+        )
+        #cast to user
+        attributes = {
+            attr["Name"]: attr.get("Value", "")
+            for attr in response["UserAttributes"]
+        }
+        #todo need to change object as can't hardcode user type
+        user = User(
+            sub=attributes["sub"],
+            groups=["user"],
+            username=response["Username"],
+            email=attributes["email"]
+        )
+        
+        statement = select(UserProfile).where(UserProfile.user_id == user.sub)
         result = await session.execute(statement)
         profile = result.scalar_one_or_none()
 

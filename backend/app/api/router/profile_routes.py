@@ -15,3 +15,10 @@ async def get_or_create_profile(session: Annotated[AsyncSession, Depends(get_ses
 
 async def schedule_account_deletion(session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
     return await ProfileService.schelude_account_deletion(session, access_token)
+
+async def undo_account_deletion(session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
+    return await ProfileService.undo_account_deletion(session, access_token)
+
+
+
+#todo update email/user in db
