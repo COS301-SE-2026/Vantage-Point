@@ -15,9 +15,63 @@ class admin_service:
             Limit=limit
         )
 
+        return response
+
     async def get_user(self, username: str):
         
         response = client.admin_get_user(
             UserPoolId=settings.cognito_user_pool_id,
             Username=username
         )
+
+        return response
+
+    async def add_user_to_group(self, username:str, group: str="Users"):
+
+        response = client.admin_add_user_to_group(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username,
+            GroupName=group
+        )
+
+        return response
+    
+    async def remove_user_from_group(self, username: str, group: str ="Users"):
+        response = client.admin_remove_user_from_group(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username,
+            GroupName=group
+        )
+
+        return response
+    
+    async def disable_user(self, username: str):
+        response = client.admin_disable_user(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username
+        )
+
+        return response
+    
+    async def enable_user(self, username: str):
+        response = client.admin_enable_user(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username
+        )
+
+        return response
+    
+    async def set_password(self, username: str, password: str):
+        response = client.admin_set_user_password(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username,
+            Password=password,
+            Permanent=True
+        )
+
+        return response
+    
+    #todo update user attr
+
+    async def user_global_sign_out(self, username: str):
+        response = client.admin_user_global_sign_out()
