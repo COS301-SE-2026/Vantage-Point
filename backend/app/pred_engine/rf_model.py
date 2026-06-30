@@ -12,8 +12,8 @@ import csv
 warnings.filterwarnings("ignore")
 
 fileName = 'test5000.csv'
-runCat = 'item' #champion; item; skill; role;
-yVal = 'itemId' #championId, itemId; skillSlot; teamPosition;
+runCat = 'skill' #champion; item; skill; role;
+yVal = 'skillSlot' #championId, itemId; skillSlot; teamPosition;
 
 #evaluation/tuning
 
@@ -117,7 +117,7 @@ def rf_items(X_train, X_test, y_train, y_test):
     y_pred = rf.predict(X_test)
     return accuracy_score(y_pred, y_test), rf
 
-#has same accuracy problem as skills, to lesser extent
+#has same accuracy problem as skills, to lesser extent, attempting to fix
 #returns champion id
 def rf_champions(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()

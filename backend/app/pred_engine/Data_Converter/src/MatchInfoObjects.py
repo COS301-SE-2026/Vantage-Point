@@ -147,7 +147,7 @@ class playerFrameObj:
     jungleMinionsKilled = 0#
     level = 0  #
     minionsKilled = 0#
-    participantId = 0#
+    participantId = 0
     position = PositionObj  #
     timeEnemySpentControlled = 0#
     totalGold = 0#
@@ -549,7 +549,7 @@ class M_ParticipantObj:
     playerScore10 = 0  
     playerScore11 = 0  
     pentakills = 0  
-    perks = PerkObj#
+    perks = PerkObj
     physicalDamageDealt = 0
     physicalDamageDealtToChampions = 0
     physicalDamageTaken = 0
@@ -565,7 +565,7 @@ class M_ParticipantObj:
     quadrakills = 0  
     riotIdGameName = ""  
     riodItTagline = ""  
-    role = ""
+    role = ""#
     sightWardsBoughtInGame = 0
     spell1Casts = 0
     spell2Casts = 0
