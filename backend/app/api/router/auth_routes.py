@@ -9,7 +9,9 @@ async def register(user: User):
 
 async def login(username: str, password: str):
     return await auth_service.login_user(username, password)
+    
+async def confirm_user(username: str, code: str):
+    return await auth_service.confirm_user(username, code)
 
 async def logout(access_token: str):
     return await auth_service.logout_user(access_token)
-    
