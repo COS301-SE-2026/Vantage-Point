@@ -320,7 +320,31 @@ def rf_skill(participants, timeInfo, puuid_pool):
                     row_data = {
                         "skillSlot" : e.get("skillSlot"),
                         "levelUpType" : e.get("levelUpType"),
-                        
+                        "timestamp" : e.get("timestamp"),
+                        "role" : part.get("role"),
+                        "championId" : part.get("championId"),
+                        "damageSelfMitigated" : part.get("damageSelfMitigated"),
+                        "deaths" : part.get("deaths"),
+                        "itemsPurchased" : part.get("itemsPurchased"),
+                        "kills" : part.get("kills"),
+                        "totalHeal" : part.get("totalHeal"),
+                        "level" : partFrame.get("level"),
+                        "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
+                        "totalGold" : partFrame.get("totalGold"),
+                        "xp" : partFrame.get("xp"),
+                        "x" : pos.get("x"),
+                        "y" : pos.get("y"),
+                        "magicDamageDone" : damage.get("magicDamageDone"),
+                        "physicalDamageDone" : damage.get("physicalDamageDone"),
+                        "totalDamageDone" : damage.get("totalDamageDone"),
+                        "armor" : champStat.get("armor"),
+                        "attackDamage" : champStat.get("attackDamage"),
+                        "attackSpeed" : champStat.get("attackSpeed"),
+                        "health" : champStat.get("health"),
+                        "healthMax" : champStat.get("healthMax"),
+                        "movementSpeed" : champStat.get("movementSpeed"),
+                        "power" : champStat.get("power"),
+                        "powerMax" : champStat.get("powerMax"),
                     }
                     rows.append(row_data)
         

@@ -55,7 +55,7 @@ class PositionObj:
 
 # MatchTimeObj.info.[frames].[events]
 class EventObj:  
-    timeStamp = 0
+    timeStamp = 0#
     realTimestamp = 0
     type = ""
     itemId = 0
@@ -96,61 +96,61 @@ class EventObj:
 
 # MatchTimeObj.info.[frames].participantFrames.{all vars}.championStats
 class ChampionStatsObj:
-    abilityHaste = 0 
-    abilityPower = 0 
-    armor = 0  
-    armorPen = 0
-    armorPenPercent = 0
-    attackDamage = 0  
-    attackSpeed = 0  
-    bonusArmorPenPercent = 0
-    bonusMagicPenPercent = 0
-    ccReduction = 0
-    cooldownReduction = 0 
-    health = 0  
-    healthMax = 0  
-    healthRegen = 0  
-    lifesteal = 0
-    magicPen = 0
-    MagicPenPercent = 0
-    magicResist = 0
-    movementSpeed = 0
-    omnivamp = 0
-    physicalVamp = 0
-    power = 0
-    powerMax = 0
-    spellVamp = 0
+    abilityHaste = 0 #
+    abilityPower = 0 #
+    armor = 0  #
+    armorPen = 0#
+    armorPenPercent = 0#
+    attackDamage = 0  #
+    attackSpeed = 0  #
+    bonusArmorPenPercent = 0#
+    bonusMagicPenPercent = 0#
+    ccReduction = 0#
+    cooldownReduction = 0 #
+    health = 0  #
+    healthMax = 0  #
+    healthRegen = 0  #
+    lifesteal = 0#
+    magicPen = 0#
+    magicPenPercent = 0#
+    magicResist = 0#
+    movementSpeed = 0#
+    omnivamp = 0#
+    physicalVamp = 0#
+    power = 0#
+    powerMax = 0#
+    spellVamp = 0#
 
 
 # MatchTimeObj.info.[frames].participantFrames.{all vars}.damageStats
 class damageStatsObj:
-    magicDamageDone = 0
-    magicDamageDoneToChampions = 0
-    magicDamageTaken = 0
-    physicalDamageDone = 0
-    physicalDamageDoneToChampions = 0
-    physicalDamageTaken = 0
-    totalDamageDone = 0
-    totalDamageDoneToChampions = 0
-    totalDamageTaken = 0
-    trueDamageDone = 0  
-    trueDamageDoneToChampions = 0 
-    trueDamageTaken = 0  
+    magicDamageDone = 0#
+    magicDamageDoneToChampions = 0#
+    magicDamageTaken = 0#
+    physicalDamageDone = 0#
+    physicalDamageDoneToChampions = 0#
+    physicalDamageTaken = 0#
+    totalDamageDone = 0#
+    totalDamageDoneToChampions = 0#
+    totalDamageTaken = 0#
+    trueDamageDone = 0  #
+    trueDamageDoneToChampions = 0 #
+    trueDamageTaken = 0  #
 
 
 # MatchTimeObj.info.[frames].participantFrames.{all vars}
 class playerFrameObj:
     championStats = ChampionStatsObj  
-    currentGold = 0
+    currentGold = 0#
     damageStats = damageStatsObj  
-    goldPerSecond = 0 
-    jungleMinionsKilled = 0
+    goldPerSecond = 0 #
+    jungleMinionsKilled = 0#
     level = 0  #
-    minionsKilled = 0
-    participantId = 0
-    position = PositionObj  
-    timeEnemySpentControlled = 0
-    totalGold = 0
+    minionsKilled = 0#
+    participantId = 0#
+    position = PositionObj  #
+    timeEnemySpentControlled = 0#
+    totalGold = 0#
     xp = 0  #
 
     def append_mapSuggest(self):
@@ -475,19 +475,19 @@ class M_ParticipantObj:
     assists = 0
     baronKills = 0
     bountyLevel = 0
-    champExperience = 0  
-    champLevel = 0  
-    championId = 0
+    champExperience = 0  #
+    champLevel = 0  #
+    championId = 0#
     championName = ""  
     commandPings = 0
     championTransform = 0
     consumablesPurchased = 0
     challenges = ChallengesObj  
-    damageDealtToBuildings = 0
-    damageDealtToObjectives = 0
-    damageDealtToTurrets = 0
-    damageSelfMitigated = 0
-    deaths = 0  
+    damageDealtToBuildings = 0#
+    damageDealtToObjectives = 0#
+    damageDealtToTurrets = 0#
+    damageSelfMitigated = 0#
+    deaths = 0  #
     detectorWardsPlaced = 0
     doubleKills = 0  
     dragonKills = 0
@@ -505,9 +505,9 @@ class M_ParticipantObj:
     goldEarned = 0  
     goldSpent = 0
     individualPosition = ""  
-    inhibitorKills = 0
-    inhibitorTakedowns = 0
-    inhibitorsLost = 0
+    inhibitorKills = 0#
+    inhibitorTakedowns = 0#
+    inhibitorsLost = 0#
     item0 = 0
     item1 = 0
     item2 = 0
@@ -515,10 +515,10 @@ class M_ParticipantObj:
     item4 = 0
     item5 = 0
     item6 = 0
-    itemsPurchased = 0  
-    killingSprees = 0  
-    kills = 0
-    lane = ""  
+    itemsPurchased = 0  #
+    killingSprees = 0  #
+    kills = 0#
+    lane = ""  #
     largestCriticalStrike = 0
     largestKillingSpree = 0  
     largestMultiKill = 0  
@@ -549,7 +549,7 @@ class M_ParticipantObj:
     playerScore10 = 0  
     playerScore11 = 0  
     pentakills = 0  
-    perks = PerkObj
+    perks = PerkObj#
     physicalDamageDealt = 0
     physicalDamageDealtToChampions = 0
     physicalDamageTaken = 0
@@ -581,7 +581,7 @@ class M_ParticipantObj:
     summonerName = ""
     teamEarlySurrender = ""  
     teamId = 0  
-    teamPosition = ""  
+    teamPosition = ""  #
     timeCCingOthers = 0
     timePlayed = 0  
     totalAllyJongleMinionsKilled = 0
@@ -590,8 +590,8 @@ class M_ParticipantObj:
     totalDamageShieldedOnTeammates = 0
     totalDamageTaken = 0
     totalEnemyJungleMinionsKilled = 0
-    totalHeal = 0
-    totalHealsOnTeammates = 0
+    totalHeal = 0#
+    totalHealsOnTeammates = 0#
     totalMinionsKilled = 0
     totalTimeCCDealt = 0
     totolTimeSpentDead = 0
@@ -604,7 +604,7 @@ class M_ParticipantObj:
     turretTakedowns = 0
     turretsLost = 0
     unrealKills = 0  
-    visionScore = 0  
+    visionScore = 0  #
     visionClearedPings = 0
     visionWardsBoughtInGame = 0
     wardsKilled = 0

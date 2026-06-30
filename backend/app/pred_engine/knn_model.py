@@ -116,6 +116,8 @@ print('')
 print('')
 print(f'Final Time: {end - start:.2f} seconds')
 
+#add function to let people integrate with knn
+
 ##################################################
 #results with 20000 rows
 # about double the runs with 2000 rows

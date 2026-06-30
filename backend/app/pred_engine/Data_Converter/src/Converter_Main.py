@@ -111,7 +111,7 @@ def formatChampionData(data):
         for j in range(len(row)):
             if any(char.isdigit() for char in row[j]):
                 row[j] = int(row[j])  
-        val = row[1]
+        val = row[1]#team position
         match val:
             case 'TOP':
                 row[1] = 1
@@ -123,7 +123,7 @@ def formatChampionData(data):
                 row[1] = 4
             case 'UTILITY':
                 row[1] = 5
-        val = row[2]
+        val = row[2]#role
         match val:
             case 'NONE':
                 row[2] = 0
@@ -135,7 +135,7 @@ def formatChampionData(data):
                 row[2] = 3
             case 'DUO':
                 row[2] = 4
-        val = row[3]
+        val = row[3]#lane
         match val:
             case 'TOP':
                 row[3] = 1
@@ -257,7 +257,19 @@ def formatSkillData(data):
             case 'NORMAL':
                 row[1] = 1 
             case 'EVOLVE':
-                row[1] = 2
+                row[1] = 2      
+        val = row[3]#role
+        match val:
+            case 'NONE':
+                row[3] = 0
+            case 'SOLO':
+                row[3] = 1
+            case 'CARRY':
+                row[3] = 2
+            case 'SUPPORT':
+                row[3] = 3
+            case 'DUO':
+                row[3] = 4
         for j in range(len(row)):
             if not isinstance(row[j], int):
                 row[j] = 0 

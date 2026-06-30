@@ -108,6 +108,8 @@ def giniImportance(rf):
     #####MAYBES#####
         #Ward placement
 
+
+#returns itemId
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rf.fit(X_train, y_train)
@@ -116,6 +118,7 @@ def rf_items(X_train, X_test, y_train, y_test):
     return accuracy_score(y_pred, y_test), rf
 
 
+#returns champion id
 def rf_champions(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rf.fit(X_train, y_train)
@@ -124,6 +127,7 @@ def rf_champions(X_train, X_test, y_train, y_test):
     return accuracy_score(y_pred, y_test), rf
     
 
+#return skillSlot,leveluptype
 def rf_skills(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
@@ -139,6 +143,7 @@ def rf_skills(X_train, X_test, y_train, y_test):
     return scores, rfMulti
 
 #done
+#return lane/teamPosition
 def rf_role(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
