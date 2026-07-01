@@ -10,4 +10,17 @@ from datetime import datetime
 router = APIRouter()
 
 async def get_users(limit: int = 10):
-    return await admin_service.get_users(limit) 
+    return await admin_service.get_users(limit)
+
+async def get_user(username: str):
+    return await admin_service.get_user(username)
+
+async def add_user_to_group(username:str, group: str= "Users"):
+    return await admin_service.add_user_to_group(username, group)
+
+async def remove_user_from_group(username: str, group: str="Users"):
+    return await admin_service.remove_user_from_group(username, group)
+
+async def enable_user(username: str):
+    return await admin_service.enable_user(username)
+
