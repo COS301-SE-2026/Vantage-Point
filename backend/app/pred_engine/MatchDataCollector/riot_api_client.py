@@ -11,8 +11,8 @@ RIOT_API_KEY = "" # https://developer.riotgames.com/
 MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 5000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 5000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
+MAX_ROWS = 100000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -26,10 +26,10 @@ HEADERS = {
 }
 
 PLATFORM_MAP = {
-    "EUW1": "euw1.api.riotgames.com",
+    "EUW1": "euw1.api.riotgames.com",#
     "EUN1": "eun1.api.riotgames.com",
     "NA1":  "na1.api.riotgames.com",
-    "KR":   "kr.api.riotgames.com",
+    "KR":   "kr.api.riotgames.com",#
     "TR1":  "tr1.api.riotgames.com",
     "RU":   "ru.api.riotgames.com",
     "BR1":  "br1.api.riotgames.com",
@@ -43,8 +43,8 @@ PLATFORM_MAP = {
 ###############################################################################
 match_details_cache = {}
 match_timeline_cache = {}
-summoner_rank_cache = {}
-champion_mastery_cache = {}
+#summoner_rank_cache = {}
+#champion_mastery_cache = {}
 
 ###############################################################################
 # 3. do_request - asynchronous HTTP request
@@ -75,16 +75,17 @@ async def do_request(session: ClientSession, url: str, method="GET", params=None
         return resp
     elif resp.status == 429:
         retry_after = int(resp.headers.get("Retry-After", 1))
-        print(f"[429] Rate limit reached. Waiting {retry_after}s (URL: {url})")
+        #print(f"[429] Rate limit reached. Waiting {retry_after}s (URL: {url})")
+        print(f"[429] Rate limit reached.)")
         await asyncio.sleep(retry_after)
         return await do_request(session, url, method, params, headers, retries=retries+1)
     elif resp.status in [500, 502, 503, 504]:
-        print(f"[{resp.status}] Server error. Waiting 5s (URL: {url})")
+        #print(f"[{resp.status}] Server error. Waiting 5s (URL: {url})")
         await asyncio.sleep(5)
         return await do_request(session, url, method, params, headers, retries=retries+1)
     else:
         text = await resp.text()
-        print(f"[{resp.status}] {text} (URL: {url})")
+        #print(f"[{resp.status}] {text} (URL: {url})")
         return None
 
 ###############################################################################
@@ -498,24 +499,27 @@ def rf_role(participants, timeInfo, puuid_pool):
 
         #gives first and last frame
         #ending and starting stats
-        c = 0
-        for frame in framesList:
-            c = c + 1
-            partFrames = frame.get("participantFrames", [])
-            partFrame = partFrames.get(str(pId))
-            champStat = partFrame.get("championStats", [])
-            if c == 1:
-                start_movementSpeed = champStat.get("movementSpeed")
-                start_health = champStat.get("health")
-                start_healthMax = champStat.get("healthMax")
-                start_healthRegen = champStat.get("healthRegen")
-                start_armor = champStat.get("armor")
-            if c == len(framesList):
-                end_movementSpeed = champStat.get("movementSpeed")
-                end_health = champStat.get("health")
-                end_healthMax = champStat.get("healthMax")
-                end_healthRegen = champStat.get("healthRegen")
-                end_armor = champStat.get("armor")
+        frame = framesList[0]    
+        partFrames = frame.get("participantFrames", [])
+        partFrame = partFrames.get(str(pId))
+        champStat = partFrame.get("championStats", [])
+            
+        start_movementSpeed = champStat.get("movementSpeed")
+        start_health = champStat.get("health")
+        start_healthMax = champStat.get("healthMax")
+        start_healthRegen = champStat.get("healthRegen")
+        start_armor = champStat.get("armor")
+                
+        frame=framesList[len(framesList)-1]
+        partFrames = frame.get("participantFrames", [])
+        partFrame = partFrames.get(str(pId))
+        champStat = partFrame.get("championStats", [])
+
+        end_movementSpeed = champStat.get("movementSpeed")
+        end_health = champStat.get("health")
+        end_healthMax = champStat.get("healthMax")
+        end_healthRegen = champStat.get("healthRegen")
+        end_armor = champStat.get("armor")
         
         row_data = {
             "teamPosition" : part.get("teamPosition"),
@@ -558,9 +562,9 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     #different data set collections
     #rows = knn(participants, timeInfo, puuid_pool)
     #rows = rf_champion(info, participants, puuid_pool)
-    rows = rf_item(participants, timeInfo, puuid_pool)
+    #rows = rf_item(participants, timeInfo, puuid_pool)
     #rows = rf_skill(participants, timeInfo, puuid_pool)
-    #rows = rf_role(participants, timeInfo, puuid_pool)
+    rows = rf_role(participants, timeInfo, puuid_pool)
 
     return rows
 
@@ -618,12 +622,12 @@ async def main():
                 if match_id in processed_matches:
                     continue
 
-                print(f"[INFO] -> Match details {match_id}")
+                #print(f"[INFO] -> Match details {match_id}")
                 match_details = await get_match_details(session, match_id)
                 if match_details:
                     processed_matches.add(match_id)
 
-                    print(f"[INFO] -> Match timeline {match_id}")
+                    #print(f"[INFO] -> Match timeline {match_id}")
                     timeline = await get_match_timeline(session, match_id)
 
                     new_rows = await process_match_data(session, match_details, timeline, puuid_pool)
@@ -631,6 +635,9 @@ async def main():
                         all_data.append(row)
                         total_rows += 1
                         rows_since_last_save += 1
+
+                        if total_rows % 50 == 0:
+                            print(f"Processed a total of {total_rows} rows.")
 
                         #print(f"Processed a total of {total_rows} rows.")
 
