@@ -38,7 +38,7 @@ async def add_user_to_group(_: Annotated[User, Depends(require_group(20))], user
     return await admin_service.add_user_to_group(username, group)
 
 @router.delete(
-        "admin/remove_user_from_group",
+        "/admin/remove_user_from_group",
         response_model=Any,
         summary="Remove a user from a specific group",
         description="Remove a user from a cognito group, can be made that he does not have a group. Use with caution",
@@ -58,7 +58,7 @@ async def enable_user(_: Annotated[User, Depends(require_group(20))], username: 
     return await admin_service.enable_user(username)
 
 @router.patch(
-        "/admin/disbale_user",
+        "/admin/disable_user",
         response_model=Any,
         summary="Disbale a user",
         description="Disable a specific user in cognito",
@@ -98,7 +98,7 @@ async def create_user(_: Annotated[User, Depends(require_group(20))], username: 
     return await admin_service.create_user(username, email, temp_pass)
 
 @router.delete(
-        "admin/remove_user_from_group",
+        "/admin/remove_user_from_group",
         response_model=Any,
         summary="Delete a user",
         description="Delete a user from cognito. Permanent delete. No undo",
@@ -118,7 +118,7 @@ async def create_group(_: Annotated[User, Depends(require_group(20))], group_nam
     return await admin_service.create_group(group_name, precedence, description)
 
 @router.delete(
-        "admin/remove_user_from_group",
+        "/admin/remove_user_from_group",
         response_model=Any,
         summary="Delete a group",
         description="Delete a cognito group. Use with caution",
