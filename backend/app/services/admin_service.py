@@ -88,3 +88,38 @@ class admin_service:
         )
 
         return response
+
+    async def create_user(self, username: str, email: str, temp_pass="TemPass@123"):
+        response = client.admin_create_user(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=username,
+            UserAttributes=[
+                {"Name": "email", "Value": email},
+                {"Name": "email_verified", "Value": "true"}
+            ],
+            TemporaryPassword=temp_pass,
+            MessageAction="SUPPRESS"
+        )
+
+        return response
+#     {
+#   "User": {
+#     "Username": "john_doe",
+#     "UserStatus": "FORCE_CHANGE_PASSWORD"
+#   }
+# }
+
+    async def create_group(self, group_name: str, precedence: int, description: str):
+        client.create_group(
+            GroupName=group_name,
+            UserPoolId=settings.cognito_user_pool_id,
+            Description=description,
+            Precedence=precedence
+        )
+        {
+#   "Group": {
+#     "GroupName": "Admin"
+#   }
+# }
+
+    
