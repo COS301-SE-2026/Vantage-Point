@@ -103,12 +103,12 @@ def giniImportance(rf):
         #items to buy
         #skills to upgrade
     #global match
-        #champion to use
+        #champion to usef6
         #what lane/role/team_position you should play in
     #####MAYBES#####
         #Ward placement
 
-#accuracy stuck below 50% for 5000
+#accuracy stuck below 40% for 5000
 #returns itemId
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()

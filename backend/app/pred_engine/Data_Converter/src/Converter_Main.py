@@ -200,21 +200,46 @@ def formatItemData(data):
         for j in range(len(row)):
             if any(char.isdigit() for char in row[j]):
                 row[j] = int(row[j])  
-        val = row[2]#team position
+        val = row[2]#lane
         match val:
             case 'TOP':
                 row[2] = 1
-            case 'JUNGLE':
-                row[2] = 2
             case 'MIDDLE':
-                row[2] = 3
+                row[2] = 2
             case 'BOTTOM':
+                row[2] = 3
+            case 'JUNGLE':
                 row[2] = 4
+            case 'NONE':
+                row[2] = 0  
+        val = row[3]#role
+        match val:
+            case 'NONE':
+                row[3] = 0
+            case 'SOLO':
+                row[3] = 1
+            case 'CARRY':
+                row[3] = 2
+            case 'SUPPORT':
+                row[3] = 3
+            case 'DUO':
+                row[3] = 4
+        val = row[4]#team position
+        match val:
+            case 'TOP':
+                row[4] = 1
+            case 'JUNGLE':
+                row[4] = 2
+            case 'MIDDLE':
+                row[4] = 3
+            case 'BOTTOM':
+                row[4] = 4
             case 'UTILITY':
-                row[2] = 5
+                row[4] = 5
         for j in range(len(row)):
             if not isinstance(row[j], int):
                 row[j] = 0 
+        
         
         #if feature values are identical, take random one only
         if r!=0 and row[1:] == prevRow[1:]:
