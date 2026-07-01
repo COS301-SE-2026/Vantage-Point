@@ -39,4 +39,11 @@ async def create_user(username: str, email: str, temp_pass: str="TempPass@123"):
 async def delete_user(username: str):
     return await admin_service.delete_user(username)
 
-async def 
+async def create_group(group_name: str, precedence: int, description: str):
+    return await admin_service.create_group(group_name, precedence, description)
+
+async def delete_group(group_name: str):
+    return await admin_service.delete_group(group_name)
+
+async def update_group_attr(group_name: str, precedence: int, description: str):
+    return await admin_service.update_group_attr(group_name, precedence, description)
