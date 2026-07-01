@@ -115,18 +115,31 @@ class admin_service:
                raise HTTPException(status_code=404, detail="Uer not found.")
 
     async def create_user(self, username: str, email: str, temp_pass: str="TemPass@123"):
-        response = client.admin_create_user(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username,
-            UserAttributes=[
-                {"Name": "email", "Value": email},
-                {"Name": "email_verified", "Value": "true"}
-            ],
-            TemporaryPassword=temp_pass,
-            MessageAction="SUPPRESS"
-        )
+        try:
+            response = client.admin_create_user(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username,
+                UserAttributes=[
+                    {"Name": "email", "Value": email},
+                    {"Name": "email_verified", "Value": "true"}
+                ],
+                TemporaryPassword=temp_pass,
+                MessageAction="SUPPRESS"
+            )
 
-        return response
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNameExistException":
+                raise HTTPException(status_code=400, detail="Username or email already exist.")
+            if error_code == "InvalidPasswordException":
+                raise HTTPException(status_code=400, detail="Password does not meet format")
+            if error_code == "InvalidParamaterException":
+                raise HTTPException(status_code=422, detail="Invalid username")
+            raise HTTPException(status_code=400, detail=error_code)
+            
+
 #     {
 #   "User": {
 #     "Username": "john_doe",
