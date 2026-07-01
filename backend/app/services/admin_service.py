@@ -116,10 +116,22 @@ class admin_service:
             Description=description,
             Precedence=precedence
         )
-        {
+        # {
 #   "Group": {
 #     "GroupName": "Admin"
 #   }
 # }
 
-    
+    async def update_group_attr(self, group_name: str, precedence: int, description: str):
+        client.update_group(
+            GroupName=group_name,
+            UserPoolId=settings.cognito_user_pool_id,
+            Description=description,
+            Precedence=precedence
+        )
+
+    async def delete_group(self, group_name: str):
+        client.delete_group(
+            GroupName=group_name,
+            UserPoolId=settings.cognito_user_pool_id
+        )
