@@ -28,13 +28,22 @@ class admin_service:
            raise HTTPException(status_code=400, detail=error_code)
 
     async def get_user(self, username: str):
-        
-        response = client.admin_get_user(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username
-        )
+        try:
+            response = client.admin_get_user(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username
+            )
 
-        return response
+            return response
+        except ClientError as e:
+           error = e.response.get("Error", {})
+           error_code = error.get("Code", "ClientError")
+           if error_code == "UserNotFoundException":
+               raise HTTPException(status_code=404, detail="Uer not found.")
+           if error_code == "InvalidParamaterException":
+               raise HTTPException(status_code=422, detail="Invalid username")
+           raise HTTPException(status_code=400, detail=error_code)
+
 
     async def add_user_to_group(self, username:str, group: str="Users"):
 
@@ -92,14 +101,20 @@ class admin_service:
         return response
     
     async def delete_user(self, username: str):
-        response = client.admin_delete_user(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username
-        )
+        try:
+            response = client.admin_delete_user(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username
+            )
 
-        return response
+            return response
+        except ClientError as e:
+           error = e.response.get("Error", {})
+           error_code = error.get("Code", "ClientError")
+           if error_code == "UserNotFoundException":
+               raise HTTPException(status_code=404, detail="Uer not found.")
 
-    async def create_user(self, username: str, email: str, temp_pass="TemPass@123"):
+    async def create_user(self, username: str, email: str, temp_pass: str="TemPass@123"):
         response = client.admin_create_user(
             UserPoolId=settings.cognito_user_pool_id,
             Username=username,
