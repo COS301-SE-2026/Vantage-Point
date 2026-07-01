@@ -24,3 +24,19 @@ async def remove_user_from_group(username: str, group: str="Users"):
 async def enable_user(username: str):
     return await admin_service.enable_user(username)
 
+async def disbale_user(username: str):
+    return await admin_service.disable_user(username)
+
+async def set_password(username: str, password: str):
+    return await admin_service.set_password(username, password)
+
+async def user_global_sign_out(username: str):
+    return await admin_service.user_global_sign_out(username)
+
+async def create_user(username: str, email: str, temp_pass: str="TempPass@123"):
+    return await admin_service.create_user(username, email, temp_pass)
+
+async def delete_user(username: str):
+    return await admin_service.delete_user(username)
+
+async def 
