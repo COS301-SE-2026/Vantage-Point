@@ -1,5 +1,7 @@
 import boto3
+from botocore.exceptions import ClientError
 from app.config import get_settings
+from fastapi import HTTPException
 
 settings = get_settings()
 
@@ -9,13 +11,21 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region) #type: ign
 
 class admin_service:
     async def get_users(self, limit: int = 10):
-
-        response = client.list_users(
+       try: 
+            response = client.list_users(
             UserPoolId=settings.cognito_user_pool_id,
             Limit=limit
-        )
+            )
 
-        return response
+            return response
+       except ClientError as e:
+           error = e.response.get("Error", {})
+           error_code = error.get("Code", "ClientError")
+           if error_code == "UserNotFoundException":
+               raise HTTPException(status_code=404, detail="Uer not found.")
+           if error_code == "InvalidParamaterException":
+               raise HTTPException(status_code=422, detail="Invalid username")
+           raise HTTPException(status_code=400, detail=error_code)
 
     async def get_user(self, username: str):
         
