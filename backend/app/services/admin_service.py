@@ -46,14 +46,21 @@ class admin_service:
 
 
     async def add_user_to_group(self, username:str, group: str="Users"):
+        try:
+            response = client.admin_add_user_to_group(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username,
+                GroupName=group
+            )
 
-        response = client.admin_add_user_to_group(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username,
-            GroupName=group
-        )
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "GroupExistsException":
+                raise HTTPException(status_code=400, detail="Group name already exists.")
+            raise HTTPException(status_code=400, detail=error_code)
 
-        return response
     
     async def remove_user_from_group(self, username: str, group: str ="Users"):
         response = client.admin_remove_user_from_group(
@@ -81,14 +88,23 @@ class admin_service:
         return response
     
     async def set_password(self, username: str, password: str):
-        response = client.admin_set_user_password(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username,
-            Password=password,
-            Permanent=True
-        )
+        try:
+            response = client.admin_set_user_password(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username,
+                Password=password,
+                Permanent=True
+            )
 
-        return response
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=403, detail="User not found.")
+            if error_code == "InvalidPasswordException":
+                raise HTTPException(status_code=400, detail="Password does not meet format")          
+            raise HTTPException(status_code=400, detail=error_code)
     
     #todo update user attr
 
