@@ -42,7 +42,7 @@ class admin_service:
            error = e.response.get("Error", {})
            error_code = error.get("Code", "ClientError")
            if error_code == "UserNotFoundException":
-               raise HTTPException(status_code=404, detail="Uer not found.")
+               raise HTTPException(status_code=404, detail="User not found.")
            if error_code == "InvalidParamaterException":
                raise HTTPException(status_code=422, detail="Invalid username")
            raise HTTPException(status_code=400, detail=error_code)
@@ -50,14 +50,14 @@ class admin_service:
 
     async def add_user_to_group(self, username:str, group: str="Users"):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_add_user_to_group,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
                 GroupName=group
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -70,14 +70,14 @@ class admin_service:
     
     async def remove_user_from_group(self, username: str, group: str ="Users"):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_remove_user_from_group,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
                 GroupName=group
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")           
@@ -85,13 +85,13 @@ class admin_service:
     
     async def disable_user(self, username: str):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_disable_user,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -99,13 +99,13 @@ class admin_service:
     
     async def enable_user(self, username: str):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_enable_user,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -113,7 +113,7 @@ class admin_service:
     
     async def set_password(self, username: str, password: str):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_set_user_password,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
@@ -121,7 +121,7 @@ class admin_service:
                 Permanent=True
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -135,13 +135,13 @@ class admin_service:
 
     async def user_global_sign_out(self, username: str):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_user_global_sign_out,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -149,13 +149,13 @@ class admin_service:
     
     async def delete_user(self, username: str):
         try:
-            response = await asyncio.to_thread(
+            await asyncio.to_thread(
                 client.admin_delete_user,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username
             )
 
-            return response
+            return {"success": True}
         except ClientError as e:
            error = e.response.get("Error", {})
            error_code = error.get("Code", "ClientError")
@@ -229,6 +229,8 @@ class admin_service:
                 GroupName=group_name,
                 UserPoolId=settings.cognito_user_pool_id
             )
+
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
