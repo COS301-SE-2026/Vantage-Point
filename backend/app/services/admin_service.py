@@ -57,19 +57,26 @@ class admin_service:
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
-            if error_code == "GroupExistsException":
-                raise HTTPException(status_code=400, detail="Group name already exists.")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=404, detail="User not found.")
+            if error_code == "ResourceNotFoundException":
+                raise HTTPException(status_code=400, detail="The specified group was not found.")
             raise HTTPException(status_code=400, detail=error_code)
 
     
     async def remove_user_from_group(self, username: str, group: str ="Users"):
-        response = client.admin_remove_user_from_group(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username,
-            GroupName=group
-        )
+        try:
+            response = client.admin_remove_user_from_group(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username,
+                GroupName=group
+            )
 
-        return response
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")           
+            raise HTTPException(status_code=400, detail=error_code)
     
     async def disable_user(self, username: str):
         response = client.admin_disable_user(
@@ -164,12 +171,21 @@ class admin_service:
 # }
 
     async def create_group(self, group_name: str, precedence: int, description: str):
-        client.create_group(
-            GroupName=group_name,
-            UserPoolId=settings.cognito_user_pool_id,
-            Description=description,
-            Precedence=precedence
-        )
+        try:
+            response = client.create_group(
+                GroupName=group_name,
+                UserPoolId=settings.cognito_user_pool_id,
+                Description=description,
+                Precedence=precedence
+            )
+            
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "GroupExistException":
+               raise HTTPException(status_code=400, detail="Group name already exist.")
+            raise HTTPException(status_code=400, detail=error_code)
         # {
 #   "Group": {
 #     "GroupName": "Admin"
