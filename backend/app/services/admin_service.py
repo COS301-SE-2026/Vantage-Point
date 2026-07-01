@@ -11,7 +11,8 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region) #type: ign
 #admin abilities/services
 
 class admin_service:
-    async def get_users(self, limit: int = 10):
+    @staticmethod
+    async def get_users(limit: int = 10):
        try: 
             response = await asyncio.to_thread(
             client.list_users,
@@ -29,7 +30,8 @@ class admin_service:
                raise HTTPException(status_code=422, detail="Invalid username")
            raise HTTPException(status_code=400, detail=error_code)
 
-    async def get_user(self, username: str):
+    @staticmethod
+    async def get_user(username: str):
         try:
             response = await asyncio.to_thread(
                 client.admin_get_user,
@@ -47,8 +49,8 @@ class admin_service:
                raise HTTPException(status_code=422, detail="Invalid username")
            raise HTTPException(status_code=400, detail=error_code)
 
-
-    async def add_user_to_group(self, username:str, group: str="Users"):
+    @staticmethod
+    async def add_user_to_group(username:str, group: str="Users"):
         try:
             await asyncio.to_thread(
                 client.admin_add_user_to_group,
@@ -67,8 +69,8 @@ class admin_service:
                 raise HTTPException(status_code=400, detail="The specified group was not found.")
             raise HTTPException(status_code=400, detail=error_code)
 
-    
-    async def remove_user_from_group(self, username: str, group: str ="Users"):
+    @staticmethod
+    async def remove_user_from_group(username: str, group: str ="Users"):
         try:
             await asyncio.to_thread(
                 client.admin_remove_user_from_group,
@@ -83,7 +85,8 @@ class admin_service:
             error_code = error.get("Code", "ClientError")           
             raise HTTPException(status_code=400, detail=error_code)
     
-    async def disable_user(self, username: str):
+    @staticmethod
+    async def disable_user(username: str):
         try:
             await asyncio.to_thread(
                 client.admin_disable_user,
@@ -97,7 +100,8 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
     
-    async def enable_user(self, username: str):
+    @staticmethod
+    async def enable_user(username: str):
         try:
             await asyncio.to_thread(
                 client.admin_enable_user,
@@ -111,7 +115,8 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
     
-    async def set_password(self, username: str, password: str):
+    @staticmethod
+    async def set_password(username: str, password: str):
         try:
             await asyncio.to_thread(
                 client.admin_set_user_password,
@@ -133,7 +138,8 @@ class admin_service:
     
     #todo update user attr
 
-    async def user_global_sign_out(self, username: str):
+    @staticmethod
+    async def user_global_sign_out(username: str):
         try:
             await asyncio.to_thread(
                 client.admin_user_global_sign_out,
@@ -147,7 +153,8 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
     
-    async def delete_user(self, username: str):
+    @staticmethod
+    async def delete_user(username: str):
         try:
             await asyncio.to_thread(
                 client.admin_delete_user,
@@ -162,7 +169,8 @@ class admin_service:
            if error_code == "UserNotFoundException":
                raise HTTPException(status_code=404, detail="Uer not found.")
 
-    async def create_user(self, username: str, email: str, temp_pass: str="TemPass@123"):
+    @staticmethod
+    async def create_user(username: str, email: str, temp_pass: str="TemPass@123"):
         try:
             response = await asyncio.to_thread(
                 client.admin_create_user,
@@ -187,8 +195,9 @@ class admin_service:
             if error_code == "InvalidParamaterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
             raise HTTPException(status_code=400, detail=error_code)
-         
-    async def create_group(self, group_name: str, precedence: int, description: str):
+
+    @staticmethod   
+    async def create_group(group_name: str, precedence: int, description: str):
         try:
             response = await asyncio.to_thread(
                 client.create_group,
@@ -207,7 +216,8 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
         # {
 
-    async def update_group_attr(self, group_name: str, precedence: int, description: str):
+    @staticmethod
+    async def update_group_attr(group_name: str, precedence: int, description: str):
         try:
             await asyncio.to_thread(
                 client.update_group,
@@ -222,7 +232,8 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
 
-    async def delete_group(self, group_name: str):
+    @staticmethod
+    async def delete_group(group_name: str):
         try:
             await asyncio.to_thread(
                 client.delete_group,
