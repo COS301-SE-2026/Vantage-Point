@@ -12,8 +12,8 @@ import csv
 warnings.filterwarnings("ignore")
 
 fileName = 'test5000.csv'
-runCat = 'item' #champion; item; skill; role;
-yVal = 'itemId' #championId, itemId; skillSlot; teamPosition;
+runCat = 'champion' #champion; item; skill; role;
+yVal = 'championId' #championId, itemId; skillSlot; teamPosition;
 
 #evaluation/tuning
 
@@ -28,46 +28,34 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
 
     grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, cv=2)
     grid_search.fit(X_train, y_train)
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
-
+    
     model_grid = RandomForestClassifier(max_depth = grid_search.best_params_.get('max_depth'),
                                         n_estimators = grid_search.best_params_.get('n_estimators'),
                                         min_samples_leaf = grid_search.best_params_.get('min_samples_leaf'),
                                         min_samples_split = grid_search.best_params_.get('min_samples_split'),
                                         bootstrap = grid_search.best_params_.get('bootstrap')
                                     )
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
+    
+    print(grid_search.best_params_.get('max_depth'))
+    print(grid_search.best_params_.get('n_estimators'))
+    print(grid_search.best_params_.get('min_samples_leaf'))
+    print(grid_search.best_params_.get('min_samples_split'))
+    print(grid_search.best_params_.get('bootstrap'))
+
     
     if runCat == 'skill' or runCat == 'role':
         rfMulti = MultiOutputClassifier(model_grid, n_jobs=-1)
         rfMulti.fit(X_train, y_train)
         y_pred_grid = rfMulti.predict(X_test)
-        t = time.time()
-        print(f'\nTime: {t - start:.2f} seconds')
-
         y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
         y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
-        t = time.time()
-        print(f'\nTime: {t - start:.2f} seconds')
-        
         scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
-        t = time.time()
-        print(f'\nTime: {t - start:.2f} seconds')
+        
     else:
         model_grid.fit(X_train, y_train)
-        t = time.time()
-        print(f'\nTime: {t - start:.2f} seconds')
-
         y_pred_grid = model_grid.predict(X_test)
-        t = time.time()
-        print(f'\nTime: {t - start:.2f} seconds')
-
         scores = accuracy_score(y_pred_grid, y_test)
-        t = time.time()
-        print(f'\nTime: {t - start:.2f} seconds')
-
+        
     return scores
 
 def giniImportance(rf):
@@ -98,17 +86,7 @@ def giniImportance(rf):
     feature_imp_df = pd.DataFrame({'Feature': feature_names, 'Gini Importance': importances}).sort_values('Gini Importance', ascending=False)
     return feature_imp_df
 
-#decisions to implement
-    #match frame
-        #items to buy
-        #skills to upgrade
-    #global match
-        #champion to usef6
-        #what lane/role/team_position you should play in
-    #####MAYBES#####
-        #Ward placement
-
-#accuracy stuck below 40% for 5000
+#done
 #returns itemId
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
@@ -160,36 +138,69 @@ def rf_role(X_train, X_test, y_train, y_test):
 
 ###### TESTING AND EVALUATION #######
 
-start = time.time()
-X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
-print(len(X_train) + len(X_test))
+def test_and_eval():
+    start = time.time()
+    X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
+    print(len(X_train) + len(X_test))
 
-match runCat:
-    case 'champion':
-        base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
-    case 'item':
-        base_ac, rf_model = rf_items(X_train, X_test, y_train, y_test)
-    case 'skill':
-        base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
-    case 'role':
-        base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
-t = time.time()
-print(f'\nTime: {t - start:.2f} seconds')
+    match runCat:
+        case 'champion':
+            base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+        case 'item':
+            base_ac, rf_model = rf_items(X_train, X_test, y_train, y_test)
+        case 'skill':
+            base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
+        case 'role':
+            base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
 
-param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
-t = time.time()
-print(f'\nTime: {t - start:.2f} seconds')
+    param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
 
-feature_dif = giniImportance(rf_model)
-end = time.time()
-print()
-print(f'Final Time: {end - start:.2f} seconds')
+    t = time.time()
+    print(f'\nTime: {t - start:.2f} seconds')
 
-print("")
-print(f'Base accuracy: {base_ac}')
-print(f'Parameter tuned accuracy: {param_ac}')
-print(feature_dif)
+    feature_dif = giniImportance(rf_model)
+    end = time.time()
+    print()
+    print(f'Final Time: {end - start:.2f} seconds')
 
+    print("")
+    print(f'Base accuracy: {base_ac}')
+    print(f'Parameter tuned accuracy: {param_ac}')
+    print(feature_dif)
+
+def final_train():
+
+    start = time.time()
+    X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
+
+    match runCat:
+        case 'champion':
+            base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+        case 'item':
+            rf_model = RandomForestClassifier(max_depth = 10,
+                                                n_estimators = 100,
+                                                min_samples_leaf = 2,
+                                                min_samples_split = 5,
+                                                bootstrap = True
+                                            )
+            rf_model.fit(X_train, y_train)
+            y_pred_grid = rf_model.predict(X_test)
+            base_ac = accuracy_score(y_pred_grid, y_test)
+        case 'skill':
+            base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
+        case 'role':
+            base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
+
+    end = time.time()
+    print(f'Final Time: {end - start:.2f} seconds')
+    print(f'Base accuracy: {base_ac}')
+
+    return rf_model, base_ac
+
+test_and_eval()
+#final_train()
 
 #accuracy score as close to 1 as possible
 #remove features with the lowest scores

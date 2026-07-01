@@ -473,7 +473,7 @@ class M_ParticipantObj:
     allInPings = 0
     assistMePings = 0
     assists = 0
-    baronKills = 0
+    baronKills = 0#
     bountyLevel = 0
     champExperience = 0  #
     champLevel = 0  #
@@ -490,7 +490,7 @@ class M_ParticipantObj:
     deaths = 0  #
     detectorWardsPlaced = 0
     doubleKills = 0  
-    dragonKills = 0
+    dragonKills = 0#
     eligibleForProgression = True
     enemyMissingPings = 0
     enemyVisionPings = 0
@@ -529,11 +529,11 @@ class M_ParticipantObj:
     mission = MissionObj  
     neutralMinionsKilled = 0
     needVisionPings = 0
-    nexusKills = 0
-    nexusTakedowns = 0
-    nexusLost = 0
-    objectivesStolen = 0
-    objectivesStolenAssists = 0
+    nexusKills = 0#
+    nexusTakedowns = 0#
+    nexusLost = 0#
+    objectivesStolen = 0#
+    objectivesStolenAssists = 0#
     onMyWayPings = 0
     participantId = 0
     playerScore0 = 0  
@@ -600,15 +600,15 @@ class M_ParticipantObj:
     trueDamageDealt = 0
     trueDamageDealtToChampions = 0
     trueDamageTaken = 0
-    turretKills = 0
-    turretTakedowns = 0
-    turretsLost = 0
+    turretKills = 0#
+    turretTakedowns = 0#
+    turretsLost = 0#
     unrealKills = 0  
     visionScore = 0  #
     visionClearedPings = 0
     visionWardsBoughtInGame = 0
-    wardsKilled = 0
-    wardsPlaced = 0
+    wardsKilled = 0#
+    wardsPlaced = 0#
     win = True
 
     def append_matchData(self):
