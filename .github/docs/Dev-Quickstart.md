@@ -60,35 +60,49 @@ Dev login: testuser1@vantagepoint.dev (password from SEED_DEV_PASSWORD)
 
 ---
 
-## Step 2 — Start the backend
+## Step 2 — Start the backend and frontend
+
+**Option A — both services (one terminal):**
 
 ```bash
-cd /workspaces/backend
+./scripts/start.sh
+```
+
+**Option B — separate terminals:**
+
+```bash
+./backend/start.sh
+```
+
+```bash
+./frontend/start.sh
+```
+
+**Option C — manual commands:**
+
+```bash
+cd backend
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-**Verify:** open [http://localhost:8000](http://localhost:8000). Expected response:
+```bash
+cd frontend
+npm run dev
+```
+
+Inside the dev container, paths are `/workspaces/backend` and `/workspaces/frontend` instead of `./backend` and `./frontend`.
+
+**Verify backend:** open [http://localhost:8000](http://localhost:8000). Expected response:
 
 ```json
 {"message": "Vantage Point API running", "db_status": "Ready"}
 ```
 
----
-
-## Step 3 — Start the frontend
-
-In a **second terminal**:
-
-```bash
-cd /workspaces/frontend
-npm run dev
-```
-
-Open the URL Vite prints (usually [http://localhost:5173](http://localhost:5173)).
+**Verify frontend:** open the URL Vite prints (usually [http://localhost:5173](http://localhost:5173)).
 
 ---
 
-## Step 4 — Log in
+## Step 3 — Log in
 
 | Field | Value |
 |--------|--------|
@@ -119,9 +133,8 @@ Newly registered accounts without seeded rows will have empty match history unti
 ```text
 1. backend/.env + frontend/.env (from .env.example)
 2. cd backend && python -m app.database.seed
-3. cd backend && uvicorn app.main:app --reload
-4. cd frontend && npm run dev
-5. Login: testuser1@vantagepoint.dev / <SEED_DEV_PASSWORD>
+3. ./scripts/start.sh   (or ./backend/start.sh + ./frontend/start.sh)
+4. Login: testuser1@vantagepoint.dev / <SEED_DEV_PASSWORD>
 ```
 
 ---
