@@ -3,13 +3,15 @@
 
 # Testing
 pytest>=9.0.3
-pytest-cov==4.1.0
-pytest-asyncio==0.21.1
+pytest-cov
+pytest-asyncio
 
 # Code Quality
 black==26.3.1
 ruff==0.1.11
 mypy==1.8.0
+pylint>=3.0.0
+bandit>=1.8.2
 
 # Type stubs for third-party libraries
 types-python-jose==3.5.0.20260408
@@ -17,9 +19,8 @@ types-boto3-cognito-idp==1.43.0
 boto3-stubs==1.43.7
 
 # Utilities
-python-dotenv==1.2.2
-
-joblib==1.5.2
-python-jose[cryptography]==3.5.0
-mypy-boto3-cognito-idp==1.43.0
+python-dotenv
+joblib
+python-jose[cryptography]
+mypy-boto3-cognito-idp
 psycopg2-binary

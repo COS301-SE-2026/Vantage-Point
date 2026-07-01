@@ -1,0 +1,37 @@
+# Ignore local secrets and configurations
+.env
+*.env
+secrets.json
+.aws/
+.ssh/
+
+# Ignore version control and IDE clutter
+.git
+.gitignore
+.github/
+.idea/
+.vscode/
+
+# Ignore Python artifacts and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+node_modules
+dist
+build
+.DS_Store
+.git
+.gitignore

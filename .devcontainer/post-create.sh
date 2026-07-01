@@ -10,6 +10,8 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt 
  
 # Frontend — install Node dependencies
+sudo chown -R 1000:1000 "/home/vscode/.npm" 2>/dev/null || true
+rm -rf /workspaces/frontend/node_modules
 cd /workspaces/frontend
 npm install
 
