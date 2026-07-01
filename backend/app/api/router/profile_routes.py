@@ -4,8 +4,10 @@ from typing import Annotated
 from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
-from app.Models.profile_schemas import User
 from datetime import datetime
+
+from app.Models.auth_model import User
+from app.api.auth import require_group
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -18,7 +20,7 @@ router = APIRouter()
         description="Looks up user in both cognito and db then gets or create in db",
         tags=["profile"]
 )
-async def get_or_create_profile(session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
     return await ProfileService.get_or_create_profile(session, access_token=access_token)
 
 @router.post(
@@ -28,7 +30,7 @@ async def get_or_create_profile(session: Annotated[AsyncSession, Depends(get_ses
         description="Schedules account for deletion(soft delete) in 30 days",
         tags=["profile"]
 )
-async def schedule_account_deletion(session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
+async def schedule_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
     return await ProfileService.schedule_account_deletion(session, access_token)
 
 @router.post(
@@ -38,7 +40,7 @@ async def schedule_account_deletion(session: Annotated[AsyncSession, Depends(get
         description="Undo soft delete set date to invalid date and stops deletion",
         tags=["profile"]
 )
-async def undo_account_deletion(session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
+async def undo_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
     return await ProfileService.undo_account_deletion(session, access_token)
 
 
