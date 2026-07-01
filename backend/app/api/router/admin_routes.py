@@ -36,6 +36,13 @@ async def get_user(username: str):
 async def add_user_to_group(username:str, group: str= "Users"):
     return await admin_service.add_user_to_group(username, group)
 
+@router.delete(
+        "admin/remove_user_from_group",
+        response_model=Any,
+        summary="Remove a user from a specific group",
+        description="Remove a user from a cognito group, can be made that he does not have a group. Use with caution",
+        tags=["admin"]
+)
 async def remove_user_from_group(username: str, group: str="Users"):
     return await admin_service.remove_user_from_group(username, group)
 
@@ -89,6 +96,13 @@ async def user_global_sign_out(username: str):
 async def create_user(username: str, email: str, temp_pass: str="TempPass@123"):
     return await admin_service.create_user(username, email, temp_pass)
 
+@router.delete(
+        "admin/remove_user_from_group",
+        response_model=Any,
+        summary="Delete a user",
+        description="Delete a user from cognito. Permanent delete. No undo",
+        tags=["admin"]
+)
 async def delete_user(username: str):
     return await admin_service.delete_user(username)
 
@@ -102,6 +116,13 @@ async def delete_user(username: str):
 async def create_group(group_name: str, precedence: int, description: str):
     return await admin_service.create_group(group_name, precedence, description)
 
+@router.delete(
+        "admin/remove_user_from_group",
+        response_model=Any,
+        summary="Delete a group",
+        description="Delete a cognito group. Use with caution",
+        tags=["admin"]
+)
 async def delete_group(group_name: str):
     return await admin_service.delete_group(group_name)
 
