@@ -313,7 +313,8 @@ class ProfileService:
         profile.email = email
 
         await session.commit()
-        client.update_user_attributes(
+        await asyncio.to_thread(
+            client.update_user_attributes,
             AccessToken=access_token,
             UserAttributes=[{
                 "Name": "email",
