@@ -79,20 +79,30 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
     
     async def disable_user(self, username: str):
-        response = client.admin_disable_user(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username
-        )
+        try:
+            response = client.admin_disable_user(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username
+            )
 
-        return response
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
     
     async def enable_user(self, username: str):
-        response = client.admin_enable_user(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username
-        )
+        try:
+            response = client.admin_enable_user(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username
+            )
 
-        return response
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
     
     async def set_password(self, username: str, password: str):
         try:
@@ -116,12 +126,17 @@ class admin_service:
     #todo update user attr
 
     async def user_global_sign_out(self, username: str):
-        response = client.admin_user_global_sign_out(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username=username
-        )
+        try:
+            response = client.admin_user_global_sign_out(
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username
+            )
 
-        return response
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
     
     async def delete_user(self, username: str):
         try:
@@ -193,15 +208,26 @@ class admin_service:
 # }
 
     async def update_group_attr(self, group_name: str, precedence: int, description: str):
-        client.update_group(
-            GroupName=group_name,
-            UserPoolId=settings.cognito_user_pool_id,
-            Description=description,
-            Precedence=precedence
-        )
+        try:
+            client.update_group(
+                GroupName=group_name,
+                UserPoolId=settings.cognito_user_pool_id,
+                Description=description,
+                Precedence=precedence
+            )
+
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     async def delete_group(self, group_name: str):
-        client.delete_group(
-            GroupName=group_name,
-            UserPoolId=settings.cognito_user_pool_id
-        )
+        try:
+            client.delete_group(
+                GroupName=group_name,
+                UserPoolId=settings.cognito_user_pool_id
+            )
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
