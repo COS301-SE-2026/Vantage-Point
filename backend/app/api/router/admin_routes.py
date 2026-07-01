@@ -39,9 +39,23 @@ async def add_user_to_group(username:str, group: str= "Users"):
 async def remove_user_from_group(username: str, group: str="Users"):
     return await admin_service.remove_user_from_group(username, group)
 
+@router.patch(
+        "/admin/enable_user",
+        response_model=Any,
+        summary="Enable a user",
+        description="Enable a specific user in cognito",
+        tags=["admin"]
+)
 async def enable_user(username: str):
     return await admin_service.enable_user(username)
 
+@router.patch(
+        "/admin/disbale_user",
+        response_model=Any,
+        summary="Disbale a user",
+        description="Disable a specific user in cognito",
+        tags=["admin"]
+)
 async def disbale_user(username: str):
     return await admin_service.disable_user(username)
 
@@ -91,5 +105,12 @@ async def create_group(group_name: str, precedence: int, description: str):
 async def delete_group(group_name: str):
     return await admin_service.delete_group(group_name)
 
+@router.put(
+        "/admin/update_group_attr",
+        response_model=Any,
+        summary="Update a groups attributes",
+        description="Update agroups precedence and description",
+        tags=["admin"]
+)
 async def update_group_attr(group_name: str, precedence: int, description: str):
     return await admin_service.update_group_attr(group_name, precedence, description)
