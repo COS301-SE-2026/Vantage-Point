@@ -75,8 +75,9 @@ export default function DashboardPage() {
   const accountInitials = profile?.avatar_initials ?? "VP";
 
   const handleLogout = () => {
-    logout();
-    navigate("/login", { replace: true });
+    void logout().then(() => {
+      navigate("/login", { replace: true });
+    });
   };
 
   const outletContext: DashboardOutletContext = {
