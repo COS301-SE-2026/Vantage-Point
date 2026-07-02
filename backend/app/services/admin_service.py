@@ -28,7 +28,9 @@ class admin_service:
                raise HTTPException(status_code=404, detail="Uer not found.")
            if error_code == "InvalidParamaterException":
                raise HTTPException(status_code=422, detail="Invalid username")
-           raise HTTPException(status_code=400, detail=error_code)
+           print(e.response)
+           raise
+        #    raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def get_user(username: str):
