@@ -195,10 +195,10 @@ class ProfileService:
 
         #create profile and get then return profile as is. Used when laod profile. Lazy loading
         #create in db
-        #change to this required
         profile = Users(
-            user_id=user.sub,
-            username=user.username,
+            cognito_sub=user.sub,
+            email=user.email,
+            display_name=user.username,
             created_at=datetime.now(),
             updated_at=datetime.now(),
             deletion_scheduled_at=datetime(1999, 12, 31)
