@@ -163,13 +163,21 @@ class admin_service:
 
    #require db 
     @staticmethod
-    async def delete_user(username: str):
+    async def delete_user(session: AsyncSession, username: str, sub: str):
         try:
             await asyncio.to_thread(
                 client.admin_delete_user,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username
             )
+
+            statement = select(Users).where(Users.cognito_sub == sub)
+            result = await session.execute(statement)
+            user = result.scalar_one_or_none()
+            
+            if user is not None:
+                await session.delete(user)
+                await session.commit()
 
             return {"success": True}
         except ClientError as e:
@@ -200,6 +208,9 @@ class admin_service:
             result: Any = await session.execute(statement)
             profile: Users | None = result.scalar_one_or_none()
 
+            if profile is not None:
+                raise HTTPException(status_code=400, detail="USer already exist")
+            
             profile = Users(
                 cognito_sub=attrs.get("sub", ""),
                 email=email,
