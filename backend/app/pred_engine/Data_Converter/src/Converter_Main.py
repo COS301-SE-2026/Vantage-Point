@@ -22,7 +22,7 @@ def getFromAPI():
 def formatTrainTestDataKNN(data):
     r, c = (1, 1)
     dataArr = []
-    X = []
+    y = []
     r, c = (-1, 0, )
     rCount = 0
     for row in data:
@@ -33,49 +33,58 @@ def formatTrainTestDataKNN(data):
         for j in range(len(row)):
             if any(char.isdigit() for char in row[j]):
                 row[j] = int(row[j])  
-        row[0] = 1
-        val = row[1]
+        val = row[3]#lane
         match val:
             case 'TOP':
-                row[1] = 1
-            case 'JUNGLE':
-                row[1] = 2
+                row[3] = 1
             case 'MIDDLE':
-                row[1] = 3
+                row[3] = 2
             case 'BOTTOM':
-                row[1] = 4
-            case 'UTILITY':
-                row[1] = 5
-        val = row[2]
+                row[3] = 3
+            case 'JUNGLE':
+                row[3] = 4
+            case 'NONE':
+                row[3] = 0  
+        val = row[4]#role
+        match val:
+            case 'NONE':
+                row[4] = 0
+            case 'SOLO':
+                row[4] = 1
+            case 'CARRY':
+                row[4] = 2
+            case 'SUPPORT':
+                row[4] = 3
+            case 'DUO':
+                row[4] = 4
+        val = row[2]#team position
         match val:
             case 'TOP':
                 row[2] = 1
-            case 'MIDDLE':
-                row[2] = 2
-            case 'BOTTOM':
-                row[2] = 3
             case 'JUNGLE':
+                row[2] = 2
+            case 'MIDDLE':
+                row[2] = 3
+            case 'BOTTOM':
                 row[2] = 4
-            case 'NONE':
-                row[2] = 0  
+            case 'UTILITY':
+                row[2] = 5
         for j in range(len(row)):
             if not isinstance(row[j], int):
                 row[j] = 0 
         dataArr.append([])
-        X.append([])
+        y.append([])
         r = r + 1
         c = 0
         #add row items to array
         for i in row:
-            #x coord = pos 15 y coord = pos 16
-            if c == 3 or c == 4:
-                X[r].append(i)
+            if c == 0 or c == 1:
+                y[r].append(i)
             else:
                 dataArr[r].append(i)
             c = c + 1
         print()
-    #find way to work out n_samples
-    return X, dataArr
+    return y, dataArr
 
 def getTrainTestDataKNN(fileName):
     with open(fileName, "r") as f:
@@ -93,13 +102,6 @@ def getTrainTestDataKNN(fileName):
 #-----------------------------------------------------------------------------------#
 
 #returns champion id
-#data going in:
-    #team position
-    #role
-    #lane
-    #other champs
-    #bans
-#data will be in the above format by column
 def formatChampionData(data):
     dataArr = []
     y = []
@@ -389,7 +391,7 @@ def getTrainTestDataRF(fileName, category):
     #X is given, y is target
     return X_train, X_test, y_train, y_test
 
-#xtr, xt, ytr, yt, skip = getTrainTestDataRF('test5000.csv', 'item')
+#xtr, xt, ytr, yt, skip = getTrainTestDataKNN('test5000.csv')
 #print(len(xtr)+len(xt))
 #print(skip)
 
