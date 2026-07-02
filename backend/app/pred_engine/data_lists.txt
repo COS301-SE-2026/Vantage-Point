@@ -4,7 +4,7 @@ data from match timeline
 goes to db
 
 info.participants.puuid
-info.participants.partcipantId
+info.participants.partcipantId 
 info.frameInterval
 info.frames.timestamp
 info.frames.participantFrames.{1..10}.position.x
@@ -184,20 +184,47 @@ the events are labled type=ITEM_PURCHASED
 
 info.frames.events.itemId
 info.frames.events.timestamp
-info.participants.championId
-info.participants.champLevel
+info.partcipants.lane
+info.partcipants.champExperience
+info.partcipants.champLevel
+info.partcipants.championId
 info.frames.participantFrames.currentGold
 info.frames.participantFrames.level
+info.frames.participantFrames.minionsKilled
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.totalGold
 info.frames.participantFrames.xp
+info.frames.participantFrames.position.x
+info.frames.participantFrames.position.y
+info.frames.participantFrames.damageStats.magicDamageDone
+info.frames.participantFrames.damageStats.magicDamageDoneToChampions
+info.frames.participantFrames.damageStats.magicDamageTaken
+info.frames.participantFrames.damageStats.physicalDamageDone
+info.frames.participantFrames.damageStats.physicalDamageDoneToChampions
+info.frames.participantFrames.damageStats.physicalDamageTaken
 info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDoneToChampions
 info.frames.participantFrames.damageStats.totalDamageTaken
+info.frames.participantFrames.damageStats.trueDamageDone
+info.frames.participantFrames.damageStats.trueDamageDoneToChampions
+info.frames.participantFrames.damageStats.trueDamageTaken
+info.frames.participantFrames.championStats.abilityPower
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.armorPenPercent
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.ccReduction
 info.frames.participantFrames.championStats.health
 info.frames.participantFrames.championStats.healthMax
 info.frames.participantFrames.championStats.healthRegen
 info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.magicPen
+info.frames.participantFrames.championStats.magicPenPercent
+info.frames.participantFrames.championStats.magicResist
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.omnivamp
 info.frames.participantFrames.championStats.power
 info.frames.participantFrames.championStats.powerMax
-info.frames.participantFrames.championStats.armor
 
 ###########################################################################
 Skill data
