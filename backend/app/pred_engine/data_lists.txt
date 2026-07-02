@@ -171,11 +171,59 @@ RANDOM FOREST
 ###########################################################################
 Champion data
 
-info.participants.championId
-info.participants.teamPosition
-info.participants.roles
-info.participants.lane
-info.participants.championId (Other champions)
+info.partcipants.championId
+info.partcipants.teamPosition
+info.partcipants.role
+info.partcipants.lane
+info.partcipants.damageDealtToBuildings
+info.partcipants.damageDealtToObjectives
+info.partcipants.damageDealtToTurrets
+info.partcipants.damageSelfMitigated
+info.partcipants.deaths
+info.partcipants.inhibitorTakedowns
+info.partcipants.inhibitorsLost
+info.partcipants.itemsPurchased
+info.partcipants.killingSprees
+info.partcipants.kills
+info.partcipants.totalHeal
+info.partcipants.totalHealsOnTeammates
+info.partcipants.visionScore
+info.frames.participantFrames.currentGold
+info.frames.participantFrames.goldPerSecond
+info.frames.participantFrames.level
+info.frames.participantFrames.minionsKilled
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.totalGold
+info..frames.participantFrames.xp
+info.frames.participantFrames.damageStats.magicDamageDone
+info.frames.participantFrames.damageStats.magicDamageDoneToChampions
+info.frames.participantFrames.damageStats.magicDamageTaken
+info.frames.participantFrames.damageStats.physicalDamageDone
+info.frames.participantFrames.damageStats.physicalDamageDoneToChampions
+info.frames.participantFrames.damageStats.physicalDamageTaken
+info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDoneToChampions
+info.frames.participantFrames.damageStats.totalDamageTaken
+info.frames.participantFrames.damageStats.trueDamageDone
+info.frames.participantFrames.damageStats.trueDamageDoneToChampions
+info.frames.participantFrames.damageStats.trueDamageTaken
+info.frames.participantFrames.championStats.abilityPower
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.armorPenPercent
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.ccReduction
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.magicPen
+info.frames.participantFrames.championStats.magicPenPercent
+info.frames.participantFrames.championStats.magicResist
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.omnivamp
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
 
 ###########################################################################
 Item data
