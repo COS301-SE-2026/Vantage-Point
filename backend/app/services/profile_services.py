@@ -16,6 +16,8 @@ import boto3
 import asyncio
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
+
+settings = get_settings()
 client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 #     @staticmethod
 #     async def build_player_summary(
@@ -133,7 +135,6 @@ client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=
 #         return profile
 
 
-settings = get_settings()
 
 class ProfileService:
     #need to add email, will do this later. At the moment is not of that much importance

@@ -1,5 +1,5 @@
 from fastapi import Depends, APIRouter
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer
 from typing import Annotated
 from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,8 @@ from datetime import datetime
 from app.Models.auth_model import User
 from app.api.auth import require_group
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = HTTPBearer()
 
 router = APIRouter()
 

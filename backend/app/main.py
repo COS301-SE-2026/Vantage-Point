@@ -93,8 +93,8 @@ app.add_middleware(
 
 # app.include_router(router, prefix="/api")
 app.include_router(auth_routes.router)
-app.include_router(admin_routes.router)
 app.include_router(profile_routes.router)
+app.include_router(admin_routes.router)
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:

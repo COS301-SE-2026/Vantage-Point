@@ -1,13 +1,15 @@
 from jose import jwt, JWTError
 import httpx
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials #OAuth2PasswordBearer
 from app.config import get_settings
 from typing import Any, cast, Annotated
 from app.Models.profile_schemas import User
 
+
 settings = get_settings()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = HTTPBearer()
 
 # Cache keys to avoid hitting AWS on every single request
 #need to make it not sterile. Will do later.
@@ -78,11 +80,12 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(credential: HTTPAuthorizationCredentials = Depends(oauth2_scheme)) -> User:
     global jwks_cache
     issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
 
     try:
+        token = credential.credentials
         jwks = await get_jwks()
         public_key = get_public_key(token, jwks)
 

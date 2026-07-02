@@ -7,7 +7,7 @@ router = APIRouter()
 
 @router.post(
     "/register",
-    response_model=[str, Any],
+    response_model=dict[str, Any],
     summary="Register a new user",
     description="Creates a new cognito user and sends a verification code using cognito",
     tags=["Auth"],
@@ -18,9 +18,10 @@ router = APIRouter()
 async def register(user: User):
     return await auth_service.register_user(user)
 
+#returns tokens. Not a user
 @router.post(
         "/login",
-        response_model=User,
+        response_model=Any,
         summary="Login a user",
         description="Login a cognito user",
         tags=["Auth"],
