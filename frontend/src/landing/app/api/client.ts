@@ -3,7 +3,8 @@ import {
   getStoredTokens,
   setStoredTokens,
 } from "../lib/tokens";
-import type { ApiErrorBody, TokenResponse } from "../types/auth";
+import { normalizeTokens } from "../lib/tokens";
+import type { ApiErrorBody, CognitoTokenResponse } from "../types/auth";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
@@ -40,7 +41,7 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 
-  const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+  const response = await fetch(`${API_URL}/api/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh_token: refreshToken }),
@@ -51,7 +52,8 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 
-  const tokens = (await response.json()) as TokenResponse;
+  const raw = (await response.json()) as CognitoTokenResponse;
+  const tokens = normalizeTokens(raw);
   setStoredTokens(tokens.access_token, tokens.refresh_token);
   return true;
 }

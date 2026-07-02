@@ -1,3 +1,5 @@
+import type { CognitoTokenResponse, TokenResponse } from "../types/auth";
+
 const ACCESS_KEY = "vp_access_token";
 const REFRESH_KEY = "vp_refresh_token";
 
@@ -26,4 +28,20 @@ export function clearStoredTokens(): void {
 
 export function hasStoredAccessToken(): boolean {
   return Boolean(localStorage.getItem(ACCESS_KEY));
+}
+
+/** Accepts AWS PascalCase or normalized snake_case token payloads. */
+export function normalizeTokens(raw: CognitoTokenResponse): TokenResponse {
+  const accessToken = raw.access_token ?? raw.AccessToken;
+  const refreshToken = raw.refresh_token ?? raw.RefreshToken;
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("Authentication response is missing required tokens.");
+  }
+
+  return {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    token_type: raw.token_type ?? raw.TokenType ?? "Bearer",
+  };
 }
