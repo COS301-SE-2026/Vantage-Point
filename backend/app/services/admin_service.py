@@ -3,6 +3,12 @@ from botocore.exceptions import ClientError
 from app.config import get_settings
 from fastapi import HTTPException
 import asyncio
+from app.database.models import Users 
+from sqlalchemy import select #Integer, cast, func,
+from sqlmodel import select
+from typing import Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime
 
 settings = get_settings()
 
@@ -154,7 +160,8 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
-    
+
+   #require db 
     @staticmethod
     async def delete_user(username: str):
         try:
@@ -171,8 +178,9 @@ class admin_service:
            if error_code == "UserNotFoundException":
                raise HTTPException(status_code=404, detail="Uer not found.")
 
+    #require db
     @staticmethod
-    async def create_user(username: str, email: str, temp_pass: str="TemPass@123"):
+    async def create_user(session: AsyncSession, username: str, email: str, temp_pass: str="TemPass@123"):
         try:
             response = await asyncio.to_thread(
                 client.admin_create_user,
@@ -185,6 +193,24 @@ class admin_service:
                 TemporaryPassword=temp_pass,
                 MessageAction="SUPPRESS"
             )
+
+            user = response["User"]
+            attrs = {attr["Name"]: attr.get("Value", "") for attr in user.get("Attributes", [])}
+            statement = select(Users).where(Users.cognito_sub == attrs["sub"])
+            result: Any = await session.execute(statement)
+            profile: Users | None = result.scalar_one_or_none()
+
+            profile = Users(
+                cognito_sub=attrs.get("sub", ""),
+                email=email,
+                display_name=user.get("Username", username),
+                created_at=user.get("UserCreateDate", datetime.now()),
+                updated_at=user.get("UserLastModifiedDate", datetime.now()),
+                deletion_scheduled_at=datetime(1999, 12, 31)
+            )
+            session.add(profile)
+            await session.commit()
+            await session.refresh(profile)
 
             return response
         except ClientError as e:
