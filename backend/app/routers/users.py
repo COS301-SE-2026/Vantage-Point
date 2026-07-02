@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/v1/users", tags=["users"])
 def _user_me_response(user: Users, account) -> UserMeResponse:
     tag = riot_id_tag(account.game_name, account.tag_line) if account else None
     return UserMeResponse(
-        id=user.id,
+        cognito_sub=user.cognito_sub,
         email=user.email,
         display_name=user.display_name,
         avatar_url=user.avatar_url,
@@ -41,7 +41,7 @@ async def get_me(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    account = await get_primary_linked_account(session, current_user.id)
+    account = await get_primary_linked_account(session, current_user.cognito_sub)
     return _user_me_response(current_user, account)
 
 
@@ -55,7 +55,7 @@ async def update_me(
     session.add(current_user)
     await session.commit()
     await session.refresh(current_user)
-    account = await get_primary_linked_account(session, current_user.id)
+    account = await get_primary_linked_account(session, current_user.cognito_sub)
     return _user_me_response(current_user, account)
 
 
@@ -65,7 +65,7 @@ async def upload_avatar(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    avatar_path = await save_avatar(current_user.id, file)
+    avatar_path = await save_avatar(current_user.cognito_sub, file)
     current_user.avatar_url = avatar_path
     session.add(current_user)
     await session.commit()
@@ -77,7 +77,7 @@ async def delete_avatar(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    delete_avatar_files(current_user.id)
+    delete_avatar_files(current_user.cognito_sub)
     current_user.avatar_url = None
     session.add(current_user)
     await session.commit()
@@ -88,11 +88,11 @@ async def get_my_profile(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    account = await get_primary_linked_account(session, current_user.id)
+    account = await get_primary_linked_account(session, current_user.cognito_sub)
     riot_id_tag_value = (
         riot_id_tag(account.game_name, account.tag_line) if account else None
     )
-    puuid = await get_primary_linked_puuid(session, current_user.id)
+    puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
     return await build_player_profile(session, current_user, puuid, riot_id_tag_value)
 
 
@@ -103,7 +103,7 @@ async def _link_game_account_impl(
 ) -> LinkGameAccountResponse:
     puuid, tag = await link_riot_account_for_user(
         session,
-        current_user.id,
+        current_user.cognito_sub,
         riot_id=body.riot_id,
         game_name=body.game_name,
         tag_line=body.tag_line,

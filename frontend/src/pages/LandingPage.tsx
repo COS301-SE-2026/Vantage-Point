@@ -1,9 +1,9 @@
-// import Group12 from "../../imports/Group12/Group12";
+import Landing from "../../imports/Landing/Landing";
 
 export default function LandingPage() {
   return (
     <div className="w-screen h-screen bg-black overflow-hidden">
-      {/*<Group12 />*/}
+      <Landing />
     </div>
   );
 }

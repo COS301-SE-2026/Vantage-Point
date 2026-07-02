@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const IMPORTS_ROOT = join(__dirname, "../src/landing/imports");
+const ASSETS_ROOT = join(__dirname, "../src/assets/images");
 const MAX_WIDTH = 2048;
 const WEBP_QUALITY = 88;
 
@@ -46,13 +46,13 @@ async function convertOne(pngPath) {
 }
 
 async function main() {
-  const pngs = await walk(IMPORTS_ROOT);
+  const pngs = await walk(ASSETS_ROOT);
   let saved = 0;
   for (const p of pngs) {
     const { before, after } = await convertOne(p);
     saved += Math.max(0, before - after);
     console.log(
-      `${p.replace(IMPORTS_ROOT, "")}: ${(before / 1024).toFixed(0)}KB → ${(after / 1024).toFixed(0)}KB`,
+      `${p.replace(ASSETS_ROOT, "")}: ${(before / 1024).toFixed(0)}KB → ${(after / 1024).toFixed(0)}KB`,
     );
   }
   console.log(`Done. ${pngs.length} files. ~${(saved / 1024 / 1024).toFixed(2)} MB smaller.`);

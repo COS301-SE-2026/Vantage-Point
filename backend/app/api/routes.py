@@ -131,12 +131,12 @@
 #         session, current_user
 #     )
 
-#     return ProfileResponse(
-#         uuid=profile.user_id,
-#         username=profile.username,
-#         total_matches=total_matches,
-#         player_summary=summary,
-#     )
+    # return ProfileResponse(
+    #     cognito_sub=profile.cognito_sub,
+    #     display_name=profile.display_name,
+    #     total_matches=total_matches,
+    #     player_summary=summary,
+    # )
 
 
 # @router.delete(
@@ -409,12 +409,12 @@
 #         current_user,
 #     )
 
-#     return ProfileResponse(
-#         uuid=profile.user_id,
-#         username=profile.username,
-#         total_matches=total_matches,
-#         player_summary=summary,
-#     )
+    # return ProfileResponse(
+    #     cognito_sub=profile.cognito_sub,
+    #     display_name=profile.display_name,
+    #     total_matches=total_matches,
+    #     player_summary=summary,
+    # )
 
 
 # @router.put(
@@ -446,9 +446,9 @@
 #         current_user,
 #     )
 
-#     return ProfileResponse(
-#         uuid=profile.user_id,
-#         username=profile.username,
-#         total_matches=total_matches,
-#         player_summary=summary,
-#     )
+    # return ProfileResponse(
+    #     cognito_sub=profile.cognito_sub,
+    #     display_name=profile.display_name,
+    #     total_matches=total_matches,
+    #     player_summary=summary,
+    # )
