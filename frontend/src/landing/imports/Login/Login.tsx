@@ -9,6 +9,8 @@ import imgLogo from "../../../assets/images/logos/logo.webp";
 import imgGoogle from "../Register/e98e9b24669bda4f34daad81de74f1cbc0c60e43.webp";
 import imgAppleInc from "../Register/42dab27d0f348cbd097620054816915a603a2f3b.webp";
 import imgRiotGames from "../Register/da8e2b2b779ebc3b362dbe11022d83a4a28639da.webp";
+import type { CognitoProvider } from "../../app/lib/cognito-oauth";
+import { COGNITO_PROVIDERS } from "../../app/lib/cognito-oauth";
 
 // Shared SVG checkmark path
 const checkmarkPath = "M11.4667 0.8L4.13333 8.13333L0.8 4.8";
@@ -27,7 +29,8 @@ export type LoginFormProps = Readonly<{
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: () => void;
-  onSocialClick?: () => void;
+  onSocialLogin?: (provider: CognitoProvider) => void;
+  socialDisabled?: boolean;
 }>;
 
 interface LoginProps {
@@ -56,49 +59,59 @@ function Logo() {
 }
 
 function SocialLoginButtons({
-  onSocialClick,
-}: Readonly<{ onSocialClick?: () => void }>) {
+  onSocialLogin,
+  socialDisabled,
+}: Readonly<{
+  onSocialLogin?: (provider: CognitoProvider) => void;
+  socialDisabled?: boolean;
+}>) {
+  const providers: ReadonlyArray<{
+    provider: CognitoProvider;
+    src: string;
+    alt: string;
+    label: string;
+  }> = [
+    {
+      provider: COGNITO_PROVIDERS.Google,
+      src: imgGoogle,
+      alt: "Sign in with Google",
+      label: "Google",
+    },
+    {
+      provider: COGNITO_PROVIDERS.SignInWithApple,
+      src: imgAppleInc,
+      alt: "Sign in with Apple",
+      label: "Apple Inc",
+    },
+    {
+      provider: COGNITO_PROVIDERS.Riot,
+      src: imgRiotGames,
+      alt: "Sign in with Riot Games",
+      label: "Riot Games",
+    },
+  ];
+
   return (
     <div
       className="flex w-full gap-[clamp(20px,5vw,80px)] items-center justify-center"
       data-name="Social login"
     >
-      <button
-        type="button"
-        onClick={onSocialClick}
-        className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
-        data-name="Google"
-      >
-        <img
-          alt="Sign in with Google"
-          className="w-full h-full object-contain pointer-events-none"
-          src={imgGoogle}
-        />
-      </button>
-      <button
-        type="button"
-        onClick={onSocialClick}
-        className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
-        data-name="Apple Inc"
-      >
-        <img
-          alt="Sign in with Apple"
-          className="w-full h-full object-contain pointer-events-none"
-          src={imgAppleInc}
-        />
-      </button>
-      <button
-        type="button"
-        onClick={onSocialClick}
-        className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
-        data-name="Riot Games"
-      >
-        <img
-          alt="Sign in with Riot Games"
-          className="w-full h-full object-contain pointer-events-none"
-          src={imgRiotGames}
-        />
-      </button>
+      {providers.map(({ provider, src, alt, label }) => (
+        <button
+          key={provider}
+          type="button"
+          disabled={socialDisabled}
+          onClick={() => onSocialLogin?.(provider)}
+          className="size-[60px] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0 disabled:cursor-not-allowed disabled:opacity-40"
+          data-name={label}
+        >
+          <img
+            alt={alt}
+            className="w-full h-full object-contain pointer-events-none"
+            src={src}
+          />
+        </button>
+      ))}
     </div>
   );
 }
@@ -289,7 +302,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
       >
         <div className="flex w-full max-w-[min(378px,100%)] flex-1 flex-col items-center gap-8">
           <Logo />
-          <SocialLoginButtons onSocialClick={form.onSocialClick} />
+          <SocialLoginButtons
+            onSocialLogin={form.onSocialLogin}
+            socialDisabled={form.socialDisabled}
+          />
 
           <form
             onSubmit={(e) => {

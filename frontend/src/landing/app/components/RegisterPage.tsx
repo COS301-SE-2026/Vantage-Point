@@ -5,16 +5,33 @@ import { useAuth } from "../context/AuthContext";
 import RegisterComponent, {
   type RegisterFormProps,
 } from "../../imports/Register/Register";
+import {
+  buildAuthorizeUrl,
+  isCognitoOAuthConfigured,
+  type CognitoProvider,
+} from "../lib/cognito-oauth";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const handleSocialLogin = (provider: CognitoProvider) => {
+    if (!isCognitoOAuthConfigured()) {
+      setError("Social sign-in is not configured yet.");
+      return;
+    }
+    const url = buildAuthorizeUrl(provider);
+    if (!url) {
+      setError("Social sign-in is not configured yet.");
+      return;
+    }
+    window.location.assign(url);
+  };
 
   const handleSubmit = async () => {
     setError(null);
@@ -29,12 +46,16 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
+      const trimmedEmail = email.trim();
       await register({
-        email: email.trim(),
-        display_name: displayName.trim(),
+        email: trimmedEmail,
         password,
+        confirm_password: confirmPassword,
       });
-      navigate("/link-riot", { replace: true });
+      navigate("/confirm", {
+        replace: true,
+        state: { username: trimmedEmail, password },
+      });
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -48,17 +69,16 @@ export default function RegisterPage() {
 
   const formProps: RegisterFormProps = {
     email,
-    displayName,
     password,
     confirmPassword,
     error,
     loading,
     onEmailChange: setEmail,
-    onDisplayNameChange: setDisplayName,
     onPasswordChange: setPassword,
     onConfirmPasswordChange: setConfirmPassword,
     onSubmit: () => void handleSubmit(),
-    onSocialClick: () => setError("Social sign-in is coming soon."),
+    onSocialLogin: handleSocialLogin,
+    socialDisabled: !isCognitoOAuthConfigured(),
   };
 
   return (
