@@ -4,6 +4,8 @@ from app.Models.auth_model import User
 from app.api.auth import require_group
 from typing import Annotated
 from typing import Any
+from app.database.session import get_session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -94,8 +96,8 @@ async def user_global_sign_out(_: Annotated[User, Depends(require_group(20))], u
         description="AAdmin can create a user and give him a temp password the user has to change later",
         tags=["admin"]
 )
-async def create_user(_: Annotated[User, Depends(require_group(20))], username: str, email: str, temp_pass: str="TempPass@123"):
-    return await admin_service.create_user(username, email, temp_pass)
+async def create_user(_: Annotated[User, Depends(require_group(20))], session: Annotated[AsyncSession, Depends(get_session)], username: str, email: str, temp_pass: str="TempPass@123"):
+    return await admin_service.create_user(session, username, email, temp_pass)
 
 @router.delete(
         "/admin/delete_user",
@@ -104,8 +106,8 @@ async def create_user(_: Annotated[User, Depends(require_group(20))], username: 
         description="Delete a user from cognito. Permanent delete. No undo",
         tags=["admin"]
 )
-async def delete_user(_: Annotated[User, Depends(require_group(20))], username: str):
-    return await admin_service.delete_user(username)
+async def delete_user(_: Annotated[User, Depends(require_group(20))], session: Annotated[AsyncSession, Depends(get_session)],  username: str, sub: str):
+    return await admin_service.delete_user(session, username, sub)
 
 @router.post(
         "/admin/create_group",
