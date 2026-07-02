@@ -12,11 +12,11 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 100000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+MAX_ROWS = 2000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
-INITIAL_PUUID = "LqFj4hpYKpZZP1lpIFbD3PHR9dz2BVGaMsgwK4VfNxSNzsl_wsoauTYHtUhMNeYKJudqA4LmFfeoQg" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
+INITIAL_PUUID = "14hvvyHowVYooiVld6bgC0nu611UsRjJcdY4N7DrAlVvEgxEADVNvWg-3_R2ibNDDcJVwFJ2Icj2QQ" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
 
 # Asynchronous limit to ~15 RPS (avoid console spam and hitting rate limits)
 RATE_LIMIT = AsyncLimiter(15, 1.0)
@@ -214,7 +214,7 @@ def knn(participants, timeInfo, puuid_pool):
     return rows
 
 
-def rf_champion(info, participants, puuid_pool):
+def rf_champion(info, participants, timeInfo, puuid_pool):
     rows = []
     
     for part in participants:
@@ -222,91 +222,73 @@ def rf_champion(info, participants, puuid_pool):
         if p:
             puuid_pool.add(p)
 
+        framePart = timeInfo.get("participants", [])
+        for i in framePart:
+            if i.get("puuid") == p: 
+                pId = i.get("participantId") 
+
+        framesList = timeInfo.get("frames", [])
+        frame = framesList[-1] #last frame   
+        partFrames = frame.get("participantFrames", [])
+        partFrame = partFrames.get(str(pId))
+        champStat = partFrame.get("championStats", [])
+        damage = partFrame.get("damageStats", [])
+
         row_data = {
             "championId" : part.get("championId"),
-            "teamPosition" : part.get("teamPosition"),
-            #"lane" : part.get("lane"), 
-            #"role" : part.get("role"), 
-            #"teamPosition" : part.get("teamPosition"), #2
-            #"champExperience" : part.get("champExperience"),
-            #"champLevel" : part.get("champLevel"),
-            #"championId" : part.get("championId"),
-            #"damageDealtToBuildings" : part.get("damageDealtToBuildings"),
-            #"damageDealtToObjectives" : part.get("damageDealtToObjectives"),
-            #"damageDealtToTurrets" : part.get("damageDealtToTurrets"),
-            #"damageSelfMitigated" : part.get("damageSelfMitigated"),
-            #"deaths" : part.get("deaths"),
-            #"inhibitorKills" : part.get("inhibitorKills"),
-            #"inhibitorTakedowns" : part.get("inhibitorTakedowns"),
-            #"inhibitorsLost" : part.get("inhibitorsLost"),
-            #"itemsPurchased" : part.get("itemsPurchased"),
-            #"killingSprees" : part.get("killingSprees"),
-            #"kills" : part.get("kills"),
-            #"totalHeal" : part.get("totalHeal"),
-            #"totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
-            #"visionScore" : part.get("visionScore"),
-            #"currentGold" : partFrame.get("currentGold"),
-            #"goldPerSecond" : partFrame.get("goldPerSecond"),
-            #"jungleMinionsKilled" : partFrame.get("jungleMiniosKilled"),
-            #"level" : partFrame.get("level"),
-            #"minionsKilled" : partFrame.get("minionsKilled"),
-            #"timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-            #"totalGold" : partFrame.get("totalGold"),
-            #"xp" : partFrame.get("xp"),
-            #"x" : pos.get("x"),
-            #"y" : pos.get("y"),
-            #"magicDamageDone" : damage.get("magicDamageDone"),
-            #"magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
-            #"magicDamageTaken" : damage.get("magicDamageTaken"),
-            #"physicalDamageDone" : damage.get("physicalDamageDone"),
-            #"physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
-            #"physicalDamageTaken" : damage.get("physicalDamageTaken"),
-            #"totalDamageDone" : damage.get("totalDamageDone"),
-            #"totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
-            #"totalDamageTaken" : damage.get("totalDamageTaken"),
-            #"trueDamageDone" : damage.get("trueDamageDone"),
-            #"trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
-            #"trueDamageTaken" : damage.get("trueDamageTaken"),
-            #"abilityHaste" : champStat.get("abilityHaste"),
-            #"abilityPower" : champStat.get("abilityPower"),
-            #"armor" : champStat.get("armor"),
-            #"armorPen" : champStat.get("armorPen"),
-            #"armorPenPercent" : champStat.get("armorPenPercent"),
-            #"attackDamage" : champStat.get("attackDamage"),
-            #"attackSpeed" : champStat.get("attackSpeed"),
-            #"bonusArmorPenPercent" : champStat.get("bonusArmorPenPercent"),
-            #"bonusMagicPenPercent" : champStat.get("bonusMagicPenPercent"),
-            #"ccReduction" : champStat.get("ccReduction"),
-            #"cooldownReduction" : champStat.get("cooldownReduction"),
-            #"health" : champStat.get("health"),
-            #"healthMax" : champStat.get("healthMax"),
-            #"healthRegen" : champStat.get("healthRegen"),
-            #"lifesteal" : champStat.get("lifesteal"),
-            #"magicPen" : champStat.get("magicPen"),
-            #"magicPenPercent" : champStat.get("magicPenPercent"),
-            #"magicResist" : champStat.get("magicResist"),
-            #"movementSpeed" : champStat.get("movementSpeed"),
-            #"omnivamp" : champStat.get("omnivamp"),
-            #"physicalVamp" : champStat.get("physicalVamp"),
-            #"power" : champStat.get("power"),
-            #"powerMax" : champStat.get("powerMax"),
-            #"spellVamp" : champStat.get("spellVamp"),
+            "teamPosition" : part.get("teamPosition"),#1
+            "role" : part.get("role"), #2
+            "lane" : part.get("lane"), #3
+            "damageDealtToBuildings" : part.get("damageDealtToBuildings"),
+            "damageDealtToObjectives" : part.get("damageDealtToObjectives"),
+            "damageDealtToTurrets" : part.get("damageDealtToTurrets"),
+            "damageSelfMitigated" : part.get("damageSelfMitigated"),
+            "deaths" : part.get("deaths"),
+            "inhibitorTakedowns" : part.get("inhibitorTakedowns"),
+            "inhibitorsLost" : part.get("inhibitorsLost"),
+            "itemsPurchased" : part.get("itemsPurchased"),
+            "killingSprees" : part.get("killingSprees"),
+            "kills" : part.get("kills"),
+            "totalHeal" : part.get("totalHeal"),
+            "totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
+            "visionScore" : part.get("visionScore"),
+            "currentGold" : partFrame.get("currentGold"),
+            "goldPerSecond" : partFrame.get("goldPerSecond"),
+            "level" : partFrame.get("level"),
+            "minionsKilled" : partFrame.get("minionsKilled"),
+            "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
+            "totalGold" : partFrame.get("totalGold"),
+            "xp" : partFrame.get("xp"),
+            "magicDamageDone" : damage.get("magicDamageDone"),
+            "magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
+            "magicDamageTaken" : damage.get("magicDamageTaken"),
+            "physicalDamageDone" : damage.get("physicalDamageDone"),
+            "physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
+            "physicalDamageTaken" : damage.get("physicalDamageTaken"),
+            "totalDamageDone" : damage.get("totalDamageDone"),
+            "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
+            "totalDamageTaken" : damage.get("totalDamageTaken"),
+            "trueDamageDone" : damage.get("trueDamageDone"),
+            "trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
+            "trueDamageTaken" : damage.get("trueDamageTaken"),
+            "abilityPower" : champStat.get("abilityPower"),
+            "armor" : champStat.get("armor"),
+            "armorPenPercent" : champStat.get("armorPenPercent"),
+            "attackDamage" : champStat.get("attackDamage"),
+            "attackSpeed" : champStat.get("attackSpeed"),
+            "ccReduction" : champStat.get("ccReduction"),
+            "health" : champStat.get("health"),
+            "healthMax" : champStat.get("healthMax"),
+            "healthRegen" : champStat.get("healthRegen"),
+            "lifesteal" : champStat.get("lifesteal"),
+            "magicPen" : champStat.get("magicPen"),
+            "magicPenPercent" : champStat.get("magicPenPercent"),
+            "magicResist" : champStat.get("magicResist"),
+            "movementSpeed" : champStat.get("movementSpeed"),
+            "omnivamp" : champStat.get("omnivamp"),
+            "power" : champStat.get("power"),
+            "powerMax" : champStat.get("powerMax"),
         }
-
-        '''
-        c = 0
-        otherPart = info.get("participants")
-        for op in otherPart:
-            if op.get("puuid") != p:
-                if c == 9:
-                    continue
-                addInfo = {
-                    "champ"+str(c) : op.get("championId")
-                }
-                c = c + 1
-                row_data.update(addInfo)
-            #endif
-        '''
 
         rows.append(row_data)
 
@@ -341,40 +323,10 @@ def rf_item(participants, timeInfo, puuid_pool):
                         "itemId" : e.get("itemId"),
                         "timestamp" : e.get("timestamp"),
                         "lane" : part.get("lane"),#2
-                        #"role" : part.get("role"), #3
-                        #"teamPosition" : part.get("teamPosition"), #4
                         "champExperience" : part.get("champExperience"),
                         "champLevel" : part.get("champLevel"),
                         "championId" : part.get("championId"),
-                        #"damageDealtToBuildings" : part.get("damageDealtToBuildings"),
-                        #"damageDealtToObjectives" : part.get("damageDealtToObjectives"),
-                        #"damageDealtToTurrets" : part.get("damageDealtToTurrets"),
-                        #"damageSelfMitigated" : part.get("damageSelfMitigated"),
-                        #"deaths" : part.get("deaths"),
-                        #"inhibitorKills" : part.get("inhibitorKills"),
-                        #"inhibitorTakedowns" : part.get("inhibitorTakedowns"),
-                        #"inhibitorsLost" : part.get("inhibitorsLost"),
-                        #"itemsPurchased" : part.get("itemsPurchased"),
-                        #"killingSprees" : part.get("killingSprees"),
-                        #"kills" : part.get("kills"),
-                        #"totalHeal" : part.get("totalHeal"),
-                        #"totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
-                        #"visionScore" : part.get("visionScore"),
-                        #"baronKills" : part.get("baronKills"),
-                        #"dragonKills" : part.get("dragonKills"),
-                        #"nexusKills" : part.get("nexusKills"),
-                        #"nexusTakedowns" : part.get("nexusTakedowns"),
-                        #"nexusLost" : part.get("nexusLost"),
-                        #"objectivesStolen" : part.get("objectivesStolen"),
-                        #"objectivesStolenAssists" : part.get("objectivesStolenAssists"),
-                        #"turretKills" : part.get("turretKills"),
-                        #"turretTakedowns" : part.get("turretTakedowns"),
-                        #"turretsLost" : part.get("turretsLost"),
-                        #"wardsKilled" : part.get("wardsKilled"),
-                        #"wardsPlaced" : part.get("wardsPlaced"),
                         "currentGold" : partFrame.get("currentGold"),
-                        #"goldPerSecond" : partFrame.get("goldPerSecond"),
-                        #"jungleMinionsKilled" : partFrame.get("jungleMiniosKilled"),
                         "level" : partFrame.get("level"),
                         "minionsKilled" : partFrame.get("minionsKilled"),
                         "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
@@ -394,17 +346,12 @@ def rf_item(participants, timeInfo, puuid_pool):
                         "trueDamageDone" : damage.get("trueDamageDone"),
                         "trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
                         "trueDamageTaken" : damage.get("trueDamageTaken"),
-                        #"abilityHaste" : champStat.get("abilityHaste"),
                         "abilityPower" : champStat.get("abilityPower"),
                         "armor" : champStat.get("armor"),
-                        #"armorPen" : champStat.get("armorPen"),
                         "armorPenPercent" : champStat.get("armorPenPercent"),
                         "attackDamage" : champStat.get("attackDamage"),
                         "attackSpeed" : champStat.get("attackSpeed"),
-                        #"bonusArmorPenPercent" : champStat.get("bonusArmorPenPercent"),
-                        #"bonusMagicPenPercent" : champStat.get("bonusMagicPenPercent"),
                         "ccReduction" : champStat.get("ccReduction"),
-                        #"cooldownReduction" : champStat.get("cooldownReduction"),
                         "health" : champStat.get("health"),
                         "healthMax" : champStat.get("healthMax"),
                         "healthRegen" : champStat.get("healthRegen"),
@@ -414,10 +361,8 @@ def rf_item(participants, timeInfo, puuid_pool):
                         "magicResist" : champStat.get("magicResist"),
                         "movementSpeed" : champStat.get("movementSpeed"),
                         "omnivamp" : champStat.get("omnivamp"),
-                        #"physicalVamp" : champStat.get("physicalVamp"),
                         "power" : champStat.get("power"),
                         "powerMax" : champStat.get("powerMax"),
-                        #"spellVamp" : champStat.get("spellVamp"),
                     }
                     rows.append(row_data)
             
@@ -561,10 +506,10 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
 
     #different data set collections
     #rows = knn(participants, timeInfo, puuid_pool)
-    #rows = rf_champion(info, participants, puuid_pool)
+    rows = rf_champion(info, participants, timeInfo, puuid_pool)
     #rows = rf_item(participants, timeInfo, puuid_pool)
     #rows = rf_skill(participants, timeInfo, puuid_pool)
-    rows = rf_role(participants, timeInfo, puuid_pool)
+    #rows = rf_role(participants, timeInfo, puuid_pool)
 
     return rows
 

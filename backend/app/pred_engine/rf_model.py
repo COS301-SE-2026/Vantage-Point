@@ -11,7 +11,7 @@ import csv
 
 warnings.filterwarnings("ignore")
 
-fileName = 'test5000.csv'
+fileName = 'test2000.csv'
 runCat = 'champion' #champion; item; skill; role;
 yVal = 'championId' #championId, itemId; skillSlot; teamPosition;
 
@@ -141,8 +141,7 @@ def rf_role(X_train, X_test, y_train, y_test):
 def test_and_eval():
     start = time.time()
     X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
-    print(len(X_train) + len(X_test))
-
+    
     match runCat:
         case 'champion':
             base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)

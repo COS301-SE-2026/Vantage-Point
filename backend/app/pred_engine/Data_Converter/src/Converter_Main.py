@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 #needs to be changed still
 def getFromAPI():
     # temp read from file logic
-    # change to get from api later
+    # change to get from api later 
     file = open("backend/app/pred_engine/Data_Converter/match_files/KR_8217431121.txt")
     data = file.read()
     file.close()
@@ -169,24 +169,6 @@ def formatChampionData(data):
 
 
 #returns itemId
-#data going in
-    #event type=ITEM_PURCHASED
-        #timestamp
-    #championId
-    #champLevel
-    #frame timestamp
-    #currentGold
-    #level
-    #xp
-    #totalDamageDone
-    #totalDamageTaken
-    #health
-    #healthMax
-    #healthRegen
-    #lifesteal
-    #power
-    #powerMax
-    #armor
 def formatItemData(data):
     dataArr = []
     y = []
@@ -270,25 +252,6 @@ def formatItemData(data):
 
 
 #return skillSlot,leveluptype
-#data goes in
-    #event
-        #timestamp
-    #level
-    #championId
-    #goldPerSecond
-    #magicDamageDone
-    #physicalDamageDone
-    #totalDamageDone
-    #armor
-    #attackDamage
-    #attackSpeed
-    #health
-    #healthMax
-    #healthRegen
-    #lifesteal
-    #movementSpeed
-    #power
-    #magicPen
 def formatSkillData(data):
     dataArr = []
     y = []
@@ -343,18 +306,6 @@ def formatSkillData(data):
 
 
 #return lane/teamPosition
-#data goes in
-    #championId
-    #kills
-    #physicalDamageDealt
-    #totalDamageDealt
-    #totalHeal
-    #totalEnemyJungleMinionsKilled
-    #totalHealsOnTeammates
-    #totalUnitsHealed
-    #wardsKilled
-    #wardsPlaced
-    #detectorWardsPlaced
 def formatRoleData(data):
     dataArr = []
     y = []
