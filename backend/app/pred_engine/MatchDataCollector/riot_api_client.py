@@ -12,7 +12,7 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 2000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+MAX_ROWS = 5000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -130,10 +130,10 @@ async def get_match_timeline(session, match_id):
 def knn(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
-        p = part.get("puuid")
+        p = part.get('puuid')
         if p:
             puuid_pool.add(p)
-        
+
         framePart = timeInfo.get("participants", [])
         for i in framePart:
             if i.get("puuid") == p: 
@@ -141,73 +141,83 @@ def knn(participants, timeInfo, puuid_pool):
 
         framesList = timeInfo.get("frames", [])
 
-        for frames in framesList:
-            extra = frames.get("participantFrames")
-            match pId:
-                case 1: 
-                    partFrame = extra.get("1")
-                    num = 1
-                case 2:
-                    partFrame = extra.get("2")
-                    num = 2
-                case 3:
-                    partFrame = extra.get("3")
-                    num = 3
-                case 4:
-                    partFrame = extra.get("4")
-                    num = 4
-                case 5:
-                    partFrame = extra.get("5")
-                    num = 5
-                case 6:
-                    partFrame = extra.get("6")
-                    num = 6
-                case 7:
-                    partFrame = extra.get("7")
-                    num = 7
-                case 8:
-                    partFrame = extra.get("8")
-                    num = 8
-                case 9:
-                    partFrame = extra.get("9")
-                    num = 9
-                case 10:
-                    partFrame = extra.get("10")
-                    num = 10
-
+        for frame in framesList:
+            partFrames = frame.get("participantFrames", [])
+            partFrame = partFrames.get(str(pId))
+            damage = partFrame.get("damageStats", [])
+            champStat = partFrame.get("championStats", [])
             pos = partFrame.get("position")
-            champStats = partFrame.get("championStats")
             
             row_data = {
-                "endOfGameResult" : timeInfo.get("endOfGameResult"),
-                "teamPosition" : part.get("teamPosition"),
-                "lane" : part.get("lane"),
                 "x" : pos.get("x"),
                 "y" : pos.get("y"),
-                "frameInterval" : timeInfo.get("frameInterval"),
-                "timestamp" : frames.get("timestamp"),
-                "armor" : champStats.get("armor"),
-                "attackDamage" : champStats.get("attackDamage"),
-                "health" : champStats.get("health"),
-                "level" : partFrame.get("level"),
-                "xp" :  partFrame.get("xp"),
-                "championId" : part.get("championId"),
-                "healthMax" : champStats.get("healthMax"),
-                "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-                "movementSpeed" : champStats.get("movementSpeed"),
+                #"teamPosition" : part.get("teamPosition"), #2
+                #"lane" : part.get("lane"), #3
+                #"role" : part.get("role"), #4
+                #"champExperience" : part.get("champExperience"),
+                #"champLevel" : part.get("champLevel"),
+                #"championId" : part.get("championId"),
+                #"damageDealtToBuildings" : part.get("damageDealtToBuildings"),
+                #"damageDealtToObjectives" : part.get("damageDealtToObjectives"),
+                #"damageDealtToTurrets" : part.get("damageDealtToTurrets"),
+                #"damageSelfMitigated" : part.get("damageSelfMitigated"),
+                #"deaths" : part.get("deaths"),
+                #"inhibitorKills" : part.get("inhibitorKills"),
+                #"inhibitorTakedowns" : part.get("inhibitorTakedowns"),
+                #"inhibitorsLost" : part.get("inhibitorsLost"),
+                #"itemsPurchased" : part.get("itemsPurchased"),
+                #"killingSprees" : part.get("killingSprees"),
+                #"kills" : part.get("kills"),
+                #"totalHeal" : part.get("totalHeal"),
+                #"totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
+                #"visionScore" : part.get("visionScore"),
+                #"currentGold" : partFrame.get("currentGold"),
+                #"goldPerSecond" : partFrame.get("goldPerSecond"),
+                #"jungleMinionsKilled" : partFrame.get("jungleMiniosKilled"),
+                #"level" : partFrame.get("level"),
+                #"minionsKilled" : partFrame.get("minionsKilled"),
+                #"timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
+                #"totalGold" : partFrame.get("totalGold"),
+                #"xp" : partFrame.get("xp"),
+                #"magicDamageDone" : damage.get("magicDamageDone"),
+                #"magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
+                #"magicDamageTaken" : damage.get("magicDamageTaken"),
+                #"physicalDamageDone" : damage.get("physicalDamageDone"),
+                #"physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
+                #"physicalDamageTaken" : damage.get("physicalDamageTaken"),
+                #"totalDamageDone" : damage.get("totalDamageDone"),
+                #"totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
+                #"totalDamageTaken" : damage.get("totalDamageTaken"),
+                #"trueDamageDone" : damage.get("trueDamageDone"),
+                #"trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
+                #"trueDamageTaken" : damage.get("trueDamageTaken"),
+                #"abilityHaste" : champStat.get("abilityHaste"),
+                #"abilityPower" : champStat.get("abilityPower"),
+                #"armor" : champStat.get("armor"),
+                #"armorPen" : champStat.get("armorPen"),
+                #"armorPenPercent" : champStat.get("armorPenPercent"),
+                #"attackDamage" : champStat.get("attackDamage"),
+                #"attackSpeed" : champStat.get("attackSpeed"),
+                #"bonusArmorPenPercent" : champStat.get("bonusArmorPenPercent"),
+                #"bonusMagicPenPercent" : champStat.get("bonusMagicPenPercent"),
+                #"ccReduction" : champStat.get("ccReduction"),
+                #"cooldownReduction" : champStat.get("cooldownReduction"),
+                #"health" : champStat.get("health"),
+                #"healthMax" : champStat.get("healthMax"),
+                #"healthRegen" : champStat.get("healthRegen"),
+                #"lifesteal" : champStat.get("lifesteal"),
+                #"magicPen" : champStat.get("magicPen"),
+                #"magicPenPercent" : champStat.get("magicPenPercent"),
+                #"magicResist" : champStat.get("magicResist"),
+                #"movementSpeed" : champStat.get("movementSpeed"),
+                #"omnivamp" : champStat.get("omnivamp"),
+                #"physicalVamp" : champStat.get("physicalVamp"),
+                #"power" : champStat.get("power"),
+                #"powerMax" : champStat.get("powerMax"),
+                #"spellVamp" : champStat.get("spellVamp"),
             }
 
-            c = 0
-            for i in range(1,11):
-                if i != num:
-                    p = extra.get(str(i))
-                    pos = p.get("position")
-                    addPos = {
-                        "x"+str(c) : pos.get("x"),
-                        "y"+str(c) : pos.get("y")
-                    }
-                    row_data.update(addPos)
-                    c = c + 1
+            #append other player positions
 
             rows.append(row_data)
             #events?

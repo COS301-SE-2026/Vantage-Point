@@ -11,7 +11,7 @@ import csv
 
 warnings.filterwarnings("ignore")
 
-fileName = 'test2000.csv'
+fileName = '/workspaces/backend/app/pred_engine/MatchDataCollector/Training_csv/champ_rf_training.csv'
 runCat = 'champion' #champion; item; skill; role;
 yVal = 'championId' #championId, itemId; skillSlot; teamPosition;
 
@@ -170,13 +170,20 @@ def test_and_eval():
     print(feature_dif)
 
 def final_train():
-
     start = time.time()
     X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
 
     match runCat:
         case 'champion':
-            base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+            rf_model = RandomForestClassifier(max_depth = None,
+                                                n_estimators = 200,
+                                                min_samples_leaf = 1,
+                                                min_samples_split = 2,
+                                                bootstrap = False
+                                            )
+            rf_model.fit(X_train, y_train)
+            y_pred_grid = rf_model.predict(X_test)
+            base_ac = accuracy_score(y_pred_grid, y_test)
         case 'item':
             rf_model = RandomForestClassifier(max_depth = 10,
                                                 n_estimators = 100,
@@ -188,9 +195,31 @@ def final_train():
             y_pred_grid = rf_model.predict(X_test)
             base_ac = accuracy_score(y_pred_grid, y_test)
         case 'skill':
-            base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
+            rf = RandomForestClassifier(max_depth = None,
+                                            n_estimators = 100,
+                                            min_samples_leaf = 1,
+                                            min_samples_split = 2,
+                                            bootstrap = True
+                                        )
+            rf_model = MultiOutputClassifier(rf, n_jobs=-1)
+            rf_model.fit(X_train, y_train)
+            y_pred_grid = rf_model.predict(X_test)
+            y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
+            y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
+            base_ac = accuracy_score(y_pred_grid_Skill, y_test_SKill)
         case 'role':
-            base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
+            rf = RandomForestClassifier(max_depth = None,
+                                            n_estimators = 100,
+                                            min_samples_leaf = 1,
+                                            min_samples_split = 2,
+                                            bootstrap = True
+                                        )
+            rf_model = MultiOutputClassifier(rf, n_jobs=-1)
+            rf_model.fit(X_train, y_train)
+            y_pred_grid = rf_model.predict(X_test)
+            y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
+            y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
+            base_ac = accuracy_score(y_pred_grid_Skill, y_test_SKill)
 
     end = time.time()
     print(f'Final Time: {end - start:.2f} seconds')
@@ -198,8 +227,8 @@ def final_train():
 
     return rf_model, base_ac
 
-test_and_eval()
-#final_train()
+#test_and_eval()
+final_train()
 
 #accuracy score as close to 1 as possible
 #remove features with the lowest scores
