@@ -266,6 +266,7 @@ class admin_service:
                 Precedence=precedence
             )
 
+            return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
