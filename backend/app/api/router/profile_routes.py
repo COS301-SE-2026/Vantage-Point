@@ -1,5 +1,5 @@
 from fastapi import Depends, APIRouter
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,8 +21,8 @@ router = APIRouter()
         description="Looks up user in both cognito and db then gets or create in db",
         tags=["profile"]
 )
-async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
-    return await ProfileService.get_or_create_profile(session, access_token=access_token)
+async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]):
+    return await ProfileService.get_or_create_profile(session, access_token.credentials)
 
 @router.post(
         "/profile/schedule_delete",
@@ -31,8 +31,8 @@ async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], 
         description="Schedules account for deletion(soft delete) in 30 days",
         tags=["profile"]
 )
-async def schedule_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
-    return await ProfileService.schedule_account_deletion(session, access_token)
+async def schedule_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]):
+    return await ProfileService.schedule_account_deletion(session, access_token.credentials)
 
 @router.post(
         "/profile/undo_delete",
@@ -41,8 +41,8 @@ async def schedule_account_deletion(_: Annotated[User, Depends(require_group(10)
         description="Undo soft delete set date to invalid date and stops deletion",
         tags=["profile"]
 )
-async def undo_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[str, Depends(oauth2_scheme)]):
-    return await ProfileService.undo_account_deletion(session, access_token)
+async def undo_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]):
+    return await ProfileService.undo_account_deletion(session, access_token.credentials)
 
 
 

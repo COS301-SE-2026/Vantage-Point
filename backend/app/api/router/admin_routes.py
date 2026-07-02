@@ -18,7 +18,7 @@ async def get_users(_: Annotated[User, Depends(require_group(20))], limit: int =
     return await admin_service.get_users(limit)
 
 @router.get(
-        "/admin/user/{username}",
+        "/admin/users/{username}",
         response_model=dict[str, str],
         summary="Get a specific userr from cognito",
         description="Use username to get user from cognito",
@@ -98,7 +98,7 @@ async def create_user(_: Annotated[User, Depends(require_group(20))], username: 
     return await admin_service.create_user(username, email, temp_pass)
 
 @router.delete(
-        "/admin/remove_user_from_group",
+        "/admin/delete_user",
         response_model=Any,
         summary="Delete a user",
         description="Delete a user from cognito. Permanent delete. No undo",
@@ -118,7 +118,7 @@ async def create_group(_: Annotated[User, Depends(require_group(20))], group_nam
     return await admin_service.create_group(group_name, precedence, description)
 
 @router.delete(
-        "/admin/remove_user_from_group",
+        "/admin/remove_group",
         response_model=Any,
         summary="Delete a group",
         description="Delete a cognito group. Use with caution",
