@@ -5,7 +5,7 @@ from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 # from sqlmodel import col
 from typing import Any
-from app.database.models import UserProfile 
+from app.database.models import Users 
 from app.Models.profile_schemas import User
 # from app.Models.profile_schemas import (
 #     PlayerSummary,
@@ -17,7 +17,6 @@ import asyncio
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
 
-<<<<<<< HEAD
 settings = get_settings()
 client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 #     @staticmethod
@@ -29,14 +28,6 @@ client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=
 #         ).where(col(Participants.puuid) == current_user)
 #         total_matches_result = await session.execute(total_matches_stmt)
 #         total_matches = int(total_matches_result.scalar_one() or 0)
-=======
-from app.database.models import Champions, Participants, Users, GameAccounts
-from app.schemas.profile_schemas import (
-    PlayerSummary,
-    ProfileCreateRequest,
-    ProfileUpdateRequest,
-)
->>>>>>> origin/dev
 
 #         most_played_stmt = (
 #             select(col(Champions.name), func.count())
@@ -148,7 +139,6 @@ from app.schemas.profile_schemas import (
 class ProfileService:
     #need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
-<<<<<<< HEAD
     async def get_or_create_profile(session: AsyncSession, access_token: str) -> User:
         if access_token == "":
             raise HTTPException(
@@ -174,7 +164,7 @@ class ProfileService:
             email=attributes["email"]
         )
 
-        statement = select(UserProfile).where(UserProfile.user_id == user.sub)
+        statement = select(Users).where(Users.cognito_sub == user.sub)
         result: Any = await session.execute(statement)
         profile: User | None = result.scalar_one_or_none()
 
@@ -205,7 +195,8 @@ class ProfileService:
 
         #create profile and get then return profile as is. Used when laod profile. Lazy loading
         #create in db
-        profile = UserProfile(
+        #change to this required
+        profile = Users(
             user_id=user.sub,
             username=user.username,
             created_at=datetime.now(),
@@ -213,21 +204,6 @@ class ProfileService:
             deletion_scheduled_at=datetime(1999, 12, 31)
         )#email needs to be added.
         session.add(profile)
-=======
-    async def get_or_create_profile(session: AsyncSession, user_id: str) -> Users:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
-        result = await session.execute(statement)
-        user = result.scalar_one_or_none()
-
-        if user:
-            return user
-
-        user = Users(
-            cognito_sub=user_id,
-            email=f"{user_id[:8]}@placeholder.invalid",
-        )
-        session.add(user)
->>>>>>> origin/dev
         await session.commit()
         await session.refresh(user)
 
@@ -257,58 +233,12 @@ class ProfileService:
             username=response["Username"],
             email=attributes["email"]
         )
-<<<<<<< HEAD
         #30 day waiting period
-        statement = select(UserProfile).where(UserProfile.user_id == user.sub)
+        statement = select(Users).where(Users.cognito_sub == user.sub)
         result = await session.execute(statement=statement)
         profile = result.scalar_one_or_none()
 
         if profile is None:
-=======
-
-        return total_matches, summary
-
-    @staticmethod
-    async def schedule_account_deletion(
-        session: AsyncSession, user_id: str
-    ) -> datetime:
-        user = await ProfileService.get_or_create_profile(session, user_id)
-
-        deletion_date = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(
-            days=30
-        )
-        user.deletion_scheduled_at = deletion_date
-        user.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return deletion_date
-
-    @staticmethod
-    async def undo_account_deletion(session: AsyncSession, user_id: str) -> bool:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
-        result = await session.execute(statement)
-        user = result.scalar_one_or_none()
-
-        if not user or not user.deletion_scheduled_at:
-            return False
-
-        user.deletion_scheduled_at = None
-        user.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        session.add(user)
-        await session.commit()
-        return True
-
-    @staticmethod
-    async def create_profile(
-        session: AsyncSession, user_id: str, request: ProfileCreateRequest
-    ) -> Users:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
-        result = await session.execute(statement)
-        existing_profile = result.scalar_one_or_none()
-
-        if existing_profile:
->>>>>>> origin/dev
             raise HTTPException(
                 status_code=404,
                 detail="User does not exist"
@@ -317,34 +247,13 @@ class ProfileService:
         profile.updated_at= datetime.now()
         profile.deletion_scheduled_at= datetime.now() + timedelta(30)
 
-<<<<<<< HEAD
-=======
-            if game_account is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Linked Riot account was not found.",
-                )
-
-        now = utc_now_naive()
-
-        profile = Users(
-            cognito_sub=user_id,
-            username=request.username,
-            riot_puuid=request.riot_puuid,
-            created_at=now,
-            updated_at=now,
-        )
-
-        session.add(profile)
->>>>>>> origin/dev
         await session.commit()
         await session.refresh(profile)
 
         return profile.deletion_scheduled_at
 
     @staticmethod
-<<<<<<< HEAD
-    async def undo_account_deletion(session: AsyncSession, access_token: str):
+    async def undo_account_deletion(session: AsyncSession, access_token: str) -> Any:
         if access_token == "":
             raise HTTPException(
                 status_code=400,
@@ -368,29 +277,20 @@ class ProfileService:
             email=attributes["email"]
         )
         
-        statement = select(UserProfile).where(UserProfile.user_id == user.sub)
-=======
-    async def update_profile(
-        session: AsyncSession,
-        user_id: str,
-        request: ProfileUpdateRequest,
-    ) -> Users:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
->>>>>>> origin/dev
+        statement = select(Users).where(Users.cognito_sub == user.sub)
         result = await session.execute(statement)
-        user = result.scalar_one_or_none()
+        profile = result.scalar_one_or_none()
 
-        if user is None:
+        if profile is None:
             raise HTTPException(
                 status_code=404,
                 detail="Account not Found !"
             )
-<<<<<<< HEAD
         
         profile.deletion_scheduled_at = datetime(1999, 12, 31)
         await session.commit()
         await session.refresh(profile)
-        return profile.username
+        return profile.display_name
 
    #just db update, different endpoints for cognito updates     
     @staticmethod
@@ -403,7 +303,7 @@ class ProfileService:
         #will fix this a bit later
         client: CognitoIdentityProviderClient = boto3.client('cognito-idp', region_name=settings.aws_region) #pyright: ignore
 
-        statement = select(UserProfile).where(UserProfile.user_id == email)#need to change when email gets added to db
+        statement = select(Users).where(Users.email == email)#need to change when email gets added to db
         result: Any = await session.execute(statement)
         profile: User | None = result.scalar_one_or_none()
 
@@ -432,30 +332,3 @@ class ProfileService:
         
         
         
-=======
-
-        if request.riot_puuid is not None:
-            account_stmt = select(GameAccounts).where(
-                col(GameAccounts.puuid) == request.riot_puuid
-            )
-            account_result = await session.execute(account_stmt)
-            game_account = account_result.scalar_one_or_none()
-
-            if game_account is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Linked Riot account was not found.",
-                )
-            user.riot_puuid = request.riot_puuid
-
-        if request.username is not None:
-            user.username = request.username
-
-        user.updated_at = utc_now_naive()
-
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-
-        return user
->>>>>>> origin/dev

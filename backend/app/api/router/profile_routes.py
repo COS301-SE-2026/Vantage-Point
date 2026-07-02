@@ -1,6 +1,6 @@
 from fastapi import Depends, APIRouter
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Annotated
+from typing import Annotated, Any
 from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
@@ -21,7 +21,7 @@ router = APIRouter()
         description="Looks up user in both cognito and db then gets or create in db",
         tags=["profile"]
 )
-async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]):
+async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]) -> Any:
     return await ProfileService.get_or_create_profile(session, access_token.credentials)
 
 @router.post(
