@@ -48,13 +48,23 @@ function makeResponse(
 // test cases start below
 
 // ApiError class tests
+describe("ApiError", () => {
+    it("carries the HTTP status and message", () => {
+        const err = new ApiError(404, "Not Found");
+        expect(err.status).toBe(404);
+        expect(err.message).toBe("Not Found");
+        expect(err.name).toBe("ApiError");
+        expect(err).toBeInstanceOf(Error);
+        expect(err).toBeInstanceOf(ApiError);
+    });
+});
 
 // apiFetch function tests
 
 // apiFetchFormData function tests
 
 // apiFetchPublic function tests
-describe('apiFetchPublic', () => {
+describe("apiFetchPublic", () => {
     it("should make a request for data without authorization", async () => {
         mockFetch.mockResolvedValue(makeResponse(200, { public: true }));
 
@@ -97,7 +107,7 @@ describe('apiFetchPublic', () => {
             message: "Unauthorized",
         });
 
-        // Onlu 1 fetch call : no refresh attempt should be made for public endpoints
+        // Only 1 fetch call : no refresh attempt should be made for public endpoints
         expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 });
