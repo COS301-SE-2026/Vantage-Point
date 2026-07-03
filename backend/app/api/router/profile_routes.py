@@ -5,6 +5,7 @@ from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from datetime import datetime
+from fastapi import HTTPException
 
 from app.Models.auth_model import User
 from app.api.auth import require_group
@@ -22,7 +23,13 @@ router = APIRouter()
         tags=["profile"]
 )
 async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]) -> Any:
-    return await ProfileService.get_or_create_profile(session, access_token.credentials)
+    try:
+        return await ProfileService.get_or_create_profile(session, access_token.credentials)
+    except Exception:
+        raise HTTPException(
+                status_code=500,
+                detail=traceback.format_exc()
+            )
 
 @router.post(
         "/profile/schedule_delete",

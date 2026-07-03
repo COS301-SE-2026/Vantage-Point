@@ -140,7 +140,7 @@ client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=
 class ProfileService:
     #need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
-    async def get_or_create_profile(session: AsyncSession, access_token: str) -> User:
+    async def get_or_create_profile(session: AsyncSession, access_token: str) -> Any:
         try:
             if access_token == "":
                 raise HTTPException(
@@ -168,15 +168,17 @@ class ProfileService:
 
             statement = select(Users).where(Users.cognito_sub == user.sub)
             result: Any = await session.execute(statement)
-            profile: User | None = result.scalar_one_or_none()
+            profile: Any | None = result.scalar_one_or_none()
 
             if profile is not None:
                 return profile
 
             return await ProfileService.create_profile(session, user)
-        except ClientErrror as e:
-            print(e.response)
-            raise
+        except Exception:
+            raise HTTPException(
+                status_code=500,
+                detail=traceback.format_exc()
+            )
 
     @staticmethod
     async def create_profile(session: AsyncSession, user: User | None) -> User:#none is there for incase we only want ti use this endpoint in admin. More flexibility
