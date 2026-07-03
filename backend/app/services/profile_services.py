@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 from fastapi import HTTPException  # , status
-from sqlalchemy import select  # Integer, cast, func,
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+import traceback
 # from sqlmodel import col
 from typing import Any
 from app.database.models import Users
@@ -248,7 +247,7 @@ class ProfileService:
 
             return profile.deletion_scheduled_at
         except ClientError as e:
-            print(e.respsonse)
+            print(e.response)
             raise
 
     @staticmethod
@@ -299,7 +298,7 @@ class ProfileService:
             # will fix this a bit later
             client: CognitoIdentityProviderClient = boto3.client(
                 "cognito-idp", region_name=settings.aws_region
-            )  # pyright: ignore
+            )  # type: ignore
 
             statement = select(Users).where(
                 Users.email == email

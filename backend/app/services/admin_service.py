@@ -4,7 +4,6 @@ from app.config import get_settings
 from fastapi import HTTPException
 import asyncio
 from app.database.models import Users
-from sqlalchemy import select  # Integer, cast, func,
 from sqlmodel import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession

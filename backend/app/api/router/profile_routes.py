@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from datetime import datetime
 from fastapi import HTTPException
-
+import traceback
 from app.Models.auth_model import User
 from app.api.auth import require_group
 
