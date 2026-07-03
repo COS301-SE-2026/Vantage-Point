@@ -15,7 +15,7 @@ vi.mock('../../lib/tokens', () => ({
 
 //2. MOck global fetch
 const mockFetch = vi.fn();
-global.fetch = mockFetch 
+vi.stubGlobal('fetch', mockFetch);
 
 // A fake api URL via environmonent variable
 vi.stubEnv('VITE_API_URL', 'https://fakeapi.com');
@@ -99,4 +99,5 @@ describe('apiFetchPublic', () => {
 
         // Onlu 1 fetch call : no refresh attempt should be made for public endpoints
         expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
 });
