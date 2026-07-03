@@ -57,11 +57,90 @@ describe("ApiError", () => {
         expect(err).toBeInstanceOf(Error);
         expect(err).toBeInstanceOf(ApiError);
     });
-});
+}); 
 
 // apiFetch function tests
 
 // apiFetchFormData function tests
+describe("apiFetchFormData", () => {
+    it("Should POSTs FormData to the correct URL", async () => {
+        mockFetch.mockResolvedValue(makeResponse(200, { uploaded: true }));
+
+        
+        const formData = new FormData();
+        formData.append("file", "blobdata");
+        await apiFetchFormData("/upload", formData);
+
+        const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit & {headers: Headers}];
+        expect(url).toBe("https://fakeapi.com/upload");
+        expect(init.method).toBe("POST");
+        expect(init.body).toBe(formData);
+    });
+
+    it("should attach Authorization header if access token is present", async () => {
+        getStoredTokens.mockReturnValue({ accessToken: "abc-123", refreshToken: "null" });
+
+        mockFetch.mockResolvedValue(makeResponse(200, {}));
+
+        await apiFetchFormData("/upload", new FormData());
+
+        const [, init] = mockFetch.mock.calls[0] as [string, RequestInit & {headers: Headers}];
+        expect(init.headers.get("Authorization")).toBe("Bearer abc-123");
+    });
+
+    it("should not set Content-Type (lets browser set multipart/form-data boundary)", async () => {
+        mockFetch.mockResolvedValue(makeResponse(200, {}));
+
+        await apiFetchFormData("/upload", new FormData());
+
+        const [, init] = mockFetch.mock.calls[0] as [string, RequestInit & {headers: Headers}];
+        expect(init.headers.get("Content-Type")).toBeNull();
+    });
+
+    it("should return parsed JSON on success", async () => {
+        mockFetch.mockResolvedValueOnce(makeResponse(200, { id: 69 }));
+
+        const result = await apiFetchFormData("/upload", new FormData());
+        expect(result).toEqual({ id: 69 });
+    }); // we all know why 69 is such a nice number
+
+    it("should throw ApiError on non-ok response", async () => {
+        mockFetch.mockResolvedValueOnce(makeResponse(413, { detail: "File is too large big boss" }));
+
+        await expect(apiFetchFormData("/upload", new FormData())).rejects.toMatchObject({
+            status: 413,
+            message: "File is too large big boss",
+        });
+    });
+
+    it("should retry with a new token after successful refresh on 401 response", async () => {
+        getStoredTokens
+        .mockReturnValueOnce({ accessToken: "old-token", refreshToken: "refresh-token" }) // initial call returns old token
+        .mockReturnValueOnce({ accessToken: "old-token", refreshToken: "refresh-token" }) //this call is for the first fetch call, which will return 401, so we need to return the same old token
+        .mockReturnValueOnce({ accessToken: "new-token", refreshToken: "refresh-token" }); // after refresh, returns new token
+
+        mockFetch
+        .mockResolvedValueOnce(makeResponse(401, { detail: "Unauthorized" })) // first fetch call returns 401
+        .mockResolvedValueOnce(makeResponse(200, { accessToken: "new-token", refreshToken: "refresh-token" })) // second fetch call returns 200
+        .mockResolvedValueOnce(makeResponse(200, { done: true })); // third fetch call returns 200
+        
+        const result = await apiFetchFormData<{ done: boolean }>("/upload", new FormData());
+
+        expect(mockFetch).toHaveBeenCalledTimes(3);
+        expect(result).toEqual({ done: true });
+    });
+
+    it("should not rety when retryOnUnauthorized is false", async () => {
+        getStoredTokens.mockReturnValue({ accessToken: "old-token", refreshToken: "refresh-token" });
+
+        mockFetch.mockResolvedValueOnce(makeResponse(401, {}));
+
+        await expect(apiFetchFormData("/upload", new FormData(), false)).rejects.toMatchObject({
+            status: 401,
+        });
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+});
 
 // apiFetchPublic function tests
 describe("apiFetchPublic", () => {
