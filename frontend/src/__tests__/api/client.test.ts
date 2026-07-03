@@ -68,7 +68,7 @@ describe("apiFetch", () => {
  
     expect(mockFetch).toHaveBeenCalledOnce();
     const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://fakeapi.com/test");
+    expect(url).toBe("http://localhost:8000/test");
   });
  
   it("attaches Authorization header when access token is present", async () => {
@@ -229,7 +229,7 @@ describe("apiFetchFormData", () => {
         await apiFetchFormData("/upload", formData);
 
         const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit & {headers: Headers}];
-        expect(url).toBe("https://fakeapi.com/upload");
+        expect(url).toBe("http://localhost:8000/upload");
         expect(init.method).toBe("POST");
         expect(init.body).toBe(formData);
     });
