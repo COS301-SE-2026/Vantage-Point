@@ -15,42 +15,57 @@ oauth2_scheme = HTTPBearer()
 
 router = APIRouter()
 
+
 @router.post(
-        "/profile/get",
-        response_model=User,
-        summary="Get or create a Profile",
-        description="Looks up user in both cognito and db then gets or create in db",
-        tags=["profile"]
+    "/profile/get",
+    response_model=User,
+    summary="Get or create a Profile",
+    description="Looks up user in both cognito and db then gets or create in db",
+    tags=["profile"],
 )
-async def get_or_create_profile(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]) -> Any:
+async def get_or_create_profile(
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
+) -> Any:
     try:
-        return await ProfileService.get_or_create_profile(session, access_token.credentials)
+        return await ProfileService.get_or_create_profile(
+            session, access_token.credentials
+        )
     except Exception:
-        raise HTTPException(
-                status_code=500,
-                detail=traceback.format_exc()
-            )
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+
 
 @router.post(
-        "/profile/schedule_delete",
-        response_model=datetime,
-        summary="Schedules a account for deletion",
-        description="Schedules account for deletion(soft delete) in 30 days",
-        tags=["profile"]
+    "/profile/schedule_delete",
+    response_model=datetime,
+    summary="Schedules a account for deletion",
+    description="Schedules account for deletion(soft delete) in 30 days",
+    tags=["profile"],
 )
-async def schedule_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]):
-    return await ProfileService.schedule_account_deletion(session, access_token.credentials)
+async def schedule_account_deletion(
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
+):
+    return await ProfileService.schedule_account_deletion(
+        session, access_token.credentials
+    )
+
 
 @router.post(
-        "/profile/undo_delete",
-        response_model=str,
-        summary="Undo soft delete",
-        description="Undo soft delete set date to invalid date and stops deletion",
-        tags=["profile"]
+    "/profile/undo_delete",
+    response_model=str,
+    summary="Undo soft delete",
+    description="Undo soft delete set date to invalid date and stops deletion",
+    tags=["profile"],
 )
-async def undo_account_deletion(_: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)] ,access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]):
+async def undo_account_deletion(
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
+):
     return await ProfileService.undo_account_deletion(session, access_token.credentials)
 
 
-
-#todo update email/user in db
+# todo update email/user in db

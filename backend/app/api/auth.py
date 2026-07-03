@@ -1,18 +1,20 @@
 from jose import jwt, JWTError
 import httpx
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials #OAuth2PasswordBearer
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+)  # OAuth2PasswordBearer
 from app.config import get_settings
 from typing import Any, cast, Annotated
 from app.Models.profile_schemas import User
-
 
 settings = get_settings()
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 oauth2_scheme = HTTPBearer()
 
 # Cache keys to avoid hitting AWS on every single request
-#need to make it not sterile. Will do later.
+# need to make it not sterile. Will do later.
 jwks_cache: dict[str, Any] | None = None
 
 
@@ -80,7 +82,9 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-async def get_current_user(credential: HTTPAuthorizationCredentials = Depends(oauth2_scheme)) -> User:
+async def get_current_user(
+    credential: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
+) -> User:
     global jwks_cache
     issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
 
@@ -98,13 +102,10 @@ async def get_current_user(credential: HTTPAuthorizationCredentials = Depends(oa
             issuer=issuer,
         )
 
-        #ensure we only get access tokens in and raise exception if we receive id token
-        if (payload["token_use"] != "access"):
-            raise HTTPException(
-                status_code=401,
-                detail="Wrong Token sent in header."
-            )
-        #add username as well in return over here
+        # ensure we only get access tokens in and raise exception if we receive id token
+        if payload["token_use"] != "access":
+            raise HTTPException(status_code=401, detail="Wrong Token sent in header.")
+        # add username as well in return over here
         user_id = payload.get("sub")
         if user_id is None:
             raise HTTPException(
@@ -112,12 +113,12 @@ async def get_current_user(credential: HTTPAuthorizationCredentials = Depends(oa
                 detail="Token missing subject",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        #need to chnage all annotated that used str. Either to Any or Create a model for it.
+        # need to chnage all annotated that used str. Either to Any or Create a model for it.
         return User(
             sub=payload["sub"],
-            groups=payload.get("cognito:groups",[]),
+            groups=payload.get("cognito:groups", []),
             username=payload.get("username"),
-            email=payload.get("email")
+            email=payload.get("email"),
         )
     except JWTError as exc:
         raise HTTPException(
@@ -131,26 +132,24 @@ async def get_current_user(credential: HTTPAuthorizationCredentials = Depends(oa
             detail="Could not fetch Cognito public keys",
         ) from exc
 
-role_levels = {
-    "User": 10,
-    "Admin": 20
-}
-#idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
+
+role_levels = {"User": 10, "Admin": 20}
+
+
+# idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
 def get_user_highest_level(user: User):
-    #get highest level user has. Admin then user
-    return max(
-        (role_levels.get(group, 0)
-        for group in user.groups), default=0
-    )
+    # get highest level user has. Admin then user
+    return max((role_levels.get(group, 0) for group in user.groups), default=0)
+
 
 def require_group(required_value: int):
     def checker(user: Annotated[Any, Depends(get_current_user)]):
         user_level = get_user_highest_level(user)
-        if (user_level >= required_value):
+        if user_level >= required_value:
             return user
         else:
             raise HTTPException(
-                status_code=403,
-                detail=f"Invalid Permission {user.groups}"
+                status_code=403, detail=f"Invalid Permission {user.groups}"
             )
+
     return checker

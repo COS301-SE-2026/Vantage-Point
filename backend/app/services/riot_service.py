@@ -12,6 +12,7 @@ API_KEY = os.getenv("RIOT_API_KEY")
 BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
+
 class RiotService:
     def __init__(self):
         self.headers = {"X-Riot-Token": settings.riot_api_key}

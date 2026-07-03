@@ -161,7 +161,7 @@ class LiveAnalyticsService:
         x_values: dict[str, list[int]] = {}
         y_values: dict[str, list[int]] = {}
         frames = _data["info"]["frames"]
-        
+
         for i in range(1, 10):
             x_values[str(i)] = [
                 frame["participantFrames"][str(i)]["position"]["x"] for frame in frames

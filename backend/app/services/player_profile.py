@@ -1,4 +1,4 @@
-#seems like a helper class to build profile and get profiles. Nothing about updating/deleting profiles
+# seems like a helper class to build profile and get profiles. Nothing about updating/deleting profiles
 from collections import Counter
 
 from sqlalchemy.ext.asyncio import AsyncSession

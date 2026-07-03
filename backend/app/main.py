@@ -15,9 +15,7 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-from app.api.router import (
-    admin_routes, profile_routes, auth_routes
-    )
+from app.api.router import admin_routes, profile_routes, auth_routes
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.Models.generic_schemas import get_error_reason

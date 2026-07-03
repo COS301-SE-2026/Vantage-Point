@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException#, status
-from sqlalchemy import select #Integer, cast, func,
+from fastapi import HTTPException  # , status
+from sqlalchemy import select  # Integer, cast, func,
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 # from sqlmodel import col
 from typing import Any
-from app.database.models import Users 
+from app.database.models import Users
 from app.Models.profile_schemas import User
+
 # from app.Models.profile_schemas import (
 #     PlayerSummary,
 #     ProfileCreateRequest,
@@ -136,34 +138,29 @@ client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=
 #         return profile
 
 
-
 class ProfileService:
-    #need to add email, will do this later. At the moment is not of that much importance
+    # need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
     async def get_or_create_profile(session: AsyncSession, access_token: str) -> Any:
         try:
             if access_token == "":
-                raise HTTPException(
-                    status_code=400,
-                    detail="Access Token is empty."
-                )
+                raise HTTPException(status_code=400, detail="Access Token is empty.")
 
-            #find in user.sud in db, due to social login first find in cognito then look for in db, if not create user
+            # find in user.sud in db, due to social login first find in cognito then look for in db, if not create user
             response = await asyncio.to_thread(
-                client.get_user,
-                AccessToken=access_token
+                client.get_user, AccessToken=access_token
             )
-            #cast to user
+            # cast to user
             attributes = {
                 attr["Name"]: attr.get("Value", "")
                 for attr in response["UserAttributes"]
             }
-            #todo need to change object as can't hardcode user type
+            # todo need to change object as can't hardcode user type
             user = User(
                 sub=attributes["sub"],
                 groups=["user"],
                 username=response["Username"],
-                email=attributes["email"]
+                email=attributes["email"],
             )
 
             statement = select(Users).where(Users.cognito_sub == user.sub)
@@ -175,42 +172,34 @@ class ProfileService:
 
             return await ProfileService.create_profile(session, user)
         except Exception:
-            raise HTTPException(
-                status_code=500,
-                detail=traceback.format_exc()
-            )
+            raise HTTPException(status_code=500, detail=traceback.format_exc())
 
     @staticmethod
-    async def create_profile(session: AsyncSession, user: User | None) -> User:#none is there for incase we only want ti use this endpoint in admin. More flexibility
+    async def create_profile(
+        session: AsyncSession, user: User | None
+    ) -> (
+        User
+    ):  # none is there for incase we only want ti use this endpoint in admin. More flexibility
         try:
             if user is None:
-                raise HTTPException(
-                    status_code=400,
-                    detail="User objects is empty."
-                )
+                raise HTTPException(status_code=400, detail="User objects is empty.")
 
-            if (user.username is None):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Username is missing."
-                )
-            
-            if (user.email is None):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Email is missing."
-                )
+            if user.username is None:
+                raise HTTPException(status_code=400, detail="Username is missing.")
 
-            #create profile and get then return profile as is. Used when laod profile. Lazy loading
-            #create in db
+            if user.email is None:
+                raise HTTPException(status_code=400, detail="Email is missing.")
+
+            # create profile and get then return profile as is. Used when laod profile. Lazy loading
+            # create in db
             profile = Users(
                 cognito_sub=user.sub,
                 email=user.email,
                 display_name=user.username,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
-                deletion_scheduled_at=datetime(1999, 12, 31)
-            )#email needs to be added.
+                deletion_scheduled_at=datetime(1999, 12, 31),
+            )  # email needs to be added.
             session.add(profile)
             await session.commit()
             await session.refresh(user)
@@ -221,43 +210,38 @@ class ProfileService:
             raise
 
     @staticmethod
-    async def schedule_account_deletion(session: AsyncSession, access_token: str) -> datetime:
+    async def schedule_account_deletion(
+        session: AsyncSession, access_token: str
+    ) -> datetime:
         try:
             if access_token == "":
-                raise HTTPException(
-                    status_code=400,
-                    detail="Access Token is empty."
-                )
-            
+                raise HTTPException(status_code=400, detail="Access Token is empty.")
+
             response = await asyncio.to_thread(
-                client.get_user,
-                AccessToken=access_token
+                client.get_user, AccessToken=access_token
             )
-            #cast to user
+            # cast to user
             attributes = {
                 attr["Name"]: attr.get("Value", "")
                 for attr in response["UserAttributes"]
             }
-            #todo need to change object as can't hardcode user type
+            # todo need to change object as can't hardcode user type
             user = User(
                 sub=attributes["sub"],
                 groups=["user"],
                 username=response["Username"],
-                email=attributes["email"]
+                email=attributes["email"],
             )
-            #30 day waiting period
+            # 30 day waiting period
             statement = select(Users).where(Users.cognito_sub == user.sub)
             result = await session.execute(statement=statement)
             profile = result.scalar_one_or_none()
 
             if profile is None:
-                raise HTTPException(
-                    status_code=404,
-                    detail="User does not exist"
-                )
-            
-            profile.updated_at= datetime.now()
-            profile.deletion_scheduled_at= datetime.now() + timedelta(30)
+                raise HTTPException(status_code=404, detail="User does not exist")
+
+            profile.updated_at = datetime.now()
+            profile.deletion_scheduled_at = datetime.now() + timedelta(30)
 
             await session.commit()
             await session.refresh(profile)
@@ -267,43 +251,35 @@ class ProfileService:
             print(e.respsonse)
             raise
 
-
     @staticmethod
     async def undo_account_deletion(session: AsyncSession, access_token: str) -> Any:
         try:
             if access_token == "":
-                raise HTTPException(
-                    status_code=400,
-                    detail="Access Token is empty."
-                )
-            
+                raise HTTPException(status_code=400, detail="Access Token is empty.")
+
             response = await asyncio.to_thread(
-                client.get_user,
-                AccessToken=access_token
+                client.get_user, AccessToken=access_token
             )
-            #cast to user
+            # cast to user
             attributes = {
                 attr["Name"]: attr.get("Value", "")
                 for attr in response["UserAttributes"]
             }
-            #todo need to change object as can't hardcode user type
+            # todo need to change object as can't hardcode user type
             user = User(
                 sub=attributes["sub"],
                 groups=["user"],
                 username=response["Username"],
-                email=attributes["email"]
+                email=attributes["email"],
             )
-            
+
             statement = select(Users).where(Users.cognito_sub == user.sub)
             result = await session.execute(statement)
             profile = result.scalar_one_or_none()
 
             if profile is None:
-                raise HTTPException(
-                    status_code=404,
-                    detail="Account not Found !"
-                )
-            
+                raise HTTPException(status_code=404, detail="Account not Found !")
+
             profile.deletion_scheduled_at = datetime(1999, 12, 31)
             await session.commit()
             await session.refresh(profile)
@@ -312,37 +288,36 @@ class ProfileService:
             print(e.response)
             raise
 
-   #just db update, different endpoints for cognito updates     
+    # just db update, different endpoints for cognito updates
     @staticmethod
-    async def update_email(session: AsyncSession, email: str | None, access_token: str) -> User:
+    async def update_email(
+        session: AsyncSession, email: str | None, access_token: str
+    ) -> User:
         try:
-            if email is None: 
-                raise HTTPException(
-                    status_code=400,
-                    detail="Email is empty"
-                )
-            #will fix this a bit later
-            client: CognitoIdentityProviderClient = boto3.client('cognito-idp', region_name=settings.aws_region) #pyright: ignore
+            if email is None:
+                raise HTTPException(status_code=400, detail="Email is empty")
+            # will fix this a bit later
+            client: CognitoIdentityProviderClient = boto3.client(
+                "cognito-idp", region_name=settings.aws_region
+            )  # pyright: ignore
 
-            statement = select(Users).where(Users.email == email)#need to change when email gets added to db
+            statement = select(Users).where(
+                Users.email == email
+            )  # need to change when email gets added to db
             result: Any = await session.execute(statement)
             profile: User | None = result.scalar_one_or_none()
 
-            if profile is None:#idea behind this is if not in our db does not exist in cognito. Hence can look for in our db. Due to need to get profile to updatye
-                raise HTTPException(
-                    status_code=400,
-                    detail="User does not exist."
-                )
+            if (
+                profile is None
+            ):  # idea behind this is if not in our db does not exist in cognito. Hence can look for in our db. Due to need to get profile to updatye
+                raise HTTPException(status_code=400, detail="User does not exist.")
             profile.email = email
 
             await session.commit()
             await asyncio.to_thread(
                 client.update_user_attributes,
                 AccessToken=access_token,
-                UserAttributes=[{
-                    "Name": "email",
-                    "Value": email
-                }]
+                UserAttributes=[{"Name": "email", "Value": email}],
             )
             await session.refresh(profile)
             return profile
@@ -350,9 +325,4 @@ class ProfileService:
             print(e.response)
             raise
 
-    
-    #todo update pswd and confirm update
-
-        
-        
-        
+    # todo update pswd and confirm update

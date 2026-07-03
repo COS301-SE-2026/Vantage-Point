@@ -31,7 +31,8 @@ def get_secret_hash(username: str):
     ).digest()
     return base64.b64encode(dig).decode()
 
-#might change to do all over log and then move to another functionality
+
+# might change to do all over log and then move to another functionality
 def log_registration(username: str, email: str):
     """Writes new user info to a local text file"""
     with open("registrations.txt", "a") as f:
@@ -54,11 +55,13 @@ def _handle_cognito_error(e: ClientError) -> NoReturn:
 
 
 async def register_user(user: User):
-    if not (("@" in user.email) and (len(user.password) >= 8) and (len(user.username) > 0)):
+    if not (
+        ("@" in user.email) and (len(user.password) >= 8) and (len(user.username) > 0)
+    ):
         raise HTTPException(
-            status_code=400,detail="Param does not met min requirements"
+            status_code=400, detail="Param does not met min requirements"
         )
-    
+
     try:
         response = await asyncio.to_thread(
             client.sign_up,
@@ -66,17 +69,17 @@ async def register_user(user: User):
             SecretHash=get_secret_hash(user.username),
             Username=user.username,
             Password=user.password,
-            UserAttributes= [{"Name": "email", "Value": user.email}]
+            UserAttributes=[{"Name": "email", "Value": user.email}],
         )
         return response
     except ClientError as e:
         _handle_cognito_error(e)
 
+
 async def login_user(username: str, password: str) -> Mapping[str, Any]:
     if not (len(username) > 0 and len(password) >= 8):
         raise HTTPException(
-            status_code=400,
-            detail="Param does not meet min requirements"
+            status_code=400, detail="Param does not meet min requirements"
         )
     try:
         response = await asyncio.to_thread(
@@ -94,17 +97,17 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
             "access_token": auth_result["AccessToken"],
             "id_token": auth_result["IdToken"],
             "refresh_token": auth_result["RefreshToken"],
-            "expires_in":3600
+            "expires_in": 3600,
         }
     except ClientError as e:
         _handle_cognito_error(e)
+
 
 async def confirm_user(username: str, code: str):
     """Confirm the user using the code sent to their email."""
     if not (len(username) > 0 and len(code) == 6):
         raise HTTPException(
-            status_code=400,
-            detail="Not meeting min param requirements"
+            status_code=400, detail="Not meeting min param requirements"
         )
     try:
         await asyncio.to_thread(
@@ -118,18 +121,17 @@ async def confirm_user(username: str, code: str):
     except ClientError as e:
         _handle_cognito_error(e)
 
+
 async def logout_user(access_token: str) -> dict[str, str]:
     """
     Invalidates the user's tokens globally in Cognito.
     """
     try:
         await asyncio.to_thread(client.global_sign_out, AccessToken=access_token)
-        return {
-                "status": "success", 
-                "message": "Logged out from all devices"
-            }
+        return {"status": "success", "message": "Logged out from all devices"}
     except ClientError as e:
         _handle_cognito_error(e)
+
 
 async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
     """
@@ -142,9 +144,6 @@ async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
             ClientId=settings.cognito_client_id,
             ClientSecret=settings.cognito_client_secret,
         )
-        return {
-                "status": "success", 
-                "message": "Refresh token revoked."
-            }
+        return {"status": "success", "message": "Refresh token revoked."}
     except ClientError as e:
         _handle_cognito_error(e)

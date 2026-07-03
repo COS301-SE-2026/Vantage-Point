@@ -3,8 +3,8 @@ from botocore.exceptions import ClientError
 from app.config import get_settings
 from fastapi import HTTPException
 import asyncio
-from app.database.models import Users 
-from sqlalchemy import select #Integer, cast, func,
+from app.database.models import Users
+from sqlalchemy import select  # Integer, cast, func,
 from sqlmodel import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,30 +12,29 @@ from datetime import datetime
 
 settings = get_settings()
 
-client = boto3.client("cognito-idp", region_name=settings.aws_region) #type: ignore
+client = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
 
-#admin abilities/services
+# admin abilities/services
+
 
 class admin_service:
     @staticmethod
     async def get_users(limit: int = 10):
-       try: 
+        try:
             response = await asyncio.to_thread(
-            client.list_users,
-            UserPoolId=settings.cognito_user_pool_id,
-            Limit=limit
+                client.list_users, UserPoolId=settings.cognito_user_pool_id, Limit=limit
             )
 
             return response
-       except ClientError as e:
-           error = e.response.get("Error", {})
-           error_code = error.get("Code", "ClientError")
-           if error_code == "UserNotFoundException":
-               raise HTTPException(status_code=404, detail="Uer not found.")
-           if error_code == "InvalidParamaterException":
-               raise HTTPException(status_code=422, detail="Invalid username")
-           print(e.response)
-           raise
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=404, detail="Uer not found.")
+            if error_code == "InvalidParamaterException":
+                raise HTTPException(status_code=422, detail="Invalid username")
+            print(e.response)
+            raise
         #    raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
@@ -44,27 +43,27 @@ class admin_service:
             response = await asyncio.to_thread(
                 client.admin_get_user,
                 UserPoolId=settings.cognito_user_pool_id,
-                Username=username
+                Username=username,
             )
 
             return response
         except ClientError as e:
-           error = e.response.get("Error", {})
-           error_code = error.get("Code", "ClientError")
-           if error_code == "UserNotFoundException":
-               raise HTTPException(status_code=404, detail="User not found.")
-           if error_code == "InvalidParamaterException":
-               raise HTTPException(status_code=422, detail="Invalid username")
-           raise HTTPException(status_code=400, detail=error_code)
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=404, detail="User not found.")
+            if error_code == "InvalidParamaterException":
+                raise HTTPException(status_code=422, detail="Invalid username")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def add_user_to_group(username:str, group: str="Users"):
+    async def add_user_to_group(username: str, group: str = "Users"):
         try:
             await asyncio.to_thread(
                 client.admin_add_user_to_group,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
-                GroupName=group
+                GroupName=group,
             )
 
             return {"success": True}
@@ -74,32 +73,34 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail="User not found.")
             if error_code == "ResourceNotFoundException":
-                raise HTTPException(status_code=400, detail="The specified group was not found.")
+                raise HTTPException(
+                    status_code=400, detail="The specified group was not found."
+                )
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def remove_user_from_group(username: str, group: str ="Users"):
+    async def remove_user_from_group(username: str, group: str = "Users"):
         try:
             await asyncio.to_thread(
                 client.admin_remove_user_from_group,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
-                GroupName=group
+                GroupName=group,
             )
 
             return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
-            error_code = error.get("Code", "ClientError")           
+            error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
-    
+
     @staticmethod
     async def disable_user(username: str):
         try:
             await asyncio.to_thread(
                 client.admin_disable_user,
                 UserPoolId=settings.cognito_user_pool_id,
-                Username=username
+                Username=username,
             )
 
             return {"success": True}
@@ -107,14 +108,14 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
-    
+
     @staticmethod
     async def enable_user(username: str):
         try:
             await asyncio.to_thread(
                 client.admin_enable_user,
                 UserPoolId=settings.cognito_user_pool_id,
-                Username=username
+                Username=username,
             )
 
             return {"success": True}
@@ -122,7 +123,7 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
-    
+
     @staticmethod
     async def set_password(username: str, password: str):
         try:
@@ -131,7 +132,7 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
                 Password=password,
-                Permanent=True
+                Permanent=True,
             )
 
             return {"success": True}
@@ -141,10 +142,12 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=403, detail="User not found.")
             if error_code == "InvalidPasswordException":
-                raise HTTPException(status_code=400, detail="Password does not meet format")          
+                raise HTTPException(
+                    status_code=400, detail="Password does not meet format"
+                )
             raise HTTPException(status_code=400, detail=error_code)
-    
-    #todo update user attr
+
+    # todo update user attr
 
     @staticmethod
     async def user_global_sign_out(username: str):
@@ -152,7 +155,7 @@ class admin_service:
             await asyncio.to_thread(
                 client.admin_user_global_sign_out,
                 UserPoolId=settings.cognito_user_pool_id,
-                Username=username
+                Username=username,
             )
 
             return {"success": True}
@@ -161,34 +164,36 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
 
-   #require db 
+    # require db
     @staticmethod
     async def delete_user(session: AsyncSession, username: str, sub: str):
         try:
             await asyncio.to_thread(
                 client.admin_delete_user,
                 UserPoolId=settings.cognito_user_pool_id,
-                Username=username
+                Username=username,
             )
 
             statement = select(Users).where(Users.cognito_sub == sub)
             result = await session.execute(statement)
             user = result.scalar_one_or_none()
-            
+
             if user is not None:
                 await session.delete(user)
                 await session.commit()
 
             return {"success": True}
         except ClientError as e:
-           error = e.response.get("Error", {})
-           error_code = error.get("Code", "ClientError")
-           if error_code == "UserNotFoundException":
-               raise HTTPException(status_code=404, detail="Uer not found.")
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=404, detail="Uer not found.")
 
-    #require db
+    # require db
     @staticmethod
-    async def create_user(session: AsyncSession, username: str, email: str, temp_pass: str="TemPass@123"):
+    async def create_user(
+        session: AsyncSession, username: str, email: str, temp_pass: str = "TemPass@123"
+    ):
         try:
             response = await asyncio.to_thread(
                 client.admin_create_user,
@@ -196,28 +201,31 @@ class admin_service:
                 Username=username,
                 UserAttributes=[
                     {"Name": "email", "Value": email},
-                    {"Name": "email_verified", "Value": "true"}
+                    {"Name": "email_verified", "Value": "true"},
                 ],
                 TemporaryPassword=temp_pass,
-                MessageAction="SUPPRESS"
+                MessageAction="SUPPRESS",
             )
 
             user = response["User"]
-            attrs = {attr["Name"]: attr.get("Value", "") for attr in user.get("Attributes", [])}
+            attrs = {
+                attr["Name"]: attr.get("Value", "")
+                for attr in user.get("Attributes", [])
+            }
             statement = select(Users).where(Users.cognito_sub == attrs["sub"])
             result: Any = await session.execute(statement)
             profile: Users | None = result.scalar_one_or_none()
 
             if profile is not None:
                 raise HTTPException(status_code=400, detail="USer already exist")
-            
+
             profile = Users(
                 cognito_sub=attrs.get("sub", ""),
                 email=email,
                 display_name=user.get("Username", username),
                 created_at=user.get("UserCreateDate", datetime.now()),
                 updated_at=user.get("UserLastModifiedDate", datetime.now()),
-                deletion_scheduled_at=datetime(1999, 12, 31)
+                deletion_scheduled_at=datetime(1999, 12, 31),
             )
             session.add(profile)
             await session.commit()
@@ -228,14 +236,18 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNameExistException":
-                raise HTTPException(status_code=400, detail="Username or email already exist.")
+                raise HTTPException(
+                    status_code=400, detail="Username or email already exist."
+                )
             if error_code == "InvalidPasswordException":
-                raise HTTPException(status_code=400, detail="Password does not meet format")
+                raise HTTPException(
+                    status_code=400, detail="Password does not meet format"
+                )
             if error_code == "InvalidParamaterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
             raise HTTPException(status_code=400, detail=error_code)
 
-    @staticmethod   
+    @staticmethod
     async def create_group(group_name: str, precedence: int, description: str):
         try:
             response = await asyncio.to_thread(
@@ -243,15 +255,15 @@ class admin_service:
                 GroupName=group_name,
                 UserPoolId=settings.cognito_user_pool_id,
                 Description=description,
-                Precedence=precedence
+                Precedence=precedence,
             )
-            
+
             return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "GroupExistException":
-               raise HTTPException(status_code=400, detail="Group name already exist.")
+                raise HTTPException(status_code=400, detail="Group name already exist.")
             raise HTTPException(status_code=400, detail=error_code)
         # {
 
@@ -263,7 +275,7 @@ class admin_service:
                 GroupName=group_name,
                 UserPoolId=settings.cognito_user_pool_id,
                 Description=description,
-                Precedence=precedence
+                Precedence=precedence,
             )
 
             return {"success": True}
@@ -278,7 +290,7 @@ class admin_service:
             await asyncio.to_thread(
                 client.delete_group,
                 GroupName=group_name,
-                UserPoolId=settings.cognito_user_pool_id
+                UserPoolId=settings.cognito_user_pool_id,
             )
 
             return {"success": True}

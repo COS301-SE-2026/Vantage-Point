@@ -10,11 +10,13 @@ class UserMeResponse(BaseModel):
     riot_id_tag: Optional[str] = None
     has_linked_riot: bool
 
+
 class User(BaseModel):
     sub: str
     password: str
     username: str
     email: str
+
 
 class UpdateUserMeRequest(BaseModel):
     display_name: str = Field(min_length=1, max_length=64)
