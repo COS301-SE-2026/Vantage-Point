@@ -60,6 +60,163 @@ describe("ApiError", () => {
 }); 
 
 // apiFetch function tests
+describe("apiFetch", () => {
+  it("makes a GET request to the correct URL", async () => {
+    mockFetch.mockResolvedValueOnce(makeResponse(200, { ok: true }));
+ 
+    await apiFetch("/test");
+ 
+    expect(mockFetch).toHaveBeenCalledOnce();
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://fakeapi.com/test");
+  });
+ 
+  it("attaches Authorization header when access token is present", async () => {
+    getStoredTokens.mockReturnValue({ accessToken: "tok-abc", refreshToken: null });
+    mockFetch.mockResolvedValueOnce(makeResponse(200, { data: 1 }));
+ 
+    await apiFetch("/secure");
+ 
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit & { headers: Headers }];
+    expect(init.headers.get("Authorization")).toBe("Bearer tok-abc");
+  });
+ 
+  it("does not set Authorization header when no access token", async () => {
+    mockFetch.mockResolvedValueOnce(makeResponse(200, { data: 1 }));
+ 
+    await apiFetch("/public");
+ 
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit & { headers: Headers }];
+    expect(init.headers.get("Authorization")).toBeNull();
+  });
+ 
+  it("sets Content-Type: application/json when body is present and header not already set", async () => {
+    mockFetch.mockResolvedValueOnce(makeResponse(200, {}));
+ 
+    await apiFetch("/data", { method: "POST", body: JSON.stringify({ x: 1 }) });
+ 
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit & { headers: Headers }];
+    expect(init.headers.get("Content-Type")).toBe("application/json");
+  });
+ 
+  it("does not override an explicit Content-Type header", async () => {
+    mockFetch.mockResolvedValueOnce(makeResponse(200, {}));
+ 
+    await apiFetch("/data", {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: "raw",
+    });
+ 
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit & { headers: Headers }];
+    expect(init.headers.get("Content-Type")).toBe("text/plain");
+  });
+ 
+  it("returns parsed JSON on success", async () => {
+    mockFetch.mockResolvedValueOnce(makeResponse(200, { name: "vantage" }));
+ 
+    const result = await apiFetch<{ name: string }>("/info");
+    expect(result).toEqual({ name: "vantage" });
+  });
+ 
+  it("returns undefined for 204 No Content", async () => {
+    mockFetch.mockResolvedValueOnce(makeResponse(204));
+ 
+    const result = await apiFetch("/no-content");
+    expect(result).toBeUndefined();
+  });
+ 
+  it("throws ApiError with string detail on non-ok response", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makeResponse(400, { detail: "Bad input" })
+    );
+ 
+    await expect(apiFetch("/bad")).rejects.toMatchObject({
+      status: 400,
+      message: "Bad input",
+    });
+  });
+ 
+  it("throws ApiError with first array detail msg on non-ok response", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makeResponse(422, { detail: [{ msg: "field required" }] })
+    );
+ 
+    await expect(apiFetch("/validate")).rejects.toMatchObject({
+      status: 422,
+      message: "field required",
+    });
+  });
+ 
+  it("falls back to statusText when error body is not parseable JSON", async () => {
+    const badResponse = {
+      ok: false,
+      status: 500,
+      statusText: "Internal Server Error",
+      json: vi.fn().mockRejectedValue(new SyntaxError("bad json")),
+    } as unknown as Response;
+    mockFetch.mockResolvedValueOnce(badResponse);
+ 
+    await expect(apiFetch("/crash")).rejects.toMatchObject({
+      status: 500,
+      message: "Internal Server Error",
+    });
+  });
+ 
+  // ── 401 / token refresh ───────────────────────────────────────────────────
+ 
+  it("retries with new token after successful refresh on 401", async () => {
+    getStoredTokens
+      .mockReturnValueOnce({ accessToken: "old-tok", refreshToken: "ref-tok" }) // initial call
+      .mockReturnValueOnce({ accessToken: "old-tok", refreshToken: "ref-tok" }) // inside refreshAccessToken
+      .mockReturnValueOnce({ accessToken: "new-tok", refreshToken: "ref-tok" }); // retry call
+ 
+    mockFetch
+      .mockResolvedValueOnce(makeResponse(401, { detail: "Unauthorized" })) // original request
+      .mockResolvedValueOnce(                                                // refresh endpoint
+        makeResponse(200, { access_token: "new-tok", refresh_token: "ref-tok" })
+      )
+      .mockResolvedValueOnce(makeResponse(200, { data: "secret" }));         // retry
+ 
+    const result = await apiFetch<{ data: string }>("/secure");
+ 
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(setStoredTokens).toHaveBeenCalledWith("new-tok", "ref-tok");
+    expect(result).toEqual({ data: "secret" });
+ 
+    // The retry request should use the new token
+    const [, retryInit] = mockFetch.mock.calls[2] as [string, RequestInit & { headers: Headers }];
+    expect(retryInit.headers.get("Authorization")).toBe("Bearer new-tok");
+  });
+ 
+  it("throws ApiError when refresh fails on 401", async () => {
+    getStoredTokens.mockReturnValue({ accessToken: "old", refreshToken: "ref" });
+ 
+    mockFetch
+      .mockResolvedValueOnce(makeResponse(401, { detail: "Unauthorized" })) // original
+      .mockResolvedValueOnce(makeResponse(401, {}));                        // refresh fails
+ 
+    await expect(apiFetch("/secure")).rejects.toMatchObject({ status: 401 });
+    expect(clearStoredTokens).toHaveBeenCalledOnce();
+  });
+ 
+  it("does not retry when retryOnUnauthorized is false", async () => {
+    getStoredTokens.mockReturnValue({ accessToken: "tok", refreshToken: "ref" });
+    mockFetch.mockResolvedValueOnce(makeResponse(401, { detail: "Unauthorized" }));
+ 
+    await expect(apiFetch("/secure", {}, false)).rejects.toMatchObject({ status: 401 });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+ 
+  it("does not attempt refresh when no refresh token is stored", async () => {
+    getStoredTokens.mockReturnValue({ accessToken: "tok", refreshToken: null });
+    mockFetch.mockResolvedValueOnce(makeResponse(401, { detail: "Unauthorized" }));
+ 
+    await expect(apiFetch("/secure")).rejects.toMatchObject({ status: 401 });
+    // Only the original request — refresh endpoint never called
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+});
 
 // apiFetchFormData function tests
 describe("apiFetchFormData", () => {
