@@ -28,3 +28,29 @@ beforeEach(() => {
     getStoredTokens.mockReturnValue({ accessToken: null, refreshToken: null });
 });
 
+// Helper function to mock fetch responses
+function makeResponse(
+    status: number,
+    body: unknown = null,
+    statusText: string = 'OK',
+): Response {
+    const bodyTest = body !==null ? JSON.stringify(body) : "";
+    return {
+        ok: status >= 200 && status < 300,
+        status,
+        statusText,
+        json: vi.fn().mockResolvedValue(body),
+        text: vi.fn().mockResolvedValue(bodyTest),
+    } as unknown as Response;
+}
+
+
+// test cases start below
+
+// ApiError class tests
+
+// apiFetch function tests
+
+// apiFetchFormData function tests
+
+// apiFetchPublic function tests
