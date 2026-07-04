@@ -7,6 +7,7 @@ from app.database.session import get_session
 from datetime import datetime
 from fastapi import HTTPException
 from app.Models.auth_model import User
+from app.database.models import Users
 from app.api.auth import require_group
 from botocore.exceptions import ClientError
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -17,7 +18,7 @@ router = APIRouter()
 
 @router.post(
     "/profile/get",
-    response_model=User,
+    response_model=Users,
     summary="Get or create a Profile",
     description="Looks up user in both cognito and db then gets or create in db",
     tags=["profile"],

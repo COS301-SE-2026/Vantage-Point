@@ -76,3 +76,4 @@ backend/uploads/
 
 # Other
 .postman
+logs/
