@@ -1,8 +1,3 @@
-# Navigate to the project directory
-cd /antage-Point-Prod || exit 1
-
-# Pull the latest main branch onto the server
-git pull origin main
 
 # Get the latest Git commit SHA to use as our unique image tag
 export IMAGE_TAG=$(git rev-parse --short HEAD)
