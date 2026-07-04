@@ -24,6 +24,7 @@ from app.services.riot_api import get_puuid_by_riot_id
 from loguru import logger
 import sys
 import logging
+from starlette.middleware.base import RequestResponseEndpoint
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
@@ -253,3 +254,13 @@ async def register_summoner(
         "message": f"Successfully registered {game_name}#{tag_line}",
         "puuid": puuid,
     }
+
+@app.middleware("http")
+async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logger.bind(url=str(request.url), method=request.method).exception(
+            f"Bug detected in {request.method}{request.url.path}"
+        )
+        raise e
