@@ -23,6 +23,7 @@ from app.services.riot_api import get_puuid_by_riot_id
 
 from loguru import logger
 import sys
+import logging
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
@@ -54,6 +55,14 @@ logger.add(
     backtrace=True,
     diagnose=True
 )
+
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
 def should_skip_startup_db_init() -> bool:
     if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):
         return True
