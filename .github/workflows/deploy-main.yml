@@ -19,4 +19,13 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: deploy-main.sh
+          script: |
+              # Navigate to the project directory
+              cd /Vantage-Point-Prod || exit 1
+
+              # Pull the latest main branch onto the server
+              git pull origin main
+
+              # Run the deployment script
+              chmod +x .github/workflows/deploy-main.sh
+              .github/workflows/deploy-main.sh
