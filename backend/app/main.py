@@ -44,6 +44,16 @@ load_dotenv()
 logger.add(sys.stdout, enqueue=True, 
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
 
+logger.add(
+    "logs/fastapi_logs",
+    level="ERROR",
+    rotation="100 MB",
+    retention="30 days",
+    compression="zip",
+    enqueue=True,
+    backtrace=True,
+    diagnose=True
+)
 def should_skip_startup_db_init() -> bool:
     if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):
         return True
