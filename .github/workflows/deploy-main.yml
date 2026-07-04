@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository (Trigger)
-        uses: actions/checkout@v4
+        uses: actions/checkout@69455315140e3c1759a2a8c35a28c24b74bb1e11
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
