@@ -70,7 +70,10 @@ class InterceptHandler(logging.Handler):
 
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
-    
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+for name in ("uvicorn", "uvicorn.access", "uvicorn.error", "fastapi"):
+    logging.getLogger(name).handlers = [InterceptHandler()]
+    logging.getLogger(name).propagate = False
 
 def should_skip_startup_db_init() -> bool:
     if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):
