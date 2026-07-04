@@ -6,7 +6,7 @@ import traceback
 # from sqlmodel import col
 from typing import Any
 from app.database.models import Users
-from app.Models.profile_schemas import User
+# from app.Models.profile_schemas import User
 
 # from app.Models.profile_schemas import (
 #     PlayerSummary,
@@ -141,7 +141,7 @@ client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=
 class ProfileService:
     # need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
-    async def get_or_create_profile(session: AsyncSession, access_token: str) -> Any:
+    async def get_or_create_profile(session: AsyncSession, access_token: str) -> Users:
         try:
             if access_token == "":
                 raise HTTPException(status_code=400, detail="Access Token is empty.")
@@ -156,14 +156,14 @@ class ProfileService:
                 for attr in response["UserAttributes"]
             }
             # todo need to change object as can't hardcode user type
-            user = User(
-                sub=attributes["sub"],
-                groups=["user"],
-                username=response["Username"],
+            #need to update this to what is expected give error due ti wrong data retrieved
+            user = Users(
+                cognito_sub=attributes["sub"],
                 email=attributes["email"],
+                display_name=response["Username"],           
             )
 
-            statement = select(Users).where(Users.cognito_sub == user.sub)
+            statement = select(Users).where(Users.cognito_sub == user.cognito_sub)
             result: Any = await session.execute(statement)
             profile: Any | None = result.scalar_one_or_none()
 
@@ -177,26 +177,23 @@ class ProfileService:
 
     @staticmethod
     async def create_profile(
-        session: AsyncSession, user: User | None
+        session: AsyncSession, user: Users | None
     ) -> (
-        User
+        Users
     ):  # none is there for incase we only want ti use this endpoint in admin. More flexibility
         try:
             if user is None:
                 raise HTTPException(status_code=400, detail="User objects is empty.")
 
-            if user.username is None:
-                raise HTTPException(status_code=400, detail="Username is missing.")
-
-            if user.email is None:
-                raise HTTPException(status_code=400, detail="Email is missing.")
+            if user.display_name is None:
+                raise HTTPException(status_code=400, detail="Username is missing.")          
 
             # create profile and get then return profile as is. Used when laod profile. Lazy loading
             # create in db
             profile = Users(
-                cognito_sub=user.sub,
+                cognito_sub=user.cognito_sub,
                 email=user.email,
-                display_name=user.username,
+                display_name=user.display_name,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 deletion_scheduled_at=datetime(1999, 12, 31),
@@ -294,7 +291,7 @@ class ProfileService:
     @staticmethod
     async def update_email(
         session: AsyncSession, email: str | None, access_token: str
-    ) -> User:
+    ) -> Users:
         try:
             if email is None:
                 raise HTTPException(status_code=400, detail="Email is empty")
@@ -307,7 +304,7 @@ class ProfileService:
                 Users.email == email
             )  # need to change when email gets added to db
             result: Any = await session.execute(statement)
-            profile: User | None = result.scalar_one_or_none()
+            profile: Users | None = result.scalar_one_or_none()
 
             if (
                 profile is None

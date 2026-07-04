@@ -42,7 +42,7 @@ load_dotenv()
 # from slowapi.middleware import SlowAPIMiddleware
 
 # limiter = Limiter(key_func=get_remote_address)
-
+logger.remove(0)
 logger.add(sys.stdout, enqueue=True, 
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
 

@@ -1,0 +1,940 @@
+2026-07-04 14:01:25.795 | ERROR    | app.main:log_errors_middleware:263 - Bug detected in POST/admin/create_user
+Traceback (most recent call last):
+
+  File "asyncpg/protocol/prepared_stmt.pyx", line 175, in asyncpg.protocol.protocol.PreparedStatementState._encode_bind_msg
+    codec.encode(self.settings, writer, arg)
+  File "asyncpg/protocol/codecs/base.pyx", line 251, in asyncpg.protocol.protocol.Codec.encode
+    return self.encoder(self, settings, buf, obj)
+  File "asyncpg/protocol/codecs/base.pyx", line 153, in asyncpg.protocol.protocol.Codec.encode_scalar
+    self.c_encoder(settings, buf, obj)
+  File "asyncpg/pgproto/codecs/datetime.pyx", line 152, in asyncpg.pgproto.pgproto.timestamp_encode
+    delta = obj - pg_epoch_datetime
+                  └ datetime.datetime(2000, 1, 1, 0, 0)
+
+TypeError: can't subtract offset-naive and offset-aware datetimes
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+    │    │       │           │             │      └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+    │    │       │           │             └ <function PreparedStatement.fetch at 0x7f90149e0cc0>
+    │    │       │           └ <asyncpg.prepared_stmt.PreparedStatement object at 0x7f901033ccc0>
+    │    │       └ <class 'collections.deque'>
+    │    └ <member '_rows' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 177, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+                 │                   │        └ None
+                 │                   └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+                 └ <asyncpg.prepared_stmt.PreparedStatement object at 0x7f901033ccc0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 268, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                            └ <asyncpg.prepared_stmt.PreparedStatement object at 0x7f901033ccc0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 257, in __do_execute
+    return await executor(protocol)
+                 │        └ <asyncpg.protocol.protocol.Protocol object at 0x7f90149db750>
+                 └ <function PreparedStatement.__bind_execute.<locals>.<lambda> at 0x7f90115068e0>
+  File "asyncpg/protocol/protocol.pyx", line 184, in bind_execute
+    args_buf = state._encode_bind_msg(args)
+  File "asyncpg/protocol/prepared_stmt.pyx", line 204, in asyncpg.protocol.protocol.PreparedStatementState._encode_bind_msg
+    raise exceptions.DataError(
+          │          └ <class 'asyncpg.exceptions.DataError'>
+          └ <module 'asyncpg.exceptions' from '/workspaces/.venv/lib/python3.12/site-packages/asyncpg/exceptions/__init__.py'>
+
+asyncpg.exceptions.DataError: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and offset-aware datetimes)
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    │    │       └ <function DefaultDialect.do_execute at 0x7f90175376a0>
+    │    └ <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x7f9014b94da0>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    │      │       │          └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+    │      │       └ 'INSERT INTO users (cognito_sub, email, display_name, avatar_url, deletion_scheduled_at, created_at, updated_at, linked_puuid...
+    │      └ <function AsyncAdapt_asyncpg_cursor.execute at 0x7f9014ad27a0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 585, in execute
+    self._adapt_connection.await_(
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           │       │             └ <coroutine object AsyncAdapt_asyncpg_cursor._prepare_and_execute at 0x7f90145a6f80>
+           │       └ <attribute 'parent' of 'greenlet.greenlet' objects>
+           └ <_AsyncIoGreenlet object at 0x7f9010394940 (otid=0x5644e7799530) dead>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+                  └ <coroutine object AsyncAdapt_asyncpg_connection._rollback_and_discard at 0x7f90115236b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 563, in _prepare_and_execute
+    self._handle_exception(error)
+    │    └ <function AsyncAdapt_asyncpg_cursor._handle_exception at 0x7f9014ad25c0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 513, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+    │    │                                   └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 797, in _handle_exception
+    raise translated_error from error
+          │                     └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+          └ Error("<class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,....
+
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.Error: <class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and offset-aware datetimes)
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+  File "/usr/local/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 3
+               │     └ 12
+               └ <function _main at 0x7f901a07aac0>
+  File "/usr/local/lib/python3.12/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 3
+           │    └ <function BaseProcess._bootstrap at 0x7f901a3d8d60>
+           └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+  File "/usr/local/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x7f901a3d82c0>
+    └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+  File "/usr/local/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {'config': <uvicorn.config.Config object at 0x7f9019479790>, 'target': <bound method Server.run of <uvicorn.server.Server obj...
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+    │    │        │    └ ()
+    │    │        └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+    │    └ <function subprocess_started at 0x7f901924e2a0>
+    └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    │              └ [<socket.socket fd=8, family=2, type=1, proto=0, laddr=('0.0.0.0', 8000)>]
+    └ <bound method Server.run of <uvicorn.server.Server object at 0x7f9018f99190>>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+           │           │    │             │                      │    │      └ <function Config.get_loop_factory at 0x7f901944ba60>
+           │           │    │             │                      │    └ <uvicorn.config.Config object at 0x7f9019479790>
+           │           │    │             │                      └ <uvicorn.server.Server object at 0x7f9018f99190>
+           │           │    │             └ [<socket.socket fd=8, family=2, type=1, proto=0, laddr=('0.0.0.0', 8000)>]
+           │           │    └ <function Server.serve at 0x7f901924d6c0>
+           │           └ <uvicorn.server.Server object at 0x7f9018f99190>
+           └ <function run at 0x7f90195c68e0>
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           │      │   └ <coroutine object Server.serve at 0x7f90191cf060>
+           │      └ <function Runner.run at 0x7f901969bb00>
+           └ <asyncio.runners.Runner object at 0x7f90192578f0>
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<Server.serve() running at /workspaces/.venv/lib/python3.12/site-packages/uvicorn/server.py:...
+           │    │     └ <cyfunction Loop.run_until_complete at 0x7f9018fdce80>
+           │    └ <uvloop.Loop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7f90192578f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 421, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+                   └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x7f90190054f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+                 │    │   │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f9014725e...
+                 │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+                 │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+                 │    └ <fastapi.applications.FastAPI object at 0x7f901a2a6a80>
+                 └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x7f90190054f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+                           │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f9014725e...
+                           │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+                           └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f9014725e...
+          │    │                │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+          │    │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x7f9014716ea0>
+          └ <fastapi.applications.FastAPI object at 0x7f901a2a6a80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+          │    │   │      │        └ <function ServerErrorMiddleware.__call__.<locals>._send at 0x7f9014552ac0>
+          │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.base.BaseHTTPMiddleware object at 0x7f901500d880>
+          └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x7f9014716ea0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+                     │    │             │        └ <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x7f9014552b60>
+                     │    │             └ <starlette.middleware.base._CachedRequest object at 0x7f9014726030>
+                     │    └ <function log_errors_middleware at 0x7f9014547740>
+                     └ <starlette.middleware.base.BaseHTTPMiddleware object at 0x7f901500d880>
+
+> File "/workspaces/backend/app/main.py", line 261, in log_errors_middleware
+    return await call_next(request)
+                 │         └ <starlette.middleware.base._CachedRequest object at 0x7f9014726030>
+                 └ <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x7f9014552b60>
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+          │            │       │            │       └ <attribute '__context__' of 'BaseException' objects>
+          │            │       │            └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+          │            │       └ <attribute '__cause__' of 'BaseException' objects>
+          │            └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+          └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+          │    │   │      │                      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x7f9014552a20>
+          │    │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>
+          └ <starlette.middleware.base.BaseHTTPMiddleware object at 0x7f901500d880>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+          │    │               │      │        │                     └ Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"Windows"', 'aut...
+          │    │               │      │        └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x7f9014552a20>
+          │    │               │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │               └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <function CORSMiddleware.simple_response at 0x7f9017e63880>
+          └ <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+          │    │   │      │        └ functools.partial(<bound method CORSMiddleware.send of <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>>, ...
+          │    │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x7f9014716e10>
+          └ <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+          │                            │    │    │     │      │        └ functools.partial(<bound method CORSMiddleware.send of <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>>, ...
+          │                            │    │    │     │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │                            │    │    │     └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │                            │    │    └ <starlette.requests.Request object at 0x7f9014727080>
+          │                            │    └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x7f9014716d80>
+          │                            └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x7f9014716e10>
+          └ <function wrap_app_handling_exceptions at 0x7f9017fdee80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x7f9014716d80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │    │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <fastapi.routing.APIRouter object at 0x7f90147142f0>
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x7f9014716d80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │    │                │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <bound method APIRouter.app of <fastapi.routing.APIRouter object at 0x7f90147142f0>>
+          └ <fastapi.routing.APIRouter object at 0x7f90147142f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2683, in app
+    await route.handle(scope, receive, send)
+          │     │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │     │      │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │     │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │     └ <function _IncludedRouter.handle at 0x7f9018031580>
+          └ _IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x7f901718d6a0>, include_context=_RouterIncludeContext(i...
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1753, in handle
+    await self.original_router.handle(scope, receive, send)
+          │    │               │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │    │               │      │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │               │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    │               └ <function APIRouter.handle at 0x7f9018033560>
+          │    └ <fastapi.routing.APIRouter object at 0x7f901718d6a0>
+          └ _IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x7f901718d6a0>, include_context=_RouterIncludeContext(i...
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2738, in handle
+    await included_router._handle_selected(scope, receive, send)
+          │               │                │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │               │                │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │               │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │               └ <function _IncludedRouter._handle_selected at 0x7f9018031620>
+          └ _IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x7f901718d6a0>, include_context=_RouterIncludeContext(i...
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1773, in _handle_selected
+    await original_route.handle(scope, receive, send)
+          │              │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │              │      │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │              │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │              └ <function APIRoute.handle at 0x7f901801b6a0>
+          └ APIRoute(path='/admin/create_user', name='create_user', methods=['POST'])
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1264, in handle
+    await app(scope, receive, send)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          └ <function request_response.<locals>.app at 0x7f90145b47c0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 150, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+          │                            │    │        │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │                            │    │        │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │                            │    │        └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │                            │    └ <starlette.requests.Request object at 0x7f90145e3170>
+          │                            └ <function request_response.<locals>.app.<locals>.app at 0x7f90145b4720>
+          └ <function wrap_app_handling_exceptions at 0x7f9017fdee80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4900>
+          │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          └ <function request_response.<locals>.app.<locals>.app at 0x7f90145b4720>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 136, in app
+    response = await f(request)
+                     │ └ <starlette.requests.Request object at 0x7f90145e3170>
+                     └ <function get_request_handler.<locals>.app at 0x7f90145b4680>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 690, in app
+    raw_response = await run_endpoint_function(
+                         └ <function run_endpoint_function at 0x7f901801aa20>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 344, in run_endpoint_function
+    return await dependant.call(**values)
+                 │         │      └ {'_': User(sub='005cf93c-6031-70fe-58ea-11c03431ba8d', groups=['Admin', 'User'], username='shaun', email=None, created_at=Non...
+                 │         └ <function create_user at 0x7f90148b5e40>
+                 └ Dependant(path_params=[], query_params=[ModelField(field_info=Query(PydanticUndefined), name='username', mode='validation', c...
+
+  File "/workspaces/backend/app/api/router/admin_routes.py", line 123, in create_user
+    return await admin_service.create_user(session, username, email, temp_pass)
+                 │             │           │        │         │      └ 'TempPass@123'
+                 │             │           │        │         └ 'njsdbndokvn@gmail.com'
+                 │             │           │        └ 'she123'
+                 │             │           └ <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f9014892ab0>
+                 │             └ <staticmethod(<function admin_service.create_user at 0x7f9015f025c0>)>
+                 └ <class 'app.services.admin_service.admin_service'>
+
+  File "/workspaces/backend/app/services/admin_service.py", line 232, in create_user
+    await session.commit()
+          │       └ <function AsyncSession.commit at 0x7f90171356c0>
+          └ <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f9014892ab0>
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 999, in commit
+    await greenlet_spawn(self.sync_session.commit)
+          │              │    │            └ <function Session.commit at 0x7f901726a980>
+          │              │    └ <sqlalchemy.orm.session.Session object at 0x7f901149e750>
+          │              └ <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f9014892ab0>
+          └ <function greenlet_spawn at 0x7f9017f55c60>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             │       │      └ None
+             │       └ <method 'switch' of 'greenlet.greenlet' objects>
+             └ <_AsyncIoGreenlet object at 0x7f9010394940 (otid=0x5644e7799530) dead>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+    │     └ <function SessionTransaction.commit at 0x7f9017269940>
+    └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+  File "<string>", line 2, in commit
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                │  │      │      └ {'_to_root': True}
+                │  │      └ ()
+                │  └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+                └ <function SessionTransaction.commit at 0x7f90172698a0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+    │    └ <function SessionTransaction._prepare_impl at 0x7f9017269760>
+    └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+  File "<string>", line 2, in _prepare_impl
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                │  │      │      └ {}
+                │  │      └ ()
+                │  └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+                └ <function SessionTransaction._prepare_impl at 0x7f90172696c0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+    │    │       └ <function Session.flush at 0x7f90172718a0>
+    │    └ <sqlalchemy.orm.session.Session object at 0x7f901149e750>
+    └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+    │    │      └ None
+    │    └ <function Session._flush at 0x7f9017271a80>
+    └ <sqlalchemy.orm.session.Session object at 0x7f901149e750>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         │    └ <class 'sqlalchemy.util.langhelpers.safe_reraise'>
+         └ <module 'sqlalchemy.util' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/__init__.py'>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+          │         │              └ <traceback object at 0x7f90103b6300>
+          │         └ <method 'with_traceback' of 'BaseException' objects>
+          └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+    │             └ <function UOWTransaction.execute at 0x7f90171f5620>
+    └ <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x7f901149eed0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+    │   │       └ <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x7f901149eed0>
+    │   └ <function SaveUpdateAll.execute at 0x7f90171f6160>
+    └ SaveUpdateAll(Mapper[Users(users)])
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+    │    │         │               └ <function save_obj at 0x7f90171f6fc0>
+    │    │         └ <module 'sqlalchemy.orm.persistence' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py'>
+    │    └ <module 'sqlalchemy.util.preloaded' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/preloaded.py'>
+    └ <module 'sqlalchemy.util' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/__init__.py'>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+    └ <function _emit_insert_statements at 0x7f90172372e0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1049, in _emit_insert_statements
+    result = connection.execute(
+             │          └ <function Connection.execute at 0x7f901769c360>
+             └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           └ <bound method ClauseElement._execute_on_connection of <sqlalchemy.sql.dml.Insert object at 0x7f901037bf50>>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           │          └ <function Connection._execute_clauseelement at 0x7f901769c680>
+           └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          │    └ <function Connection._execute_context at 0x7f901769c860>
+          └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           │    └ <function Connection._exec_single_context at 0x7f901769c900>
+           └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    │    └ <function Connection._handle_dbapi_exception at 0x7f901769cb80>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+          │                    │              │                 └ Error("<class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,....
+          │                    │              └ (<class 'sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.Error'>, Error("<class 'asyncpg.exceptions.DataError...
+          │                    └ <method 'with_traceback' of 'BaseException' objects>
+          └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    │    │       └ <function DefaultDialect.do_execute at 0x7f90175376a0>
+    │    └ <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x7f9014b94da0>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    │      │       │          └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+    │      │       └ 'INSERT INTO users (cognito_sub, email, display_name, avatar_url, deletion_scheduled_at, created_at, updated_at, linked_puuid...
+    │      └ <function AsyncAdapt_asyncpg_cursor.execute at 0x7f9014ad27a0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 585, in execute
+    self._adapt_connection.await_(
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           │       │             └ <coroutine object AsyncAdapt_asyncpg_cursor._prepare_and_execute at 0x7f90145a6f80>
+           │       └ <attribute 'parent' of 'greenlet.greenlet' objects>
+           └ <_AsyncIoGreenlet object at 0x7f9010394940 (otid=0x5644e7799530) dead>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+                  └ <coroutine object AsyncAdapt_asyncpg_connection._rollback_and_discard at 0x7f90115236b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 563, in _prepare_and_execute
+    self._handle_exception(error)
+    │    └ <function AsyncAdapt_asyncpg_cursor._handle_exception at 0x7f9014ad25c0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 513, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+    │    │                                   └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 797, in _handle_exception
+    raise translated_error from error
+          │                     └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+          └ Error("<class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,....
+
+sqlalchemy.exc.DBAPIError: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and offset-aware datetimes)
+[SQL: INSERT INTO users (cognito_sub, email, display_name, avatar_url, deletion_scheduled_at, created_at, updated_at, linked_puuids_cache) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::TIMESTAMP WITHOUT TIME ZONE, $6::TIMESTAMP WITHOUT TIME ZONE, $7::TIMESTAMP WITHOUT TIME ZONE, $8::VARCHAR)]
+[parameters: ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), datetime.datetime(2026, 7, 4, 14, 1, 25, 570000, tzinfo=tzlocal()), datetime.datetime(2026, 7, 4, 14, 1, 25, 570000, tzinfo=tzlocal()), '[]')]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2026-07-04 14:01:25.894 | ERROR    | logging:callHandlers:1762 - Exception in ASGI application
+
+Traceback (most recent call last):
+
+  File "asyncpg/protocol/prepared_stmt.pyx", line 175, in asyncpg.protocol.protocol.PreparedStatementState._encode_bind_msg
+    codec.encode(self.settings, writer, arg)
+  File "asyncpg/protocol/codecs/base.pyx", line 251, in asyncpg.protocol.protocol.Codec.encode
+    return self.encoder(self, settings, buf, obj)
+  File "asyncpg/protocol/codecs/base.pyx", line 153, in asyncpg.protocol.protocol.Codec.encode_scalar
+    self.c_encoder(settings, buf, obj)
+  File "asyncpg/pgproto/codecs/datetime.pyx", line 152, in asyncpg.pgproto.pgproto.timestamp_encode
+    delta = obj - pg_epoch_datetime
+                  └ datetime.datetime(2000, 1, 1, 0, 0)
+
+TypeError: can't subtract offset-naive and offset-aware datetimes
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+    │    │       │           │             │      └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+    │    │       │           │             └ <function PreparedStatement.fetch at 0x7f90149e0cc0>
+    │    │       │           └ <asyncpg.prepared_stmt.PreparedStatement object at 0x7f901033ccc0>
+    │    │       └ <class 'collections.deque'>
+    │    └ <member '_rows' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 177, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+                 │                   │        └ None
+                 │                   └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+                 └ <asyncpg.prepared_stmt.PreparedStatement object at 0x7f901033ccc0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 268, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                            └ <asyncpg.prepared_stmt.PreparedStatement object at 0x7f901033ccc0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 257, in __do_execute
+    return await executor(protocol)
+                 │        └ <asyncpg.protocol.protocol.Protocol object at 0x7f90149db750>
+                 └ <function PreparedStatement.__bind_execute.<locals>.<lambda> at 0x7f90115068e0>
+  File "asyncpg/protocol/protocol.pyx", line 184, in bind_execute
+    args_buf = state._encode_bind_msg(args)
+  File "asyncpg/protocol/prepared_stmt.pyx", line 204, in asyncpg.protocol.protocol.PreparedStatementState._encode_bind_msg
+    raise exceptions.DataError(
+          │          └ <class 'asyncpg.exceptions.DataError'>
+          └ <module 'asyncpg.exceptions' from '/workspaces/.venv/lib/python3.12/site-packages/asyncpg/exceptions/__init__.py'>
+
+asyncpg.exceptions.DataError: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and offset-aware datetimes)
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    │    │       └ <function DefaultDialect.do_execute at 0x7f90175376a0>
+    │    └ <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x7f9014b94da0>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    │      │       │          └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+    │      │       └ 'INSERT INTO users (cognito_sub, email, display_name, avatar_url, deletion_scheduled_at, created_at, updated_at, linked_puuid...
+    │      └ <function AsyncAdapt_asyncpg_cursor.execute at 0x7f9014ad27a0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 585, in execute
+    self._adapt_connection.await_(
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           │       │             └ <coroutine object AsyncAdapt_asyncpg_cursor._prepare_and_execute at 0x7f90145a6f80>
+           │       └ <attribute 'parent' of 'greenlet.greenlet' objects>
+           └ <_AsyncIoGreenlet object at 0x7f9010394940 (otid=0x5644e7799530) dead>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+                  └ <coroutine object AsyncAdapt_asyncpg_connection._rollback_and_discard at 0x7f90115236b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 563, in _prepare_and_execute
+    self._handle_exception(error)
+    │    └ <function AsyncAdapt_asyncpg_cursor._handle_exception at 0x7f9014ad25c0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 513, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+    │    │                                   └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 797, in _handle_exception
+    raise translated_error from error
+          │                     └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+          └ Error("<class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,....
+
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.Error: <class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and offset-aware datetimes)
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+  File "/usr/local/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 3
+               │     └ 12
+               └ <function _main at 0x7f901a07aac0>
+  File "/usr/local/lib/python3.12/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 3
+           │    └ <function BaseProcess._bootstrap at 0x7f901a3d8d60>
+           └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+  File "/usr/local/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x7f901a3d82c0>
+    └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+  File "/usr/local/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {'config': <uvicorn.config.Config object at 0x7f9019479790>, 'target': <bound method Server.run of <uvicorn.server.Server obj...
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+    │    │        │    └ ()
+    │    │        └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+    │    └ <function subprocess_started at 0x7f901924e2a0>
+    └ <SpawnProcess name='SpawnProcess-1' parent=9690 started>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    │              └ [<socket.socket fd=8, family=2, type=1, proto=0, laddr=('0.0.0.0', 8000)>]
+    └ <bound method Server.run of <uvicorn.server.Server object at 0x7f9018f99190>>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+           │           │    │             │                      │    │      └ <function Config.get_loop_factory at 0x7f901944ba60>
+           │           │    │             │                      │    └ <uvicorn.config.Config object at 0x7f9019479790>
+           │           │    │             │                      └ <uvicorn.server.Server object at 0x7f9018f99190>
+           │           │    │             └ [<socket.socket fd=8, family=2, type=1, proto=0, laddr=('0.0.0.0', 8000)>]
+           │           │    └ <function Server.serve at 0x7f901924d6c0>
+           │           └ <uvicorn.server.Server object at 0x7f9018f99190>
+           └ <function run at 0x7f90195c68e0>
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           │      │   └ <coroutine object Server.serve at 0x7f90191cf060>
+           │      └ <function Runner.run at 0x7f901969bb00>
+           └ <asyncio.runners.Runner object at 0x7f90192578f0>
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<Server.serve() running at /workspaces/.venv/lib/python3.12/site-packages/uvicorn/server.py:...
+           │    │     └ <cyfunction Loop.run_until_complete at 0x7f9018fdce80>
+           │    └ <uvloop.Loop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7f90192578f0>
+> File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 421, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+                   └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x7f90190054f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+                 │    │   │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f9014725e...
+                 │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+                 │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+                 │    └ <fastapi.applications.FastAPI object at 0x7f901a2a6a80>
+                 └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x7f90190054f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+                           │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f9014725e...
+                           │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+                           └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f9014725e...
+          │    │                │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+          │    │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x7f9014716ea0>
+          └ <fastapi.applications.FastAPI object at 0x7f901a2a6a80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+          │    │   │      │        └ <function ServerErrorMiddleware.__call__.<locals>._send at 0x7f9014552ac0>
+          │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.httptools_impl.RequestResponseCycle object at 0x7f90147...
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.base.BaseHTTPMiddleware object at 0x7f901500d880>
+          └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x7f9014716ea0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+                     │    │             │        └ <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x7f9014552b60>
+                     │    │             └ <starlette.middleware.base._CachedRequest object at 0x7f9014726030>
+                     │    └ <function log_errors_middleware at 0x7f9014547740>
+                     └ <starlette.middleware.base.BaseHTTPMiddleware object at 0x7f901500d880>
+
+  File "/workspaces/backend/app/main.py", line 266, in log_errors_middleware
+    raise e
+
+  File "/workspaces/backend/app/main.py", line 261, in log_errors_middleware
+    return await call_next(request)
+                 │         └ <starlette.middleware.base._CachedRequest object at 0x7f9014726030>
+                 └ <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x7f9014552b60>
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+          │            │       │            │       └ <attribute '__context__' of 'BaseException' objects>
+          │            │       │            └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+          │            │       └ <attribute '__cause__' of 'BaseException' objects>
+          │            └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+          └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+          │    │   │      │                      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x7f9014552a20>
+          │    │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>
+          └ <starlette.middleware.base.BaseHTTPMiddleware object at 0x7f901500d880>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+          │    │               │      │        │                     └ Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"Windows"', 'aut...
+          │    │               │      │        └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x7f9014552a20>
+          │    │               │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │               └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <function CORSMiddleware.simple_response at 0x7f9017e63880>
+          └ <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+          │    │   │      │        └ functools.partial(<bound method CORSMiddleware.send of <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>>, ...
+          │    │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x7f9014716e10>
+          └ <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+          │                            │    │    │     │      │        └ functools.partial(<bound method CORSMiddleware.send of <starlette.middleware.cors.CORSMiddleware object at 0x7f9014716e40>>, ...
+          │                            │    │    │     │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │                            │    │    │     └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │                            │    │    └ <starlette.requests.Request object at 0x7f9014727080>
+          │                            │    └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x7f9014716d80>
+          │                            └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x7f9014716e10>
+          └ <function wrap_app_handling_exceptions at 0x7f9017fdee80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x7f9014716d80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │    │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <fastapi.routing.APIRouter object at 0x7f90147142f0>
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x7f9014716d80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │    │                │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    └ <bound method APIRouter.app of <fastapi.routing.APIRouter object at 0x7f90147142f0>>
+          └ <fastapi.routing.APIRouter object at 0x7f90147142f0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2683, in app
+    await route.handle(scope, receive, send)
+          │     │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │     │      │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │     │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │     └ <function _IncludedRouter.handle at 0x7f9018031580>
+          └ _IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x7f901718d6a0>, include_context=_RouterIncludeContext(i...
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1753, in handle
+    await self.original_router.handle(scope, receive, send)
+          │    │               │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │    │               │      │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │    │               │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │    │               └ <function APIRouter.handle at 0x7f9018033560>
+          │    └ <fastapi.routing.APIRouter object at 0x7f901718d6a0>
+          └ _IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x7f901718d6a0>, include_context=_RouterIncludeContext(i...
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2738, in handle
+    await included_router._handle_selected(scope, receive, send)
+          │               │                │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │               │                │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │               │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │               └ <function _IncludedRouter._handle_selected at 0x7f9018031620>
+          └ _IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x7f901718d6a0>, include_context=_RouterIncludeContext(i...
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1773, in _handle_selected
+    await original_route.handle(scope, receive, send)
+          │              │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │              │      │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │              │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │              └ <function APIRoute.handle at 0x7f901801b6a0>
+          └ APIRoute(path='/admin/create_user', name='create_user', methods=['POST'])
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1264, in handle
+    await app(scope, receive, send)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          └ <function request_response.<locals>.app at 0x7f90145b47c0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 150, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+          │                            │    │        │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4400>
+          │                            │    │        │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │                            │    │        └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          │                            │    └ <starlette.requests.Request object at 0x7f90145e3170>
+          │                            └ <function request_response.<locals>.app.<locals>.app at 0x7f90145b4720>
+          └ <function wrap_app_handling_exceptions at 0x7f9017fdee80>
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/workspaces/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x7f90145b4900>
+          │   │      └ <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x7f9014552c00>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('172.18.0.3', 8000), 'c...
+          └ <function request_response.<locals>.app.<locals>.app at 0x7f90145b4720>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 136, in app
+    response = await f(request)
+                     │ └ <starlette.requests.Request object at 0x7f90145e3170>
+                     └ <function get_request_handler.<locals>.app at 0x7f90145b4680>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 690, in app
+    raw_response = await run_endpoint_function(
+                         └ <function run_endpoint_function at 0x7f901801aa20>
+  File "/workspaces/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 344, in run_endpoint_function
+    return await dependant.call(**values)
+                 │         │      └ {'_': User(sub='005cf93c-6031-70fe-58ea-11c03431ba8d', groups=['Admin', 'User'], username='shaun', email=None, created_at=Non...
+                 │         └ <function create_user at 0x7f90148b5e40>
+                 └ Dependant(path_params=[], query_params=[ModelField(field_info=Query(PydanticUndefined), name='username', mode='validation', c...
+
+  File "/workspaces/backend/app/api/router/admin_routes.py", line 123, in create_user
+    return await admin_service.create_user(session, username, email, temp_pass)
+                 │             │           │        │         │      └ 'TempPass@123'
+                 │             │           │        │         └ 'njsdbndokvn@gmail.com'
+                 │             │           │        └ 'she123'
+                 │             │           └ <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f9014892ab0>
+                 │             └ <staticmethod(<function admin_service.create_user at 0x7f9015f025c0>)>
+                 └ <class 'app.services.admin_service.admin_service'>
+
+  File "/workspaces/backend/app/services/admin_service.py", line 232, in create_user
+    await session.commit()
+          │       └ <function AsyncSession.commit at 0x7f90171356c0>
+          └ <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f9014892ab0>
+
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 999, in commit
+    await greenlet_spawn(self.sync_session.commit)
+          │              │    │            └ <function Session.commit at 0x7f901726a980>
+          │              │    └ <sqlalchemy.orm.session.Session object at 0x7f901149e750>
+          │              └ <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f9014892ab0>
+          └ <function greenlet_spawn at 0x7f9017f55c60>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             │       │      └ None
+             │       └ <method 'switch' of 'greenlet.greenlet' objects>
+             └ <_AsyncIoGreenlet object at 0x7f9010394940 (otid=0x5644e7799530) dead>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2035, in commit
+    trans.commit(_to_root=True)
+    │     └ <function SessionTransaction.commit at 0x7f9017269940>
+    └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+  File "<string>", line 2, in commit
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                │  │      │      └ {'_to_root': True}
+                │  │      └ ()
+                │  └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+                └ <function SessionTransaction.commit at 0x7f90172698a0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1316, in commit
+    self._prepare_impl()
+    │    └ <function SessionTransaction._prepare_impl at 0x7f9017269760>
+    └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+  File "<string>", line 2, in _prepare_impl
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                │  │      │      └ {}
+                │  │      └ ()
+                │  └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+                └ <function SessionTransaction._prepare_impl at 0x7f90172696c0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
+    self.session.flush()
+    │    │       └ <function Session.flush at 0x7f90172718a0>
+    │    └ <sqlalchemy.orm.session.Session object at 0x7f901149e750>
+    └ <sqlalchemy.orm.session.SessionTransaction object at 0x7f901472f190>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+    │    │      └ None
+    │    └ <function Session._flush at 0x7f9017271a80>
+    └ <sqlalchemy.orm.session.Session object at 0x7f901149e750>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+         │    └ <class 'sqlalchemy.util.langhelpers.safe_reraise'>
+         └ <module 'sqlalchemy.util' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/__init__.py'>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+          │         │              └ <traceback object at 0x7f90103b6300>
+          │         └ <method 'with_traceback' of 'BaseException' objects>
+          └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+    │             └ <function UOWTransaction.execute at 0x7f90171f5620>
+    └ <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x7f901149eed0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
+    rec.execute(self)
+    │   │       └ <sqlalchemy.orm.unitofwork.UOWTransaction object at 0x7f901149eed0>
+    │   └ <function SaveUpdateAll.execute at 0x7f90171f6160>
+    └ SaveUpdateAll(Mapper[Users(users)])
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
+    util.preloaded.orm_persistence.save_obj(
+    │    │         │               └ <function save_obj at 0x7f90171f6fc0>
+    │    │         └ <module 'sqlalchemy.orm.persistence' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py'>
+    │    └ <module 'sqlalchemy.util.preloaded' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/preloaded.py'>
+    └ <module 'sqlalchemy.util' from '/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/__init__.py'>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
+    _emit_insert_statements(
+    └ <function _emit_insert_statements at 0x7f90172372e0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1049, in _emit_insert_statements
+    result = connection.execute(
+             │          └ <function Connection.execute at 0x7f901769c360>
+             └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1421, in execute
+    return meth(
+           └ <bound method ClauseElement._execute_on_connection of <sqlalchemy.sql.dml.Insert object at 0x7f901037bf50>>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           │          └ <function Connection._execute_clauseelement at 0x7f901769c680>
+           └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+          │    └ <function Connection._execute_context at 0x7f901769c860>
+          └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           │    └ <function Connection._exec_single_context at 0x7f901769c900>
+           └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    │    └ <function Connection._handle_dbapi_exception at 0x7f901769cb80>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+          │                    │              │                 └ Error("<class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,....
+          │                    │              └ (<class 'sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.Error'>, Error("<class 'asyncpg.exceptions.DataError...
+          │                    └ <method 'with_traceback' of 'BaseException' objects>
+          └ DBAPIError("(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query ar...
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    │    │       └ <function DefaultDialect.do_execute at 0x7f90175376a0>
+    │    └ <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x7f9014b94da0>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f90145615b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    │      │       │          └ ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), date...
+    │      │       └ 'INSERT INTO users (cognito_sub, email, display_name, avatar_url, deletion_scheduled_at, created_at, updated_at, linked_puuid...
+    │      └ <function AsyncAdapt_asyncpg_cursor.execute at 0x7f9014ad27a0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 585, in execute
+    self._adapt_connection.await_(
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           │       │             └ <coroutine object AsyncAdapt_asyncpg_cursor._prepare_and_execute at 0x7f90145a6f80>
+           │       └ <attribute 'parent' of 'greenlet.greenlet' objects>
+           └ <_AsyncIoGreenlet object at 0x7f9010394940 (otid=0x5644e7799530) dead>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+                  └ <coroutine object AsyncAdapt_asyncpg_connection._rollback_and_discard at 0x7f90115236b0>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 563, in _prepare_and_execute
+    self._handle_exception(error)
+    │    └ <function AsyncAdapt_asyncpg_cursor._handle_exception at 0x7f9014ad25c0>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 513, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+    │    │                                   └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+    │    └ <member '_adapt_connection' of 'AsyncAdapt_asyncpg_cursor' objects>
+    └ <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7f90103bc040>
+  File "/workspaces/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 797, in _handle_exception
+    raise translated_error from error
+          │                     └ DataError("invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and ...
+          └ Error("<class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,....
+
+sqlalchemy.exc.DBAPIError: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query argument $6: datetime.datetime(2026, 7, 4, 14, 1, 25,... (can't subtract offset-naive and offset-aware datetimes)
+[SQL: INSERT INTO users (cognito_sub, email, display_name, avatar_url, deletion_scheduled_at, created_at, updated_at, linked_puuids_cache) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::TIMESTAMP WITHOUT TIME ZONE, $6::TIMESTAMP WITHOUT TIME ZONE, $7::TIMESTAMP WITHOUT TIME ZONE, $8::VARCHAR)]
+[parameters: ('60ec298c-d081-7071-6b49-df87a80484cb', 'njsdbndokvn@gmail.com', 'she123', None, datetime.datetime(1999, 12, 31, 0, 0), datetime.datetime(2026, 7, 4, 14, 1, 25, 570000, tzinfo=tzlocal()), datetime.datetime(2026, 7, 4, 14, 1, 25, 570000, tzinfo=tzlocal()), '[]')]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
