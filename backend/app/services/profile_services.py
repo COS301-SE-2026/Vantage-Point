@@ -144,7 +144,7 @@ class ProfileService:
         try:
             if access_token == "":
                 raise HTTPException(status_code=400, detail="Access Token is empty.")
-
+            
             # find in user.sud in db, due to social login first find in cognito then look for in db, if not create user
             response = await asyncio.to_thread(
                 client.get_user, AccessToken=access_token

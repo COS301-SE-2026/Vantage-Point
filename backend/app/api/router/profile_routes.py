@@ -9,7 +9,7 @@ from fastapi import HTTPException
 import traceback
 from app.Models.auth_model import User
 from app.api.auth import require_group
-
+from botocore.exceptions import ClientError
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 oauth2_scheme = HTTPBearer()
 
@@ -28,12 +28,13 @@ async def get_or_create_profile(
     session: Annotated[AsyncSession, Depends(get_session)],
     access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ) -> Any:
+    print("Reached router")
     try:
         return await ProfileService.get_or_create_profile(
             session, access_token.credentials
         )
-    except Exception:
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    except ClientError as e:
+        raise HTTPException(status_code=400, detail=e.response)
 
 
 @router.post(
