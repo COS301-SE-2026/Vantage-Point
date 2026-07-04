@@ -21,6 +21,9 @@ from app.database.session import DATABASE_URL, get_session, init_db
 from app.Models.generic_schemas import get_error_reason
 from app.services.riot_api import get_puuid_by_riot_id
 
+from loguru import logger
+import sys
+
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
 
@@ -38,6 +41,8 @@ load_dotenv()
 
 # limiter = Limiter(key_func=get_remote_address)
 
+logger.add(sys.stdout, enqueue=True, 
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
 
 def should_skip_startup_db_init() -> bool:
     if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):

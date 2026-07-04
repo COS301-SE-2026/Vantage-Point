@@ -1,2 +1,1 @@
-from loguru import logger
 
