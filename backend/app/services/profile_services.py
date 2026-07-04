@@ -18,6 +18,7 @@ from botocore.exceptions import ClientError
 import asyncio
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
+from loguru import logger
 
 settings = get_settings()
 client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
@@ -171,6 +172,7 @@ class ProfileService:
 
             return await ProfileService.create_profile(session, user)
         except Exception:
+            logger.exception("Get or create profile")
             raise HTTPException(status_code=500, detail=traceback.format_exc())
 
     @staticmethod
@@ -205,6 +207,7 @@ class ProfileService:
 
             return user
         except ClientError as e:
+            logger.exception("Create profile")
             print(e.response)
             raise
 

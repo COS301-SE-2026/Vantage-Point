@@ -8,6 +8,7 @@ from sqlmodel import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from loguru import logger
 
 settings = get_settings()
 
@@ -183,6 +184,7 @@ class admin_service:
 
             return {"success": True}
         except ClientError as e:
+            logger.exception("Admin delete user profile")
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
@@ -232,6 +234,7 @@ class admin_service:
 
             return response
         except ClientError as e:
+            logger.exception("Admin create user")
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNameExistException":
