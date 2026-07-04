@@ -22,7 +22,7 @@ sleep 15
 
 NGINX_STATUS=$(podman inspect -f '{{.State.Running}}' staging-nginx 2>/dev/null || echo "false")
 
-if [ "$NGINX_STATUS" = "true" ]; then
+if [[ "$NGINX_STATUS" = "true" ]]; then
     echo "Deployment successful! Cleaning up old unused images..."
     podman image prune -f
 else
