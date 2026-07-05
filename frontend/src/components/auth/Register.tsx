@@ -1,18 +1,12 @@
-// frontend/src/landing/imports/Register/Register.tsx
 import { useState, useEffect } from "react";
-import {
-  landingBackgroundImages,
-  landingSlideIndices,
-} from "../../lol-wallpapers/backgrounds";
+import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
+import imgLogo from "../../assets/images/logos/logo.webp";
+import imgGoogle from "../../assets/images/providers/google.webp";
+import imgAppleInc from "../../assets/images/providers/apple.webp";
+import imgRiotGames from "../../assets/images/providers/riot-games.webp";
 
-// Brand & Provider Image Assets
-import imgLogo from "../../../assets/images/logos/logo.webp";
-import imgGoogle from "./e98e9b24669bda4f34daad81de74f1cbc0c60e43.webp";
-import imgAppleInc from "./42dab27d0f348cbd097620054816915a603a2f3b.webp";
-import imgRiotGames from "./da8e2b2b779ebc3b362dbe11022d83a4a28639da.webp";
-
-const backgroundImages = landingBackgroundImages;
-const SLIDE_DOT_INDICES = landingSlideIndices;
+const backgroundImages = authBackgroundImages;
+const SLIDE_DOT_INDICES = authSlideIndices;
 
 const authInputClassName =
   "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";

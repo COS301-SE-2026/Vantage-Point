@@ -1,14 +1,14 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
-import DashboardPage from "./components/DashboardPage";
-import LinkRiotPage from "./components/LinkRiotPage";
-import LoadingPage from "./components/LoadingPage";
-import LoginPage from "./components/LoginPage";
-import MatchDetailView from "./components/MatchDetailView";
-import MatchesListView from "./components/MatchesListView";
-import ProfileView from "./components/ProfileView";
 import ProtectedRoute from "./components/ProtectedRoute";
-import RegisterPage from "./components/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
+import LinkRiotPage from "./pages/LinkRiotPage";
+import LoadingPage from "./pages/LoadingPage";
+import LoginPage from "./pages/LoginPage";
+import MatchDetailView from "./pages/MatchDetailView";
+import MatchesListView from "./pages/MatchesListView";
+import ProfileView from "./pages/ProfileView";
+import RegisterPage from "./pages/RegisterPage";
 
 export const router = createBrowserRouter([
   {

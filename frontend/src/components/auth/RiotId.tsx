@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
-import {
-  landingBackgroundImages,
-  landingSlideIndices,
-} from "../../lol-wallpapers/backgrounds";
-import imgLogo from "../Register/798001aef0b2686ac929f8c349135d3326ab65bb.webp";
+import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
+import imgLogo from "../../assets/images/logos/logo.webp";
 
-const backgroundImages = landingBackgroundImages;
+const backgroundImages = authBackgroundImages;
 
 const authInputClassName =
   "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
 
-const SLIDE_DOT_INDICES = landingSlideIndices;
+const SLIDE_DOT_INDICES = authSlideIndices;
 
 type FrameSlideProps = Readonly<{
   currentSlide: number;
