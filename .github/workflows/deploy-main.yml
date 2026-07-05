@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
               # Navigate to the project directory
-              cd /Vantage-Point-Prod || exit 1
+              cd Vantage-Point-Prod || exit 1
 
               # Pull the latest main branch onto the server
               git pull origin main
