@@ -1,12 +1,10 @@
+# Save the current tag for rollback
+PREVIOUS_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "initial")
+echo "Backup/Previous Git hash: $PREVIOUS_HASH"
 
-# Get the latest Git commit SHA to use as our unique image tag
-export IMAGE_TAG=$(git rev-parse --short HEAD)
-echo "New Image Tag: $IMAGE_TAG"
-
-# Save the CURRENT (not latest) running tag in case we need to roll back
-# If nothing is running yet, defaults to 'latest'
-export PREVIOUS_TAG=$(podman inspect --format='{{.Config.Image}}' staging-backend 2>/dev/null | cut -d':' -f2 || echo 'latest')
-echo "Backup/Previous Tag: $PREVIOUS_TAG"
+# Pull the new code from GitHub
+echo "Pulling new code..."
+git pull origin main
 
 # Build the new backend and frontend images
 echo "Building new images locally..."
@@ -16,7 +14,7 @@ podman-compose build
 echo "Deploying new containers..."
 podman-compose up -d --remove-orphans
 
-# Health Check: Wait and verify if Nginx stayed up and healthy
+# Health Check: Wait and verify if Nginx started up and is healthy
 echo "Waiting for health checks to stabilize..."
 sleep 15
 
@@ -27,10 +25,16 @@ if [[ "$NGINX_STATUS" = "true" ]]; then
     podman image prune -f
 else
     echo "Deployment failed! Nginx is not running properly."
-    echo "Rolling back to previous working version ($PREVIOUS_TAG)..."
+    echo "Rolling back to previous working version ($PREVIOUS_HASH)..."
 
-    # Re-export the old tag and force podman-compose back to the previous state
-    export IMAGE_TAG=$PREVIOUS_TAG
+    # Hard reset the local directory back to the working commit
+    git reset --hard "$PREVIOUS_HASH"
+
+    # Re-build with stable files
+    echo "Re-building with stable files..."
+    podman-compose build
+
+    # Re-deploy the containers
     podman-compose up -d --remove-orphans
 
     echo "Rollback execution completed."
