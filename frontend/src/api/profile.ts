@@ -1,4 +1,7 @@
-import { leagueWildRiftCard, leagueWildRiftCover } from "../assets/profile";
+import {
+  leagueWildRiftCard,
+  leagueWildRiftCover,
+} from "../assets/images/profile";
 import type {
   FeaturedGameSlide,
   PlayerAchievement,

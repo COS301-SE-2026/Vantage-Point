@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import UserAccountMenu from "./UserAccountMenu";
 import { getDashboardContentBackdropStyle } from "../lib/dashboardLayout";
 import svgPaths from "./dashboard-shell-svg";
-import imgLogo from "../../../assets/images/logos/logo.webp";
+import imgLogo from "../assets/images/logos/logo.webp";
 
 const DASHBOARD_SIDEBAR_LEFT = 28;
 const DASHBOARD_SIDEBAR_WIDTH = 220;
