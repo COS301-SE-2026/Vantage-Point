@@ -4,7 +4,7 @@ echo "Backup/Previous Git hash: $PREVIOUS_HASH"
 
 # Pull the new code from GitHub
 echo "Pulling new code..."
-git pull origin main
+git pull origin staging
 
 # Build the new backend and frontend images
 echo "Building new images locally..."
