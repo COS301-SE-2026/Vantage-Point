@@ -246,6 +246,7 @@ async def register_summoner(
         game_name=game_name,
         tag_line=tag_line,
         account_level=1,
+            account_level=0,
     )
     session.add(new_account)
     await session.commit()

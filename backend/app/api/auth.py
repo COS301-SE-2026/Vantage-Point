@@ -41,6 +41,10 @@ async def get_jwks() -> dict[str, Any]:
     return jwks
 
 
+# at the moment no clear time the data gets changed seems it does rarely, not predefined time intervals
+# need to do it periodalically and when it fails
+# change once a day, and if a kid(key unique id) is not in the pool but
+# use get_public key, probably need to call the get_public user after the update of the pubkic keys
 def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     try:
         header = jwt.get_unverified_header(token)
