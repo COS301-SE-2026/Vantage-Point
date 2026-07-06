@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from loguru import logger
-from app.Models.admin_model import (UserResponse)
+from app.Models.admin_model import (UserResponse, UsersResponse)
 
 settings = get_settings()
 
@@ -20,13 +20,32 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: i
 
 class admin_service:
     @staticmethod
-    async def get_users(limit: int = 10):
+    async def get_users(limit: int = 10) -> list[UserResponse]:
         try:
             response = await asyncio.to_thread(
                 client.list_users, UserPoolId=settings.cognito_user_pool_id, Limit=limit
             )
+            users: list[UserResponse] = []
 
-            return response
+            for user in response["Users"]:
+                attributes: Any = {
+                    attr["Name"]: attr.get("Value", "")
+                    for attr in user.get("Attributes",[])
+                }
+            
+                users.append(
+                    UserResponse(
+                        username=user.get("Username", ""),
+                        email=attributes.get("email", ""),
+                        sub=attributes.get("sub", ""),
+                        user_created_date=user.get("UserCreateDate", datetime.now()),
+                        user_last_modified_date=user.get("UserLastModifiedDate", datetime.now()),
+                        enabled=user.get("Enabled", True),
+                        user_status=user.get("UserStatus", "")
+                    )
+                )
+
+            return users
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
