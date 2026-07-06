@@ -3,7 +3,8 @@ name: Sync Docs Folder to GitHub Wiki
 on:
   push:
     branches:
-      - main, dev
+      - main
+      - dev
     paths:
       - '.github/docs/**'
 
