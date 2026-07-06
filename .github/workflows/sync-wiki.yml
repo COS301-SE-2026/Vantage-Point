@@ -3,7 +3,7 @@ name: Sync Docs Folder to GitHub Wiki
 on:
   push:
     branches:
-      - main
+      - dev
     paths:
       - '.github/docs/**'
 
@@ -24,3 +24,6 @@ jobs:
           repository: ${{ github.repository }}
           # Automatically generated GITHUB_TOKEN
           token: ${{ secrets.GITHUB_TOKEN }}
+          # Dynamically credit whoever made the push
+          commit_username: ${{ github.actor }}
+          commit_email: '${{ github.actor }}@users.noreply.github.com'
