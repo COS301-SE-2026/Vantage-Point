@@ -1,5 +1,4 @@
 from app.services import auth_service
-from app.Models.auth_model import User
 from fastapi import APIRouter
 from typing import Any
 
@@ -14,8 +13,8 @@ router = APIRouter()
     tags=["Auth"],
     responses={400: {"description": "Username already exists or invalid password"}},
 )
-async def register(user: User):
-    return await auth_service.register_user(user)
+async def register(username: str, password: str, email: str):
+    return await auth_service.register_user(username, password, email)
 
 
 # returns tokens. Not a user

@@ -13,7 +13,8 @@ from fastapi.testclient import TestClient
 from app.services.admin_service import admin_service
 from app.tests.constants import TEST_USER_PASSWORD
 
-def get_users():
-    admin_service.get_users
+@pytest.mark.anyio
+def get_user_success():
+    admin_service.get_user()
 
-def get_user
+def get_user():

@@ -31,7 +31,7 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail="Uer not found.")
-            if error_code == "InvalidParamaterException":
+            if error_code == "InvalidParameterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
             print(e.response)
             raise
@@ -52,7 +52,7 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail="User not found.")
-            if error_code == "InvalidParamaterException":
+            if error_code == "InvalidParameterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
             raise HTTPException(status_code=400, detail=error_code)
 
@@ -245,7 +245,7 @@ class admin_service:
                 raise HTTPException(
                     status_code=400, detail="Password does not meet format"
                 )
-            if error_code == "InvalidParamaterException":
+            if error_code == "InvalidParameterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
             raise HTTPException(status_code=400, detail=error_code)
 
