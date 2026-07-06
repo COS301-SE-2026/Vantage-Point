@@ -8,7 +8,7 @@ import time
 
 start = time.time()
 
-num_step = 20
+num_step = 18
 bar = Bar(num_step)
 
 #get data from Converter_Main
@@ -16,13 +16,13 @@ bar = Bar(num_step)
 #y is what we want
 #x is given data
 y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test.csv")
-bar.next() #5%
+bar.next() 
 
 # train model
 knn_regressor = KNeighborsRegressor(n_neighbors=5)
-bar.next() #10%
+bar.next() 
 knn_regressor.fit(X_train, y_train)
-bar.next() #15%
+bar.next() 
 t = time.time()
 print(f'\nTime: {t - start:.2f} seconds')
 
@@ -94,22 +94,20 @@ mse, r2 = testPredict()
 p1, p2, grid_mse, grid_r2 = optimizeGridSearch()
 bag_mse, bag_r2 = optimizeBagging(p1, p2)
 
-with open("output.txt", "w", encoding="utf-8") as f:
-    f.write("initail results:\n")
-    f.write("mse: " + str(mse) + "\n")
-    f.write("r2: " + str(r2) + "\n")
-    f.write("\n")
-    bar.next() #90%
-    f.write("grid optimize results:\n")
-    f.write("grid_mse: " + str(grid_mse) + "\n")
-    f.write("grid_r2: " + str(grid_r2) + "\n")
-    f.write("\n")
-    bar.next() #95%
-    f.write("bag optimize results:\n")
-    f.write("bag_mse: " + str(bag_mse) + "\n")
-    f.write("bag_r2: " + str(bag_r2) + "\n")
-    f.write("\n")
-    bar.next() #100%
+
+print("initail results:\n")
+print("mse: " + str(mse) + "\n")
+print("r2: " + str(r2) + "\n")
+print("\n")
+print("grid optimize results:\n")
+print("grid_mse: " + str(grid_mse) + "\n")
+print("grid_r2: " + str(grid_r2) + "\n")
+print("\n")
+print("bag optimize results:\n")
+print("bag_mse: " + str(bag_mse) + "\n")
+print("bag_r2: " + str(bag_r2) + "\n")
+print("\n")
+bar.next() 
 
 end = time.time()
 print('')

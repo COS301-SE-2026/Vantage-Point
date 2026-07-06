@@ -515,8 +515,8 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     timeInfo = timeline_data["info"]
 
     #different data set collections
-    #rows = knn(participants, timeInfo, puuid_pool)
-    rows = rf_champion(info, participants, timeInfo, puuid_pool)
+    rows = knn(participants, timeInfo, puuid_pool)
+    #rows = rf_champion(info, participants, timeInfo, puuid_pool)
     #rows = rf_item(participants, timeInfo, puuid_pool)
     #rows = rf_skill(participants, timeInfo, puuid_pool)
     #rows = rf_role(participants, timeInfo, puuid_pool)
