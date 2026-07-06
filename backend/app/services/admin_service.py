@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from loguru import logger
-from app.Models.admin_model import (UserResponse, UsersResponse)
+from app.Models.admin_model import (UserResponse)
 
 settings = get_settings()
 

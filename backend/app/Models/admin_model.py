@@ -9,6 +9,3 @@ class UserResponse(BaseModel):
     user_last_modified_date: datetime
     enabled: bool
     user_status: str
-
-class UsersResponse(BaseModel):
-    users: list[UserResponse]
