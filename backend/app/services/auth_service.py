@@ -3,6 +3,7 @@ import hmac
 import hashlib
 import base64
 import asyncio
+import logging
 from fastapi import HTTPException
 from app.config import get_settings
 from botocore.exceptions import ClientError
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
 settings = get_settings()
+logger = logging.getLogger("app.auth")
 
 # Initialize the Cognito Client
 client: "CognitoIdentityProviderClient" = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: ignore
@@ -70,9 +72,12 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
                 client.admin_confirm_sign_up,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
+                SecretHash=get_secret_hash(username),  # type: ignore[call-arg]
             )
+            logger.info(f"User automatically confirmed in debug mode: {username}")
 
-        await asyncio.to_thread(log_registration, username, email)
+        # await asyncio.to_thread(log_registration, username, email)
+        logger.info(f"User registration initialized: {username} | Email: {email}")
         return response
 
     except ClientError as e:
