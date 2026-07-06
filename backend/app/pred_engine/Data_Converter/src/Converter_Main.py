@@ -88,7 +88,7 @@ def formatTrainTestDataKNN(data):
             c = c + 1
         print()
 
-    y = scaler.fit_transform(y)
+    #y = scaler.fit_transform(y)
     dataArr = scaler.fit_transform(dataArr)
     return y, dataArr
 

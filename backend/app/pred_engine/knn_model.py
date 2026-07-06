@@ -12,10 +12,7 @@ num_step = 18
 bar = Bar(num_step)
 
 #get data from Converter_Main
-#the x and y is swapped in Converter_Main because I am a moron
-#y is what we want
-#x is given data
-y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test.csv")
+y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test25000.csv")
 bar.next() 
 
 # train model
