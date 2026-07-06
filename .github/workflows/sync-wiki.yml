@@ -34,7 +34,8 @@ jobs:
 
           # 3. Clone the hidden Wiki repository using the auto generated GITHUB_TOKEN
           # "x-access-token" so GitHub allows the automation to authenticate
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git /tmp/wiki_repo
+          # using the safely scoped shell variable
+          git clone "https://x-access-token:$WIKI_TOKEN@github.com/${{ github.repository }}.wiki.git" /tmp/wiki_repo
 
           # 4. Clear the old wiki files and move the updated ones in
           rm -rf /tmp/wiki_repo/*
