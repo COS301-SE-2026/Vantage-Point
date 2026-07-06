@@ -3,6 +3,7 @@ import hmac
 import hashlib
 import base64
 import asyncio
+import logging
 from fastapi import HTTPException
 from app.config import get_settings
 from botocore.exceptions import ClientError
@@ -71,7 +72,7 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
                 client.admin_confirm_sign_up,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
-                SecretHash=get_secret_hash(username)
+                SecretHash=get_secret_hash(username),  # type: ignore[call-arg]
             )
             logger.info(f"User automatically confirmed in debug mode: {username}")
 
