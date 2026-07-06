@@ -1,10 +1,11 @@
 from pydantic import BaseModel
+from datetime import datetime
 
-class Users(BaseModel):
+class UserResponse(BaseModel):
     username: str
-    email: str
-    sub: str
-    user_created_date: str
-    user_last_modified_date: str
-    enanled: str
+    email: str | None
+    sub: str | None
+    user_created_date: datetime
+    user_last_modified_date: datetime
+    enabled: bool
     user_status: str

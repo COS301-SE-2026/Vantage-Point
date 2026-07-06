@@ -9,6 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from loguru import logger
+from app.Models.admin_model import (UserResponse)
 
 settings = get_settings()
 
@@ -38,7 +39,7 @@ class admin_service:
         #    raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def get_user(username: str):
+    async def get_user(username: str) -> UserResponse:
         try:
             response = await asyncio.to_thread(
                 client.admin_get_user,
@@ -46,7 +47,22 @@ class admin_service:
                 Username=username,
             )
 
-            return response
+            attributes = {
+                attr["Name"]: attr.get("Value")
+                for attr in response["UserAttributes"]
+                }
+
+            user = UserResponse(
+                username=response["Username"],
+                email=attributes.get("email", ""),
+                sub=attributes.get("sub", ""),
+                user_created_date=response["UserCreateDate"],
+                user_last_modified_date=response["UserLastModifiedDate"],
+                enabled=response["Enabled"],
+                user_status=response["UserStatus"]
+            )
+
+            return user
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
