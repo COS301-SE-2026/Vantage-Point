@@ -4,6 +4,7 @@ import random
 import numpy as np
 from types import SimpleNamespace
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 #needs to be changed still
 def getFromAPI():
@@ -20,6 +21,8 @@ def getFromAPI():
     print(match_TL.info.endOfGameResult, match_TL.info.gameId)
     
 def formatTrainTestDataKNN(data):
+    scaler = StandardScaler()
+
     r, c = (1, 1)
     dataArr = []
     y = []
@@ -84,6 +87,9 @@ def formatTrainTestDataKNN(data):
                 dataArr[r].append(i)
             c = c + 1
         print()
+
+    y = scaler.fit_transform(y)
+    dataArr = scaler.fit_transform(dataArr)
     return y, dataArr
 
 def getTrainTestDataKNN(fileName):
