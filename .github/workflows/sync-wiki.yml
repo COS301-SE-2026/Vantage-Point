@@ -16,14 +16,40 @@ jobs:
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-
-      - name: Sync to GitHub Wiki
-        uses: Andrew-Chen-Wang/github-wiki-action@64efa0a9436db17670a2259e0ac249d6f08bb352
         with:
-          path: .github/docs
-          repository: ${{ github.repository }}
-          # Automatically generated GITHUB_TOKEN
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # Dynamically credit whoever made the push
-          commit_username: ${{ github.actor }}
-          commit_email: '${{ github.actor }}@users.noreply.github.com'
+          # Fetches the current commit and its parent to accurately extract authorship
+          fetch-depth: 2
+
+      - name: Sync to GitHub Wiki with Author Credit
+        run: |
+          # 1. Extract the name and email of the person who actually made the commit
+          AUTHOR_NAME=$(git log -1 --format='%an')
+          AUTHOR_EMAIL=$(git log -1 --format='%ae')
+
+          echo "Attributing Wiki update to: $AUTHOR_NAME <$AUTHOR_EMAIL>"
+
+          # 2. Isolate the docs folder into a temporary space
+          mkdir /tmp/wiki_upload
+          cp -r .github/docs/* /tmp/wiki_upload/
+
+          # 3. Clone the hidden Wiki repository using the auto generated GITHUB_TOKEN
+          # "x-access-token" so GitHub allows the automation to authenticate
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git /tmp/wiki_repo
+
+          # 4. Clear the old wiki files and move the updated ones in
+          rm -rf /tmp/wiki_repo/*
+          cp -r /tmp/wiki_upload/* /tmp/wiki_repo/
+
+          # 5. Navigate to the wiki repo and configure Git to mimic the real author
+          cd /tmp/wiki_repo
+          git config user.name "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
+
+          # 6. Stage, check for changes, and push back to the Wiki
+          git add .
+          if git diff-index --quiet HEAD --; then
+            echo "No changes detected in documentation. Skipping push."
+          else
+            git commit -m "Docs update by $AUTHOR_NAME"
+            git push origin master || git push origin main
+          fi
