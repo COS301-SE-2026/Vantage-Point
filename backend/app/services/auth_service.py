@@ -9,7 +9,6 @@ from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
-from app.Models.auth_model import User
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
@@ -56,9 +55,9 @@ def handle_cognito_error(e: ClientError) -> NoReturn:
     raise HTTPException(status_code=status_code, detail=error_message)
 
 
-async def register_user(user: User):
+async def register_user(username: str, password: str, email: str):
     if not (
-        ("@" in user.email) and (len(user.password) >= 8) and (len(user.username) > 0)
+        ("@" in email) and (len(password) >= 8) and (len(username) > 0)
     ):
         raise HTTPException(
             status_code=400, detail="Param does not met min requirements"
@@ -68,10 +67,10 @@ async def register_user(user: User):
         response = await asyncio.to_thread(
             client.sign_up,
             ClientId=settings.cognito_client_id,
-            SecretHash=get_secret_hash(user.username),
-            Username=user.username,
-            Password=user.password,
-            UserAttributes=[{"Name": "email", "Value": user.email}],
+            SecretHash=get_secret_hash(username),
+            Username=username,
+            Password=password,
+            UserAttributes=[{"Name": "email", "Value": email}],
         )
         return response
     except ClientError as e:
