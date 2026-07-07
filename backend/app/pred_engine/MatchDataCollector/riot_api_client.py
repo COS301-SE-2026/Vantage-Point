@@ -141,6 +141,14 @@ def knn(info ,participants, timeInfo, puuid_pool):
 
         framesList = timeInfo.get("frames", [])
 
+        prevPos = {"x" : 0,
+                   "y" : 0
+                   }
+        prevPrevPos = {"x" : 0,
+                       "y" : 0
+                       }
+        check = True
+
         for frame in framesList:
             partFrames = frame.get("participantFrames", [])
             partFrame = partFrames.get(str(pId))
@@ -155,6 +163,10 @@ def knn(info ,participants, timeInfo, puuid_pool):
                 "lane" : part.get("lane"), #3
                 "role" : part.get("role"), #4
                 "time" : frame.get("timestamp"),
+                "prevX" : prevPos["x"],
+                "prevY" : prevPos["y"],
+                "pprevX" : prevPrevPos["x"],
+                "pprevY" : prevPrevPos["y"],
                 "champExperience" : part.get("champExperience"),
                 "champLevel" : part.get("champLevel"),
                 "championId" : part.get("championId"),
@@ -219,6 +231,18 @@ def knn(info ,participants, timeInfo, puuid_pool):
                 #"spellVamp" : champStat.get("spellVamp"),
             }
 
+            #prev positions
+            if check:
+                #first frame
+                prevPos["x"] = pos.get("x")
+                prevPos["y"] = pos.get("y")
+                check = False
+            else:
+                prevPrevPos["x"] = prevPos["x"]
+                prevPrevPos["y"] = prevPos["y"]
+                prevPos["x"] = pos.get("x")
+                prevPos["y"] = pos.get("y")
+
             #append other player positions
             c = 1
             for p in partFrames:
@@ -235,7 +259,6 @@ def knn(info ,participants, timeInfo, puuid_pool):
                         break
 
             rows.append(row_data)
-            #events?
     return rows
 
 
