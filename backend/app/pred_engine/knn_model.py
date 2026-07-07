@@ -12,7 +12,7 @@ num_step = 18
 bar = Bar(num_step)
 
 #get data from Converter_Main
-y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test25000.csv")
+y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test100000.csv")
 bar.next() 
 
 # train model
@@ -87,23 +87,27 @@ def run_knn(X_val):
     y_out = knn_regressor.predict(X_val)
     return y_out
 
-mse, r2 = testPredict()
-p1, p2, grid_mse, grid_r2 = optimizeGridSearch()
-bag_mse, bag_r2 = optimizeBagging(p1, p2)
+#mse, r2 = testPredict()
+#p1, p2, grid_mse, grid_r2 = optimizeGridSearch()
+bag_mse, bag_r2 = optimizeBagging(6, "distance")
 
 
-print("initail results:\n")
-print("mse: " + str(mse) + "\n")
-print("r2: " + str(r2) + "\n")
-print("\n")
-print("grid optimize results:\n")
-print("grid_mse: " + str(grid_mse) + "\n")
-print("grid_r2: " + str(grid_r2) + "\n")
-print("\n")
+#print("\ninitail results:\n")
+#print("mse: " + str(mse) + "\n")
+#print("r2: " + str(r2) + "\n")
+#print("\n")
+#print("grid optimize results:\n")
+#print("grid_mse: " + str(grid_mse) + "\n")
+#print("grid_r2: " + str(grid_r2) + "\n")
+#print("\n")
 print("bag optimize results:\n")
 print("bag_mse: " + str(bag_mse) + "\n")
 print("bag_r2: " + str(bag_r2) + "\n")
 print("\n")
+#print("\nparams\n")
+#print(p1) #6
+#print(p2) #distance
+#print("\n")
 bar.next() 
 
 end = time.time()
