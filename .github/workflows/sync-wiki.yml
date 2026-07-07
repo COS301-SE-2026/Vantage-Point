@@ -30,20 +30,14 @@ jobs:
 
           echo "Attributing Wiki update to: $AUTHOR_NAME <$AUTHOR_EMAIL>"
 
-          # 2. Isolate the docs folder into a temporary space
-          mkdir /tmp/wiki_upload
-          cp -r .github/docs/* /tmp/wiki_upload/
-
-          # Configure SSH strict host checking so it doesn't prompt interactively
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-          # Spin up ssh-agent and pipe the raw key directly into it
+          # 2. Setup SSH (Using standard agent approach)
           eval "$(ssh-agent -s)"
           echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
           # 3. Clone the hidden Wiki repository using SSH protocol
+          mkdir -p /tmp/wiki_repo
           git clone git@github.com:${{ github.repository }}.wiki.git /tmp/wiki_repo
 
           # 4. Clear the old wiki files and move the updated ones in
@@ -61,5 +55,5 @@ jobs:
             echo "No changes detected in documentation. Skipping push."
           else
             git commit -m "Docs update by $AUTHOR_NAME"
-            git push origin master || git push origin main
+            git push origin master
           fi
