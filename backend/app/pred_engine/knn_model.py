@@ -3,132 +3,59 @@ from sklearn.metrics import mean_squared_error, r2_score
 import Data_Converter.src.Converter_Main as converter
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor
-from pyloading_bar import Bar
-import time
-
-start = time.time()
-
-num_step = 10
-bar = Bar(num_step)
-
-#get data from Converter_Main
-y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test100000.csv")
-bar.next() 
-
-# train model
-knn_regressor = KNeighborsRegressor(n_neighbors=5)
-bar.next() 
-knn_regressor.fit(X_train, y_train)
-bar.next() 
-t = time.time()
-print(f'\nTime: {t - start:.2f} seconds')
 
 def optimizeGridSearch():
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
     parameters = {
         "n_neighbors": range(1, 35),
         "weights": ["uniform", "distance"],
     }  
     gridsearch = GridSearchCV(KNeighborsRegressor(), parameters) 
-    bar.next() #35%
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
     gridsearch.fit(X_train, y_train) #slow here
-    bar.next() #40%
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
     test_preds_grid = gridsearch.predict(X_test)
-    bar.next() #45%
     test_mse = mean_squared_error(y_test, test_preds_grid) 
-    bar.next() #50%
     test_r2 = r2_score(y_test, test_preds_grid)
-    bar.next() #55%
     return gridsearch.best_params_["n_neighbors"], gridsearch.best_params_["weights"], test_mse, test_r2
 
 def optimizeBagging(p1,p2):
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
     best_k = p1
     best_weights = p2
     bagged_knn = KNeighborsRegressor(
         n_neighbors=best_k, weights=best_weights
     )
-    bar.next() #60%
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
-    bar.next() #65%
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
     bagging_model.fit(X_train, y_train) #slow here
-    bar.next() #70%
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
     test_preds_grid = bagging_model.predict(X_test)
-    bar.next() #75%
     test_mse = mean_squared_error(y_test, test_preds_grid) 
-    bar.next() #80%
     test_r2 = r2_score(y_test, test_preds_grid)
-    bar.next() #85%
     return test_mse, test_r2
 
 def testPredict():
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
+    # train model
+    knn_regressor = KNeighborsRegressor(n_neighbors=5)
+    knn_regressor.fit(X_train, y_train)
+
     # make predictions
     y_pred = knn_regressor.predict(X_test)
-    bar.next() #20%
     # evaluate model
     mse = mean_squared_error(y_test, y_pred)
-    bar.next() #35%
     r2 = r2_score(y_test, y_pred)
-    bar.next() #30%
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
     # want lowest possible mse
     # want r2 as close as possible to 1
     return mse, r2
 
-# value going in to function is in format [[decimal]]
-def run_knn(X_val):
-    y_out = knn_regressor.predict(X_val)
-    return y_out
 
-#mse, r2 = testPredict()
-#p1, p2, grid_mse, grid_r2 = optimizeGridSearch()
-bag_mse, bag_r2 = optimizeBagging(6, "distance")
+def getKnn():
+    #get data from Converter_Main
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
 
+    bagged_knn = KNeighborsRegressor(
+        n_neighbors=7, weights="distance"
+    )
+    bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
+    bagging_model.fit(X_train, y_train)
 
-#print("\ninitail results:\n")
-#print("mse: " + str(mse) + "\n")
-#print("r2: " + str(r2) + "\n")
-#print("\n")
-#print("grid optimize results:\n")
-#print("grid_mse: " + str(grid_mse) + "\n")
-#print("grid_r2: " + str(grid_r2) + "\n")
-#print("\n")
-print("bag optimize results:\n")
-print("bag_mse: " + str(bag_mse) + "\n")
-print("bag_r2: " + str(bag_r2) + "\n")
-print("\n")
-#print("\nparams\n")
-#print(p1) #6
-#print(p2) #distance
-#print("\n")
-bar.next() 
+    return bagging_model
 
-end = time.time()
-print('')
-print('')
-print(f'Final Time: {end - start:.2f} seconds')
-
-#add function to let people integrate with knn
-
-##################################################
-#results with 20000 rows
-# about double the runs with 2000 rows
-
-#initail results:
-#mse: 11680512.064259995
-#r2: 0.2801380122572488
-
-#grid optimize results:
-#grid_mse: 11023449.667127294
-#grid_r2: 0.3204628019463509
-
-#bag optimize results:
-#bag_mse: 10956324.517077383
-#bag_r2: 0.32458748375109797
