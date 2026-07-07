@@ -60,28 +60,48 @@ map_suggest_data
 used for KNN to predict best position
 uses both static and timeline match data
 
-info.participants.puuid
-info.participants.partcipantId
-info.frameInterval
-info.frames.timestamp
+
 info.frames.participantFrames.{1..10}.position.x
 info.frames.participantFrames.{1..10}.position.y
-info.endOfGameResult
-info.frames.participantFrames.{1..10}.championStats.armor
-info.frames.participantFrames.{1..10}.championStats.attackDamage
-info.frames.participantFrames.{1..10}.championStats.attackSpeed
-info.frames.participantFrames.{1..10}.championStats.health
-info.frames.participantFrames.{1..10}.championStats.healthMax
-info.frames.participantFrames.{1..10}.championStats.healthRegen
-info.participants.championID
-info.frames.participantFrames.{1..10}.damageStats.trueDamageDone
-info.frames.participantFrames.{1..10}.damageStats.trueDamageDoneToChampions
-info.frames.participantFrames.{1..10}.damageStats.trueDamageTaken
-info.frames.participantFrames.{1..10}.goldPerSecond
-info.frames.participantFrames.{1..10}.level
-info.frames.participantFrames.{1..10}.xp
 info.participants.teamPosition
 info.participants.lane
+info.participants.role
+info.frames.timestamp
+info.frames.participantFrames.{1..10}.position.x #previous
+info.frames.participantFrames.{1..10}.position.y #previous
+info.frames.participantFrames.{1..10}.position.x #prev previous
+info.frames.participantFrames.{1..10}.position.y #prev previous
+info.participants.champExperience
+info.participants.champLevel
+info.partcipants.championId
+info.gameDuration
+info.partcipants.deaths
+info.partcipants.itemsPurchased
+info.partcipants.killingSprees
+info.partcipants.kills
+info.partcipants.visionScore
+info.frames.participantFrames.jungleMinionsKilled
+info.frames.participantFrames.level
+info.frames.participantFrames.minionsKilled
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.xp
+info.frames.participantFrames.damage.totalDamageDone
+info.frames.participantFrames.damage.totalDamageDoneToChampions
+info.frames.participantFrames.damage.totalDamageTaken
+info.frames.participantFrames.championStats.abilityHaste
+info.frames.participantFrames.championStats.abilityPower
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.ccReduction
+info.frames.participantFrames.championStats.cooldownReduction
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
 
 ###########################################################################
 match_data
