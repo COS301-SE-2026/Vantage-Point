@@ -12,7 +12,7 @@ MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americ
 BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
 CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 100000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+MAX_ROWS = 200000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
@@ -171,64 +171,33 @@ def knn(info ,participants, timeInfo, puuid_pool):
                 "champLevel" : part.get("champLevel"),
                 "championId" : part.get("championId"),
                 "gameLength" : info.get("gameDuration"),
-                #"damageDealtToBuildings" : part.get("damageDealtToBuildings"),
-                #"damageDealtToObjectives" : part.get("damageDealtToObjectives"),
-                #"damageDealtToTurrets" : part.get("damageDealtToTurrets"),
-                #"damageSelfMitigated" : part.get("damageSelfMitigated"),
                 "deaths" : part.get("deaths"),
-                #inhibitorKills" : part.get("inhibitorKills"),
-                #"inhibitorTakedowns" : part.get("inhibitorTakedowns"),
-                #"inhibitorsLost" : part.get("inhibitorsLost"),
                 "itemsPurchased" : part.get("itemsPurchased"),
                 "killingSprees" : part.get("killingSprees"),
                 "kills" : part.get("kills"),
-                #"totalHeal" : part.get("totalHeal"),
-                #"totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
                 "visionScore" : part.get("visionScore"),
-                #"currentGold" : partFrame.get("currentGold"),
-                #"goldPerSecond" : partFrame.get("goldPerSecond"),
                 "jungleMinionsKilled" : partFrame.get("jungleMiniosKilled"),
                 "level" : partFrame.get("level"),
                 "minionsKilled" : partFrame.get("minionsKilled"),
                 "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-                #"totalGold" : partFrame.get("totalGold"),
                 "xp" : partFrame.get("xp"),
-                #"magicDamageDone" : damage.get("magicDamageDone"),
-                #"magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
-                #"magicDamageTaken" : damage.get("magicDamageTaken"),
-                #"physicalDamageDone" : damage.get("physicalDamageDone"),
-                #"physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
-                #"physicalDamageTaken" : damage.get("physicalDamageTaken"),
                 "totalDamageDone" : damage.get("totalDamageDone"),
                 "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
                 "totalDamageTaken" : damage.get("totalDamageTaken"),
-                #"trueDamageDone" : damage.get("trueDamageDone"),
-                #"trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
-                #"trueDamageTaken" : damage.get("trueDamageTaken"),
                 "abilityHaste" : champStat.get("abilityHaste"),
                 "abilityPower" : champStat.get("abilityPower"),
                 "armor" : champStat.get("armor"),
-                #"armorPen" : champStat.get("armorPen"),
-                #"armorPenPercent" : champStat.get("armorPenPercent"),
                 "attackDamage" : champStat.get("attackDamage"),
                 "attackSpeed" : champStat.get("attackSpeed"),
-                #"bonusArmorPenPercent" : champStat.get("bonusArmorPenPercent"),
-                #"bonusMagicPenPercent" : champStat.get("bonusMagicPenPercent"),
                 "ccReduction" : champStat.get("ccReduction"),
                 "cooldownReduction" : champStat.get("cooldownReduction"),
                 "health" : champStat.get("health"),
                 "healthMax" : champStat.get("healthMax"),
                 "healthRegen" : champStat.get("healthRegen"),
                 "lifesteal" : champStat.get("lifesteal"),
-                #"magicPen" : champStat.get("magicPen"),
-                #"magicPenPercent" : champStat.get("magicPenPercent"),
-                #"magicResist" : champStat.get("magicResist"),
                 "movementSpeed" : champStat.get("movementSpeed"),
-                #"omnivamp" : champStat.get("omnivamp"),
-                #"physicalVamp" : champStat.get("physicalVamp"),
                 "power" : champStat.get("power"),
                 "powerMax" : champStat.get("powerMax"),
-                #"spellVamp" : champStat.get("spellVamp"),
             }
 
             #prev positions
@@ -238,6 +207,7 @@ def knn(info ,participants, timeInfo, puuid_pool):
                 prevPos["y"] = pos.get("y")
                 check = False
             else:
+                #all other frames
                 prevPrevPos["x"] = prevPos["x"]
                 prevPrevPos["y"] = prevPos["y"]
                 prevPos["x"] = pos.get("x")

@@ -8,7 +8,7 @@ import time
 
 start = time.time()
 
-num_step = 18
+num_step = 10
 bar = Bar(num_step)
 
 #get data from Converter_Main
