@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy import BigInteger, Column, UniqueConstraint
+from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
@@ -31,10 +31,10 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     avatar_url: Optional[str] = Field(default=None)
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+        sa_column=Column(DateTime(timezone=True), nullable=False)
     )
     updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+        sa_column=Column(DateTime(timezone=True), nullable=False)
     )
 
     linked_puuids_cache: Optional[str] = Field(

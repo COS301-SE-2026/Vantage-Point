@@ -7,7 +7,7 @@ from app.database.models import Users
 from sqlmodel import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
+from datetime import datetime, timezone
 from loguru import logger
 from app.Models.admin_model import (UserResponse, Response)
 
@@ -239,9 +239,11 @@ class admin_service:
             result = await session.execute(statement)
             user = result.scalar_one_or_none()
 
+            #only delete here if in db. Can be that user not in db. 
             if user is not None:
                 await session.delete(user)
                 await session.commit()
+                
             
             response = Response(
                 success=True,
@@ -286,13 +288,16 @@ class admin_service:
             if profile is not None:
                 raise HTTPException(status_code=400, detail="USer already exist")
 
+            created_at = attrs.get("UserCreateDate")
+            updated_at = attrs.get("UserLastModifiedDate")
+
             profile = Users(
                 cognito_sub=attrs.get("sub", ""),
                 email=email,
                 display_name=user.get("Username", username),
-                created_at=user.get("UserCreateDate", datetime.now()),
-                updated_at=user.get("UserLastModifiedDate", datetime.now()),
-                deletion_scheduled_at=datetime(1999, 12, 31),
+                created_at=user.get("UserCreateDate", datetime.now(timezone.utc).replace(tzinfo=None)),
+                updated_at=user.get("UserLastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)),
+                deletion_scheduled_at=None,
             )
             session.add(profile)
             await session.commit()
