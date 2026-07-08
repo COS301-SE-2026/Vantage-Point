@@ -6,7 +6,7 @@ Test all admin endpoints and Mocks AWS Cognito dependency
 
 import pytest
 from typing import Any
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
 from fastapi.testclient import TestClient
@@ -15,8 +15,10 @@ from app.Models.admin_model import UserResponse
 from app.tests.constants import TEST_USER_PASSWORD
 from datetime import datetime, timezone
 from app.config import get_settings
-
+from sqlalchemy.ext.asyncio import AsyncSession
 settings = get_settings()
+
+mock_session = AsyncMock(spec=AsyncSession)
 
 @pytest.mark.anyio
 class TestAdminGet:
@@ -412,3 +414,30 @@ class TestAdminServicePost:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+    #create user
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_create_user")
+    async def admin_create_user_success(mock_admin_create_user: MagicMock):
+        mock_admin_create_user.return_value = {
+            "User": {
+                "Username": "shaun",
+                "Attributes": [
+                    {
+                        "Name": "sub",
+                        "Value": "005cf93c-6031-70fe-58ea-11c03431ba8d"
+                    },
+                    {
+                        "Name": "email",
+                        "Value": "shaun@example.com"
+                    }
+                ],
+                "UserCreateDate": datetime.now(timezone.utc),
+                "UserLastModifiedDate": datetime.now(timezone.utc),
+                "Enabled": True,
+                "UserStatus": "FORCE_CHANGE_PASSWORD"
+            }
+        }
+
+        response = await admin_service.create_user()
