@@ -262,7 +262,7 @@ class admin_service:
     @staticmethod
     async def create_user(
         session: AsyncSession, username: str, email: str, temp_pass: str = "TemPass@123"
-    ):
+    ) -> UserResponse:
         try:
             response = await asyncio.to_thread(
                 client.admin_create_user,
@@ -296,6 +296,16 @@ class admin_service:
                 updated_at=user.get("UserLastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)),
                 deletion_scheduled_at=None,
             )
+            response = UserResponse(
+                username=profile.display_name,
+                email=profile.email,
+                sub=profile.cognito_sub,
+                user_created_date=profile.cognito_sub,
+                user_last_modified_date=profile.updated_at,
+                enabled=user["Enabled"],
+                user_status=user["UserStatus"]
+            )
+
             session.add(profile)
             await session.commit()
             await session.refresh(profile)
