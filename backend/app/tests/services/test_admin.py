@@ -649,3 +649,13 @@ class testAdminDelete:
         
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+    #delete user
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_delete_user")
+    async def test_delete_user_success(mock_admin_delete_user: MagicMock):
+        mock_admin_delete_user.return_value = {}
+
+        response = await admin_service.delete_user(mock_session, "shaun", "12345")
+
+        

@@ -255,7 +255,10 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
-                raise HTTPException(status_code=404, detail="Uer not found.")
+                raise HTTPException(status_code=404, detail="User not found.")
+            if error_code == "InvalidParameterException":
+                raise HTTPException(status_code=422, detail="Invalid username")
+            raise HTTPException(status_code=400, detail=error_code)
 
     # require db
     @staticmethod
