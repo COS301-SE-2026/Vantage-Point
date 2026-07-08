@@ -101,6 +101,11 @@ class admin_service:
                 GroupName=group,
             )
 
+            response = Response(
+                success=True,
+                message=
+            )
+
             return {"success": True}
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -122,6 +127,10 @@ class admin_service:
                 Username=username,
                 GroupName=group,
             )
+            response = Response(
+                success=True,
+                message=
+            )
 
             return {"success": True}
         except ClientError as e:
@@ -137,6 +146,10 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
+            response = Response(
+                success=True,
+                message=
+            )
 
             return {"success": True}
         except ClientError as e:
@@ -151,6 +164,10 @@ class admin_service:
                 client.admin_enable_user,
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
+            )
+            response = Response(
+                success=True,
+                message=
             )
 
             return {"success": True}
@@ -168,6 +185,10 @@ class admin_service:
                 Username=username,
                 Password=password,
                 Permanent=True,
+            )
+            response = Response(
+                success=True,
+                message=
             )
 
             return {"success": True}
@@ -192,6 +213,10 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
+            response = Response(
+                success=True,
+                message=
+            )
 
             return {"success": True}
         except ClientError as e:
@@ -208,6 +233,7 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
+            
 
             statement = select(Users).where(Users.cognito_sub == sub)
             result = await session.execute(statement)
@@ -216,8 +242,13 @@ class admin_service:
             if user is not None:
                 await session.delete(user)
                 await session.commit()
+            
+            response = Response(
+                success=True,
+                message=f"Deleted {username} permanetly"
+            )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             logger.exception("Admin delete user profile")
             error = e.response.get("Error", {})
@@ -314,8 +345,12 @@ class admin_service:
                 Description=description,
                 Precedence=precedence,
             )
+            response = Response(
+                success=True,
+                message=f"Updated {group_name} attribute"
+            )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -329,8 +364,12 @@ class admin_service:
                 GroupName=group_name,
                 UserPoolId=settings.cognito_user_pool_id,
             )
+            response = Response(
+                success=True,
+                message=f"Deleted {group_name} group"
+            )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
