@@ -1,5 +1,5 @@
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.neighbors import KNeighborsRegressor  # type: ignore
+from sklearn.metrics import mean_squared_error, r2_score  # type: ignore
 import Data_Converter.src.Converter_Main as converter  # type: ignore
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor  # type: ignore

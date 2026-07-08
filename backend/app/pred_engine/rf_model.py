@@ -1,6 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier  # type: ignore
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import accuracy_score  # type: ignore
+from sklearn.model_selection import GridSearchCV  # type: ignore
 from sklearn.multioutput import MultiOutputClassifier  # type: ignore
 import Data_Converter.src.Converter_Main as converter  # type: ignore
 import pandas as pd

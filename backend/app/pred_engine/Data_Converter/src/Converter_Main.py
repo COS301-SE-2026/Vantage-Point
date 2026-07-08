@@ -2,7 +2,7 @@ import json
 import csv
 import random
 from types import SimpleNamespace
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 
 
