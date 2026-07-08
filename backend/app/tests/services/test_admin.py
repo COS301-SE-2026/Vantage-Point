@@ -19,7 +19,7 @@ from app.config import get_settings
 settings = get_settings()
 
 @pytest.mark.anyio
-class admin_test_get:
+class TestAdminGet:
     
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user",)
@@ -123,6 +123,7 @@ class admin_test_get:
     #get users unit test
 
     @staticmethod
+    @patch("app.services.admin_service.client.list_users")
     async def get_users_success(mock_admin_get_users: MagicMock):
         mock_admin_get_users.return_value = {
             "Users": [
@@ -166,3 +167,22 @@ class admin_test_get:
         assert users[1].sub == "67890"
         assert users[1].enabled is False
         assert users[1].user_status == "FORCE_CHANGE_PASSWORD"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.list_users")
+    async def get_users_user_not_found(mock_admin_get_users: MagicMock):
+        mock_admin_get_users.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "UserNotFoundException",
+                    "Message": "User not found"
+                }
+            },
+            "user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.get_users()
+
+        assert exec.value.status_code == 404
+        assert exec.value.detail == "User not found"
