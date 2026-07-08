@@ -450,7 +450,7 @@ class TestAdminServicePost:
         mock_session.add.assert_called_once()
         mock_session.commit.assert_awaited_once()
         mock_session.refresh.assert_awaited_once()
-        
+
         response = await admin_service.create_user(mock_session, "john123", "john@gmail.com")
 
         assert response.username == "john123"
@@ -471,3 +471,43 @@ class TestAdminServicePost:
             TemporaryPassword="TemPass@123",
             MessageAction="SUPPRESS",
         )
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_create_user")
+    async def admin_create_user_name_exist(mock_admin_create_user: MagicMock):
+        mock_admin_create_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "UserNameExistException",
+                    "Message": "Username or email already exist."
+                }
+            },
+            "admin_create_user"
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.create_user(mock_session, "john123", "john@gmail.com")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "Username or email already exist."
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_create_user")
+    async def admin_create_user_invalid_password(mock_admin_create_user: MagicMock):
+        mock_admin_create_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InvalidPasswordException",
+                    "Message": "Password does not meet format"
+                }
+            },
+            "admin_create_user"
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.create_user(mock_session, "john123", "john@gmail.com")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "Password does not meet format"
+
+    
