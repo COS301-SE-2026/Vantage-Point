@@ -244,3 +244,24 @@ class TestAdminServicePost:
             Username="swdfcs",
             GroupName="Users",
         )
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_add_user_to_group")
+    async def test_add_user_to_group_user_not_found_exception(mock_admin_add_user_to_group: MagicMock)
+        mock_admin_add_user_to_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "UserNotFoundException",
+                    "Message": "User not found"
+                }
+            },
+            "user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.add_user_to_group("shaun")
+
+        assert exec.value.status_code == 404
+        assert exec.value.detail == "User not found"
+
+    
