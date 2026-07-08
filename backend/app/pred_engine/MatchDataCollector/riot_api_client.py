@@ -7,49 +7,56 @@ from aiolimiter import AsyncLimiter
 ###############################################################################
 # 1. CONFIGURATION - EDIT THESE VALUES
 ###############################################################################
-RIOT_API_KEY = "" # https://developer.riotgames.com/
-MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com" 
-BASE_DOMAIN = "kr.api.riotgames.com"   # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
+RIOT_API_KEY = ""  # https://developer.riotgames.com/
+MATCH_REGION_BASE_URL = "https://asia.api.riotgames.com"  # e.g. "https://americas.api.riotgames.com", "https://asia.api.riotgames.com", "https://europe.api.riotgames.com"
+BASE_DOMAIN = "kr.api.riotgames.com"  # e.g. "na1.api.riotgames.com", "euw1.api.riotgames.com", etc.
 
-CHUNK_SIZE = 1000         # Every how many rows we create a NEW CSV file
-MAX_ROWS = 200000      # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
+CHUNK_SIZE = 1000  # Every how many rows we create a NEW CSV file
+MAX_ROWS = 200000  # How many total rows we want to fetch 100 for coding, 1000 for general testing, 5000 for evaluation, 100000 for final training?
 MATCH_HISTORY_COUNT = 30  # How many matches to fetch per PUUID
 
 # Replace with the PUUID you want to start from:
-INITIAL_PUUID = "14hvvyHowVYooiVld6bgC0nu611UsRjJcdY4N7DrAlVvEgxEADVNvWg-3_R2ibNDDcJVwFJ2Icj2QQ" # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
+INITIAL_PUUID = "14hvvyHowVYooiVld6bgC0nu611UsRjJcdY4N7DrAlVvEgxEADVNvWg-3_R2ibNDDcJVwFJ2Icj2QQ"  # https://developer.riotgames.com/apis#account-v1/GET_getByRiotId
 
 # Asynchronous limit to ~15 RPS (avoid console spam and hitting rate limits)
 RATE_LIMIT = AsyncLimiter(15, 1.0)
 
-HEADERS = {
-    "X-Riot-Token": RIOT_API_KEY
-}
+HEADERS = {"X-Riot-Token": RIOT_API_KEY}
 
 PLATFORM_MAP = {
-    "EUW1": "euw1.api.riotgames.com",#
+    "EUW1": "euw1.api.riotgames.com",  #
     "EUN1": "eun1.api.riotgames.com",
-    "NA1":  "na1.api.riotgames.com",
-    "KR":   "kr.api.riotgames.com",#
-    "TR1":  "tr1.api.riotgames.com",
-    "RU":   "ru.api.riotgames.com",
-    "BR1":  "br1.api.riotgames.com",
-    "LA1":  "la1.api.riotgames.com",
-    "LA2":  "la2.api.riotgames.com",
-    "OC1":  "oc1.api.riotgames.com",
+    "NA1": "na1.api.riotgames.com",
+    "KR": "kr.api.riotgames.com",  #
+    "TR1": "tr1.api.riotgames.com",
+    "RU": "ru.api.riotgames.com",
+    "BR1": "br1.api.riotgames.com",
+    "LA1": "la1.api.riotgames.com",
+    "LA2": "la2.api.riotgames.com",
+    "OC1": "oc1.api.riotgames.com",
 }
 
 ###############################################################################
 # 2. CACHE
 ###############################################################################
-match_details_cache = {}
-match_timeline_cache = {}
-#summoner_rank_cache = {}
-#champion_mastery_cache = {}
+# match_details_cache = {}
+# match_timeline_cache = {}
+# summoner_rank_cache = {}
+# champion_mastery_cache = {}
+
 
 ###############################################################################
 # 3. do_request - asynchronous HTTP request
 ###############################################################################
-async def do_request(session: ClientSession, url: str, method="GET", params=None, headers=None, retries=0, max_retries=5):
+async def do_request(
+    session: ClientSession,
+    url: str,
+    method="GET",
+    params=None,
+    headers=None,
+    retries=0,
+    max_retries=5,
+):
     """
     Asynchronous HTTP request with RPS limit (AsyncLimiter),
     handling 429 and 5xx errors.
@@ -65,28 +72,37 @@ async def do_request(session: ClientSession, url: str, method="GET", params=None
             if method == "GET":
                 resp = await session.get(url, params=params, headers=headers)
             else:
-                resp = await session.request(method, url, params=params, headers=headers)
+                resp = await session.request(
+                    method, url, params=params, headers=headers
+                )
         except Exception as e:
             print(f"[WARN] Exception {e} (URL: {url}) - retrying in 2s...")
             await asyncio.sleep(2)
-            return await do_request(session, url, method, params, headers, retries=retries+1)
+            return await do_request(
+                session, url, method, params, headers, retries=retries + 1
+            )
 
     if resp.status == 200:
         return resp
     elif resp.status == 429:
         retry_after = int(resp.headers.get("Retry-After", 1))
-        #print(f"[429] Rate limit reached. Waiting {retry_after}s (URL: {url})")
-        print(f"[429] Rate limit reached.)")
+        print(f"[429] Rate limit reached. Waiting {retry_after}s (URL: {url})")
+        print("[429] Rate limit reached.)")
         await asyncio.sleep(retry_after)
-        return await do_request(session, url, method, params, headers, retries=retries+1)
+        return await do_request(
+            session, url, method, params, headers, retries=retries + 1
+        )
     elif resp.status in [500, 502, 503, 504]:
-        #print(f"[{resp.status}] Server error. Waiting 5s (URL: {url})")
+        print(f"[{resp.status}] Server error. Waiting 5s (URL: {url})")
         await asyncio.sleep(5)
-        return await do_request(session, url, method, params, headers, retries=retries+1)
+        return await do_request(
+            session, url, method, params, headers, retries=retries + 1
+        )
     else:
         text = await resp.text()
-        #print(f"[{resp.status}] {text} (URL: {url})")
+        print(f"[{resp.status}] {text} (URL: {url})")
         return None
+
 
 ###############################################################################
 # 4. FUNCTIONS FOR DATA FETCHING
@@ -99,54 +115,54 @@ async def get_match_history(session, puuid, count=MATCH_HISTORY_COUNT):
         return await resp.json()
     return []
 
+
 async def get_match_details(session, match_id):
-    if match_id in match_details_cache:
-        return match_details_cache[match_id]
+    # if match_id in match_details_cache:
+    #    return match_details_cache[match_id]
 
     url = f"{MATCH_REGION_BASE_URL}/lol/match/v5/matches/{match_id}"
     resp = await do_request(session, url, "GET", headers=HEADERS)
     if resp:
         data = await resp.json()
-        match_details_cache[match_id] = data
+        # match_details_cache[match_id] = data
         return data
     return None
 
+
 async def get_match_timeline(session, match_id):
-    if match_id in match_timeline_cache:
-        return match_timeline_cache[match_id]
+    # if match_id in match_timeline_cache:
+    #    return match_timeline_cache[match_id]
 
     url = f"{MATCH_REGION_BASE_URL}/lol/match/v5/matches/{match_id}/timeline"
     resp = await do_request(session, url, "GET", headers=HEADERS)
     if resp:
         data = await resp.json()
-        match_timeline_cache[match_id] = data
+        #    match_timeline_cache[match_id] = data
         return data
     return None
+
 
 ###############################################################################
 # 6. DATA PROCESSING
 ###############################################################################
 
-def knn(info ,participants, timeInfo, puuid_pool):
+
+def knn(info, participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
-        p = part.get('puuid')
+        p = part.get("puuid")
         if p:
             puuid_pool.add(p)
 
         framePart = timeInfo.get("participants", [])
         for i in framePart:
-            if i.get("puuid") == p: 
-                pId = i.get("participantId") 
+            if i.get("puuid") == p:
+                pId = i.get("participantId")
 
         framesList = timeInfo.get("frames", [])
 
-        prevPos = {"x" : 0,
-                   "y" : 0
-                   }
-        prevPrevPos = {"x" : 0,
-                       "y" : 0
-                       }
+        prevPos = {"x": 0, "y": 0}
+        prevPrevPos = {"x": 0, "y": 0}
         check = True
 
         for frame in framesList:
@@ -155,74 +171,71 @@ def knn(info ,participants, timeInfo, puuid_pool):
             damage = partFrame.get("damageStats", [])
             champStat = partFrame.get("championStats", [])
             pos = partFrame.get("position")
-            
+
             row_data = {
-                "x" : pos.get("x"),
-                "y" : pos.get("y"),
-                "teamPosition" : part.get("teamPosition"), #2
-                "lane" : part.get("lane"), #3
-                "role" : part.get("role"), #4
-                "time" : frame.get("timestamp"),
-                "prevX" : prevPos["x"],
-                "prevY" : prevPos["y"],
-                "pprevX" : prevPrevPos["x"],
-                "pprevY" : prevPrevPos["y"],
-                "champExperience" : part.get("champExperience"),
-                "champLevel" : part.get("champLevel"),
-                "championId" : part.get("championId"),
-                "gameLength" : info.get("gameDuration"),
-                "deaths" : part.get("deaths"),
-                "itemsPurchased" : part.get("itemsPurchased"),
-                "killingSprees" : part.get("killingSprees"),
-                "kills" : part.get("kills"),
-                "visionScore" : part.get("visionScore"),
-                "jungleMinionsKilled" : partFrame.get("jungleMiniosKilled"),
-                "level" : partFrame.get("level"),
-                "minionsKilled" : partFrame.get("minionsKilled"),
-                "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-                "xp" : partFrame.get("xp"),
-                "totalDamageDone" : damage.get("totalDamageDone"),
-                "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
-                "totalDamageTaken" : damage.get("totalDamageTaken"),
-                "abilityHaste" : champStat.get("abilityHaste"),
-                "abilityPower" : champStat.get("abilityPower"),
-                "armor" : champStat.get("armor"),
-                "attackDamage" : champStat.get("attackDamage"),
-                "attackSpeed" : champStat.get("attackSpeed"),
-                "ccReduction" : champStat.get("ccReduction"),
-                "cooldownReduction" : champStat.get("cooldownReduction"),
-                "health" : champStat.get("health"),
-                "healthMax" : champStat.get("healthMax"),
-                "healthRegen" : champStat.get("healthRegen"),
-                "lifesteal" : champStat.get("lifesteal"),
-                "movementSpeed" : champStat.get("movementSpeed"),
-                "power" : champStat.get("power"),
-                "powerMax" : champStat.get("powerMax"),
+                "x": pos.get("x"),
+                "y": pos.get("y"),
+                "teamPosition": part.get("teamPosition"),  # 2
+                "lane": part.get("lane"),  # 3
+                "role": part.get("role"),  # 4
+                "time": frame.get("timestamp"),
+                "prevX": prevPos["x"],
+                "prevY": prevPos["y"],
+                "pprevX": prevPrevPos["x"],
+                "pprevY": prevPrevPos["y"],
+                "champExperience": part.get("champExperience"),
+                "champLevel": part.get("champLevel"),
+                "championId": part.get("championId"),
+                "gameLength": info.get("gameDuration"),
+                "deaths": part.get("deaths"),
+                "itemsPurchased": part.get("itemsPurchased"),
+                "killingSprees": part.get("killingSprees"),
+                "kills": part.get("kills"),
+                "visionScore": part.get("visionScore"),
+                "jungleMinionsKilled": partFrame.get("jungleMiniosKilled"),
+                "level": partFrame.get("level"),
+                "minionsKilled": partFrame.get("minionsKilled"),
+                "timeEnemySpentControlled": partFrame.get("timeEnemySpentControlled"),
+                "xp": partFrame.get("xp"),
+                "totalDamageDone": damage.get("totalDamageDone"),
+                "totalDamageDoneToChampions": damage.get("totalDamageDoneToChampions"),
+                "totalDamageTaken": damage.get("totalDamageTaken"),
+                "abilityHaste": champStat.get("abilityHaste"),
+                "abilityPower": champStat.get("abilityPower"),
+                "armor": champStat.get("armor"),
+                "attackDamage": champStat.get("attackDamage"),
+                "attackSpeed": champStat.get("attackSpeed"),
+                "ccReduction": champStat.get("ccReduction"),
+                "cooldownReduction": champStat.get("cooldownReduction"),
+                "health": champStat.get("health"),
+                "healthMax": champStat.get("healthMax"),
+                "healthRegen": champStat.get("healthRegen"),
+                "lifesteal": champStat.get("lifesteal"),
+                "movementSpeed": champStat.get("movementSpeed"),
+                "power": champStat.get("power"),
+                "powerMax": champStat.get("powerMax"),
             }
 
-            #prev positions
+            # prev positions
             if check:
-                #first frame
+                # first frame
                 prevPos["x"] = pos.get("x")
                 prevPos["y"] = pos.get("y")
                 check = False
             else:
-                #all other frames
+                # all other frames
                 prevPrevPos["x"] = prevPos["x"]
                 prevPrevPos["y"] = prevPos["y"]
                 prevPos["x"] = pos.get("x")
                 prevPos["y"] = pos.get("y")
 
-            #append other player positions
+            # append other player positions
             c = 1
             for p in partFrames:
                 pFrame = partFrames.get(str(p))
                 if pFrame.get("participantId") != pId:
                     pos = pFrame.get("position")
-                    otherData = {
-                        "x"+str(c) : pos.get("x"),
-                        "y"+str(c) : pos.get("y")
-                    }
+                    otherData = {"x" + str(c): pos.get("x"), "y" + str(c): pos.get("y")}
                     row_data.update(otherData)
                     c = c + 1
                     if c == 10:
@@ -234,7 +247,7 @@ def knn(info ,participants, timeInfo, puuid_pool):
 
 def rf_champion(info, participants, timeInfo, puuid_pool):
     rows = []
-    
+
     for part in participants:
         p = part.get("puuid")
         if p:
@@ -242,70 +255,72 @@ def rf_champion(info, participants, timeInfo, puuid_pool):
 
         framePart = timeInfo.get("participants", [])
         for i in framePart:
-            if i.get("puuid") == p: 
-                pId = i.get("participantId") 
+            if i.get("puuid") == p:
+                pId = i.get("participantId")
 
         framesList = timeInfo.get("frames", [])
-        frame = framesList[-1] #last frame   
+        frame = framesList[-1]  # last frame
         partFrames = frame.get("participantFrames", [])
         partFrame = partFrames.get(str(pId))
         champStat = partFrame.get("championStats", [])
         damage = partFrame.get("damageStats", [])
 
         row_data = {
-            "championId" : part.get("championId"),
-            "teamPosition" : part.get("teamPosition"),#1
-            "role" : part.get("role"), #2
-            "lane" : part.get("lane"), #3
-            "damageDealtToBuildings" : part.get("damageDealtToBuildings"),
-            "damageDealtToObjectives" : part.get("damageDealtToObjectives"),
-            "damageDealtToTurrets" : part.get("damageDealtToTurrets"),
-            "damageSelfMitigated" : part.get("damageSelfMitigated"),
-            "deaths" : part.get("deaths"),
-            "inhibitorTakedowns" : part.get("inhibitorTakedowns"),
-            "inhibitorsLost" : part.get("inhibitorsLost"),
-            "itemsPurchased" : part.get("itemsPurchased"),
-            "killingSprees" : part.get("killingSprees"),
-            "kills" : part.get("kills"),
-            "totalHeal" : part.get("totalHeal"),
-            "totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
-            "visionScore" : part.get("visionScore"),
-            "currentGold" : partFrame.get("currentGold"),
-            "goldPerSecond" : partFrame.get("goldPerSecond"),
-            "level" : partFrame.get("level"),
-            "minionsKilled" : partFrame.get("minionsKilled"),
-            "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-            "totalGold" : partFrame.get("totalGold"),
-            "xp" : partFrame.get("xp"),
-            "magicDamageDone" : damage.get("magicDamageDone"),
-            "magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
-            "magicDamageTaken" : damage.get("magicDamageTaken"),
-            "physicalDamageDone" : damage.get("physicalDamageDone"),
-            "physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
-            "physicalDamageTaken" : damage.get("physicalDamageTaken"),
-            "totalDamageDone" : damage.get("totalDamageDone"),
-            "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
-            "totalDamageTaken" : damage.get("totalDamageTaken"),
-            "trueDamageDone" : damage.get("trueDamageDone"),
-            "trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
-            "trueDamageTaken" : damage.get("trueDamageTaken"),
-            "abilityPower" : champStat.get("abilityPower"),
-            "armor" : champStat.get("armor"),
-            "armorPenPercent" : champStat.get("armorPenPercent"),
-            "attackDamage" : champStat.get("attackDamage"),
-            "attackSpeed" : champStat.get("attackSpeed"),
-            "ccReduction" : champStat.get("ccReduction"),
-            "health" : champStat.get("health"),
-            "healthMax" : champStat.get("healthMax"),
-            "healthRegen" : champStat.get("healthRegen"),
-            "lifesteal" : champStat.get("lifesteal"),
-            "magicPen" : champStat.get("magicPen"),
-            "magicPenPercent" : champStat.get("magicPenPercent"),
-            "magicResist" : champStat.get("magicResist"),
-            "movementSpeed" : champStat.get("movementSpeed"),
-            "omnivamp" : champStat.get("omnivamp"),
-            "power" : champStat.get("power"),
-            "powerMax" : champStat.get("powerMax"),
+            "championId": part.get("championId"),
+            "teamPosition": part.get("teamPosition"),  # 1
+            "role": part.get("role"),  # 2
+            "lane": part.get("lane"),  # 3
+            "damageDealtToBuildings": part.get("damageDealtToBuildings"),
+            "damageDealtToObjectives": part.get("damageDealtToObjectives"),
+            "damageDealtToTurrets": part.get("damageDealtToTurrets"),
+            "damageSelfMitigated": part.get("damageSelfMitigated"),
+            "deaths": part.get("deaths"),
+            "inhibitorTakedowns": part.get("inhibitorTakedowns"),
+            "inhibitorsLost": part.get("inhibitorsLost"),
+            "itemsPurchased": part.get("itemsPurchased"),
+            "killingSprees": part.get("killingSprees"),
+            "kills": part.get("kills"),
+            "totalHeal": part.get("totalHeal"),
+            "totalHealsOnTeammates": part.get("totalHealsOnTeammates"),
+            "visionScore": part.get("visionScore"),
+            "currentGold": partFrame.get("currentGold"),
+            "goldPerSecond": partFrame.get("goldPerSecond"),
+            "level": partFrame.get("level"),
+            "minionsKilled": partFrame.get("minionsKilled"),
+            "timeEnemySpentControlled": partFrame.get("timeEnemySpentControlled"),
+            "totalGold": partFrame.get("totalGold"),
+            "xp": partFrame.get("xp"),
+            "magicDamageDone": damage.get("magicDamageDone"),
+            "magicDamageDoneToChampions": damage.get("magicDamageDoneToChampions"),
+            "magicDamageTaken": damage.get("magicDamageTaken"),
+            "physicalDamageDone": damage.get("physicalDamageDone"),
+            "physicalDamageDoneToChampions": damage.get(
+                "physicalDamageDoneToChampions"
+            ),
+            "physicalDamageTaken": damage.get("physicalDamageTaken"),
+            "totalDamageDone": damage.get("totalDamageDone"),
+            "totalDamageDoneToChampions": damage.get("totalDamageDoneToChampions"),
+            "totalDamageTaken": damage.get("totalDamageTaken"),
+            "trueDamageDone": damage.get("trueDamageDone"),
+            "trueDamageDoneToChampions": damage.get("trueDamageDoneToChampions"),
+            "trueDamageTaken": damage.get("trueDamageTaken"),
+            "abilityPower": champStat.get("abilityPower"),
+            "armor": champStat.get("armor"),
+            "armorPenPercent": champStat.get("armorPenPercent"),
+            "attackDamage": champStat.get("attackDamage"),
+            "attackSpeed": champStat.get("attackSpeed"),
+            "ccReduction": champStat.get("ccReduction"),
+            "health": champStat.get("health"),
+            "healthMax": champStat.get("healthMax"),
+            "healthRegen": champStat.get("healthRegen"),
+            "lifesteal": champStat.get("lifesteal"),
+            "magicPen": champStat.get("magicPen"),
+            "magicPenPercent": champStat.get("magicPenPercent"),
+            "magicResist": champStat.get("magicResist"),
+            "movementSpeed": champStat.get("movementSpeed"),
+            "omnivamp": champStat.get("omnivamp"),
+            "power": champStat.get("power"),
+            "powerMax": champStat.get("powerMax"),
         }
 
         rows.append(row_data)
@@ -316,14 +331,14 @@ def rf_champion(info, participants, timeInfo, puuid_pool):
 def rf_item(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
-        p = part.get('puuid')
+        p = part.get("puuid")
         if p:
             puuid_pool.add(p)
 
         framePart = timeInfo.get("participants", [])
         for i in framePart:
-            if i.get("puuid") == p: 
-                pId = i.get("participantId") 
+            if i.get("puuid") == p:
+                pId = i.get("participantId")
 
         framesList = timeInfo.get("frames", [])
 
@@ -336,71 +351,81 @@ def rf_item(participants, timeInfo, puuid_pool):
 
             eventList = frame.get("events", [])
             for e in eventList:
-                if e.get("type") == "ITEM_PURCHASED" and e.get("participantId") == pId:                    
+                if e.get("type") == "ITEM_PURCHASED" and e.get("participantId") == pId:
                     row_data = {
-                        "itemId" : e.get("itemId"),
-                        "timestamp" : e.get("timestamp"),
-                        "lane" : part.get("lane"),#2
-                        "champExperience" : part.get("champExperience"),
-                        "champLevel" : part.get("champLevel"),
-                        "championId" : part.get("championId"),
-                        "currentGold" : partFrame.get("currentGold"),
-                        "level" : partFrame.get("level"),
-                        "minionsKilled" : partFrame.get("minionsKilled"),
-                        "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-                        "totalGold" : partFrame.get("totalGold"),
-                        "xp" : partFrame.get("xp"),
-                        "x" : pos.get("x"),
-                        "y" : pos.get("y"),
-                        "magicDamageDone" : damage.get("magicDamageDone"),
-                        "magicDamageDoneToChampions" : damage.get("magicDamageDoneToChampions"),
-                        "magicDamageTaken" : damage.get("magicDamageTaken"),
-                        "physicalDamageDone" : damage.get("physicalDamageDone"),
-                        "physicalDamageDoneToChampions" : damage.get("physicalDamageDoneToChampions"),
-                        "physicalDamageTaken" : damage.get("physicalDamageTaken"),
-                        "totalDamageDone" : damage.get("totalDamageDone"),
-                        "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
-                        "totalDamageTaken" : damage.get("totalDamageTaken"),
-                        "trueDamageDone" : damage.get("trueDamageDone"),
-                        "trueDamageDoneToChampions" : damage.get("trueDamageDoneToChampions"),
-                        "trueDamageTaken" : damage.get("trueDamageTaken"),
-                        "abilityPower" : champStat.get("abilityPower"),
-                        "armor" : champStat.get("armor"),
-                        "armorPenPercent" : champStat.get("armorPenPercent"),
-                        "attackDamage" : champStat.get("attackDamage"),
-                        "attackSpeed" : champStat.get("attackSpeed"),
-                        "ccReduction" : champStat.get("ccReduction"),
-                        "health" : champStat.get("health"),
-                        "healthMax" : champStat.get("healthMax"),
-                        "healthRegen" : champStat.get("healthRegen"),
-                        "lifesteal" : champStat.get("lifesteal"),
-                        "magicPen" : champStat.get("magicPen"),
-                        "magicPenPercent" : champStat.get("magicPenPercent"),
-                        "magicResist" : champStat.get("magicResist"),
-                        "movementSpeed" : champStat.get("movementSpeed"),
-                        "omnivamp" : champStat.get("omnivamp"),
-                        "power" : champStat.get("power"),
-                        "powerMax" : champStat.get("powerMax"),
+                        "itemId": e.get("itemId"),
+                        "timestamp": e.get("timestamp"),
+                        "lane": part.get("lane"),  # 2
+                        "champExperience": part.get("champExperience"),
+                        "champLevel": part.get("champLevel"),
+                        "championId": part.get("championId"),
+                        "currentGold": partFrame.get("currentGold"),
+                        "level": partFrame.get("level"),
+                        "minionsKilled": partFrame.get("minionsKilled"),
+                        "timeEnemySpentControlled": partFrame.get(
+                            "timeEnemySpentControlled"
+                        ),
+                        "totalGold": partFrame.get("totalGold"),
+                        "xp": partFrame.get("xp"),
+                        "x": pos.get("x"),
+                        "y": pos.get("y"),
+                        "magicDamageDone": damage.get("magicDamageDone"),
+                        "magicDamageDoneToChampions": damage.get(
+                            "magicDamageDoneToChampions"
+                        ),
+                        "magicDamageTaken": damage.get("magicDamageTaken"),
+                        "physicalDamageDone": damage.get("physicalDamageDone"),
+                        "physicalDamageDoneToChampions": damage.get(
+                            "physicalDamageDoneToChampions"
+                        ),
+                        "physicalDamageTaken": damage.get("physicalDamageTaken"),
+                        "totalDamageDone": damage.get("totalDamageDone"),
+                        "totalDamageDoneToChampions": damage.get(
+                            "totalDamageDoneToChampions"
+                        ),
+                        "totalDamageTaken": damage.get("totalDamageTaken"),
+                        "trueDamageDone": damage.get("trueDamageDone"),
+                        "trueDamageDoneToChampions": damage.get(
+                            "trueDamageDoneToChampions"
+                        ),
+                        "trueDamageTaken": damage.get("trueDamageTaken"),
+                        "abilityPower": champStat.get("abilityPower"),
+                        "armor": champStat.get("armor"),
+                        "armorPenPercent": champStat.get("armorPenPercent"),
+                        "attackDamage": champStat.get("attackDamage"),
+                        "attackSpeed": champStat.get("attackSpeed"),
+                        "ccReduction": champStat.get("ccReduction"),
+                        "health": champStat.get("health"),
+                        "healthMax": champStat.get("healthMax"),
+                        "healthRegen": champStat.get("healthRegen"),
+                        "lifesteal": champStat.get("lifesteal"),
+                        "magicPen": champStat.get("magicPen"),
+                        "magicPenPercent": champStat.get("magicPenPercent"),
+                        "magicResist": champStat.get("magicResist"),
+                        "movementSpeed": champStat.get("movementSpeed"),
+                        "omnivamp": champStat.get("omnivamp"),
+                        "power": champStat.get("power"),
+                        "powerMax": champStat.get("powerMax"),
                     }
                     rows.append(row_data)
-            
+
     return rows
 
 
 def rf_skill(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
-        p = part.get('puuid')
+        p = part.get("puuid")
         if p:
             puuid_pool.add(p)
 
         framePart = timeInfo.get("participants", [])
         for i in framePart:
-            if i.get("puuid") == p: 
-                pId = i.get("participantId") 
+            if i.get("puuid") == p:
+                pId = i.get("participantId")
 
         framesList = timeInfo.get("frames", [])
-        
+
         for frame in framesList:
             partFrames = frame.get("participantFrames", [])
             partFrame = partFrames.get(str(pId))
@@ -411,69 +436,74 @@ def rf_skill(participants, timeInfo, puuid_pool):
 
             eventList = frame.get("events", [])
             for e in eventList:
-                if e.get("type") == "SKILL_LEVEL_UP" and e.get("participantId") == pId: 
+                if e.get("type") == "SKILL_LEVEL_UP" and e.get("participantId") == pId:
                     row_data = {
-                        "skillSlot" : e.get("skillSlot"),
-                        "levelUpType" : e.get("levelUpType"),
-                        "championId" : part.get("championId"),
-                        "damageSelfMitigated" : part.get("damageSelfMitigated"),
-                        "deaths" : part.get("deaths"),
-                        "kills" : part.get("kills"),
-                        "totalHeal" : part.get("totalHeal"),
-                        "level" : partFrame.get("level"),
-                        "timeEnemySpentControlled" : partFrame.get("timeEnemySpentControlled"),
-                        "totalGold" : partFrame.get("totalGold"),
-                        "xp" : partFrame.get("xp"),
-                        "x" : pos.get("x"),
-                        "y" : pos.get("y"),
-                        "magicDamageDone" : damage.get("magicDamageDone"),
-                        "physicalDamageDone" : damage.get("physicalDamageDone"),
-                        "totalDamageDone" : damage.get("totalDamageDone"),
-                        "totalDamageDoneToChampions" : damage.get("totalDamageDoneToChampions"),
-                        "totalDamageTaken" : damage.get("totalDamageTaken"),
-                        "armor" : champStat.get("armor"),
-                        "attackDamage" : champStat.get("attackDamage"),
-                        "attackSpeed" : champStat.get("attackSpeed"),
-                        "health" : champStat.get("health"),
-                        "healthMax" : champStat.get("healthMax"),
-                        "movementSpeed" : champStat.get("movementSpeed"),
-                        "power" : champStat.get("power"),
-                        "powerMax" : champStat.get("powerMax"),
+                        "skillSlot": e.get("skillSlot"),
+                        "levelUpType": e.get("levelUpType"),
+                        "championId": part.get("championId"),
+                        "damageSelfMitigated": part.get("damageSelfMitigated"),
+                        "deaths": part.get("deaths"),
+                        "kills": part.get("kills"),
+                        "totalHeal": part.get("totalHeal"),
+                        "level": partFrame.get("level"),
+                        "timeEnemySpentControlled": partFrame.get(
+                            "timeEnemySpentControlled"
+                        ),
+                        "totalGold": partFrame.get("totalGold"),
+                        "xp": partFrame.get("xp"),
+                        "x": pos.get("x"),
+                        "y": pos.get("y"),
+                        "magicDamageDone": damage.get("magicDamageDone"),
+                        "physicalDamageDone": damage.get("physicalDamageDone"),
+                        "totalDamageDone": damage.get("totalDamageDone"),
+                        "totalDamageDoneToChampions": damage.get(
+                            "totalDamageDoneToChampions"
+                        ),
+                        "totalDamageTaken": damage.get("totalDamageTaken"),
+                        "armor": champStat.get("armor"),
+                        "attackDamage": champStat.get("attackDamage"),
+                        "attackSpeed": champStat.get("attackSpeed"),
+                        "health": champStat.get("health"),
+                        "healthMax": champStat.get("healthMax"),
+                        "movementSpeed": champStat.get("movementSpeed"),
+                        "power": champStat.get("power"),
+                        "powerMax": champStat.get("powerMax"),
                     }
                     rows.append(row_data)
-        
+
     return rows
 
-#teamPosition sometimes turns up empty, this is unusable for training
-#need to add edge case resolution somewhere
+
+# teamPosition sometimes turns up empty, this is unusable for training
+# need to add edge case resolution somewhere
 def rf_role(participants, timeInfo, puuid_pool):
     rows = []
     for part in participants:
-        p = part.get('puuid')
+        p = part.get("puuid")
         if p:
             puuid_pool.add(p)
 
         framePart = timeInfo.get("participants", [])
         for i in framePart:
-            if i.get("puuid") == p: 
-                pId = i.get("participantId") 
+            if i.get("puuid") == p:
+                pId = i.get("participantId")
 
         framesList = timeInfo.get("frames", [])
 
-        #gives first and last frame
-        #ending and starting stats
-        frame = framesList[0]    
+        # gives first and last frame
+        # ending and starting stats
+        frame = framesList[0]
         partFrames = frame.get("participantFrames", [])
         partFrame = partFrames.get(str(pId))
         champStat = partFrame.get("championStats", [])
-            
+
         start_movementSpeed = champStat.get("movementSpeed")
         start_health = champStat.get("health")
         start_healthMax = champStat.get("healthMax")
         start_healthRegen = champStat.get("healthRegen")
         start_armor = champStat.get("armor")
-                
-        frame=framesList[len(framesList)-1]
+
+        frame = framesList[len(framesList) - 1]
         partFrames = frame.get("participantFrames", [])
         partFrame = partFrames.get(str(pId))
         champStat = partFrame.get("championStats", [])
@@ -483,32 +513,32 @@ def rf_role(participants, timeInfo, puuid_pool):
         end_healthMax = champStat.get("healthMax")
         end_healthRegen = champStat.get("healthRegen")
         end_armor = champStat.get("armor")
-        
+
         row_data = {
-            "teamPosition" : part.get("teamPosition"),
-            "lane" : part.get("lane"),
-            "championId" : part.get("championId"),
-            "kills" : part.get("kills"),
-            "physicalDamageDealt" : part.get("physicalDamageDealt"),
-            "totalDamagedealt" : part.get("totalDamageDealt"),
-            "magicDamageDealt" : part.get("magicDamageDealt"),
-            "totalHeal" : part.get("totalHeal"),
-            "totalEnemyJungleMinionsKilled" : part.get("totalEnemyJungleMinionsKilled"),
-            "totalHealsOnTeammates" : part.get("totalHealsOnTeammates"),
-            "totalUnitsHealed" : part.get("totalUnitsHealed"),
-            "wardsKilled" : part.get("wardsKilled"),
-            "wardsPlaced" : part.get("wardsPlaced"),
-            "detectorWardsPlaced" : part.get("detectorWardsPlaced"),
-            "start_movementSpeed" : start_movementSpeed,
-            "start_health" : start_health,
-            "start_healthMax" : start_healthMax,
-            "start_healthRegen" : start_healthRegen,
-            "start_armor" : start_armor,
-            "end_movementSpeed" : end_movementSpeed,
-            "end_health" : end_health,
-            "end_healthMax" : end_healthMax,
-            "end_healthRegen" : end_healthRegen,
-            "end_armor" : end_armor,
+            "teamPosition": part.get("teamPosition"),
+            "lane": part.get("lane"),
+            "championId": part.get("championId"),
+            "kills": part.get("kills"),
+            "physicalDamageDealt": part.get("physicalDamageDealt"),
+            "totalDamagedealt": part.get("totalDamageDealt"),
+            "magicDamageDealt": part.get("magicDamageDealt"),
+            "totalHeal": part.get("totalHeal"),
+            "totalEnemyJungleMinionsKilled": part.get("totalEnemyJungleMinionsKilled"),
+            "totalHealsOnTeammates": part.get("totalHealsOnTeammates"),
+            "totalUnitsHealed": part.get("totalUnitsHealed"),
+            "wardsKilled": part.get("wardsKilled"),
+            "wardsPlaced": part.get("wardsPlaced"),
+            "detectorWardsPlaced": part.get("detectorWardsPlaced"),
+            "start_movementSpeed": start_movementSpeed,
+            "start_health": start_health,
+            "start_healthMax": start_healthMax,
+            "start_healthRegen": start_healthRegen,
+            "start_armor": start_armor,
+            "end_movementSpeed": end_movementSpeed,
+            "end_health": end_health,
+            "end_healthMax": end_healthMax,
+            "end_healthRegen": end_healthRegen,
+            "end_armor": end_armor,
         }
         rows.append(row_data)
     return rows
@@ -522,14 +552,15 @@ async def process_match_data(session, match_data, timeline_data, puuid_pool):
     participants = info.get("participants", [])
     timeInfo = timeline_data["info"]
 
-    #different data set collections
+    # different data set collections
     rows = knn(info, participants, timeInfo, puuid_pool)
-    #rows = rf_champion(info, participants, timeInfo, puuid_pool)
-    #rows = rf_item(participants, timeInfo, puuid_pool)
-    #rows = rf_skill(participants, timeInfo, puuid_pool)
-    #rows = rf_role(participants, timeInfo, puuid_pool)
+    # rows = rf_champion(info, participants, timeInfo, puuid_pool)
+    # rows = rf_item(participants, timeInfo, puuid_pool)
+    # rows = rf_skill(participants, timeInfo, puuid_pool)
+    # rows = rf_role(participants, timeInfo, puuid_pool)
 
     return rows
+
 
 ###############################################################################
 # 7. SAVING IN CHUNKS AND REMOVING THE PREVIOUS FILE
@@ -560,6 +591,7 @@ def save_chunk_to_csv(all_data, total_rows):
             os.remove(prev_filename)
             print(f"Removed previous file: {prev_filename}")
 
+
 ###############################################################################
 # 8. MAIN FUNCTION
 ###############################################################################
@@ -575,25 +607,31 @@ async def main():
         while total_rows < MAX_ROWS and puuid_pool:
             current_puuid = puuid_pool.pop()
             print(f"[INFO] Fetching match history for PUUID: {current_puuid}")
-            match_ids = await get_match_history(session, current_puuid, count=MATCH_HISTORY_COUNT)
+            match_ids = await get_match_history(
+                session, current_puuid, count=MATCH_HISTORY_COUNT
+            )
 
             if not match_ids:
-                print(f"[WARN] No match_ids for {current_puuid} or error while fetching.")
+                print(
+                    f"[WARN] No match_ids for {current_puuid} or error while fetching."
+                )
                 continue
 
             for match_id in match_ids:
                 if match_id in processed_matches:
                     continue
 
-                #print(f"[INFO] -> Match details {match_id}")
+                # print(f"[INFO] -> Match details {match_id}")
                 match_details = await get_match_details(session, match_id)
                 if match_details:
                     processed_matches.add(match_id)
 
-                    #print(f"[INFO] -> Match timeline {match_id}")
+                    # print(f"[INFO] -> Match timeline {match_id}")
                     timeline = await get_match_timeline(session, match_id)
 
-                    new_rows = await process_match_data(session, match_details, timeline, puuid_pool)
+                    new_rows = await process_match_data(
+                        session, match_details, timeline, puuid_pool
+                    )
                     for row in new_rows:
                         all_data.append(row)
                         total_rows += 1
@@ -602,7 +640,7 @@ async def main():
                         if total_rows % 50 == 0:
                             print(f"Processed a total of {total_rows} rows.")
 
-                        #print(f"Processed a total of {total_rows} rows.")
+                        # print(f"Processed a total of {total_rows} rows.")
 
                         if rows_since_last_save >= CHUNK_SIZE:
                             save_chunk_to_csv(all_data, total_rows)
@@ -622,10 +660,9 @@ async def main():
     print("[DONE] Data collection complete.")
     print(f"Collected a total of {total_rows} rows.")
 
+
 ###############################################################################
 # 9. START
 ###############################################################################
 if __name__ == "__main__":
     asyncio.run(main())
-
-    

@@ -1,6 +1,5 @@
-import backend.app.pred_engine.Data_Converter.src.MatchInfoObjects as MatchInfoObjects
-from MatchInfoObjects import MatchTimeObj
-from MatchInfoObjects import MatchDataObj
+from MatchInfoObjects import MatchTimeObj  # type: ignore
+from MatchInfoObjects import MatchDataObj  # type: ignore
 
 # Get data from api
 tempMatch = MatchDataObj
@@ -75,7 +74,7 @@ def profile_data(puuid):
             info.append(i.playerScore10)
             info.append(i.playerScore11)
             info.append(i.pentakills)
-            info.append*(i.quadrakills)
+            info.append * (i.quadrakills)
             info.append(i.timePlayed)
             info.append(i.tripleKills)
             info.append(i.unrealKills)
@@ -120,7 +119,7 @@ def match_data():
     return info
 
 
-#def match_rec_data():
+# def match_rec_data():
 #    # data that goes into RF to get gameplay tips
 #    #match data + additions
 #    info = match_data()
