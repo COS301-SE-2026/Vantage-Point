@@ -618,4 +618,16 @@ class TestAdminServicePost:
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
+@pytest.mark.anyio
+class testAdminDelete:
+    
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_remove_user_from_group")
+    async def test_get_user_success(mock_admin_remove_user_from_group: MagicMock):
+        mock_admin_remove_user_from_group.return_value = {}
+
+        response = await admin_service.remove_user_from_group("swdfcs")
+
+        assert response.success is True
+        assert response.message == "Removed swdfcs from Users"   
     
