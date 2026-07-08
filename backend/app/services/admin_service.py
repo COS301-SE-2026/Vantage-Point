@@ -53,8 +53,7 @@ class admin_service:
                 raise HTTPException(status_code=404, detail="User not found.")
             if error_code == "InvalidParameterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
-            print(e.response)
-            raise
+            raise HTTPException(status_code=400, detail=error_code)
         #    raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod

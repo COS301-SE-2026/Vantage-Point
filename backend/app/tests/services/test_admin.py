@@ -186,3 +186,27 @@ class TestAdminGet:
 
         assert exec.value.status_code == 404
         assert exec.value.detail == "User not found"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.list_users")
+    async def get_users_invalid_parameter(mock_admin_get_users: MagicMock):
+        mock_admin_get_users.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InvalidParamaterException",
+                    "Message": "Invalid Username"
+                }
+            },
+            "user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.get_users()
+
+        assert exec.value.status_code == 422
+        assert exec.value.detail == "Invalid username"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.list_users")
+    async def get_users_unknown_error(mock_admin_get_users: MagicMock):
+    
