@@ -209,4 +209,18 @@ class TestAdminGet:
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
     async def get_users_unknown_error(mock_admin_get_users: MagicMock):
-    
+        mock_admin_get_users.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.get_users()
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
