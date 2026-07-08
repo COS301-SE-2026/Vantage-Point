@@ -84,7 +84,7 @@ class admin_test_get:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
-    async def get_user_not_found_exception1(mock_admin_get_user: MagicMock):
+    async def get_user_invalid_paramater(mock_admin_get_user: MagicMock):
         mock_admin_get_user.side_effect = ClientError(
             {
                 "Error": {
@@ -100,3 +100,22 @@ class admin_test_get:
 
         assert exec.value.status_code == 422
         assert exec.value.detail == "Invalid username"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_get_user")
+    async def get_user_unknown_error(mock_admin_get_user: MagicMock):
+        mock_admin_get_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.get_user("shaun")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
