@@ -22,8 +22,8 @@ settings = get_settings()
 class TestAdminGet:
     
     @staticmethod
-    @patch("app.services.admin_service.client.admin_get_user",)
-    async def get_user_success(mock_admin_get_user: MagicMock):      
+    @patch("app.services.admin_service.client.admin_get_user")
+    async def test_get_user_success(mock_admin_get_user: MagicMock):      
         mock_admin_get_user.return_value = {
             "Username": "shaun",
             "UserAttributes": [
@@ -65,7 +65,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
-    async def get_user_not_found_exception(mock_admin_get_user: MagicMock):
+    async def test_get_user_not_found_exception(mock_admin_get_user: MagicMock):
         mock_admin_get_user.side_effect = ClientError(
             {
                 "Error": {
@@ -84,7 +84,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
-    async def get_user_invalid_paramater(mock_admin_get_user: MagicMock):
+    async def test_get_user_invalid_paramater(mock_admin_get_user: MagicMock):
         mock_admin_get_user.side_effect = ClientError(
             {
                 "Error": {
@@ -103,7 +103,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
-    async def get_user_unknown_error(mock_admin_get_user: MagicMock):
+    async def test_get_user_unknown_error(mock_admin_get_user: MagicMock):
         mock_admin_get_user.side_effect = ClientError(
             {
                 "Error": {
@@ -124,7 +124,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
-    async def get_users_success(mock_admin_get_users: MagicMock):
+    async def test_get_users_success(mock_admin_get_users: MagicMock):
         mock_admin_get_users.return_value = {
             "Users": [
                 {
@@ -170,7 +170,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
-    async def get_users_user_not_found(mock_admin_get_users: MagicMock):
+    async def test_get_users_user_not_found(mock_admin_get_users: MagicMock):
         mock_admin_get_users.side_effect = ClientError(
             {
                 "Error": {
@@ -189,7 +189,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
-    async def get_users_invalid_parameter(mock_admin_get_users: MagicMock):
+    async def test_get_users_invalid_parameter(mock_admin_get_users: MagicMock):
         mock_admin_get_users.side_effect = ClientError(
             {
                 "Error": {
@@ -208,7 +208,7 @@ class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
-    async def get_users_unknown_error(mock_admin_get_users: MagicMock):
+    async def test_get_users_unknown_error(mock_admin_get_users: MagicMock):
         mock_admin_get_users.side_effect = ClientError(
             {
                 "Error": {
@@ -224,3 +224,23 @@ class TestAdminGet:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+#implementing unit testing for all post requests in admin_service
+@pytest.mark.anyio
+class TestAdminServicePost:
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_add_user_to_group")
+    async def test_add_user_to_group_success(mock_admin_add_user_to_group: MagicMock):
+        mock_admin_add_user_to_group.return_value = {}
+
+        response = await admin_service.add_user_to_group("swdfcs")
+
+        assert response.success is True
+        assert response.message == "Added swdfcs to Users"
+
+        mock_admin_add_user_to_group.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="swdfcs",
+            GroupName="Users",
+        )
