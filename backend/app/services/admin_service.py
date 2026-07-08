@@ -288,9 +288,6 @@ class admin_service:
             if profile is not None:
                 raise HTTPException(status_code=400, detail="USer already exist")
 
-            created_at = attrs.get("UserCreateDate")
-            updated_at = attrs.get("UserLastModifiedDate")
-
             profile = Users(
                 cognito_sub=attrs.get("sub", ""),
                 email=email,
