@@ -300,7 +300,7 @@ class TestAdminServicePost:
             await admin_service.add_user_to_group("shaun")
         
         assert exec.value.status_code == 400
-        assert exec.value.status_code == "InternalErrorException"
+        assert exec.value.detail == "InternalErrorException"
 
     #set_password
 
@@ -320,3 +320,22 @@ class TestAdminServicePost:
             Password="Test@Password123",
             Permanent=True
         )
+
+     @staticmethod
+    @patch("app.services.admin_service.client.admin_set_user_password")
+    async def test_set_user_password_user_not_found(mock_admin_set_password: MagicMock):
+        mock_admin_set_password.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "UserNotFoundException",
+                    "Message": "User not found."
+                }
+            },
+            "set_password"
+            )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.set_password("swdfcs", "Test@Password123")
+
+        assert exec.value.status_code == 403
+        assert exec.value.detail ==  "User not found."
