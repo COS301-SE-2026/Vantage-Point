@@ -79,7 +79,7 @@ def profile_data(puuid):
 
 def map_suggest_data(puuid):
     # this goes into overlay suggestion generation KNN model
-    info = map_replay()
+    info = map_replay(puuid)
     info.append(temp_match.info.endOfGameResult)
     for i in temp_match.info.participants:
         if i.puuid == puuid:

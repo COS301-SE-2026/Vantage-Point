@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler  # type: ignore
 
 file_error_text = "Training file not found"
 
+
 # needs to be changed still
 def get_from_api():
     # change to get from api later
@@ -94,15 +95,16 @@ def format_data_univar(data, pos, role, lane):
 
     return data_arr, y
 
+
 def remove_dup(row, prev_row, r):
     # if feature values are identical, take random row
-        if r != 0 and row[1:] == prev_row[1:]:
-            num = int(random.random())
-            if num == 1:  # take row
-                return True
-        else:
-            return False
-    
+    if r != 0 and row[1:] == prev_row[1:]:
+        num = int(random.random())
+        if num == 1:  # take row
+            return True
+    else:
+        return False
+
 
 def format_data_multivar(data, pos, role, lane):
     r = -1
@@ -124,7 +126,7 @@ def format_data_multivar(data, pos, role, lane):
         else:
             data_arr.append([])
             y.append([])
-        
+
         c = 0
         for i in row:
             if c == 0 or c == 1:

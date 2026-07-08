@@ -13,6 +13,7 @@ warnings.filterwarnings("ignore")
 file_error_text = "Training file not found"
 data_error_text = "Error in Converter_Main.py, returning empty datasets"
 
+
 def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
     param_grid = {
         "n_estimators": [100, 200],
@@ -67,13 +68,14 @@ def gini_importance(rf, file_name, run_cat, y_val):
         data = csv.reader(f)
         feature_names = []
 
-        for i in data[0]:
-            if i == y_val:
-                continue
-            if run_cat == "skill" | run_cat == "role":
-                if i == "levelUpType" | i == "lane":
+        for row in data:
+            for i in row:
+                if i == y_val:
                     continue
-            feature_names.append(i)
+                if run_cat == "skill" | run_cat == "role":
+                    if i == "levelUpType" | i == "lane":
+                        continue
+                feature_names.append(i)
 
     if run_cat == "skill" or run_cat == "role":
         feature_impts = []
