@@ -19,7 +19,7 @@ from app.config import get_settings
 settings = get_settings()
 
 @pytest.mark.anyio
-class admin_test:
+class admin_test_get:
     
     @staticmethod
     async def get_user_success():
@@ -51,4 +51,21 @@ class admin_test:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username="shaun"
             )
-            
+
+            @patch("app.services.admin_service.client.admin_get_user")
+            async def get_user_not_found_exception(mock_admin_get_user):
+                mock_admin_get_user.side_effect = ClientError(
+                    {
+                        "Error": {
+                            "Code": "UserNotFoundException",
+                            "Message": "User not found"
+                        }
+                    },
+                    "user"       
+                )
+
+                with pytest.raises(HTTPException) as exec:
+                    await admin_service.get_user("shaun")
+
+                assert exec.value.status_code == 404
+                assert exec.value.detail == "User not found"
