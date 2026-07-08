@@ -321,7 +321,7 @@ class TestAdminServicePost:
             Permanent=True
         )
 
-     @staticmethod
+    @staticmethod
     @patch("app.services.admin_service.client.admin_set_user_password")
     async def test_set_user_password_user_not_found(mock_admin_set_password: MagicMock):
         mock_admin_set_password.side_effect = ClientError(
@@ -339,3 +339,22 @@ class TestAdminServicePost:
 
         assert exec.value.status_code == 403
         assert exec.value.detail ==  "User not found."
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_set_user_password")
+    async def test_set_user_password_user_not_found(mock_admin_set_password: MagicMock):
+        mock_admin_set_password.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InvalidPasswordException",
+                    "Message": "Password does not meet format"
+                }
+            },
+            "set_password"
+            )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.set_password("swdfcs", "Test@Password123")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail ==  "Password does not meet format"
