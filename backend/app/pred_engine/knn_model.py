@@ -46,10 +46,11 @@ def testPredict():
     # want r2 as close as possible to 1
     return mse, r2
 
+###### FINAL MODEL #######
 
-def getKnn():
+def getKnn(fileName):
     #get data from Converter_Main
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN(fileName)
 
     bagged_knn = KNeighborsRegressor(
         n_neighbors=7, weights="distance"
@@ -59,3 +60,9 @@ def getKnn():
 
     return bagging_model
 
+#return knn_model
+knn = getKnn("test200000.csv")
+#to use:
+#   coord = knn.predict(input_values)
+#Note:
+#   returns both x and y value

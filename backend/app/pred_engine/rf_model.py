@@ -5,19 +5,13 @@ from sklearn.multioutput import MultiOutputClassifier
 import Data_Converter.src.Converter_Main as converter
 import pandas as pd
 import numpy as np
-import time
 import warnings
+import time
 import csv
 
 warnings.filterwarnings("ignore")
 
-fileName = '/workspaces/backend/app/pred_engine/MatchDataCollector/Training_csv/champ_rf_training.csv'
-runCat = 'champion' #champion; item; skill; role;
-yVal = 'championId' #championId, itemId; skillSlot; teamPosition;
-
-#evaluation/tuning
-
-def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
+def hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat):
     param_grid = {
         'n_estimators': [100, 200],
         'max_depth': [None, 10, 20],
@@ -58,7 +52,7 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test):
         
     return scores
 
-def giniImportance(rf):
+def giniImportance(rf, fileName, runCat, yVal):
     with open(fileName, 'r') as f:
         data = csv.reader(f)
         feature_names = []
@@ -86,7 +80,6 @@ def giniImportance(rf):
     feature_imp_df = pd.DataFrame({'Feature': feature_names, 'Gini Importance': importances}).sort_values('Gini Importance', ascending=False)
     return feature_imp_df
 
-#done
 #returns itemId
 def rf_items(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
@@ -138,8 +131,7 @@ def rf_role(X_train, X_test, y_train, y_test):
 
 ###### TESTING AND EVALUATION #######
 
-def test_and_eval():
-    start = time.time()
+def test_and_eval(fileName, runCat):
     X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
     
     match runCat:
@@ -151,25 +143,18 @@ def test_and_eval():
             base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
         case 'role':
             base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
 
     param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
-
-    t = time.time()
-    print(f'\nTime: {t - start:.2f} seconds')
-
     feature_dif = giniImportance(rf_model)
-    end = time.time()
-    print()
-    print(f'Final Time: {end - start:.2f} seconds')
 
     print("")
     print(f'Base accuracy: {base_ac}')
     print(f'Parameter tuned accuracy: {param_ac}')
     print(feature_dif)
 
-def final_train():
+###### FINAL MODELS #######
+
+def final_train(fileName, runCat):
     start = time.time()
     X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
 
@@ -184,6 +169,7 @@ def final_train():
             rf_model.fit(X_train, y_train)
             y_pred_grid = rf_model.predict(X_test)
             base_ac = accuracy_score(y_pred_grid, y_test)
+
         case 'item':
             rf_model = RandomForestClassifier(max_depth = 10,
                                                 n_estimators = 100,
@@ -194,6 +180,7 @@ def final_train():
             rf_model.fit(X_train, y_train)
             y_pred_grid = rf_model.predict(X_test)
             base_ac = accuracy_score(y_pred_grid, y_test)
+
         case 'skill':
             rf = RandomForestClassifier(max_depth = None,
                                             n_estimators = 100,
@@ -207,6 +194,7 @@ def final_train():
             y_pred_grid_Skill = [row[0] for row in y_pred_grid[0:len(y_pred_grid)]]
             y_test_SKill = [row[0] for row in y_test[0:len(y_test)]]
             base_ac = accuracy_score(y_pred_grid_Skill, y_test_SKill)
+
         case 'role':
             rf = RandomForestClassifier(max_depth = None,
                                             n_estimators = 100,
@@ -222,13 +210,15 @@ def final_train():
             base_ac = accuracy_score(y_pred_grid_Skill, y_test_SKill)
 
     end = time.time()
+    print()
     print(f'Final Time: {end - start:.2f} seconds')
-    print(f'Base accuracy: {base_ac}')
-
     return rf_model, base_ac
 
-#test_and_eval()
-final_train()
+#runCat = champion, item, skill, role
+#return rf_model, base_ac
+rf, ac = final_train("champ_rf_training.csv", 'champion')
 
-#accuracy score as close to 1 as possible
-#remove features with the lowest scores
+#to use:
+#   coord = rf.predict(input_values)
+#Note:
+#   skill and role return multivariate models
