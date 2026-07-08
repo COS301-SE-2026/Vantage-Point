@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from loguru import logger
-from app.Models.admin_model import (UserResponse)
+from app.Models.admin_model import (UserResponse, Response)
 
 settings = get_settings()
 
@@ -92,7 +92,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def add_user_to_group(username: str, group: str = "Users"):
+    async def add_user_to_group(username: str, group: str = "Users") -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_add_user_to_group,
@@ -114,7 +114,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def remove_user_from_group(username: str, group: str = "Users"):
+    async def remove_user_from_group(username: str, group: str = "Users") -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_remove_user_from_group,
@@ -130,7 +130,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def disable_user(username: str):
+    async def disable_user(username: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_disable_user,
@@ -145,7 +145,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def enable_user(username: str):
+    async def enable_user(username: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_enable_user,
@@ -160,7 +160,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def set_password(username: str, password: str):
+    async def set_password(username: str, password: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_set_user_password,
@@ -185,7 +185,7 @@ class admin_service:
     # todo update user attr
 
     @staticmethod
-    async def user_global_sign_out(username: str):
+    async def user_global_sign_out(username: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_user_global_sign_out,
@@ -201,7 +201,7 @@ class admin_service:
 
     # require db
     @staticmethod
-    async def delete_user(session: AsyncSession, username: str, sub: str):
+    async def delete_user(session: AsyncSession, username: str, sub: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_delete_user,
@@ -305,7 +305,7 @@ class admin_service:
         # {
 
     @staticmethod
-    async def update_group_attr(group_name: str, precedence: int, description: str):
+    async def update_group_attr(group_name: str, precedence: int, description: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.update_group,
@@ -322,7 +322,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def delete_group(group_name: str):
+    async def delete_group(group_name: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.delete_group,

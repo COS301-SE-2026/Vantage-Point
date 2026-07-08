@@ -9,3 +9,7 @@ class UserResponse(BaseModel):
     user_last_modified_date: datetime
     enabled: bool
     user_status: str
+
+class Response(BaseModel):
+    success: bool = True
+    message: str = ""
