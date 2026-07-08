@@ -68,21 +68,23 @@ def gini_importance(rf, file_name, run_cat, y_val):
         data = csv.reader(f)
         feature_names = []
 
+    if run_cat == "skill" | run_cat == "role":
         for row in data:
             for i in row:
-                if i == y_val:
-                    continue
-                if run_cat == "skill" | run_cat == "role":
-                    if i == "levelUpType" | i == "lane":
-                        continue
-                feature_names.append(i)
-
-    if run_cat == "skill" or run_cat == "role":
+                if i != y_val and i != "levelUpType" and i != "lane":
+                    feature_names.append(i)
+            break
+        
         feature_impts = []
         for clf in rf.estimators_:
             feature_impts.append(clf.feature_importances_)
         importances = np.mean(feature_impts, axis=0)
     else:
+        for row in data:
+            for i in row:
+                if i != y_val:
+                    feature_names.append(i)
+            break
         importances = rf.feature_importances_
 
     feature_imp_df = pd.DataFrame(
