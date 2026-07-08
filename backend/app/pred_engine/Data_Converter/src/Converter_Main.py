@@ -140,14 +140,20 @@ def format_data_multivar(data, pos, role, lane):
 
 
 def get_train_test_data_knn(file_name):
-    with open(file_name, "r") as f:
+    #do file check
+    try:
+        f = open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
+    with f:
         data = csv.reader(f)
         x_data, y_data = format_data_multivar(data, 2, 4, 3)
 
         scaler = StandardScaler()
         y_data = scaler.fit_transform(y_data)
     # Do train/test split
-
     x_train, x_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
     )
@@ -156,7 +162,14 @@ def get_train_test_data_knn(file_name):
 
 
 def get_train_test_data_rf(file_name, category):
-    with open(file_name, "r") as f:
+    #do file check
+    try:
+        f = open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
+    with f:
         data = csv.reader(f)
         # kinds of decisions to be made
         # content of data depends on this

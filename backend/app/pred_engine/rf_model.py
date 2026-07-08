@@ -55,6 +55,12 @@ def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
 
 
 def gini_importance(rf, file_name, run_cat, y_val):
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
 
     with open(file_name, "r") as f:
         data = csv.reader(f)
@@ -109,7 +115,19 @@ def rf_multivariate(x_train, x_test, y_train, y_test):
 
 
 def test_and_eval(file_name, run_cat):
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
     x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
+
+    #nullcheck data
+    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+        print("Error in Converter_Main.py, returning empty datasets")
+        exit()
 
     match run_cat:
         case "champion":
@@ -135,7 +153,19 @@ def test_and_eval(file_name, run_cat):
 
 def final_train(file_name, run_cat):
     start = time.time()
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
     x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
+
+    #nullcheck data
+    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+        print("Error in Converter_Main.py, returning empty datasets")
+        exit()
 
     a = ["champion", "item"]
     b = ["skill", "role"]

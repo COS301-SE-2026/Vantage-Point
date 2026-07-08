@@ -5,8 +5,21 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor  # type: ignore
 
 
-def optimize_grid_search(fileName):
-    y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(fileName)
+def optimize_grid_search(file_name):
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
+    y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
+
+    #nullcheck data
+    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+        print("Error in Converter_Main.py, returning empty datasets")
+        exit()
+
     parameters = {
         "n_neighbors": range(1, 35),
         "weights": ["uniform", "distance"],
@@ -25,7 +38,20 @@ def optimize_grid_search(fileName):
 
 
 def optimize_agging(p1, p2, file_name):
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
+
+    #nullcheck data
+    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+        print("Error in Converter_Main.py, returning empty datasets")
+        exit()
+
     best_k = p1
     best_weights = p2
     bagged_knn = KNeighborsRegressor(n_neighbors=best_k, weights=best_weights)
@@ -38,7 +64,20 @@ def optimize_agging(p1, p2, file_name):
 
 
 def test_predict(file_name):
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
+
+    #nullcheck data
+    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+        print("Error in Converter_Main.py, returning empty datasets")
+        exit()
+
     # train model
     knn_regressor = KNeighborsRegressor(n_neighbors=5)
     knn_regressor.fit(x_train, y_train)
@@ -57,8 +96,19 @@ def test_predict(file_name):
 
 
 def get_knn(file_name):
-    # get data from Converter_Main
+    #add file check
+    try:
+        open(file_name, 'r')
+    except OSError:
+        print("Training file not found")
+        exit()
+
     y_train, _, x_train, _ = converter.get_train_test_data_knn(file_name)
+
+    #nullcheck data
+    if x_train == [] | y_train == []:
+        print("Error in Converter_Main.py, returning empty datasets")
+        exit()
 
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
