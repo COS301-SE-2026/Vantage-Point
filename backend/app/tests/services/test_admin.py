@@ -420,24 +420,54 @@ class TestAdminServicePost:
     @staticmethod
     @patch("app.services.admin_service.client.admin_create_user")
     async def admin_create_user_success(mock_admin_create_user: MagicMock):
+        created = datetime(2026, 7, 8, 12, 0, tzinfo=timezone.utc)
         mock_admin_create_user.return_value = {
             "User": {
-                "Username": "shaun",
+                "Username": "john123",
                 "Attributes": [
                     {
                         "Name": "sub",
-                        "Value": "005cf93c-6031-70fe-58ea-11c03431ba8d"
+                        "Value": "12345"
                     },
                     {
                         "Name": "email",
-                        "Value": "shaun@example.com"
+                        "Value": "john@gmail.com"
                     }
                 ],
-                "UserCreateDate": datetime.now(timezone.utc),
-                "UserLastModifiedDate": datetime.now(timezone.utc),
+                "UserCreateDate": created,
+                "UserLastModifiedDate": created,
                 "Enabled": True,
                 "UserStatus": "FORCE_CHANGE_PASSWORD"
             }
         }
+        
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none.return_value = None
 
-        response = await admin_service.create_user()
+        mock_session.execute.return_value = mock_result
+        mock_session.commit.return_value = None
+        mock_session.refresh.return_value = None
+        mock_session.add.assert_called_once()
+        mock_session.commit.assert_awaited_once()
+        mock_session.refresh.assert_awaited_once()
+        
+        response = await admin_service.create_user(mock_session, "john123", "john@gmail.com")
+
+        assert response.username == "john123"
+        assert response.sub == "12345"
+        assert response.email == "john@gmail.com"
+        assert response.user_created_date == created
+        assert response.user_last_modified_date == created
+        assert response.enabled is True
+        assert response.user_status == "FORCE_CHANGE_PASSWORD"
+
+        mock_admin_create_user.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="john123",
+            UserAttributes=[
+                {"Name": "email", "Value": "john@gmail.com"},
+                {"Name": "email_verified", "Value": "true"},
+            ],
+            TemporaryPassword="TemPass@123",
+            MessageAction="SUPPRESS",
+        )
