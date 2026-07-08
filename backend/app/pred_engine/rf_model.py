@@ -85,8 +85,7 @@ def giniImportance(rf, fileName, runCat, yVal):
     return feature_imp_df
 
 
-# returns itemId
-def rf_items(X_train, X_test, y_train, y_test):
+def rf_univariate(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rf.fit(X_train, y_train)
 
@@ -94,18 +93,7 @@ def rf_items(X_train, X_test, y_train, y_test):
     return accuracy_score(y_pred, y_test), rf
 
 
-# returns champion id
-def rf_champions(X_train, X_test, y_train, y_test):
-    rf = RandomForestClassifier()
-    rf.fit(X_train, y_train)
-
-    y_pred = rf.predict(X_test)
-    return accuracy_score(y_pred, y_test), rf
-
-
-# done
-# return skillSlot,leveluptype
-def rf_skills(X_train, X_test, y_train, y_test):
+def rf_multivariate(X_train, X_test, y_train, y_test):
     rf = RandomForestClassifier()
     rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
 
@@ -119,21 +107,6 @@ def rf_skills(X_train, X_test, y_train, y_test):
     scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
     return scores, rfMulti
 
-
-# done
-# return lane/teamPosition
-def rf_role(X_train, X_test, y_train, y_test):
-    rf = RandomForestClassifier()
-    rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
-    rfMulti.fit(X_train, y_train)
-
-    y_pred_grid = rfMulti.predict(X_test)
-
-    y_pred_grid_Skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
-    y_test_SKill = [row[0] for row in y_test[0 : len(y_test)]]
-
-    scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
-    return scores, rfMulti
 
 
 ###### TESTING AND EVALUATION #######
@@ -144,13 +117,13 @@ def test_and_eval(fileName, runCat):
 
     match runCat:
         case "champion":
-            base_ac, rf_model = rf_champions(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_univariate(X_train, X_test, y_train, y_test)
         case "item":
-            base_ac, rf_model = rf_items(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_univariate(X_train, X_test, y_train, y_test)
         case "skill":
-            base_ac, rf_model = rf_skills(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_multivariate(X_train, X_test, y_train, y_test)
         case "role":
-            base_ac, rf_model = rf_role(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_multivariate(X_train, X_test, y_train, y_test)
 
     param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
     feature_dif = giniImportance(rf_model)
@@ -168,20 +141,10 @@ def final_train(fileName, runCat):
     start = time.time()
     X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
 
+    a = ["champion", "item"]
+    b = ["skill", "role"]
     match runCat:
-        case "champion":
-            rf_model = RandomForestClassifier(
-                max_depth=None,
-                n_estimators=200,
-                min_samples_leaf=1,
-                min_samples_split=2,
-                bootstrap=False,
-            )
-            rf_model.fit(X_train, y_train)
-            y_pred_grid = rf_model.predict(X_test)
-            base_ac = accuracy_score(y_pred_grid, y_test)
-
-        case "item":
+        case c if c in a:
             rf_model = RandomForestClassifier(
                 max_depth=10,
                 n_estimators=100,
@@ -193,22 +156,7 @@ def final_train(fileName, runCat):
             y_pred_grid = rf_model.predict(X_test)
             base_ac = accuracy_score(y_pred_grid, y_test)
 
-        case "skill":
-            rf = RandomForestClassifier(
-                max_depth=None,
-                n_estimators=100,
-                min_samples_leaf=1,
-                min_samples_split=2,
-                bootstrap=True,
-            )
-            rf_model = MultiOutputClassifier(rf, n_jobs=-1)
-            rf_model.fit(X_train, y_train)
-            y_pred_grid = rf_model.predict(X_test)
-            y_pred_grid_Skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
-            y_test_SKill = [row[0] for row in y_test[0 : len(y_test)]]
-            base_ac = accuracy_score(y_pred_grid_Skill, y_test_SKill)
-
-        case "role":
+        case c if c in b:
             rf = RandomForestClassifier(
                 max_depth=None,
                 n_estimators=100,
@@ -231,7 +179,7 @@ def final_train(fileName, runCat):
 
 # runCat = champion, item, skill, role
 # return rf_model, base_ac
-rf, ac = final_train("champ_rf_training.csv", "champion")
+#rf, ac = final_train("champ_rf_training.csv", "champion")
 
 # to use:
 #   coord = rf.predict(input_values)
