@@ -510,4 +510,22 @@ class TestAdminServicePost:
         assert exec.value.status_code == 400
         assert exec.value.detail == "Password does not meet format"
 
-    
+     @staticmethod
+    @patch("app.services.admin_service.client.admin_create_user")
+    async def admin_create_user_invalid_parameter(mock_admin_create_user: MagicMock):
+        mock_admin_create_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InvalidParameterException",
+                    "Message": "Invalid username"
+                }
+            },
+            "admin_create_user"
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.create_user(mock_session, "john123", "john@gmail.com")
+
+        assert exec.value.status_code == 422
+        assert exec.value.detail == "Invalid username"
+
