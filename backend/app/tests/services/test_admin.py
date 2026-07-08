@@ -73,7 +73,7 @@ class TestAdminGet:
                     "Message": "User not found"
                 }
             },
-            "user"       
+            "get_user"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -92,7 +92,7 @@ class TestAdminGet:
                     "Message": "Invalid username"
                 }
             },
-            "user"       
+            "get_user"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -111,7 +111,7 @@ class TestAdminGet:
                     "Message": "Internal server error"
                 }
             },
-            "user"       
+            "get_user"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -178,7 +178,7 @@ class TestAdminGet:
                     "Message": "User not found"
                 }
             },
-            "user"       
+            "get_users"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -197,7 +197,7 @@ class TestAdminGet:
                     "Message": "Invalid Username"
                 }
             },
-            "user"       
+            "get_users"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -216,7 +216,7 @@ class TestAdminGet:
                     "Message": "Internal server error"
                 }
             },
-            "user"       
+            "get_users"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -255,7 +255,7 @@ class TestAdminServicePost:
                     "Message": "User not found"
                 }
             },
-            "user"       
+            "add_user_to_group"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -264,4 +264,40 @@ class TestAdminServicePost:
         assert exec.value.status_code == 404
         assert exec.value.detail == "User not found"
 
-    
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_add_user_to_group")
+    async def test_add_user_to_group_resource_not_found_exception(mock_admin_add_user_to_group: MagicMock)
+        mock_admin_add_user_to_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "ResourceNotFoundException",
+                    "Message": "The specified group was not found."
+                }
+            },
+            "add_user_to_group"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.add_user_to_group("shaun")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "The specified group was not found."
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_add_user_to_group")
+    async def test_add_user_to_group_unknow_error(mock_admin_add_user_to_group: MagicMock):
+        mock_admin_add_user_to_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "add_user_to_group"
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.add_user_to_group("shaun")
+        
+        assert exec.value.status_code == 400
+        assert exec.value.status_code == "InternalErrorException"
