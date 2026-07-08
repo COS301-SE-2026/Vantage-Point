@@ -301,3 +301,22 @@ class TestAdminServicePost:
         
         assert exec.value.status_code == 400
         assert exec.value.status_code == "InternalErrorException"
+
+    #set_password
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_set_user_password")
+    async def test_set_user_password_success(mock_admin_set_password: MagicMock):
+        mock_admin_set_password.return_value = {}
+
+        response = await admin_service.set_password("swdfcs", "Test@Password123")
+
+        assert response.success is True
+        assert response.message == "Set swdfcs's passwpord"
+
+        mock_admin_set_password.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="swdfcs",
+            Password="Test@Password123",
+            Permanent=True
+        )
