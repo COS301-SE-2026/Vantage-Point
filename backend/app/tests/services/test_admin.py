@@ -599,4 +599,23 @@ class TestAdminServicePost:
         assert exec.value.status_code == 400
         assert exec.value.detail == "Group name already exist."
 
+    @staticmethod
+    @patch("app.services.admin_service.client.create_group")
+    async def admin_create_group_unknown_error(mock_create_group: MagicMock):
+        mock_create_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "admin_create_group"
+        )
+         
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.create_group("Test", 12, "Test group User")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
+
     
