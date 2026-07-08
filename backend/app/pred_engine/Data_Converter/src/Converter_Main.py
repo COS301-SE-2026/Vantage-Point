@@ -1,27 +1,16 @@
-import json
 import csv
 import random
-from types import SimpleNamespace
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 
 
 # needs to be changed still
-def getFromAPI():
-    # temp read from file logic
+def get_from_api():
     # change to get from api later
-    file = open("backend/app/pred_engine/Data_Converter/match_files/KR_8217431121.txt")
-    data = file.read()
-    file.close()
-
-    # json to object conversion
-    match_TL = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-
-    # temp print for basic testing
-    print(match_TL.info.endOfGameResult, match_TL.info.gameId)
+    return
 
 
-def convertToInt(row, lane, role, pos):
+def convert_to_int(row, lane, role, pos):
     # add logic to convert everything to int
     for j in range(len(row)):
         if any(char.isdigit() for char in row[j]):
@@ -66,7 +55,7 @@ def convertToInt(row, lane, role, pos):
                 row[pos] = 4
             case "UTILITY":
                 row[pos] = 5
-    if pos == -1 and role == -1 and lane == -1: #this is skill data
+    if pos == -1 and role == -1 and lane == -1:  # this is skill data
         val = row[1]  # level up type
         match val:
             case "NORMAL":
@@ -79,17 +68,17 @@ def convertToInt(row, lane, role, pos):
             row[j] = 0
 
 
-def formatDataUnivar(data, pos, role, lane):
+def format_data_univar(data, pos, role, lane):
     r = -1
-    dataArr = []
+    data_arr = []
     y = []
     for row in data:
         if r == -1:
             r = r + 1
             continue
 
-        convertToInt(row, lane, role, pos)
-        dataArr.append([])
+        convert_to_int(row, lane, role, pos)
+        data_arr.append([])
         y.append([])
 
         c = 0
@@ -98,27 +87,29 @@ def formatDataUnivar(data, pos, role, lane):
                 y[r].append(i)
                 c = c + 1
             else:
-                dataArr[r].append(i)
+                data_arr[r].append(i)
                 c = c + 1
         r = r + 1
 
-    return dataArr, y
+    return data_arr, y
 
 
-def formatDataMultivar(data, pos, role, lane):
+def format_data_multivar(data, pos, role, lane):
     r = -1
-    dataArr = []
+    data_arr = []
     y = []
+    prev_row = []
+
     for row in data:
         if r == -1:
             r = r + 1
             continue
 
-        convertToInt(row, lane, role, pos)
+        convert_to_int(row, lane, role, pos)
 
-        if pos == -1 and role == -1 and lane == -1: #this is skill data
+        if pos == -1 and role == -1 and lane == -1:  # this is skill data
             # if feature values are identical, take random one only
-            if r != 0 and row[1:] == prevRow[1:]:
+            if r != 0 and row[1:] == prev_row[1:]:
                 # random value for if we are gonna use row or prev row
                 num = int(random.random())
                 if num == 0:  # take prevRow
@@ -126,9 +117,9 @@ def formatDataMultivar(data, pos, role, lane):
                 elif num == 1:  # take row
                     r = r - 1
                     y[r] = []
-                    dataArr[r] = []
+                    data_arr[r] = []
             else:
-                dataArr.append([])
+                data_arr.append([])
                 y.append([])
 
         c = 0
@@ -137,50 +128,50 @@ def formatDataMultivar(data, pos, role, lane):
                 y[r].append(i)
                 c = c + 1
             else:
-                dataArr[r].append(i)
+                data_arr[r].append(i)
                 c = c + 1
         r = r + 1
-        prevRow = row
+        prev_row = row
 
-    return dataArr, y
+    return data_arr, y
 
 
 # -----------------------------------------------------------------------------------#
 
 
-def getTrainTestDataKNN(fileName):
-    with open(fileName, "r") as f:
+def get_train_test_data_knn(file_name):
+    with open(file_name, "r") as f:
         data = csv.reader(f)
-        xData, yData = formatDataMultivar(data, 2, 4, 3)
+        x_data, y_data = format_data_multivar(data, 2, 4, 3)
 
         scaler = StandardScaler()
-        yData = scaler.fit_transform(yData)
+        y_data = scaler.fit_transform(y_data)
     # Do train/test split
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        xData, yData, test_size=0.2, train_size=0.8, random_state=42
+    x_train, x_test, y_train, y_test = train_test_split(
+        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
     )
     # x is target, y is given
-    return X_train, X_test, y_train, y_test
+    return x_train, x_test, y_train, y_test
 
 
-def getTrainTestDataRF(fileName, category):
-    with open(fileName, "r") as f:
+def get_train_test_data_rf(file_name, category):
+    with open(file_name, "r") as f:
         data = csv.reader(f)
         # kinds of decisions to be made
         # content of data depends on this
         match category:
             case "champion":
-                xData, yData = formatDataUnivar(data, 1, 2, 3)
+                x_data, y_data = format_data_univar(data, 1, 2, 3)
             case "item":
-                xData, yData = formatDataUnivar(data, 4, 3, 2)
+                x_data, y_data = format_data_univar(data, 4, 3, 2)
             case "skill":
-                xData, yData = formatDataMultivar(data, -1, -1, -1)
+                x_data, y_data = format_data_multivar(data, -1, -1, -1)
             case "role":
-                xData, yData = formatDataMultivar(data, 0, -1, 1)
+                x_data, y_data = format_data_multivar(data, 0, -1, 1)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        xData, yData, test_size=0.2, random_state=42, stratify=None
+        x_data, y_data, test_size=0.2, random_state=42, stratify=None
     )
 
     # X is given, y is target

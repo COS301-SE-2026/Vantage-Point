@@ -2,26 +2,22 @@ from MatchInfoObjects import MatchTimeObj  # type: ignore
 from MatchInfoObjects import MatchDataObj  # type: ignore
 
 # Get data from api
-tempMatch = MatchDataObj
-tempTimeline = MatchTimeObj
+temp_match = MatchDataObj
+temp_timeline = MatchTimeObj
 
 # all data is converted to list form for ease of ML use
-
-# for i in MatchTimeObj.info.participants:
-#    if i.puuid == puuid:
-#        partID = i.partcipantId
 
 
 def map_replay(puuid):
     info = []
-    for i in tempTimeline.info.participants:
+    for i in temp_timeline.info.participants:
         if i.puuid == puuid:
-            partID = i.partcipantId
+            part_id = i.partcipantId
 
-    info.append(tempTimeline.info.frameInterval)
-    for i in tempTimeline.info.frames:
+    info.append(temp_timeline.info.frameInterval)
+    for i in temp_timeline.info.frames:
         info.append(i.timestamp)
-        match partID:
+        match part_id:
             case 1:
                 info.extend(i.participantFrames._1.append_mapReplay())
             case 2:
@@ -48,9 +44,9 @@ def map_replay(puuid):
 
 def profile_data(puuid):
     info = []
-    info.append(tempMatch.info.endOfGameResult)
-    info.append(tempMatch.info.gameDuration)
-    for i in tempMatch.info.participants:
+    info.append(temp_match.info.endOfGameResult)
+    info.append(temp_match.info.gameDuration)
+    for i in temp_match.info.participants:
         if i.puuid == puuid:
             info.append(i.champExperience)
             info.append(i.champLevel)
@@ -84,13 +80,13 @@ def profile_data(puuid):
 def map_suggest_data(puuid):
     # this goes into overlay suggestion generation KNN model
     info = map_replay()
-    info.append(tempMatch.info.endOfGameResult)
-    for i in tempMatch.info.participants:
+    info.append(temp_match.info.endOfGameResult)
+    for i in temp_match.info.participants:
         if i.puuid == puuid:
             info.append(i.championId)
             info.append(i.teamPosition)
             info.append(i.lane)
-    for i in tempTimeline.info.frames:
+    for i in temp_timeline.info.frames:
         info.extend(i.participantFrames._1.append_mapSuggest())
         info.extend(i.participantFrames._2.append_mapSuggest())
         info.extend(i.participantFrames._3.append_mapSuggest())
@@ -106,21 +102,14 @@ def map_suggest_data(puuid):
 def match_data():
     # this goes onto the match page on frontend
     info = []
-    info.append(tempMatch.info.endOfGameResult)
-    info.append(tempMatch.info.gameDuration)
-    info.append(tempMatch.info.gameMode)
-    info.append(tempMatch.info.gameName)
-    info.append(tempMatch.info.mapId)
-    for i in tempMatch.info.participants:
+    info.append(temp_match.info.endOfGameResult)
+    info.append(temp_match.info.gameDuration)
+    info.append(temp_match.info.gameMode)
+    info.append(temp_match.info.gameName)
+    info.append(temp_match.info.mapId)
+    for i in temp_match.info.participants:
         info.extend(i.append_matchData())
-    info.append(tempMatch.info.platformId)
-    for i in tempMatch.info.teams:
+    info.append(temp_match.info.platformId)
+    for i in temp_match.info.teams:
         info.extend(i.append_matchData())
     return info
-
-
-# def match_rec_data():
-#    # data that goes into RF to get gameplay tips
-#    #match data + additions
-#    info = match_data()
-#    return []

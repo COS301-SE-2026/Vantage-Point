@@ -5,15 +5,15 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor  # type: ignore
 
 
-def optimizeGridSearch(fileName):
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN(fileName)
+def optimize_grid_search(fileName):
+    y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(fileName)
     parameters = {
         "n_neighbors": range(1, 35),
         "weights": ["uniform", "distance"],
     }
     gridsearch = GridSearchCV(KNeighborsRegressor(), parameters)
-    gridsearch.fit(X_train, y_train)  # slow here
-    test_preds_grid = gridsearch.predict(X_test)
+    gridsearch.fit(x_train, y_train)  # slow here
+    test_preds_grid = gridsearch.predict(x_test)
     test_mse = mean_squared_error(y_test, test_preds_grid)
     test_r2 = r2_score(y_test, test_preds_grid)
     return (
@@ -24,27 +24,27 @@ def optimizeGridSearch(fileName):
     )
 
 
-def optimizeBagging(p1, p2, fileName):
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN(fileName)
+def optimize_agging(p1, p2, file_name):
+    y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
     best_k = p1
     best_weights = p2
     bagged_knn = KNeighborsRegressor(n_neighbors=best_k, weights=best_weights)
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
-    bagging_model.fit(X_train, y_train)  # slow here
-    test_preds_grid = bagging_model.predict(X_test)
+    bagging_model.fit(x_train, y_train)  # slow here
+    test_preds_grid = bagging_model.predict(x_test)
     test_mse = mean_squared_error(y_test, test_preds_grid)
     test_r2 = r2_score(y_test, test_preds_grid)
     return test_mse, test_r2
 
 
-def testPredict():
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
+def test_predict(file_name):
+    y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
     # train model
     knn_regressor = KNeighborsRegressor(n_neighbors=5)
-    knn_regressor.fit(X_train, y_train)
+    knn_regressor.fit(x_train, y_train)
 
     # make predictions
-    y_pred = knn_regressor.predict(X_test)
+    y_pred = knn_regressor.predict(x_test)
     # evaluate model
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
@@ -56,20 +56,12 @@ def testPredict():
 ###### FINAL MODEL #######
 
 
-def getKnn(fileName):
+def get_knn(file_name):
     # get data from Converter_Main
-    y_train, _, X_train, _ = converter.getTrainTestDataKNN(fileName)
+    y_train, _, x_train, _ = converter.get_train_test_data_knn(file_name)
 
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
-    bagging_model.fit(X_train, y_train)
+    bagging_model.fit(x_train, y_train)
 
     return bagging_model
-
-
-# gives knn_model
-knn = getKnn("test200000.csv")
-# to use:
-#   coord = knn.predict(input_values)
-# Note:
-#   returns both x and y value

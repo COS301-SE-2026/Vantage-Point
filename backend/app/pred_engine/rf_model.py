@@ -12,7 +12,7 @@ import csv
 warnings.filterwarnings("ignore")
 
 
-def hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat):
+def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
     param_grid = {
         "n_estimators": [100, 200],
         "max_depth": [None, 10, 20],
@@ -22,7 +22,7 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat):
     }
 
     grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, cv=2)
-    grid_search.fit(X_train, y_train)
+    grid_search.fit(x_train, y_train)
 
     model_grid = RandomForestClassifier(
         max_depth=grid_search.best_params_.get("max_depth"),
@@ -38,37 +38,37 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat):
     print(grid_search.best_params_.get("min_samples_split"))
     print(grid_search.best_params_.get("bootstrap"))
 
-    if runCat == "skill" or runCat == "role":
-        rfMulti = MultiOutputClassifier(model_grid, n_jobs=-1)
-        rfMulti.fit(X_train, y_train)
-        y_pred_grid = rfMulti.predict(X_test)
-        y_pred_grid_Skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
-        y_test_SKill = [row[0] for row in y_test[0 : len(y_test)]]
-        scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
+    if run_cat == "skill" or run_cat == "role":
+        rf_multi = MultiOutputClassifier(model_grid, n_jobs=-1)
+        rf_multi.fit(x_train, y_train)
+        y_pred_grid = rf_multi.predict(x_test)
+        y_pred_grid_skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
+        y_test_sKill = [row[0] for row in y_test[0 : len(y_test)]]
+        scores = accuracy_score(y_pred_grid_skill, y_test_sKill)
 
     else:
-        model_grid.fit(X_train, y_train)
-        y_pred_grid = model_grid.predict(X_test)
+        model_grid.fit(x_train, y_train)
+        y_pred_grid = model_grid.predict(x_test)
         scores = accuracy_score(y_pred_grid, y_test)
 
     return scores
 
 
-def giniImportance(rf, fileName, runCat, yVal):
+def gini_importance(rf, file_name, run_cat, y_val):
 
-    with open(fileName, "r") as f:
+    with open(file_name, "r") as f:
         data = csv.reader(f)
         feature_names = []
 
         for i in data[0]:
-            if i == yVal:
+            if i == y_val:
                 continue
-            if runCat == "skill" | runCat == "role":
+            if run_cat == "skill" | run_cat == "role":
                 if i == "levelUpType" | i == "lane":
                     continue
             feature_names.append(i)
 
-    if runCat == "skill" or runCat == "role":
+    if run_cat == "skill" or run_cat == "role":
         feature_impts = []
         for clf in rf.estimators_:
             feature_impts.append(clf.feature_importances_)
@@ -76,51 +76,53 @@ def giniImportance(rf, fileName, runCat, yVal):
     else:
         importances = rf.feature_importances_
 
-    feature_imp_df = pd.DataFrame({"Feature": feature_names, "Gini Importance": importances}).sort_values("Gini Importance", ascending=False)
+    feature_imp_df = pd.DataFrame(
+        {"Feature": feature_names, "Gini Importance": importances}
+    ).sort_values("Gini Importance", ascending=False)
     return feature_imp_df
 
 
-def rf_univariate(X_train, X_test, y_train, y_test):
+def rf_univariate(x_train, x_test, y_train, y_test):
     rf = RandomForestClassifier()
-    rf.fit(X_train, y_train)
+    rf.fit(x_train, y_train)
 
-    y_pred = rf.predict(X_test)
+    y_pred = rf.predict(x_test)
     return accuracy_score(y_pred, y_test), rf
 
 
-def rf_multivariate(X_train, X_test, y_train, y_test):
+def rf_multivariate(x_train, x_test, y_train, y_test):
     rf = RandomForestClassifier()
-    rfMulti = MultiOutputClassifier(rf, n_jobs=-1)
+    rf_multi = MultiOutputClassifier(rf, n_jobs=-1)
 
-    rfMulti.fit(X_train, y_train)
+    rf_multi.fit(x_train, y_train)
 
-    y_pred_grid = rfMulti.predict(X_test)
+    y_pred_grid = rf_multi.predict(x_test)
 
     y_pred_grid_Skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
     y_test_SKill = [row[0] for row in y_test[0 : len(y_test)]]
 
     scores = accuracy_score(y_pred_grid_Skill, y_test_SKill)
-    return scores, rfMulti
+    return scores, rf_multi
 
 
 ###### TESTING AND EVALUATION #######
 
 
-def test_and_eval(fileName, runCat):
-    X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
+def test_and_eval(file_name, run_cat):
+    x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
 
-    match runCat:
+    match run_cat:
         case "champion":
-            base_ac, rf_model = rf_univariate(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_univariate(x_train, x_test, y_train, y_test)
         case "item":
-            base_ac, rf_model = rf_univariate(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_univariate(x_train, x_test, y_train, y_test)
         case "skill":
-            base_ac, rf_model = rf_multivariate(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_multivariate(x_train, x_test, y_train, y_test)
         case "role":
-            base_ac, rf_model = rf_multivariate(X_train, X_test, y_train, y_test)
+            base_ac, rf_model = rf_multivariate(x_train, x_test, y_train, y_test)
 
-    param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat)
-    feature_dif = giniImportance(rf_model)
+    param_ac = hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat)
+    feature_dif = gini_importance(rf_model)
 
     print("")
     print(f"Base accuracy: {base_ac}")
@@ -131,13 +133,13 @@ def test_and_eval(fileName, runCat):
 ###### FINAL MODELS #######
 
 
-def final_train(fileName, runCat):
+def final_train(file_name, run_cat):
     start = time.time()
-    X_train, X_test, y_train, y_test = converter.getTrainTestDataRF(fileName, runCat)
+    x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
 
     a = ["champion", "item"]
     b = ["skill", "role"]
-    match runCat:
+    match run_cat:
         case c if c in a:
             rf_model = RandomForestClassifier(
                 max_depth=10,
@@ -146,8 +148,8 @@ def final_train(fileName, runCat):
                 min_samples_split=5,
                 bootstrap=True,
             )
-            rf_model.fit(X_train, y_train)
-            y_pred_grid = rf_model.predict(X_test)
+            rf_model.fit(x_train, y_train)
+            y_pred_grid = rf_model.predict(x_test)
             base_ac = accuracy_score(y_pred_grid, y_test)
 
         case c if c in b:
@@ -159,25 +161,13 @@ def final_train(fileName, runCat):
                 bootstrap=True,
             )
             rf_model = MultiOutputClassifier(rf, n_jobs=-1)
-            rf_model.fit(X_train, y_train)
-            y_pred_grid = rf_model.predict(X_test)
-            y_pred_grid_Skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
-            y_test_SKill = [row[0] for row in y_test[0 : len(y_test)]]
-            base_ac = accuracy_score(y_pred_grid_Skill, y_test_SKill)
+            rf_model.fit(x_train, y_train)
+            y_pred_grid = rf_model.predict(x_test)
+            y_pred_grid_skill = [row[0] for row in y_pred_grid[0 : len(y_pred_grid)]]
+            y_test_skill = [row[0] for row in y_test[0 : len(y_test)]]
+            base_ac = accuracy_score(y_pred_grid_skill, y_test_skill)
 
     end = time.time()
     print()
     print(f"Final Time: {end - start:.2f} seconds")
     return rf_model, base_ac
-
-
-# runCat: champion, item, skill, role
-# return rf_model, base_ac
-rf, ac = final_train("/workspaces/skill_rf_training.csv", "skill")
-print("Done")
-print(ac)
-
-# to use:
-#   coord = rf.predict(input_values)
-# Note:
-#   skill and role return multivariate models
