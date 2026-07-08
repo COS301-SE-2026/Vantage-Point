@@ -547,3 +547,37 @@ class TestAdminServicePost:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+    #create_group
+    @staticmethod
+    @patch("app.services.admin_service.client.create_group")
+    async def admin_create_group_success(mock_create_group: MagicMock):
+        created = datetime(2026, 7, 8, 12, 0, tzinfo=timezone.utc)
+        mock_create_group.return_value = {
+             "Group": {
+                "GroupName": "test",
+                "UserPoolId": "test-12",
+                "Description": "Test group User",
+                "Precedence": 12,
+                "LastModifiedDate": created,
+                "CreationDate": created,
+            }
+        }
+
+        response = await admin_service.create_group("Test", 12, "Test group User")
+
+        assert response.group_name == "test"
+        assert response.user_pool_id == "test-12"
+        assert response.descriptipn == "Test group User"
+        assert response.precedence == 12
+        assert response.last_modified_date == created
+        assert response.creation_date == created
+
+        mock_create_group.assert_called_once_with(
+            GroupName="test",
+            UserPoolId="test-12",
+            Description="Test group User",
+            Precedence=12,
+        )
+
+    
