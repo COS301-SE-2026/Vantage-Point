@@ -13,3 +13,11 @@ class UserResponse(BaseModel):
 class Response(BaseModel):
     success: bool = True
     message: str = ""
+
+class CreateGroupResponse(BaseModel):
+    group_name: str
+    user_pool_id: str
+    descriptipn: str
+    precedence: int
+    last_modified_date: datetime
+    creation_date: datetime
