@@ -393,3 +393,22 @@ class TestAdminServicePost:
             UserPoolId=settings.cognito_user_pool_id,
             Username="swdfcs",
         )
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_user_global_sign_out")
+    async def test_admin_user_global_sign_out_unknown_error(mock_admin_user_global_sign_out: MagicMock):
+        mock_admin_user_global_sign_out.side_effect =  ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "admin_user_global_sign_out"
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.user_global_sign_out("swdfcs")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
