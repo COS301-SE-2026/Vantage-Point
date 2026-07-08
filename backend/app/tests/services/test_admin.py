@@ -20,7 +20,7 @@ settings = get_settings()
 
 @pytest.mark.anyio
 class TestAdminGet:
-    
+
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
     async def test_get_user_success(mock_admin_get_user: MagicMock):      
@@ -247,7 +247,7 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_add_user_to_group")
-    async def test_add_user_to_group_user_not_found_exception(mock_admin_add_user_to_group: MagicMock)
+    async def test_add_user_to_group_user_not_found_exception(mock_admin_add_user_to_group: MagicMock):
         mock_admin_add_user_to_group.side_effect = ClientError(
             {
                 "Error": {
@@ -266,7 +266,7 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_add_user_to_group")
-    async def test_add_user_to_group_resource_not_found_exception(mock_admin_add_user_to_group: MagicMock)
+    async def test_add_user_to_group_resource_not_found_exception(mock_admin_add_user_to_group: MagicMock):
         mock_admin_add_user_to_group.side_effect = ClientError(
             {
                 "Error": {
@@ -342,7 +342,7 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_set_user_password")
-    async def test_set_user_password_user_not_found(mock_admin_set_password: MagicMock):
+    async def test_set_user_password_invalid_password(mock_admin_set_password: MagicMock):
         mock_admin_set_password.side_effect = ClientError(
             {
                 "Error": {
@@ -358,3 +358,22 @@ class TestAdminServicePost:
 
         assert exec.value.status_code == 400
         assert exec.value.detail ==  "Password does not meet format"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_set_user_password")
+    async def test_set_user_password_unknown_error(mock_admin_set_password: MagicMock):
+        mock_admin_set_password.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "set_password"
+            )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.set_password("swdfcs", "Test@Password123")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail ==  "InternalErrorException"
