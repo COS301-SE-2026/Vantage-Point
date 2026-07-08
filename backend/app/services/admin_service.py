@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from loguru import logger
-from app.Models.admin_model import (UserResponse, Response)
+from app.Models.admin_model import (UserResponse, Response, CreateGroupResponse)
 
 settings = get_settings()
 
@@ -297,13 +297,13 @@ class admin_service:
                 deletion_scheduled_at=None,
             )
             response = UserResponse(
-                username=profile.display_name,
+                username=profile.display_name or username,
                 email=profile.email,
                 sub=profile.cognito_sub,
-                user_created_date=profile.cognito_sub,
+                user_created_date=profile.created_at,
                 user_last_modified_date=profile.updated_at,
-                enabled=user["Enabled"],
-                user_status=user["UserStatus"]
+                enabled=user.get("Enabled", True),
+                user_status=user.get("UserStatus","FORCE_CHANGE_PASSWORD")
             )
 
             session.add(profile)
@@ -328,7 +328,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def create_group(group_name: str, precedence: int, description: str):
+    async def create_group(group_name: str, precedence: int, description: str) -> CreateGroupResponse:
         try:
             response = await asyncio.to_thread(
                 client.create_group,
@@ -336,6 +336,15 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Description=description,
                 Precedence=precedence,
+            )
+            group = response["Group"]
+            response = CreateGroupResponse(
+                group_name=group.get("GroupName", group_name),
+                user_pool_id=group.get("UserPoolId", ""),
+                descriptipn=group.get("Description", description),
+                precedence=group.get("Precedence", precedence),
+                last_modified_date=group.get("LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)),
+                creation_date=group.get("CreationDate", datetime.now(timezone.utc).replace(tzinfo=None))
             )
 
             return response
