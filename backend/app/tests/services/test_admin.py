@@ -377,3 +377,19 @@ class TestAdminServicePost:
 
         assert exec.value.status_code == 400
         assert exec.value.detail ==  "InternalErrorException"
+
+    #sign out
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_user_global_sign_out")
+    async def test_admin_user_global_sign_out_success(mock_admin_user_global_sign_out: MagicMock):
+        mock_admin_user_global_sign_out.return_value = {}
+
+        response = await admin_service.user_global_sign_out("swdfcs")
+
+        assert response.success is True
+        assert response.message == "Signed out swdfcs globally"
+
+        mock_admin_user_global_sign_out.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="swdfcs",
+        )
