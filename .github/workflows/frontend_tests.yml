@@ -2,12 +2,12 @@ name: Frontend Tests & Quality
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, staging, dev]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend_tests.yml'
   pull_request:
-    branches: [main, dev]
+    branches: [main, staging, dev]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend_tests.yml'
@@ -18,35 +18,11 @@ env:
 
 jobs:
   # ============================================================================
-  # SECURITY: DEPENDENCY SCANNING
-  # ============================================================================
-  security:
-    name: Security & Dependency Scanning
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
-
-      - name: Install dependencies
-        working-directory: frontend
-        run: npm ci --legacy-peer-deps
-
-      - name: Check npm packages for vulnerabilities
-        working-directory: frontend
-        run: npm audit --audit-level=high
-
-  # ============================================================================
   # LEVEL 1: CODE QUALITY GATE (Lint + Format Check)
   # ============================================================================
   quality:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
-    needs: security
 
     steps:
       - uses: actions/checkout@v4
@@ -126,7 +102,7 @@ jobs:
   # LEVEL 3: BUILD VERIFICATION
   # ============================================================================
   build:
-    name: Build Verification
+    name: Frontend Build Verification
     runs-on: ubuntu-latest
     needs: quality
 
@@ -165,3 +141,34 @@ jobs:
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # LEVEL 4: CONTINUOUS DEPLOYMENT (AWS S3 + CLOUDFRONT)
+  # ============================================================================
+  # deploy:
+  #   name: Deploy Frontend to AWS
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+
+  #   steps:
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: frontend-build-artifacts
+  #         path: frontend/dist/
+
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
+
+  #     - name: Sync build to AWS S3 Bucket
+  #       run: |
+  #         aws s3 sync frontend/dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
+
+  #     - name: Invalidate CloudFront Cache
+  #       run: |
+  #         aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"

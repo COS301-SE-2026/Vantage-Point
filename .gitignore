@@ -69,6 +69,7 @@ Thumbs.db
 # Build
 build/
 dist/
+dist-shared/
 
 # User uploads
 backend/uploads/

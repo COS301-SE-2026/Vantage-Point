@@ -30,8 +30,8 @@ class PlayerSummary(BaseModel):
 
 
 class ProfileResponse(BaseModel):
-    uuid: str
-    username: str
+    cognito_sub: str
+    display_name: Optional[str] = None
     total_matches: int
     player_summary: PlayerSummary
 

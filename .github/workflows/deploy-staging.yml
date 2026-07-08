@@ -1,0 +1,31 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (Trigger)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+              # Navigate to the project directory
+              cd Vantage-Point-Staging || exit 1
+
+              # Pull the latest main branch onto the server
+              git pull origin staging
+
+              # Run the deployment script
+              chmod +x .github/workflows/deploy-staging.sh
+              .github/workflows/deploy-staging.sh

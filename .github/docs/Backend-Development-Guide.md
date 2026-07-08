@@ -32,10 +32,26 @@ cp .env.example .env
 ```
 
 ## Running Locally
+
+### Quick start
+
+From the repo root or the `backend/` directory:
+
 ```sh
-# Start development server with auto-reload
-uvicorn app.main:app --reload
+./backend/start.sh
 ```
+
+The script activates `.venv` or `venv` if present, then runs uvicorn with reload on port 8000.
+
+### Manual alternative
+
+```sh
+cd backend
+source venv/bin/activate
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+To run backend and frontend together, use `./scripts/start.sh` from the repo root.
 
 ### Access:
 - API: `http://localhost:8000`
@@ -91,6 +107,12 @@ ruff check app --fix
 
 # Type checking
 mypy app
+
+# Security & bug scan (replicates SonarQube security checks)
+bandit -r app -ll
+
+# Dead code, TODO comments, commented-out code (replicates SonarQube style checks)
+pylint app --disable=all --enable=W0511,W0105,W0611
 ```
 
 ## Environment Variables
