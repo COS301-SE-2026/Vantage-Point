@@ -74,7 +74,7 @@ def profile_data(puuid):
             info.append(i.playerScore10)
             info.append(i.playerScore11)
             info.append(i.pentakills)
-            info.append * (i.quadrakills)
+            info.append(i.quadrakills)
             info.append(i.timePlayed)
             info.append(i.tripleKills)
             info.append(i.unrealKills)

@@ -55,21 +55,18 @@ def hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat):
 
 
 def giniImportance(rf, fileName, runCat, yVal):
+
     with open(fileName, "r") as f:
         data = csv.reader(f)
         feature_names = []
-        for row in data:
-            for i in row:
-                if i == yVal:
+
+        for i in data[0]:
+            if i == yVal:
+                continue
+            if runCat == "skill" | runCat == "role":
+                if i == "levelUpType" | i == "lane":
                     continue
-                if runCat == "skill":
-                    if i == "levelUpType":
-                        continue
-                if runCat == "role":
-                    if i == "lane":
-                        continue
-                feature_names.append(i)
-            break
+            feature_names.append(i)
 
     if runCat == "skill" or runCat == "role":
         feature_impts = []
@@ -79,9 +76,7 @@ def giniImportance(rf, fileName, runCat, yVal):
     else:
         importances = rf.feature_importances_
 
-    feature_imp_df = pd.DataFrame(
-        {"Feature": feature_names, "Gini Importance": importances}
-    ).sort_values("Gini Importance", ascending=False)
+    feature_imp_df = pd.DataFrame({"Feature": feature_names, "Gini Importance": importances}).sort_values("Gini Importance", ascending=False)
     return feature_imp_df
 
 
@@ -108,7 +103,6 @@ def rf_multivariate(X_train, X_test, y_train, y_test):
     return scores, rfMulti
 
 
-
 ###### TESTING AND EVALUATION #######
 
 
@@ -125,7 +119,7 @@ def test_and_eval(fileName, runCat):
         case "role":
             base_ac, rf_model = rf_multivariate(X_train, X_test, y_train, y_test)
 
-    param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test)
+    param_ac = hyperparam_gridSearch(X_train, X_test, y_train, y_test, runCat)
     feature_dif = giniImportance(rf_model)
 
     print("")
@@ -177,9 +171,11 @@ def final_train(fileName, runCat):
     return rf_model, base_ac
 
 
-# runCat = champion, item, skill, role
+# runCat: champion, item, skill, role
 # return rf_model, base_ac
-#rf, ac = final_train("champ_rf_training.csv", "champion")
+rf, ac = final_train("/workspaces/skill_rf_training.csv", "skill")
+print("Done")
+print(ac)
 
 # to use:
 #   coord = rf.predict(input_values)

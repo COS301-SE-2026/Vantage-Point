@@ -5,8 +5,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor  # type: ignore
 
 
-def optimizeGridSearch():
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
+def optimizeGridSearch(fileName):
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN(fileName)
     parameters = {
         "n_neighbors": range(1, 35),
         "weights": ["uniform", "distance"],
@@ -24,8 +24,8 @@ def optimizeGridSearch():
     )
 
 
-def optimizeBagging(p1, p2):
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN("test200000.csv")
+def optimizeBagging(p1, p2, fileName):
+    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN(fileName)
     best_k = p1
     best_weights = p2
     bagged_knn = KNeighborsRegressor(n_neighbors=best_k, weights=best_weights)
@@ -58,7 +58,7 @@ def testPredict():
 
 def getKnn(fileName):
     # get data from Converter_Main
-    y_train, y_test, X_train, X_test = converter.getTrainTestDataKNN(fileName)
+    y_train, _, X_train, _ = converter.getTrainTestDataKNN(fileName)
 
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100)
@@ -67,7 +67,7 @@ def getKnn(fileName):
     return bagging_model
 
 
-# return knn_model
+# gives knn_model
 knn = getKnn("test200000.csv")
 # to use:
 #   coord = knn.predict(input_values)
