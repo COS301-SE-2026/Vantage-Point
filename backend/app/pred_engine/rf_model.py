@@ -10,7 +10,8 @@ import time
 import csv
 
 warnings.filterwarnings("ignore")
-
+file_error_text = "Training file not found"
+data_error_text = "Error in Converter_Main.py, returning empty datasets"
 
 def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
     param_grid = {
@@ -55,11 +56,11 @@ def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
 
 
 def gini_importance(rf, file_name, run_cat, y_val):
-    #add file check
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     with open(file_name, "r") as f:
@@ -114,19 +115,19 @@ def rf_multivariate(x_train, x_test, y_train, y_test):
 ###### TESTING AND EVALUATION #######
 
 
-def test_and_eval(file_name, run_cat):
-    #add file check
+def test_and_eval(file_name, run_cat, y_val):
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
 
-    #nullcheck data
+    # nullcheck data
     if x_train == [] | x_test == [] | y_train == [] | y_test == []:
-        print("Error in Converter_Main.py, returning empty datasets")
+        print(data_error_text)
         exit()
 
     match run_cat:
@@ -140,7 +141,7 @@ def test_and_eval(file_name, run_cat):
             base_ac, rf_model = rf_multivariate(x_train, x_test, y_train, y_test)
 
     param_ac = hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat)
-    feature_dif = gini_importance(rf_model)
+    feature_dif = gini_importance(rf_model, file_name, run_cat, y_val)
 
     print("")
     print(f"Base accuracy: {base_ac}")
@@ -153,18 +154,18 @@ def test_and_eval(file_name, run_cat):
 
 def final_train(file_name, run_cat):
     start = time.time()
-    #add file check
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
 
-    #nullcheck data
+    # nullcheck data
     if x_train == [] | x_test == [] | y_train == [] | y_test == []:
-        print("Error in Converter_Main.py, returning empty datasets")
+        print(data_error_text)
         exit()
 
     a = ["champion", "item"]

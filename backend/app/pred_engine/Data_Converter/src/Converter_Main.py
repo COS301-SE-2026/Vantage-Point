@@ -3,6 +3,7 @@ import random
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 
+file_error_text = "Training file not found"
 
 # needs to be changed still
 def get_from_api():
@@ -93,6 +94,15 @@ def format_data_univar(data, pos, role, lane):
 
     return data_arr, y
 
+def remove_dup(row, prev_row, r):
+    # if feature values are identical, take random row
+        if r != 0 and row[1:] == prev_row[1:]:
+            num = int(random.random())
+            if num == 1:  # take row
+                return True
+        else:
+            return False
+    
 
 def format_data_multivar(data, pos, role, lane):
     r = -1
@@ -107,21 +117,14 @@ def format_data_multivar(data, pos, role, lane):
 
         convert_to_int(row, lane, role, pos)
 
-        if pos == -1 and role == -1 and lane == -1:  # this is skill data
-            # if feature values are identical, take random one only
-            if r != 0 and row[1:] == prev_row[1:]:
-                # random value for if we are gonna use row or prev row
-                num = int(random.random())
-                if num == 0:  # take prevRow
-                    continue
-                elif num == 1:  # take row
-                    r = r - 1
-                    y[r] = []
-                    data_arr[r] = []
-            else:
-                data_arr.append([])
-                y.append([])
-
+        if remove_dup(row, prev_row, r):
+            r = r - 1
+            y[r] = []
+            data_arr[r] = []
+        else:
+            data_arr.append([])
+            y.append([])
+        
         c = 0
         for i in row:
             if c == 0 or c == 1:
@@ -140,11 +143,11 @@ def format_data_multivar(data, pos, role, lane):
 
 
 def get_train_test_data_knn(file_name):
-    #do file check
+    # do file check
     try:
-        f = open(file_name, 'r')
+        f = open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     with f:
@@ -162,11 +165,11 @@ def get_train_test_data_knn(file_name):
 
 
 def get_train_test_data_rf(file_name, category):
-    #do file check
+    # do file check
     try:
-        f = open(file_name, 'r')
+        f = open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     with f:

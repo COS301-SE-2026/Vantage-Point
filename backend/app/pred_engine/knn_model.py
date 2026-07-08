@@ -4,20 +4,22 @@ import Data_Converter.src.Converter_Main as converter  # type: ignore
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import BaggingRegressor  # type: ignore
 
+file_error_text = "Training file not found"
+data_error_text = "Error in Converter_Main.py, returning empty datasets"
 
 def optimize_grid_search(file_name):
-    #add file check
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
 
-    #nullcheck data
+    # nullcheck data
     if x_train == [] | x_test == [] | y_train == [] | y_test == []:
-        print("Error in Converter_Main.py, returning empty datasets")
+        print(data_error_text)
         exit()
 
     parameters = {
@@ -38,18 +40,18 @@ def optimize_grid_search(file_name):
 
 
 def optimize_agging(p1, p2, file_name):
-    #add file check
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
 
-    #nullcheck data
+    # nullcheck data
     if x_train == [] | x_test == [] | y_train == [] | y_test == []:
-        print("Error in Converter_Main.py, returning empty datasets")
+        print(data_error_text)
         exit()
 
     best_k = p1
@@ -64,18 +66,18 @@ def optimize_agging(p1, p2, file_name):
 
 
 def test_predict(file_name):
-    #add file check
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
 
-    #nullcheck data
+    # nullcheck data
     if x_train == [] | x_test == [] | y_train == [] | y_test == []:
-        print("Error in Converter_Main.py, returning empty datasets")
+        print(data_error_text)
         exit()
 
     # train model
@@ -96,18 +98,18 @@ def test_predict(file_name):
 
 
 def get_knn(file_name):
-    #add file check
+    # add file check
     try:
-        open(file_name, 'r')
+        open(file_name, "r")
     except OSError:
-        print("Training file not found")
+        print(file_error_text)
         exit()
 
     y_train, _, x_train, _ = converter.get_train_test_data_knn(file_name)
 
-    #nullcheck data
+    # nullcheck data
     if x_train == [] | y_train == []:
-        print("Error in Converter_Main.py, returning empty datasets")
+        print(data_error_text)
         exit()
 
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
