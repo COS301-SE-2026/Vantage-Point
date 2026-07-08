@@ -17,7 +17,7 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: i
 
 # admin abilities/services
 
-
+user_not_found: str = "User not found!"
 class admin_service:
     @staticmethod
     async def get_users(limit: int = 10) -> list[UserResponse]:
@@ -86,7 +86,7 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
-                raise HTTPException(status_code=404, detail="User not found.")
+                raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
                 raise HTTPException(status_code=422, detail="Invalid username")
             raise HTTPException(status_code=400, detail=error_code)

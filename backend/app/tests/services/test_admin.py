@@ -63,8 +63,9 @@ class admin_test_get:
             Username="shaun"
         )
 
+    @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
-    async def get_user_not_found_exception(mock_admin_get_user):
+    async def get_user_not_found_exception(mock_admin_get_user: MagicMock):
         mock_admin_get_user.side_effect = ClientError(
             {
                 "Error": {
@@ -80,3 +81,22 @@ class admin_test_get:
 
         assert exec.value.status_code == 404
         assert exec.value.detail == "User not found"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_get_user")
+    async def get_user_not_found_exception1(mock_admin_get_user: MagicMock):
+        mock_admin_get_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InvalidParamaterException",
+                    "Message": "Invalid username"
+                }
+            },
+            "user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.get_user("shaun")
+
+        assert exec.value.status_code == 422
+        assert exec.value.detail == "Invalid username"
