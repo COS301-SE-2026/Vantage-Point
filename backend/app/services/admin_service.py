@@ -103,10 +103,10 @@ class admin_service:
 
             response = Response(
                 success=True,
-                message=
+                message=f"Added {username} to {group}"
             )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -129,10 +129,10 @@ class admin_service:
             )
             response = Response(
                 success=True,
-                message=
+                message=f"Removed {username} from {group}"
             )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -148,10 +148,10 @@ class admin_service:
             )
             response = Response(
                 success=True,
-                message=
+                message=f"Disabled {username}"
             )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -167,10 +167,10 @@ class admin_service:
             )
             response = Response(
                 success=True,
-                message=
+                message=f"Enabled {username}"
             )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -188,10 +188,10 @@ class admin_service:
             )
             response = Response(
                 success=True,
-                message=
+                message=f"Set {username}'s password"
             )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -215,10 +215,10 @@ class admin_service:
             )
             response = Response(
                 success=True,
-                message=
+                message=f"Signed out {username} globally"
             )
 
-            return {"success": True}
+            return response
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -226,7 +226,7 @@ class admin_service:
 
     # require db
     @staticmethod
-    async def delete_user(session: AsyncSession, username: str, sub: str) -> Response:
+    async def delete_user(session: AsyncSession, username: str, sub: str) -> Response | None:
         try:
             await asyncio.to_thread(
                 client.admin_delete_user,
