@@ -623,7 +623,7 @@ class testAdminDelete:
     
     @staticmethod
     @patch("app.services.admin_service.client.admin_remove_user_from_group")
-    async def test_get_user_success(mock_admin_remove_user_from_group: MagicMock):
+    async def test_remove_user_from_group_success(mock_admin_remove_user_from_group: MagicMock):
         mock_admin_remove_user_from_group.return_value = {}
 
         response = await admin_service.remove_user_from_group("swdfcs")
@@ -631,3 +631,21 @@ class testAdminDelete:
         assert response.success is True
         assert response.message == "Removed swdfcs from Users"   
     
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_remove_user_from_group")
+    async def test_remove_user_from_group_unknown_error(mock_admin_remove_user_from_group: MagicMock):
+        mock_admin_remove_user_from_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "get_user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.remove_user_from_group("swdfcs")
+        
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
