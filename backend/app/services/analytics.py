@@ -1,8 +1,9 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import MapReplay, MapSuggestData
+from app.Models.riot_schemas import MapReplay, MapSuggestData, ProfileData
 from app.services.riot_service import riot_service
+from fastapi import HTTPException
 
 
 class LiveAnalyticsService:
@@ -272,9 +273,71 @@ class LiveAnalyticsService:
             lane=[p["lane"] for p in match["info"]["participants"]["championId"]],
         )
 
-    async def profile_data(self, match_id: str) -> Any:
+    async def profile_data(self, match_id: str, puuid: str) -> ProfileData:
         try:
             match = await riot_service.get_match_detail(match_id)
+
+            #cast 
+            info = match["info"]
+            #paticipants filter by puuid
+            index = next(
+                (i for i, participant in enumerate(info["participants"]) if participant["puuid"] == puuid),
+                None,
+            )
+            if index is None:
+                raise HTTPException(status_code=404, detail="Participant not found")
+            
+            participants = info["participants"][index]
+
+            response = ProfileData(
+                endOfGameResult=info["endOfGameResult"],
+                gameDuration=info["gameDuration"],
+                puuid=puuid,
+                champExperience=participants["champExperience"],
+                champLevel=participants["champLevel"],
+                goldPerMinute=12,
+                kda=participants["challenges"]["kda"],
+                deaths=participants["deaths"],
+                doubleKills=participants["doubleKills"],
+                killingSprees=participants["killingSprees"],
+                largestKillingSpree=participants["largestKillingSpree"],
+                largestMultiKill=participants["largestMultiKill"],
+                playerScore0=participants["playerScore0"],
+                playerScore1=participants["playerScore1"],
+                playerScore2=participants["playerScore2"],
+                playerScore3=participants["playerScore3"],
+                playerScore4=participants["playerScore4"],
+                playerScore5=participants["playerScore5"],
+                playerScore6=participants["playerScore6"],
+                playerScore7=participants["playerScore7"],
+                playerScore8=participants["playerScore8"],
+                playerScore9=participants["playerScore9"],
+                playerScore10=participants["playerScore10"],
+                playerScore11=participants["playerScore11"],
+                pentakills=participants["pentaKills"],
+                quadrakills=participants["quadraKills"],
+                timePlayed=participants["timePlayed"],
+                tripleKills=participants["tripleKills"],
+                unreal=participants["unrealKills"],
+                lane=participants["lane"],
+                kills=participants["kills"],
+                teamPosition=participants["teamPosition"],              
+            )
+            # might add this later
+            # //dpm
+            # //creep score
+            # //xp       
+            return response
+        except KeyError as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Missing expected Riot API Field: {e}"
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Unexpected error: {e}"
+            )
             
 
 

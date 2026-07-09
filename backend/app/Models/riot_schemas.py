@@ -403,3 +403,6 @@ class ProfileData(BaseModel):
     timePlayed: int
     tripleKills: int
     unreal: int
+    kills: int
+    lane: str
+    teamPosition: str
