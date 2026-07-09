@@ -678,4 +678,22 @@ class testAdminDelete:
         mock_session.delete.assert_awaited_once_with(mock_user)
         mock_session.commit.assert_awaited_once()
 
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_delete_user")
+    async def test_delete_user_not_found_exception(mock_admin_delete_user: MagicMock):
+        mock_admin_delete_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "UserNotFoundException",
+                    "Message": "User not found"
+                }
+            },
+            "delete_user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.delete_user(mock_session, "shaun", "12345")
+
+        assert exec.value.status_code == 404
+        assert exec.value.detail == "User not found"
         
