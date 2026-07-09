@@ -246,7 +246,7 @@ class admin_service:
             
             response = Response(
                 success=True,
-                message=f"Deleted {username} permanetly"
+                message=f"Deleted {username} permanently"
             )
 
             return response

@@ -641,7 +641,7 @@ class testAdminDelete:
                     "Message": "Internal server error"
                 }
             },
-            "get_user"       
+            "delete_user"       
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -656,9 +656,26 @@ class testAdminDelete:
     async def test_delete_user_success(mock_admin_delete_user: MagicMock):
         mock_admin_delete_user.return_value = {}
 
+        mock_user = MagicMock()
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none.return_value = mock_user
+
+        mock_session.execute.return_value = mock_result
+        mock_session.commit.return_value = None
+        mock_session.delete.return_value = None
+
         response = await admin_service.delete_user(mock_session, "shaun", "12345")
 
         assert response.success is True
-        assert response.message == "Deleted shaun permanetly"
+        assert response.message == "Deleted shaun permanently"
+
+        mock_admin_delete_user.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="shaun"
+        )
+
+        mock_session.execute.assert_awaited_once()
+        mock_session.delete.assert_awaited_once_with(mock_user)
+        mock_session.commit.assert_awaited_once()
 
         
