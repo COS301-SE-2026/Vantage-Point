@@ -37,6 +37,7 @@ def client():
 
     Scope: function (new instance for each test)
     """
+    print("Using overridden client")
 
     app.dependency_overrides[get_current_user] = lambda: fake_user
     app.dependency_overrides[oauth2_scheme] = lambda: HTTPAuthorizationCredentials(

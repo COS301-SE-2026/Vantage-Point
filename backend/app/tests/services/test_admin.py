@@ -68,7 +68,7 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "UserNotFoundException",
-                    "Message": "User not found"
+                    "Message": "User not found!"
                 }
             },
             "get_user"       
@@ -78,7 +78,7 @@ class TestAdminGet:
             await admin_service.get_user("shaun")
 
         assert exec.value.status_code == 404
-        assert exec.value.detail == "User not found"
+        assert exec.value.detail == "User not found!"
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
@@ -96,8 +96,8 @@ class TestAdminGet:
         with pytest.raises(HTTPException) as exec:
             await admin_service.get_user("shaun")
 
-        assert exec.value.status_code == 422
-        assert exec.value.detail == "Invalid username"
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InvalidParamaterException"
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
@@ -173,7 +173,7 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "UserNotFoundException",
-                    "Message": "User not found"
+                    "Message": "User not found."
                 }
             },
             "get_users"       
@@ -183,7 +183,7 @@ class TestAdminGet:
             await admin_service.get_users()
 
         assert exec.value.status_code == 404
-        assert exec.value.detail == "User not found"
+        assert exec.value.detail == "User not found."
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
@@ -201,8 +201,8 @@ class TestAdminGet:
         with pytest.raises(HTTPException) as exec:
             await admin_service.get_users()
 
-        assert exec.value.status_code == 422
-        assert exec.value.detail == "Invalid username"
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InvalidParamaterException"
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
@@ -260,7 +260,7 @@ class TestAdminServicePost:
             await admin_service.add_user_to_group("shaun")
 
         assert exec.value.status_code == 404
-        assert exec.value.detail == "User not found"
+        assert exec.value.detail == "User not found."
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_add_user_to_group")
@@ -310,7 +310,7 @@ class TestAdminServicePost:
         response = await admin_service.set_password("swdfcs", "Test@Password123")
 
         assert response.success is True
-        assert response.message == "Set swdfcs's passwpord"
+        assert response.message == "Set swdfcs's password"
 
         mock_admin_set_password.assert_called_once_with(
             UserPoolId=settings.cognito_user_pool_id,

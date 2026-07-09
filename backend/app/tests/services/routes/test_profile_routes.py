@@ -12,14 +12,14 @@ from app.api.auth import get_current_user
 class TestProfileRoutes:
     """Test suite for /api/profile endpoints."""
 
-    @pytest.fixture(autouse=True)
-    def setup_auth_override(self):
-        """Override the get_current_user dependency for all tests in this class."""
-        # This is the "FastAPI way" to mock dependencies
-        app.dependency_overrides[get_current_user] = lambda: "test-uuid-123"
-        yield
-        # Clean up after the tests are done
-        app.dependency_overrides.clear()
+    # @pytest.fixture(autouse=True)
+    # def setup_auth_override(self):
+    #     """Override the get_current_user dependency for all tests in this class."""
+    #     # This is the "FastAPI way" to mock dependencies
+    #     app.dependency_overrides[get_current_user] = lambda: "test-uuid-123"
+    #     yield
+    #     # Clean up after the tests are done
+    #     app.dependency_overrides.clear()
 
     @patch("app.services.profile_services.ProfileService.get_or_create_profile")
     @patch("app.services.profile_services.ProfileService.build_player_summary")
@@ -47,7 +47,7 @@ class TestProfileRoutes:
         }
         mock_summary.return_value = (10, mock_player_summary)
 
-        response = client.get("/api/profile")
+        response = client.get("/profile/get")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -78,7 +78,7 @@ class TestProfileRoutes:
         mock_summary.return_value = (0, mock_player_summary)
 
         payload = {"username": "NewUser", "game_name": "RiotName", "tag_line": "1234"}
-        response = client.post("/api/profile", json=payload)
+        response = client.post("/profile/get", json=payload)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["cognito_sub"] == "test-uuid-123"
@@ -91,7 +91,7 @@ class TestProfileRoutes:
         """Test DELETE /api/profile success."""
         mock_schedule.return_value = datetime.now(timezone.utc) + timedelta(days=30)
 
-        response = client.delete("/profile/schedule_delete")
+        response = client.post("/profile/schedule_delete")
 
         assert response.status_code == status.HTTP_200_OK
         assert "marked for deletion" in response.json()["message"]

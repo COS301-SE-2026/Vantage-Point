@@ -6,7 +6,7 @@ import traceback
 # from sqlmodel import col
 from typing import Any
 from app.database.models import Users
-# from app.Models.profile_schemas import User
+from app.Models.profile_schemas import UserProfile
 
 # from app.Models.profile_schemas import (
 #     PlayerSummary,
@@ -157,13 +157,13 @@ class ProfileService:
             }
             # todo need to change object as can't hardcode user type
             #need to update this to what is expected give error due ti wrong data retrieved
-            user = Users(
-                cognito_sub=attributes["sub"],
+            user = UserProfile(
+                sub=attributes["sub"],
                 email=attributes["email"],
-                display_name=response["Username"],           
+                username=response["Username"]         
             )
 
-            statement = select(Users).where(Users.cognito_sub == user.cognito_sub)
+            statement = select(Users).where(Users.cognito_sub == user.sub)
             result: Any = await session.execute(statement)
             profile: Any | None = result.scalar_one_or_none()
 
@@ -177,7 +177,7 @@ class ProfileService:
 
     @staticmethod
     async def create_profile(
-        session: AsyncSession, user: Users | None
+        session: AsyncSession, user: UserProfile | None
     ) -> (
         Users
     ):  # none is there for incase we only want ti use this endpoint in admin. More flexibility
@@ -185,15 +185,15 @@ class ProfileService:
             if user is None:
                 raise HTTPException(status_code=400, detail="User objects is empty.")
 
-            if user.display_name is None:
+            if user.username is None:
                 raise HTTPException(status_code=400, detail="Username is missing.")          
 
             # create profile and get then return profile as is. Used when laod profile. Lazy loading
             # create in db
             profile = Users(
-                cognito_sub=user.cognito_sub,
+                cognito_sub=user.sub,
                 email=user.email,
-                display_name=user.display_name,
+                display_name=user.username,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 deletion_scheduled_at=datetime(1999, 12, 31),
@@ -202,7 +202,7 @@ class ProfileService:
             await session.commit()
             await session.refresh(user)
 
-            return user
+            return profile
         except ClientError as e:
             logger.exception("Create profile")
             print(e.response)
@@ -225,9 +225,8 @@ class ProfileService:
                 for attr in response["UserAttributes"]
             }
             # todo need to change object as can't hardcode user type
-            user = User(
+            user = UserProfile(
                 sub=attributes["sub"],
-                groups=["user"],
                 username=response["Username"],
                 email=attributes["email"],
             )
@@ -265,9 +264,8 @@ class ProfileService:
                 for attr in response["UserAttributes"]
             }
             # todo need to change object as can't hardcode user type
-            user = User(
+            user = UserProfile(
                 sub=attributes["sub"],
-                groups=["user"],
                 username=response["Username"],
                 email=attributes["email"],
             )

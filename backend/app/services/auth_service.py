@@ -98,7 +98,6 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
             "access_token": auth_result["AccessToken"],
             "id_token": auth_result["IdToken"],
             "refresh_token": auth_result["RefreshToken"],
-            "expires_in": 3600,
         }
     except ClientError as e:
         handle_cognito_error(e)
