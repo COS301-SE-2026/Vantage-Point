@@ -817,3 +817,22 @@ class testAdminPatch:
             UserPoolId=settings.cognito_user_pool_id,
             Username="shaun"
         )
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_disable_user")
+    async def test_admin_enable_user_unknown_error(mock_admin_disable_user: MagicMock):
+        mock_admin_disable_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "admin_disable_user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.enable_user("shaun")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
