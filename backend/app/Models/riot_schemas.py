@@ -336,7 +336,11 @@ class MapSuggestData(BaseModel):
 
 
 class MatchData(BaseModel):
-    match_start: MatchInfo
+    end_of_game_result: str
+    gameDuration: int
+    gameMode: str
+    gameName: str
+    mapId: int
     champExperience: int
     champLevel: int
     championName: str
@@ -418,7 +422,6 @@ class ProfileData(BaseModel):
     killingSprees: int
     largestKillingSpree: int
     largestMultiKill: int
-    #????following is questionable
     playerScore0: int
     playerScore1: int
     playerScore2: int
@@ -431,7 +434,6 @@ class ProfileData(BaseModel):
     playerScore9: int
     playerScore10: int
     playerScore11: int
-    #?????????questions end
     pentakills: int
     quadrakills: int
     timePlayed: int

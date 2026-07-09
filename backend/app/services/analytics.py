@@ -355,7 +355,81 @@ class LiveAnalyticsService:
 
             participants = info["participants"]
             response = MatchData(
-
+                end_of_game_result=info["endOfGameResult"],
+                gameDuration=info["gameDuration"],
+                gameMode=info["gameMode"],
+                gameName=info["gameName"],
+                mapId=["mapId"],
+                champExperience=participants["champExperience"],
+                champLevel=participants["champLevel"],
+                championName=participants["championName"],
+                earliestBaron: int
+                earliestDragonTakedown: int
+                earliestElderDragon: int
+                fastestLegendary: int
+                highestChampionDamage: int
+                takedownFirst25Min: int
+                teleportTakedowns: int
+                thirdInhibitorDestroyedTime: int
+                fistBumpTakedowns: int
+                baronTakedowns: int
+                bountyGold: int
+                damagePerMinute: int
+                deatshByEnemyChamps: int
+                elderDragonMultikill: int
+                enemyJungleMonsterKills: int
+                firstTurretKilled: bool
+                firstTuttetKilledTime: int
+                gameLength: int
+                goldPerMinute: int
+                kda: float
+                killingSprees: int
+                lostAnInhibitor: int
+                perfectDragonSoulsTaken: int
+                quickFirstTurrentKills: int
+                quickSoloKills: int
+                scuttleCrabKills: int
+                soloBaronKills: int
+                SWARM_DefeatAatrox: int
+                SWARM_DefeatBriar: int
+                SWARM_DefeatMiniBosses: int 
+                SWARM_EvolveWeapon: int
+                SWARM_Have3Passives: int
+                SWARM_KillEnemy: int
+                SWARM_PickupGold: float
+                SWARM_ReachLevel50: int
+                SWARM_WinWith5EvolvedWeapons: int
+                soloKills: int
+                stealthWardsPlaced: int
+                takedowns: int
+                teamBaronKills: int
+                teamElderDragonKills: int
+                teamRiftHeraldKills: int
+                unseenRecalls: int
+                visionScorePerMinute: float
+                wardTakedowns: int
+                platformId: str
+                championId: int
+                pickTurn: int
+                baron_first: bool
+                baron_kills: int
+                champion_first: bool
+                champion_kills: int
+                dragon_first: bool
+                dragon_kills: int
+                horde_first: bool
+                horde_kills: int
+                inhibitor_first: bool
+                inhobitor_kills: int
+                riftHerald_first: bool
+                riftherald_kills: int
+                tower_first: bool
+                tower_kills: int
+                teams_teamId: int
+                teams_win: bool
             )
+
+            return response
+        except 
 
 
