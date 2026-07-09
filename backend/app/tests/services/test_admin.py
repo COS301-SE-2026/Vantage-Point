@@ -734,4 +734,19 @@ class testAdminDelete:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
-        
+
+    #remove group
+    @staticmethod
+    @patch("app.services.admin_service.client.delete_group")
+    async def test_delete_group_success(mock_delete_group: MagicMock):
+        mock_delete_group.return_value = {}
+
+        response = await admin_service.delete_group("users")
+
+        assert response.success is True
+        assert response.message == "Deleted users group"
+
+        mock_delete_group.assert_called_once_with(
+            GroupName="users",
+            UserPoolId=settings.cognito_user_pool_id
+        )
