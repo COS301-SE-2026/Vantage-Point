@@ -272,4 +272,9 @@ class LiveAnalyticsService:
             lane=[p["lane"] for p in match["info"]["participants"]["championId"]],
         )
 
-    # async def profile_data(self, match_id: str) -> Any:
+    async def profile_data(self, match_id: str) -> Any:
+        try:
+            match = await riot_service.get_match_detail(match_id)
+            
+
+

@@ -370,3 +370,36 @@ class MatchData(BaseModel):
     soloBaronKills: int
     SWARM_DefeatAatrox: int
     SWARM_DefeatBriar: int
+
+class ProfileData(BaseModel):
+    endOfGameResult: str
+    gameDuration: float
+    puuid: str
+    champExperience: int
+    champLevel: int
+    goldPerMinute: float
+    kda: float
+    deaths: int
+    doubleKills: int
+    killingSprees: int
+    largestKillingSpree: int
+    largestMultiKill: int
+    #????following is questionable
+    playerScore0: int
+    playerScore1: int
+    playerScore2: int
+    playerScore3: int
+    playerScore4: int
+    playerScore5: int
+    playerScore6: int
+    playerScore7: int
+    playerScore8: int
+    playerScore9: int
+    playerScore10: int
+    playerScore11: int
+    #?????????questions end
+    pentakills: int
+    quadrakills: int
+    timePlayed: int
+    tripleKills: int
+    unreal: int
