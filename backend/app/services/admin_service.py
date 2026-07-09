@@ -225,7 +225,7 @@ class admin_service:
 
     # require db
     @staticmethod
-    async def delete_user(session: AsyncSession, username: str, sub: str) -> Response | None:
+    async def delete_user(session: AsyncSession, username: str, sub: str) -> Response:
         try:
             await asyncio.to_thread(
                 client.admin_delete_user,

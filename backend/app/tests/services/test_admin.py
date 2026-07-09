@@ -658,4 +658,7 @@ class testAdminDelete:
 
         response = await admin_service.delete_user(mock_session, "shaun", "12345")
 
+        assert response.success is True
+        assert response.message == "Deleted shaun permanetly"
+
         
