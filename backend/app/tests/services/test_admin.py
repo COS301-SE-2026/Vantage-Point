@@ -715,4 +715,23 @@ class testAdminDelete:
 
         assert exec.value.status_code == 422
         assert exec.value.detail == "Invalid username"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_delete_user")
+    async def test_delete_user_unknown_error(mock_admin_delete_user: MagicMock):
+        mock_admin_delete_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "delete_user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.delete_user(mock_session, "shaun", "12345")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
         
