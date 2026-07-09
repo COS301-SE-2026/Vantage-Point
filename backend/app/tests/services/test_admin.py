@@ -5,14 +5,10 @@ Test all admin endpoints and Mocks AWS Cognito dependency
 """
 
 import pytest
-from typing import Any
 from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
-from fastapi.testclient import TestClient
 from app.services.admin_service import admin_service
-from app.Models.admin_model import UserResponse
-from app.tests.constants import TEST_USER_PASSWORD
 from datetime import datetime, timezone
 from app.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -788,4 +784,21 @@ class testAdminPatch:
             Username="shaun"
         )
 
-    
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_enable_user")
+    async def test_admin_enable_user_unknown_error(mock_admin_enable_user: MagicMock):
+        mock_admin_enable_user.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "admin_enable_user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.enable_user("shaun")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
