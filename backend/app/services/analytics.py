@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import MapReplay, MapSuggestData, ProfileData
+from app.Models.riot_schemas import MapReplay, MapSuggestData, ProfileData, MatchData
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -339,5 +339,23 @@ class LiveAnalyticsService:
                 detail=f"Unexpected error: {e}"
             )
             
+    async def match_data(self, match_id: str, puuid: str):
+        try:
+            match = await riot_service.get_match_detail(match_id)
+            #cast 
+            info = match["info"]
+            #paticipants filter by puuid
+            index = next(
+                (i for i, participant in enumerate(info["participants"]) if participant["puuid"] == puuid),
+                None,
+            )
+
+            if index is None:
+                raise HTTPException(status_code=404, detail="Participant not found")
+
+            participants = info["participants"]
+            response = MatchData(
+
+            )
 
 

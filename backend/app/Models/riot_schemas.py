@@ -336,7 +336,6 @@ class MapSuggestData(BaseModel):
 
 
 class MatchData(BaseModel):
-    match_id: int  # used for caching trying to reduce the calls to the api
     match_start: MatchInfo
     champExperience: int
     champLevel: int
@@ -370,6 +369,41 @@ class MatchData(BaseModel):
     soloBaronKills: int
     SWARM_DefeatAatrox: int
     SWARM_DefeatBriar: int
+    SWARM_DefeatMiniBosses: int 
+    SWARM_EvolveWeapon: int
+    SWARM_Have3Passives: int
+    SWARM_KillEnemy: int
+    SWARM_PickupGold: float
+    SWARM_ReachLevel50: int
+    SWARM_WinWith5EvolvedWeapons: int
+    soloKills: int
+    stealthWardsPlaced: int
+    takedowns: int
+    teamBaronKills: int
+    teamElderDragonKills: int
+    teamRiftHeraldKills: int
+    unseenRecalls: int
+    visionScorePerMinute: float
+    wardTakedowns: int
+    platformId: str
+    championId: int
+    pickTurn: int
+    baron_first: bool
+    baron_kills: int
+    champion_first: bool
+    champion_kills: int
+    dragon_first: bool
+    dragon_kills: int
+    horde_first: bool
+    horde_kills: int
+    inhibitor_first: bool
+    inhobitor_kills: int
+    riftHerald_first: bool
+    riftherald_kills: int
+    tower_first: bool
+    tower_kills: int
+    teams_teamId: int
+    teams_win: bool
 
 class ProfileData(BaseModel):
     endOfGameResult: str
