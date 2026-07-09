@@ -18,8 +18,9 @@ from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
 from typing import Any
-from app.api.auth import get_current_user
+from app.api.auth import get_current_user, oauth2_scheme
 from app.Models.auth_model import UserTest
+from fastapi.security import HTTPAuthorizationCredentials
 
 fake_user = UserTest(
     sub="123456",
@@ -38,6 +39,10 @@ def client():
     """
 
     app.dependency_overrides[get_current_user] = lambda: fake_user
+    app.dependency_overrides[oauth2_scheme] = lambda: HTTPAuthorizationCredentials(
+        scheme="Bearer",
+        credentials="fake-access-token"
+    )
 
     with TestClient(app) as client:
         yield client
