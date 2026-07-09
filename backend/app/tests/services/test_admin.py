@@ -856,3 +856,22 @@ class testAdminPatch:
             Description="wsdrdfr",
             Precedence=12,
         )
+
+    @staticmethod
+    @patch("app.services.admin_service.client.update_group")
+    async def test_update_group_success(mock_update_group: MagicMock):
+        mock_update_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "get_user"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.get_user("shaun")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
