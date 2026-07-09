@@ -750,3 +750,22 @@ class testAdminDelete:
             GroupName="users",
             UserPoolId=settings.cognito_user_pool_id
         )
+
+    @staticmethod
+    @patch("app.services.admin_service.client.delete_group")
+    async def test_delete_unknown_error(mock_delete_group: MagicMock):
+        mock_delete_group.side_effect = ClientError(
+            {
+                "Error": {
+                    "Code": "InternalErrorException",
+                    "Message": "Internal server error"
+                }
+            },
+            "delete_group"       
+        )
+
+        with pytest.raises(HTTPException) as exec:
+            await admin_service.delete_group("users")
+
+        assert exec.value.status_code == 400
+        assert exec.value.detail == "InternalErrorException"
