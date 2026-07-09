@@ -802,3 +802,18 @@ class testAdminPatch:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_disable_user")
+    async def test_admin_enable_user_success(mock_admin_disable_user: MagicMock):
+        mock_admin_disable_user.return_value = {}
+
+        response = await admin_service.enable_user("shaun")
+
+        assert response.success is True
+        assert response.message == "Disabled shaun"
+
+        mock_admin_disable_user.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="shaun"
+        )
