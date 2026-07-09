@@ -838,7 +838,7 @@ class testAdminPatch:
         assert exec.value.detail == "InternalErrorException"
 
 @pytest.mark.anyio
-class testAdminPatch:
+class testAdminPut:
 
     @staticmethod
     @patch("app.services.admin_service.client.update_group")
@@ -859,7 +859,7 @@ class testAdminPatch:
 
     @staticmethod
     @patch("app.services.admin_service.client.update_group")
-    async def test_update_group_success(mock_update_group: MagicMock):
+    async def test_update_group_unknown_error(mock_update_group: MagicMock):
         mock_update_group.side_effect = ClientError(
             {
                 "Error": {

@@ -6,13 +6,14 @@ from typing import Annotated
 from typing import Any
 from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.Models.admin_model import (UserResponse)
 
 router = APIRouter()
 
 
 @router.get(
     "/admin/users",
-    response_model=None,
+    response_model=list[UserResponse],
     summary="Get x amount of users from cognito",
     description="Send in x amount which pulls all users from cognito",
     tags=["admin"],
@@ -23,7 +24,7 @@ async def get_users(_: Annotated[User, Depends(require_group(20))], limit: int =
 
 @router.get(
     "/admin/users/{username}",
-    response_model=None,
+    response_model=UserResponse,
     summary="Get a specific userr from cognito",
     description="Use username to get user from cognito",
     tags=["admin"],

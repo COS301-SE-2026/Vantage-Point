@@ -18,7 +18,16 @@ from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
 from typing import Any
+from app.api.auth import get_current_user
+from app.Models.auth_model import UserTest
 
+fake_user = UserTest(
+    sub="123456",
+    username="testuser",
+    password="TestPass123",
+    email="test@example.com",
+    groups=["Admin", "User"],
+)
 
 @pytest.fixture(scope="function")
 def client():
@@ -27,7 +36,12 @@ def client():
 
     Scope: function (new instance for each test)
     """
-    return TestClient(app)
+
+    app.dependency_overrides[get_current_user] = lambda: fake_user
+
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

@@ -91,17 +91,17 @@ class TestProfileRoutes:
         """Test DELETE /api/profile success."""
         mock_schedule.return_value = datetime.now(timezone.utc) + timedelta(days=30)
 
-        response = client.delete("/api/profile")
+        response = client.delete("/profile/schedule_delete")
 
         assert response.status_code == status.HTTP_200_OK
         assert "marked for deletion" in response.json()["message"]
 
     @patch("app.services.profile_services.ProfileService.undo_account_deletion")
     async def test_undo_delete_success(self, mock_undo: MagicMock, client: TestClient):
-        """Test POST /api/profile/undo-delete success."""
+        """Test POST /profile/undo_delete success."""
         mock_undo.return_value = True
 
-        response = client.post("/api/profile/undo-delete")
+        response = client.post("/profile/undo_delete")
 
         assert response.status_code == status.HTTP_200_OK
 
@@ -112,7 +112,7 @@ class TestProfileRoutes:
         """Test POST /api/profile/undo-delete failure when not marked."""
         mock_undo.return_value = False
 
-        response = client.post("/api/profile/undo-delete")
+        response = client.post("/profile/undo_delete")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
