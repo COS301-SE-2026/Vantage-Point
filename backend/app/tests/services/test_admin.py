@@ -805,7 +805,7 @@ class testAdminPatch:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_disable_user")
-    async def test_admin_enable_user_success(mock_admin_disable_user: MagicMock):
+    async def test_admin_disable_user_success(mock_admin_disable_user: MagicMock):
         mock_admin_disable_user.return_value = {}
 
         response = await admin_service.enable_user("shaun")
@@ -820,7 +820,7 @@ class testAdminPatch:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_disable_user")
-    async def test_admin_enable_user_unknown_error(mock_admin_disable_user: MagicMock):
+    async def test_admin_disable_user_unknown_error(mock_admin_disable_user: MagicMock):
         mock_admin_disable_user.side_effect = ClientError(
             {
                 "Error": {
@@ -836,3 +836,23 @@ class testAdminPatch:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+@pytest.mark.anyio
+class testAdminPatch:
+
+    @staticmethod
+    @patch("app.services.admin_service.client.update_group")
+    async def test_update_group_success(mock_update_group: MagicMock):
+        mock_update_group.return_value = {}
+
+        response = await admin_service.update_group_attr("users", 12, "wsdrdfr")
+
+        assert response.success is True
+        assert response.message == "Updated users attribute"
+
+        mock_update_group.assert_called_once_with(
+            GroupName="users",
+            UserPoolId=settings.cognito_user_pool_id,
+            Description="wsdrdfr",
+            Precedence=12,
+        )
