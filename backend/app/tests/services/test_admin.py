@@ -769,3 +769,23 @@ class testAdminDelete:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
+@pytest.mark.anyio
+class testAdminPatch:
+
+    @staticmethod
+    @patch("app.services.admin_service.client.admin_enable_user")
+    async def test_admin_enable_user_success(mock_admin_enable_user: MagicMock):
+        mock_admin_enable_user.return_value = {}
+
+        response = await admin_service.enable_user("shaun")
+
+        assert response.success is True
+        assert response.message == "Enabled shaun"
+
+        mock_admin_enable_user.assert_called_once_with(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username="shaun"
+        )
+
+    
