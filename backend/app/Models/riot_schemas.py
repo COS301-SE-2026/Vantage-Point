@@ -390,8 +390,8 @@ class MatchData(BaseModel):
     visionScorePerMinute: float
     wardTakedowns: int
     platformId: str
-    championId: int
-    pickTurn: int
+    championId: list[int]
+    pickTurn: list[int]
     baron_first: bool
     baron_kills: int
     champion_first: bool

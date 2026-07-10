@@ -355,15 +355,23 @@ class LiveAnalyticsService:
 
             participants = info["participants"][participant_index]
 
-            team = next(
+            teams = next(
                 (t for t in info["teams"] if t["teamId"] == participants["teamId"])
             )
+            champion_id: list[int] = []
+            pick_turn:list[int] = []
+
+
+            for ban in teams["bans"]:
+                champion_id.append(ban.get("championId", 0))
+                pick_turn.append(ban["pickTurn"])
+
             response = MatchData(
                 end_of_game_result=info["endOfGameResult"],
                 gameDuration=info["gameDuration"],
                 gameMode=info["gameMode"],
                 gameName=info["gameName"],
-                mapId=["mapId"],
+                mapId=info["mapId"],
                 champExperience=participants["champExperience"],
                 champLevel=participants["champLevel"],
                 championName=participants["championName"],
@@ -413,24 +421,24 @@ class LiveAnalyticsService:
                 visionScorePerMinute=participants["challenges"]["visionScorePerMinute"],
                 wardTakedowns=participants["challenges"]["wardTakedowns"],
                 platformId=info["platformId"],
-                championId: int
-                pickTurn: int
-                baron_first=teams["objectives"]["baron"]["first"]
-                baron_kills: int
-                champion_first: bool
-                champion_kills: int
-                dragon_first: bool
-                dragon_kills: int
-                horde_first: bool
-                horde_kills: int
-                inhibitor_first: bool
-                inhobitor_kills: int
-                riftHerald_first: bool
-                riftherald_kills: int
-                tower_first: bool
-                tower_kills: int
-                teams_teamId: int
-                teams_win: bool
+                championId=champion_id,
+                pickTurn=pick_turn,
+                baron_first=teams["objectives"]["baron"]["first"],
+                baron_kills=teams["objectives"]["baron"]["kills"],
+                champion_first=teams["objectives"]["champion"]["first"],
+                champion_kills=teams["objectives"]["champion"]["kills"],
+                dragon_first=teams["objectives"]["dragon"]["first"],
+                dragon_kills=teams["objectives"]["dragon"]["kills"],
+                horde_first=teams["objectives"]["horde"]["first"],
+                horde_kills=teams["objectives"]["horde"]["kills"],
+                inhibitor_first=teams["objectives"]["inhibitor"]["first"],
+                inhobitor_kills=teams["objectives"]["inhibitor"]["kills"],
+                riftHerald_first=teams["objectives"]["riftHerald"]["first"],
+                riftherald_kills=teams["objectives"]["riftHerald"]["kills"],
+                tower_first=teams["objectives"]["tower"]["first"],
+                tower_kills=teams["objectives"]["tower"]["kills"],
+                teams_teamId=teams["teamId"],
+                teams_win=teams["win"]
             )
 
             return response
