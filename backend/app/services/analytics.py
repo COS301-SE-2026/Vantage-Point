@@ -339,7 +339,7 @@ class LiveAnalyticsService:
                 detail=f"Unexpected error: {e}"
             )
             
-    async def match_data(self, match_id: str, puuid: str):
+    async def match_data(self, match_id: str, puuid: str) -> MatchData:
         try:
             match = await riot_service.get_match_detail(match_id)
             #cast 
@@ -361,6 +361,8 @@ class LiveAnalyticsService:
             champion_id: list[int] = []
             pick_turn:list[int] = []
 
+            if teams in None:
+                raise HTTPException(status_code=500, detail="Could not get data from Riot API")
 
             for ban in teams["bans"]:
                 champion_id.append(ban.get("championId", 0))
@@ -442,6 +444,13 @@ class LiveAnalyticsService:
             )
 
             return response
-        except 
+        except HTTPException:
+            raise HTTPException(
+                status_code=500, detail="Internal server error"
+            )
+        except KeyError as e:
+            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
+        
+
 
 
