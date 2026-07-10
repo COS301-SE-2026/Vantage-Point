@@ -345,15 +345,19 @@ class LiveAnalyticsService:
             #cast 
             info = match["info"]
             #paticipants filter by puuid
-            index = next(
+            participant_index = next(
                 (i for i, participant in enumerate(info["participants"]) if participant["puuid"] == puuid),
                 None,
             )
 
-            if index is None:
+            if participant_index is None:
                 raise HTTPException(status_code=404, detail="Participant not found")
 
-            participants = info["participants"]
+            participants = info["participants"][participant_index]
+
+            team = next(
+                (t for t in info["teams"] if t["teamId"] == participants["teamId"])
+            )
             response = MatchData(
                 end_of_game_result=info["endOfGameResult"],
                 gameDuration=info["gameDuration"],
@@ -363,55 +367,55 @@ class LiveAnalyticsService:
                 champExperience=participants["champExperience"],
                 champLevel=participants["champLevel"],
                 championName=participants["championName"],
-                earliestBaron: int
-                earliestDragonTakedown: int
-                earliestElderDragon: int
-                fastestLegendary: int
-                highestChampionDamage: int
-                takedownFirst25Min: int
-                teleportTakedowns: int
-                thirdInhibitorDestroyedTime: int
-                fistBumpTakedowns: int
-                baronTakedowns: int
-                bountyGold: int
-                damagePerMinute: int
-                deatshByEnemyChamps: int
-                elderDragonMultikill: int
-                enemyJungleMonsterKills: int
-                firstTurretKilled: bool
-                firstTuttetKilledTime: int
-                gameLength: int
-                goldPerMinute: int
-                kda: float
-                killingSprees: int
-                lostAnInhibitor: int
-                perfectDragonSoulsTaken: int
-                quickFirstTurrentKills: int
-                quickSoloKills: int
-                scuttleCrabKills: int
-                soloBaronKills: int
-                SWARM_DefeatAatrox: int
-                SWARM_DefeatBriar: int
-                SWARM_DefeatMiniBosses: int 
-                SWARM_EvolveWeapon: int
-                SWARM_Have3Passives: int
-                SWARM_KillEnemy: int
-                SWARM_PickupGold: float
-                SWARM_ReachLevel50: int
-                SWARM_WinWith5EvolvedWeapons: int
-                soloKills: int
-                stealthWardsPlaced: int
-                takedowns: int
-                teamBaronKills: int
-                teamElderDragonKills: int
-                teamRiftHeraldKills: int
-                unseenRecalls: int
-                visionScorePerMinute: float
-                wardTakedowns: int
-                platformId: str
+                earliestBaron=participants["challenges"]["earliestBaron"],
+                earliestDragonTakedown=participants["challenges"]["earliestDragonTakedown"],
+                earliestElderDragon=participants["challenges"]["earliestElderDragon"],
+                fastestLegendary=participants["challenges"]["fastestLegendary"],
+                highestChampionDamage=participants["challenges"]["highestChampionDamage"],
+                takedownFirst25Min=participants["challenges"]["takedownFirst25Min"],
+                teleportTakedowns=participants["challenges"]["teleportTakedowns"],
+                thirdInhibitorDestroyedTime=participants["challenges"]["thirdInhibitorDestroyedTime"],
+                fistBumpTakedowns=participants["challenges"]["fistBumpTakedowns"],
+                baronTakedowns=participants["challenges"]["baronTakedowns"],
+                bountyGold=participants["challenges"]["bountyGold"],
+                damagePerMinute=participants["challenges"]["damagePerMinute"],
+                deatshByEnemyChamps=participants["challenges"]["deatshByEnemyChamps"],
+                elderDragonMultikill=participants["challenges"]["elderDragonMultikill"],
+                enemyJungleMonsterKills=participants["challenges"]["enemyJungleMonsterKills"],
+                firstTurretKilled=participants["challenges"]["firstTurretKilled"],
+                firstTuttetKilledTime=participants["challenges"]["firstTuttetKilledTime"],
+                gameLength=participants["challenges"]["gameLength"],
+                goldPerMinute=participants["challenges"]["goldPerMinute"],
+                kda=participants["challenges"]["kda"],
+                killingSprees=participants["challenges"]["killingSprees"],
+                lostAnInhibitor=participants["challenges"]["lostAnInhibitor"],
+                perfectDragonSoulsTaken=participants["challenges"]["perfectDragonSoulsTaken"],
+                quickFirstTurrentKills=participants["challenges"]["quickFirstTurrentKills"],
+                quickSoloKills=participants["challenges"]["quickSoloKills"],
+                scuttleCrabKills=participants["challenges"]["scuttleCrabKills"],
+                soloBaronKills=participants["challenges"]["soloBaronKills"],
+                SWARM_DefeatAatrox=participants["challenges"]["SWARM_DefeatAatrox"],
+                SWARM_DefeatBriar=participants["challenges"]["SWARM_DefeatBriar"],
+                SWARM_DefeatMiniBosses=participants["challenges"]["SWARM_DefeatMiniBosses"] ,
+                SWARM_EvolveWeapon=participants["challenges"]["SWARM_EvolveWeapon"],
+                SWARM_Have3Passives=participants["challenges"]["SWARM_Have3Passives"],
+                SWARM_KillEnemy=participants["challenges"]["SWARM_KillEnemy"],
+                SWARM_PickupGold=participants["challenges"]["SWARM_PickupGold"],
+                SWARM_ReachLevel50=participants["challenges"]["SWARM_ReachLevel50"],
+                SWARM_WinWith5EvolvedWeapons=participants["challenges"]["SWARM_WinWith5EvolvedWeapons"],
+                soloKills=participants["challenges"]["soloKills"],
+                stealthWardsPlaced=participants["challenges"]["stealthWardsPlaced"],
+                takedowns=participants["challenges"]["takedowns"],
+                teamBaronKills=participants["challenges"]["teamBaronKills"],
+                teamElderDragonKills=participants["challenges"]["teamElderDragonKills"],
+                teamRiftHeraldKills=participants["challenges"]["teamRiftHeraldKills"],
+                unseenRecalls=participants["challenges"]["unseenRecalls"],
+                visionScorePerMinute=participants["challenges"]["visionScorePerMinute"],
+                wardTakedowns=participants["challenges"]["wardTakedowns"],
+                platformId=info["platformId"],
                 championId: int
                 pickTurn: int
-                baron_first: bool
+                baron_first=teams["objectives"]["baron"]["first"]
                 baron_kills: int
                 champion_first: bool
                 champion_kills: int
