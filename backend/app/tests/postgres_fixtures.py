@@ -37,10 +37,13 @@ def _make_db_client(*, seed_matches: bool) -> tuple[TestClient, object]:
 
     async def _setup() -> None:
         from sqlalchemy import text  # add this import at the top of the file
+
         async with engine.begin() as conn:
             # Drop orphan tables that aren't tracked by SQLModel metadata
             await conn.run_sync(
-                lambda conn: conn.execute(text("DROP TABLE IF EXISTS userprofile CASCADE"))
+                lambda conn: conn.execute(
+                    text("DROP TABLE IF EXISTS userprofile CASCADE")
+                )
             )
             await conn.run_sync(SQLModel.metadata.drop_all)
             await conn.run_sync(SQLModel.metadata.create_all)

@@ -54,7 +54,7 @@ describe("AuthContext", () => {
     render(
       <AuthProvider>
         <TestChild />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     // The initial render should be loading
@@ -74,7 +74,9 @@ describe("AuthContext", () => {
       return (
         <div>
           <button
-            onClick={() => login({ email: "test@example.com", password: "PassCode" })}
+            onClick={() =>
+              login({ email: "test@example.com", password: "PassCode" })
+            }
           >
             Log In
           </button>
@@ -86,7 +88,7 @@ describe("AuthContext", () => {
     render(
       <AuthProvider>
         <TestChild />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     // Wait for initial loading to finish
@@ -129,7 +131,7 @@ describe("AuthContext", () => {
     render(
       <AuthProvider>
         <TestChild />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     // Wait for initial loading
@@ -164,7 +166,7 @@ describe("LoginPage", () => {
         <AuthProvider>
           <LoginPage />
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Wait for the AuthProvider to finish initializing
@@ -183,7 +185,7 @@ describe("LoginPage", () => {
         <AuthProvider>
           <LoginPage />
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Wait for form to appear
@@ -210,7 +212,7 @@ describe("LoginPage", () => {
 
   it("shows an error message on login failure", async () => {
     vi.mocked(authApi.loginUser).mockRejectedValue(
-      new Error("Invalid credentials")
+      new Error("Invalid credentials"),
     );
 
     render(
@@ -218,7 +220,7 @@ describe("LoginPage", () => {
         <AuthProvider>
           <LoginPage />
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await screen.findByLabelText("Email"); // form is ready
@@ -230,7 +232,6 @@ describe("LoginPage", () => {
       target: { value: "wrong" },
     });
     fireEvent.click(screen.getByRole("button", { name: /^sign in$/i }));
-
 
     // The error alert should appear asynchronously
     const alert = await screen.findByRole("alert");

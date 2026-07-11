@@ -21,7 +21,7 @@ function renderLogin(form: LoginFormProps, backgroundImage?: string) {
   return render(
     <MemoryRouter>
       <Login form={form} backgroundImage={backgroundImage} />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -31,14 +31,12 @@ describe("Login Component", () => {
     renderLogin(form);
 
     expect(
-      screen.getByPlaceholderText("What's your email address?")
+      screen.getByPlaceholderText("What's your email address?"),
     ).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText("What's your password?")
+      screen.getByPlaceholderText("What's your password?"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Sign In" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
   });
 
   it("calls onEmailChange when email input changes", () => {
@@ -48,7 +46,7 @@ describe("Login Component", () => {
 
     fireEvent.change(
       screen.getByPlaceholderText("What's your email address?"),
-      { target: { value: "test@example.com" } }
+      { target: { value: "test@example.com" } },
     );
     expect(onEmailChange).toHaveBeenCalledWith("test@example.com");
   });
@@ -58,10 +56,9 @@ describe("Login Component", () => {
     const form = buildForm({ onPasswordChange });
     renderLogin(form);
 
-    fireEvent.change(
-      screen.getByPlaceholderText("What's your password?"),
-      { target: { value: "secret" } }
-    );
+    fireEvent.change(screen.getByPlaceholderText("What's your password?"), {
+      target: { value: "secret" },
+    });
     expect(onPasswordChange).toHaveBeenCalledWith("secret");
   });
 
@@ -95,9 +92,7 @@ describe("Login Component", () => {
     const form = buildForm();
     renderLogin(form);
 
-    const passwordInput = screen.getByPlaceholderText(
-      "What's your password?"
-    );
+    const passwordInput = screen.getByPlaceholderText("What's your password?");
     expect(passwordInput).toHaveAttribute("type", "password");
 
     const checkbox = screen.getByLabelText("Show password");
@@ -114,9 +109,7 @@ describe("Login Component", () => {
 
     expect(screen.getByAltText("Sign in with Google")).toBeInTheDocument();
     expect(screen.getByAltText("Sign in with Apple")).toBeInTheDocument();
-    expect(
-      screen.getByAltText("Sign in with Riot Games")
-    ).toBeInTheDocument();
+    expect(screen.getByAltText("Sign in with Riot Games")).toBeInTheDocument();
   });
 
   it("calls onSocialClick when a social button is clicked", () => {
@@ -138,7 +131,7 @@ describe("Login Component", () => {
     expect(slidesDots).toBeInTheDocument();
 
     const allSlideImages = screen.getAllByAltText(
-      "League of Legends Background Slide"
+      "League of Legends Background Slide",
     );
     expect(allSlideImages.length).toBeGreaterThan(0);
   });
@@ -149,11 +142,11 @@ describe("Login Component", () => {
     renderLogin(form, staticBg);
 
     expect(
-      screen.getByAltText("League of Legends Wallpaper")
+      screen.getByAltText("League of Legends Wallpaper"),
     ).toBeInTheDocument();
 
     expect(
-      screen.queryByRole("tablist", { name: "Background slides" })
+      screen.queryByRole("tablist", { name: "Background slides" }),
     ).not.toBeInTheDocument();
   });
 
