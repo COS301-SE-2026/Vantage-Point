@@ -1,0 +1,59 @@
+name: Sync Docs Folder to GitHub Wiki
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - '.github/docs/**'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          # Fetches the current commit and its parent to accurately extract authorship
+          fetch-depth: 2
+
+      - name: Sync to GitHub Wiki with Author Credit
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # 1. Extract the name and email of the person who actually made the commit
+          AUTHOR_NAME=$(git log -1 --format='%an')
+          AUTHOR_EMAIL=$(git log -1 --format='%ae')
+
+          echo "Attributing Wiki update to: $AUTHOR_NAME <$AUTHOR_EMAIL>"
+
+          # 2. Setup SSH (Using standard agent approach)
+          eval "$(ssh-agent -s)"
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          # 3. Clone the hidden Wiki repository using SSH protocol
+          mkdir -p /tmp/wiki_repo
+          git clone git@github.com:${{ github.repository }}.wiki.git /tmp/wiki_repo
+
+          # 4. Clear the old wiki files and move the updated ones in
+          rm -rf /tmp/wiki_repo/*
+          cp -r /tmp/wiki_upload/* /tmp/wiki_repo/
+
+          # 5. Navigate to the wiki repo and configure Git to mimic the real author
+          cd /tmp/wiki_repo
+          git config user.name "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
+
+          # 6. Stage, check for changes, and push back to the Wiki
+          git add .
+          if git diff-index --quiet HEAD --; then
+            echo "No changes detected in documentation. Skipping push."
+          else
+            git commit -m "Docs update by $AUTHOR_NAME"
+            git push origin master
+          fi
