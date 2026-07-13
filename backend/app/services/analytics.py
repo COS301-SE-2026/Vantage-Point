@@ -507,7 +507,7 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    async def item_data(self, match_id: str, puuid: str) -> Any:
+    async def item_data(self, match_id: str) -> ItemData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -527,9 +527,9 @@ class LiveAnalyticsService:
             powerMax = {}
             armor = {}
 
-            for i in range(1, 10):
+            for i in range(1, 11):
                 currentGold[str(i)] = [
-                    frame["participantFrames"][str(i)]["currentGold"]for frame in frames
+                    frame["participantFrames"][str(i)]["currentGold"] for frame in frames
                 ]
                 level[str(i)] = [
                     frame["participantFrames"][str(i)]["level"] for frame in frames
@@ -564,8 +564,47 @@ class LiveAnalyticsService:
                 armor[str(i)] = [
                     frame["participantFrames"][str(i)]["championStats"]["armor"] for frame in frames
                 ]
+            
+            event_timestamp = {}
+            item_id = {}
 
-                
+            for i, frame in enumerate(frames):
+                item_event = [event for event in frame["events"] if "teamId" in event]
+                event_timestamp[str(i)] = [event["timestamp"] for event in item_event]
+                item_id[str(i)] = [event["itemId"] for event in item_event]
+
+            champion_id = {}
+            champion_level = {}
+
+            for p in match["info"]["participants"]:
+                pid = str(p["participantId"])
+                champion_id[pid] = p["championId"]
+                champion_level[pid] = p["champLevel"]
+
+            response = ItemData(
+                itemId=item_id,
+                timestamp=event_timestamp,
+                championId=champion_id,
+                champLevel=champion_level,
+                currentGold=currentGold,
+                level=level,
+                xp=xp,
+                damageStats_totalDamageDone=totalDamageDone,
+                damageStats_totalDamageTaken=totalDamageTaken,
+                championStats_health=health,
+                championStats_healthMax=healthMax,
+                championStats_healthRegen=healthRegen,
+                championStats_lifesteal=lifesteal,
+                championStats_power=power,
+                championStats_powerMax=powerMax,
+                championStats_armor=armor,
+            )
+
+            return response
+        except HTTPException:
+                raise HTTPException(status_code=500, detail="Internal server error")
+        except KeyError as e:
+            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}") 
                 
                 
                     
