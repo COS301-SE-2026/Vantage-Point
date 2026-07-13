@@ -453,19 +453,19 @@ class ChampionData(BaseModel):
     participants_championId: list[int]
 
 class ItemData(BaseModel):
-    itemId: str
-    timestamp: float
-    championId: int
-    champLevel: int
-    currentGold: int
-    level: int
-    xp: int
-    damageStats_totalDamageDone: int
-    damageStats_totalDamageTaken: int
-    championStats_health: int
-    championStats_healthMax: int
-    championStats_healthRegen: int
-    championStats_lifesteal: int
-    championStats_power: int
-    championStats_powerMax: int
-    championStats_armor: int
+    itemId: Any
+    timestamp: Any
+    championId: Any
+    champLevel: Any
+    currentGold: Any
+    level: Any
+    xp: Any
+    damageStats_totalDamageDone: Any
+    damageStats_totalDamageTaken: Any
+    championStats_health: Any
+    championStats_healthMax: Any
+    championStats_healthRegen: Any
+    championStats_lifesteal: Any
+    championStats_power: Any
+    championStats_powerMax: Any
+    championStats_armor: Any
