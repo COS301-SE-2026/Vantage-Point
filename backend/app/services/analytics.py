@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData)
+from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData, ItemData)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -507,5 +507,66 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    async def item_data(self, match_id: str, puuid: str):
-        
+    async def item_data(self, match_id: str, puuid: str) -> Any:
+        try:
+            timeline = await riot_service.get_match_timeline(match_id)
+            match = await riot_service.get_match_detail(match_id)
+
+            frames = timeline["info"]["frames"]
+
+            currentGold = {}
+            level = {}
+            xp = {}
+            totalDamageDone = {}
+            totalDamageTaken = {}
+            health = {}
+            healthMax = {}
+            healthRegen = {}
+            lifesteal = {}
+            power = {}
+            powerMax = {}
+            armor = {}
+
+            for i in range(1, 10):
+                currentGold[str(i)] = [
+                    frame["participantFrames"][str(i)]["currentGold"]for frame in frames
+                ]
+                level[str(i)] = [
+                    frame["participantFrames"][str(i)]["level"] for frame in frames
+                ]
+                xp[str(i)] = [
+                    frame["participantFrames"][str(i)]["xp"] for frame in frames
+                ]
+                totalDamageDone[str(i)] = [
+                    frame["participantFrames"][str(i)]["damageStats"]["totalDamageDone"] for frame in frames
+                ]
+                totalDamageTaken[str(i)] = [
+                    frame["participantFrames"][str(i)]["damageStats"]["totalDamageTaken"] for frame in frames
+                ]
+                health[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["health"] for frame in frames
+                ]
+                healthMax[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["healthMax"] for frame in frames
+                ]
+                healthRegen[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["healthRegen"] for frame in frames
+                ]
+                lifesteal[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["lifesteal"] for frame in frames
+                ]
+                power[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["power"] for frame in frames
+                ]
+                powerMax[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["powerMax"] for frame in frames
+                ]
+                armor[str(i)] = [
+                    frame["participantFrames"][str(i)]["championStats"]["armor"] for frame in frames
+                ]
+
+                
+                
+                
+                    
+
