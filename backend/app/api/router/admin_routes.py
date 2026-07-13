@@ -6,7 +6,7 @@ from typing import Annotated
 from typing import Any
 from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.Models.admin_model import (UserResponse)
+from app.Models.admin_model import UserResponse
 
 router = APIRouter()
 

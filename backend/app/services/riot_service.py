@@ -145,7 +145,7 @@ class RiotService:
         url = (
             f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         )
-        #change store object and if it is alreayd just return object instead of having to call again
+        # change store object and if it is alreayd just return object instead of having to call again
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
 

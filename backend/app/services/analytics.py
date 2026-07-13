@@ -277,16 +277,20 @@ class LiveAnalyticsService:
         try:
             match = await riot_service.get_match_detail(match_id)
 
-            #cast 
+            # cast
             info = match["info"]
-            #paticipants filter by puuid
+            # paticipants filter by puuid
             index = next(
-                (i for i, participant in enumerate(info["participants"]) if participant["puuid"] == puuid),
+                (
+                    i
+                    for i, participant in enumerate(info["participants"])
+                    if participant["puuid"] == puuid
+                ),
                 None,
             )
             if index is None:
                 raise HTTPException(status_code=404, detail="Participant not found")
-            
+
             participants = info["participants"][index]
 
             response = ProfileData(
@@ -321,32 +325,32 @@ class LiveAnalyticsService:
                 unreal=participants["unrealKills"],
                 lane=participants["lane"],
                 kills=participants["kills"],
-                teamPosition=participants["teamPosition"],              
+                teamPosition=participants["teamPosition"],
             )
             # might add this later
             # //dpm
             # //creep score
-            # //xp       
+            # //xp
             return response
         except KeyError as e:
             raise HTTPException(
-                status_code=500,
-                detail=f"Missing expected Riot API Field: {e}"
+                status_code=500, detail=f"Missing expected Riot API Field: {e}"
             )
         except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Unexpected error: {e}"
-            )
-            
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+
     async def match_data(self, match_id: str, puuid: str) -> MatchData:
         try:
             match = await riot_service.get_match_detail(match_id)
-            #cast 
+            # cast
             info = match["info"]
-            #paticipants filter by puuid
+            # paticipants filter by puuid
             participant_index = next(
-                (i for i, participant in enumerate(info["participants"]) if participant["puuid"] == puuid),
+                (
+                    i
+                    for i, participant in enumerate(info["participants"])
+                    if participant["puuid"] == puuid
+                ),
                 None,
             )
 
@@ -359,10 +363,12 @@ class LiveAnalyticsService:
                 (t for t in info["teams"] if t["teamId"] == participants["teamId"])
             )
             champion_id: list[int] = []
-            pick_turn:list[int] = []
+            pick_turn: list[int] = []
 
             if teams in None:
-                raise HTTPException(status_code=500, detail="Could not get data from Riot API")
+                raise HTTPException(
+                    status_code=500, detail="Could not get data from Riot API"
+                )
 
             for ban in teams["bans"]:
                 champion_id.append(ban.get("championId", 0))
@@ -378,41 +384,59 @@ class LiveAnalyticsService:
                 champLevel=participants["champLevel"],
                 championName=participants["championName"],
                 earliestBaron=participants["challenges"]["earliestBaron"],
-                earliestDragonTakedown=participants["challenges"]["earliestDragonTakedown"],
+                earliestDragonTakedown=participants["challenges"][
+                    "earliestDragonTakedown"
+                ],
                 earliestElderDragon=participants["challenges"]["earliestElderDragon"],
                 fastestLegendary=participants["challenges"]["fastestLegendary"],
-                highestChampionDamage=participants["challenges"]["highestChampionDamage"],
+                highestChampionDamage=participants["challenges"][
+                    "highestChampionDamage"
+                ],
                 takedownFirst25Min=participants["challenges"]["takedownFirst25Min"],
                 teleportTakedowns=participants["challenges"]["teleportTakedowns"],
-                thirdInhibitorDestroyedTime=participants["challenges"]["thirdInhibitorDestroyedTime"],
+                thirdInhibitorDestroyedTime=participants["challenges"][
+                    "thirdInhibitorDestroyedTime"
+                ],
                 fistBumpTakedowns=participants["challenges"]["fistBumpTakedowns"],
                 baronTakedowns=participants["challenges"]["baronTakedowns"],
                 bountyGold=participants["challenges"]["bountyGold"],
                 damagePerMinute=participants["challenges"]["damagePerMinute"],
                 deatshByEnemyChamps=participants["challenges"]["deatshByEnemyChamps"],
                 elderDragonMultikill=participants["challenges"]["elderDragonMultikill"],
-                enemyJungleMonsterKills=participants["challenges"]["enemyJungleMonsterKills"],
+                enemyJungleMonsterKills=participants["challenges"][
+                    "enemyJungleMonsterKills"
+                ],
                 firstTurretKilled=participants["challenges"]["firstTurretKilled"],
-                firstTuttetKilledTime=participants["challenges"]["firstTuttetKilledTime"],
+                firstTuttetKilledTime=participants["challenges"][
+                    "firstTuttetKilledTime"
+                ],
                 gameLength=participants["challenges"]["gameLength"],
                 goldPerMinute=participants["challenges"]["goldPerMinute"],
                 kda=participants["challenges"]["kda"],
                 killingSprees=participants["challenges"]["killingSprees"],
                 lostAnInhibitor=participants["challenges"]["lostAnInhibitor"],
-                perfectDragonSoulsTaken=participants["challenges"]["perfectDragonSoulsTaken"],
-                quickFirstTurrentKills=participants["challenges"]["quickFirstTurrentKills"],
+                perfectDragonSoulsTaken=participants["challenges"][
+                    "perfectDragonSoulsTaken"
+                ],
+                quickFirstTurrentKills=participants["challenges"][
+                    "quickFirstTurrentKills"
+                ],
                 quickSoloKills=participants["challenges"]["quickSoloKills"],
                 scuttleCrabKills=participants["challenges"]["scuttleCrabKills"],
                 soloBaronKills=participants["challenges"]["soloBaronKills"],
                 SWARM_DefeatAatrox=participants["challenges"]["SWARM_DefeatAatrox"],
                 SWARM_DefeatBriar=participants["challenges"]["SWARM_DefeatBriar"],
-                SWARM_DefeatMiniBosses=participants["challenges"]["SWARM_DefeatMiniBosses"] ,
+                SWARM_DefeatMiniBosses=participants["challenges"][
+                    "SWARM_DefeatMiniBosses"
+                ],
                 SWARM_EvolveWeapon=participants["challenges"]["SWARM_EvolveWeapon"],
                 SWARM_Have3Passives=participants["challenges"]["SWARM_Have3Passives"],
                 SWARM_KillEnemy=participants["challenges"]["SWARM_KillEnemy"],
                 SWARM_PickupGold=participants["challenges"]["SWARM_PickupGold"],
                 SWARM_ReachLevel50=participants["challenges"]["SWARM_ReachLevel50"],
-                SWARM_WinWith5EvolvedWeapons=participants["challenges"]["SWARM_WinWith5EvolvedWeapons"],
+                SWARM_WinWith5EvolvedWeapons=participants["challenges"][
+                    "SWARM_WinWith5EvolvedWeapons"
+                ],
                 soloKills=participants["challenges"]["soloKills"],
                 stealthWardsPlaced=participants["challenges"]["stealthWardsPlaced"],
                 takedowns=participants["challenges"]["takedowns"],
@@ -440,17 +464,13 @@ class LiveAnalyticsService:
                 tower_first=teams["objectives"]["tower"]["first"],
                 tower_kills=teams["objectives"]["tower"]["kills"],
                 teams_teamId=teams["teamId"],
-                teams_win=teams["win"]
+                teams_win=teams["win"],
             )
 
             return response
         except HTTPException:
-            raise HTTPException(
-                status_code=500, detail="Internal server error"
-            )
+            raise HTTPException(status_code=500, detail="Internal server error")
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
-        
 
-
-
+    # async def champion_data

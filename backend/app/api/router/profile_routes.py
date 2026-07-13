@@ -1,5 +1,5 @@
 from fastapi import Depends, APIRouter
-from fastapi.security import  HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials
 from typing import Annotated, Any
 from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +10,7 @@ from app.Models.auth_model import User
 from app.database.models import Users
 from app.api.auth import require_group
 from botocore.exceptions import ClientError
+
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 from app.api.auth import oauth2_scheme
 

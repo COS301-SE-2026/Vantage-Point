@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-load_dotenv(os.path.join(os.path.dirname(__file__), '/.env'))
+load_dotenv(os.path.join(os.path.dirname(__file__), "/.env"))
+
 
 class Settings(BaseSettings):
     """Application settings loaded from .env file"""
@@ -25,7 +26,7 @@ class Settings(BaseSettings):
 
     # ============ AWS IAM Credentials ============
     aws_access_key_id: Any = os.getenv("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key: Any = os.getenv("AWS_SECRET_ACCESS_KEY") 
+    aws_secret_access_key: Any = os.getenv("AWS_SECRET_ACCESS_KEY")
 
     # ============ Server Configuration ============
     debug: bool = True

@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from loguru import logger
-from app.Models.admin_model import (UserResponse, Response, CreateGroupResponse)
+from app.Models.admin_model import UserResponse, Response, CreateGroupResponse
 
 settings = get_settings()
 
@@ -18,6 +18,8 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: i
 # admin abilities/services
 
 user_not_found: str = "User not found!"
+
+
 class admin_service:
     @staticmethod
     async def get_users(limit: int = 10) -> list[UserResponse]:
@@ -30,18 +32,20 @@ class admin_service:
             for user in response["Users"]:
                 attributes: Any = {
                     attr["Name"]: attr.get("Value", "")
-                    for attr in user.get("Attributes",[])
+                    for attr in user.get("Attributes", [])
                 }
-            
+
                 users.append(
                     UserResponse(
                         username=user.get("Username", ""),
                         email=attributes.get("email", ""),
                         sub=attributes.get("sub", ""),
                         user_created_date=user.get("UserCreateDate", datetime.now()),
-                        user_last_modified_date=user.get("UserLastModifiedDate", datetime.now()),
+                        user_last_modified_date=user.get(
+                            "UserLastModifiedDate", datetime.now()
+                        ),
                         enabled=user.get("Enabled", True),
-                        user_status=user.get("UserStatus", "")
+                        user_status=user.get("UserStatus", ""),
                     )
                 )
 
@@ -66,9 +70,8 @@ class admin_service:
             )
 
             attributes = {
-                attr["Name"]: attr.get("Value")
-                for attr in response["UserAttributes"]
-                }
+                attr["Name"]: attr.get("Value") for attr in response["UserAttributes"]
+            }
 
             user = UserResponse(
                 username=response["Username"],
@@ -77,7 +80,7 @@ class admin_service:
                 user_created_date=response["UserCreateDate"],
                 user_last_modified_date=response["UserLastModifiedDate"],
                 enabled=response["Enabled"],
-                user_status=response["UserStatus"]
+                user_status=response["UserStatus"],
             )
 
             return user
@@ -100,10 +103,7 @@ class admin_service:
                 GroupName=group,
             )
 
-            response = Response(
-                success=True,
-                message=f"Added {username} to {group}"
-            )
+            response = Response(success=True, message=f"Added {username} to {group}")
 
             return response
         except ClientError as e:
@@ -127,8 +127,7 @@ class admin_service:
                 GroupName=group,
             )
             response = Response(
-                success=True,
-                message=f"Removed {username} from {group}"
+                success=True, message=f"Removed {username} from {group}"
             )
 
             return response
@@ -145,10 +144,7 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
-            response = Response(
-                success=True,
-                message=f"Disabled {username}"
-            )
+            response = Response(success=True, message=f"Disabled {username}")
 
             return response
         except ClientError as e:
@@ -164,10 +160,7 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
-            response = Response(
-                success=True,
-                message=f"Enabled {username}"
-            )
+            response = Response(success=True, message=f"Enabled {username}")
 
             return response
         except ClientError as e:
@@ -185,10 +178,7 @@ class admin_service:
                 Password=password,
                 Permanent=True,
             )
-            response = Response(
-                success=True,
-                message=f"Set {username}'s password"
-            )
+            response = Response(success=True, message=f"Set {username}'s password")
 
             return response
         except ClientError as e:
@@ -212,10 +202,7 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
-            response = Response(
-                success=True,
-                message=f"Signed out {username} globally"
-            )
+            response = Response(success=True, message=f"Signed out {username} globally")
 
             return response
         except ClientError as e:
@@ -232,22 +219,17 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
-            
 
             statement = select(Users).where(Users.cognito_sub == sub)
             result = await session.execute(statement)
             user = result.scalar_one_or_none()
 
-            #only delete here if in db. Can be that user not in db. 
+            # only delete here if in db. Can be that user not in db.
             if user is not None:
                 await session.delete(user)
                 await session.commit()
-                
-            
-            response = Response(
-                success=True,
-                message=f"Deleted {username} permanently"
-            )
+
+            response = Response(success=True, message=f"Deleted {username} permanently")
 
             return response
         except ClientError as e:
@@ -294,8 +276,13 @@ class admin_service:
                 cognito_sub=attrs.get("sub", ""),
                 email=email,
                 display_name=user.get("Username", username),
-                created_at=user.get("UserCreateDate", datetime.now(timezone.utc).replace(tzinfo=None)),
-                updated_at=user.get("UserLastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)),
+                created_at=user.get(
+                    "UserCreateDate", datetime.now(timezone.utc).replace(tzinfo=None)
+                ),
+                updated_at=user.get(
+                    "UserLastModifiedDate",
+                    datetime.now(timezone.utc).replace(tzinfo=None),
+                ),
                 deletion_scheduled_at=None,
             )
             response = UserResponse(
@@ -305,7 +292,7 @@ class admin_service:
                 user_created_date=profile.created_at,
                 user_last_modified_date=profile.updated_at,
                 enabled=user.get("Enabled", True),
-                user_status=user.get("UserStatus","FORCE_CHANGE_PASSWORD")
+                user_status=user.get("UserStatus", "FORCE_CHANGE_PASSWORD"),
             )
 
             session.add(profile)
@@ -330,7 +317,9 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
-    async def create_group(group_name: str, precedence: int, description: str) -> CreateGroupResponse:
+    async def create_group(
+        group_name: str, precedence: int, description: str
+    ) -> CreateGroupResponse:
         try:
             response = await asyncio.to_thread(
                 client.create_group,
@@ -345,8 +334,12 @@ class admin_service:
                 user_pool_id=group.get("UserPoolId", ""),
                 descriptipn=group.get("Description", description),
                 precedence=group.get("Precedence", precedence),
-                last_modified_date=group.get("LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)),
-                creation_date=group.get("CreationDate", datetime.now(timezone.utc).replace(tzinfo=None))
+                last_modified_date=group.get(
+                    "LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)
+                ),
+                creation_date=group.get(
+                    "CreationDate", datetime.now(timezone.utc).replace(tzinfo=None)
+                ),
             )
 
             return response
@@ -359,7 +352,9 @@ class admin_service:
         # {
 
     @staticmethod
-    async def update_group_attr(group_name: str, precedence: int, description: str) -> Response:
+    async def update_group_attr(
+        group_name: str, precedence: int, description: str
+    ) -> Response:
         try:
             await asyncio.to_thread(
                 client.update_group,
@@ -368,10 +363,7 @@ class admin_service:
                 Description=description,
                 Precedence=precedence,
             )
-            response = Response(
-                success=True,
-                message=f"Updated {group_name} attribute"
-            )
+            response = Response(success=True, message=f"Updated {group_name} attribute")
 
             return response
         except ClientError as e:
@@ -387,10 +379,7 @@ class admin_service:
                 GroupName=group_name,
                 UserPoolId=settings.cognito_user_pool_id,
             )
-            response = Response(
-                success=True,
-                message=f"Deleted {group_name} group"
-            )
+            response = Response(success=True, message=f"Deleted {group_name} group")
 
             return response
         except ClientError as e:

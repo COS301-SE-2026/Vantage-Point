@@ -7,6 +7,7 @@ class User(BaseModel):
     username: str
     email: EmailStr
 
+
 class UserTest(BaseModel):
     sub: str
     password: str

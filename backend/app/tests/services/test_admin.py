@@ -12,66 +12,58 @@ from app.services.admin_service import admin_service
 from datetime import datetime, timezone
 from app.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession
+
 settings = get_settings()
 
 mock_session = AsyncMock(spec=AsyncSession)
+
 
 @pytest.mark.anyio
 class TestAdminGet:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
-    async def test_get_user_success(mock_admin_get_user: MagicMock):      
+    async def test_get_user_success(mock_admin_get_user: MagicMock):
         mock_admin_get_user.return_value = {
             "Username": "shaun",
             "UserAttributes": [
-                {
-                    "Name": "email",
-                    "Value": "shaun@gmail.com"
-                },
-                {
-                    "Name": "sub",
-                    "Value": "12345"
-                }
+                {"Name": "email", "Value": "shaun@gmail.com"},
+                {"Name": "sub", "Value": "12345"},
             ],
             "UserCreateDate": datetime(
-                2026, 7, 1, 20, 8, 52, 115000,
-                tzinfo=timezone.utc
+                2026, 7, 1, 20, 8, 52, 115000, tzinfo=timezone.utc
             ),
             "UserLastModifiedDate": datetime(
-                2026, 7, 1, 20, 9, 42, 94000,
-                tzinfo=timezone.utc
+                2026, 7, 1, 20, 9, 42, 94000, tzinfo=timezone.utc
             ),
             "Enabled": True,
-            "UserStatus": "CONFIRMED"
-            }    
+            "UserStatus": "CONFIRMED",
+        }
 
         response = await admin_service.get_user("shaun")
-        
+
         assert response.username == "shaun"
         assert response.email == "shaun@gmail.com"
         assert response.sub == "12345"
-        assert response.user_created_date == datetime.fromisoformat("2026-07-01T20:08:52.115000+02:00")
-        assert response.user_last_modified_date == datetime.fromisoformat("2026-07-01T20:09:42.094000+02:00")
-        assert response.enabled == True
+        assert response.user_created_date == datetime.fromisoformat(
+            "2026-07-01T20:08:52.115000+02:00"
+        )
+        assert response.user_last_modified_date == datetime.fromisoformat(
+            "2026-07-01T20:09:42.094000+02:00"
+        )
+        assert response.enabled is True
         assert response.user_status == "CONFIRMED"
 
         mock_admin_get_user.assert_called_once_with(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username="shaun"
+            UserPoolId=settings.cognito_user_pool_id, Username="shaun"
         )
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
     async def test_get_user_not_found_exception(mock_admin_get_user: MagicMock):
         mock_admin_get_user.side_effect = ClientError(
-            {
-                "Error": {
-                    "Code": "UserNotFoundException",
-                    "Message": "User not found!"
-                }
-            },
-            "get_user"       
+            {"Error": {"Code": "UserNotFoundException", "Message": "User not found!"}},
+            "get_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -87,10 +79,10 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "InvalidParamaterException",
-                    "Message": "Invalid username"
+                    "Message": "Invalid username",
                 }
             },
-            "get_user"       
+            "get_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -106,10 +98,10 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "get_user"       
+            "get_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -118,7 +110,7 @@ class TestAdminGet:
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-    #get users unit test
+    # get users unit test
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
@@ -170,13 +162,8 @@ class TestAdminGet:
     @patch("app.services.admin_service.client.list_users")
     async def test_get_users_user_not_found(mock_admin_get_users: MagicMock):
         mock_admin_get_users.side_effect = ClientError(
-            {
-                "Error": {
-                    "Code": "UserNotFoundException",
-                    "Message": "User not found."
-                }
-            },
-            "get_users"       
+            {"Error": {"Code": "UserNotFoundException", "Message": "User not found."}},
+            "get_users",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -192,10 +179,10 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "InvalidParamaterException",
-                    "Message": "Invalid Username"
+                    "Message": "Invalid Username",
                 }
             },
-            "get_users"       
+            "get_users",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -211,10 +198,10 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "get_users"       
+            "get_users",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -223,7 +210,8 @@ class TestAdminGet:
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-#implementing unit testing for all post requests in admin_service
+
+# implementing unit testing for all post requests in admin_service
 @pytest.mark.anyio
 class TestAdminServicePost:
 
@@ -245,15 +233,12 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_add_user_to_group")
-    async def test_add_user_to_group_user_not_found_exception(mock_admin_add_user_to_group: MagicMock):
+    async def test_add_user_to_group_user_not_found_exception(
+        mock_admin_add_user_to_group: MagicMock,
+    ):
         mock_admin_add_user_to_group.side_effect = ClientError(
-            {
-                "Error": {
-                    "Code": "UserNotFoundException",
-                    "Message": "User not found"
-                }
-            },
-            "add_user_to_group"       
+            {"Error": {"Code": "UserNotFoundException", "Message": "User not found"}},
+            "add_user_to_group",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -264,15 +249,17 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_add_user_to_group")
-    async def test_add_user_to_group_resource_not_found_exception(mock_admin_add_user_to_group: MagicMock):
+    async def test_add_user_to_group_resource_not_found_exception(
+        mock_admin_add_user_to_group: MagicMock,
+    ):
         mock_admin_add_user_to_group.side_effect = ClientError(
             {
                 "Error": {
                     "Code": "ResourceNotFoundException",
-                    "Message": "The specified group was not found."
+                    "Message": "The specified group was not found.",
                 }
             },
-            "add_user_to_group"       
+            "add_user_to_group",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -283,24 +270,26 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_add_user_to_group")
-    async def test_add_user_to_group_unknow_error(mock_admin_add_user_to_group: MagicMock):
+    async def test_add_user_to_group_unknow_error(
+        mock_admin_add_user_to_group: MagicMock,
+    ):
         mock_admin_add_user_to_group.side_effect = ClientError(
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "add_user_to_group"
+            "add_user_to_group",
         )
 
         with pytest.raises(HTTPException) as exec:
             await admin_service.add_user_to_group("shaun")
-        
+
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-    #set_password
+    # set_password
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_set_user_password")
@@ -316,46 +305,43 @@ class TestAdminServicePost:
             UserPoolId=settings.cognito_user_pool_id,
             Username="swdfcs",
             Password="Test@Password123",
-            Permanent=True
+            Permanent=True,
         )
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_set_user_password")
     async def test_set_user_password_user_not_found(mock_admin_set_password: MagicMock):
         mock_admin_set_password.side_effect = ClientError(
-            {
-                "Error": {
-                    "Code": "UserNotFoundException",
-                    "Message": "User not found."
-                }
-            },
-            "set_password"
-            )
+            {"Error": {"Code": "UserNotFoundException", "Message": "User not found."}},
+            "set_password",
+        )
 
         with pytest.raises(HTTPException) as exec:
             await admin_service.set_password("swdfcs", "Test@Password123")
 
         assert exec.value.status_code == 403
-        assert exec.value.detail ==  "User not found."
+        assert exec.value.detail == "User not found."
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_set_user_password")
-    async def test_set_user_password_invalid_password(mock_admin_set_password: MagicMock):
+    async def test_set_user_password_invalid_password(
+        mock_admin_set_password: MagicMock,
+    ):
         mock_admin_set_password.side_effect = ClientError(
             {
                 "Error": {
                     "Code": "InvalidPasswordException",
-                    "Message": "Password does not meet format"
+                    "Message": "Password does not meet format",
                 }
             },
-            "set_password"
-            )
+            "set_password",
+        )
 
         with pytest.raises(HTTPException) as exec:
             await admin_service.set_password("swdfcs", "Test@Password123")
 
         assert exec.value.status_code == 400
-        assert exec.value.detail ==  "Password does not meet format"
+        assert exec.value.detail == "Password does not meet format"
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_set_user_password")
@@ -364,22 +350,24 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "set_password"
-            )
+            "set_password",
+        )
 
         with pytest.raises(HTTPException) as exec:
             await admin_service.set_password("swdfcs", "Test@Password123")
 
         assert exec.value.status_code == 400
-        assert exec.value.detail ==  "InternalErrorException"
+        assert exec.value.detail == "InternalErrorException"
 
-    #sign out
+    # sign out
     @staticmethod
     @patch("app.services.admin_service.client.admin_user_global_sign_out")
-    async def test_admin_user_global_sign_out_success(mock_admin_user_global_sign_out: MagicMock):
+    async def test_admin_user_global_sign_out_success(
+        mock_admin_user_global_sign_out: MagicMock,
+    ):
         mock_admin_user_global_sign_out.return_value = {}
 
         response = await admin_service.user_global_sign_out("swdfcs")
@@ -394,15 +382,17 @@ class TestAdminServicePost:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_user_global_sign_out")
-    async def test_admin_user_global_sign_out_unknown_error(mock_admin_user_global_sign_out: MagicMock):
-        mock_admin_user_global_sign_out.side_effect =  ClientError(
+    async def test_admin_user_global_sign_out_unknown_error(
+        mock_admin_user_global_sign_out: MagicMock,
+    ):
+        mock_admin_user_global_sign_out.side_effect = ClientError(
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "admin_user_global_sign_out"
+            "admin_user_global_sign_out",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -411,7 +401,7 @@ class TestAdminServicePost:
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-    #create user
+    # create user
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_create_user")
@@ -421,22 +411,16 @@ class TestAdminServicePost:
             "User": {
                 "Username": "john123",
                 "Attributes": [
-                    {
-                        "Name": "sub",
-                        "Value": "12345"
-                    },
-                    {
-                        "Name": "email",
-                        "Value": "john@gmail.com"
-                    }
+                    {"Name": "sub", "Value": "12345"},
+                    {"Name": "email", "Value": "john@gmail.com"},
                 ],
                 "UserCreateDate": created,
                 "UserLastModifiedDate": created,
                 "Enabled": True,
-                "UserStatus": "FORCE_CHANGE_PASSWORD"
+                "UserStatus": "FORCE_CHANGE_PASSWORD",
             }
         }
-        
+
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
 
@@ -447,7 +431,9 @@ class TestAdminServicePost:
         mock_session.commit.assert_awaited_once()
         mock_session.refresh.assert_awaited_once()
 
-        response = await admin_service.create_user(mock_session, "john123", "john@gmail.com")
+        response = await admin_service.create_user(
+            mock_session, "john123", "john@gmail.com"
+        )
 
         assert response.username == "john123"
         assert response.sub == "12345"
@@ -475,10 +461,10 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "UserNameExistException",
-                    "Message": "Username or email already exist."
+                    "Message": "Username or email already exist.",
                 }
             },
-            "admin_create_user"
+            "admin_create_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -494,10 +480,10 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "InvalidPasswordException",
-                    "Message": "Password does not meet format"
+                    "Message": "Password does not meet format",
                 }
             },
-            "admin_create_user"
+            "admin_create_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -513,10 +499,10 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "InvalidParameterException",
-                    "Message": "Invalid username"
+                    "Message": "Invalid username",
                 }
             },
-            "admin_create_user"
+            "admin_create_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -532,10 +518,10 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Invalid username"
+                    "Message": "Invalid username",
                 }
             },
-            "admin_create_user"
+            "admin_create_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -544,13 +530,13 @@ class TestAdminServicePost:
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-    #create_group
+    # create_group
     @staticmethod
     @patch("app.services.admin_service.client.create_group")
     async def admin_create_group_success(mock_create_group: MagicMock):
         created = datetime(2026, 7, 8, 12, 0, tzinfo=timezone.utc)
         mock_create_group.return_value = {
-             "Group": {
+            "Group": {
                 "GroupName": "test",
                 "UserPoolId": "test-12",
                 "Description": "Test group User",
@@ -583,12 +569,12 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "GroupExistException",
-                    "Message": "Group name already exist."
+                    "Message": "Group name already exist.",
                 }
             },
-            "admin_create_group"
+            "admin_create_group",
         )
-         
+
         with pytest.raises(HTTPException) as exec:
             await admin_service.create_group("Test", 12, "Test group User")
 
@@ -602,51 +588,56 @@ class TestAdminServicePost:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "admin_create_group"
+            "admin_create_group",
         )
-         
+
         with pytest.raises(HTTPException) as exec:
             await admin_service.create_group("Test", 12, "Test group User")
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
+
 @pytest.mark.anyio
 class testAdminDelete:
-    
+
     @staticmethod
     @patch("app.services.admin_service.client.admin_remove_user_from_group")
-    async def test_remove_user_from_group_success(mock_admin_remove_user_from_group: MagicMock):
+    async def test_remove_user_from_group_success(
+        mock_admin_remove_user_from_group: MagicMock,
+    ):
         mock_admin_remove_user_from_group.return_value = {}
 
         response = await admin_service.remove_user_from_group("swdfcs")
 
         assert response.success is True
-        assert response.message == "Removed swdfcs from Users"   
-    
+        assert response.message == "Removed swdfcs from Users"
+
     @staticmethod
     @patch("app.services.admin_service.client.admin_remove_user_from_group")
-    async def test_remove_user_from_group_unknown_error(mock_admin_remove_user_from_group: MagicMock):
+    async def test_remove_user_from_group_unknown_error(
+        mock_admin_remove_user_from_group: MagicMock,
+    ):
         mock_admin_remove_user_from_group.side_effect = ClientError(
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "delete_user"       
+            "delete_user",
         )
 
         with pytest.raises(HTTPException) as exec:
             await admin_service.remove_user_from_group("swdfcs")
-        
+
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-    #delete user
+    # delete user
     @staticmethod
     @patch("app.services.admin_service.client.admin_delete_user")
     async def test_delete_user_success(mock_admin_delete_user: MagicMock):
@@ -666,8 +657,7 @@ class testAdminDelete:
         assert response.message == "Deleted shaun permanently"
 
         mock_admin_delete_user.assert_called_once_with(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username="shaun"
+            UserPoolId=settings.cognito_user_pool_id, Username="shaun"
         )
 
         mock_session.execute.assert_awaited_once()
@@ -678,13 +668,8 @@ class testAdminDelete:
     @patch("app.services.admin_service.client.admin_delete_user")
     async def test_delete_user_not_found_exception(mock_admin_delete_user: MagicMock):
         mock_admin_delete_user.side_effect = ClientError(
-            {
-                "Error": {
-                    "Code": "UserNotFoundException",
-                    "Message": "User not found"
-                }
-            },
-            "delete_user"       
+            {"Error": {"Code": "UserNotFoundException", "Message": "User not found"}},
+            "delete_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -700,10 +685,10 @@ class testAdminDelete:
             {
                 "Error": {
                     "Code": "InvalidParameterException",
-                    "Message": "Invalid username"
+                    "Message": "Invalid username",
                 }
             },
-            "delete_user"       
+            "delete_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -719,10 +704,10 @@ class testAdminDelete:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "delete_user"       
+            "delete_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -731,7 +716,7 @@ class testAdminDelete:
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
 
-    #remove group
+    # remove group
     @staticmethod
     @patch("app.services.admin_service.client.delete_group")
     async def test_delete_group_success(mock_delete_group: MagicMock):
@@ -743,8 +728,7 @@ class testAdminDelete:
         assert response.message == "Deleted users group"
 
         mock_delete_group.assert_called_once_with(
-            GroupName="users",
-            UserPoolId=settings.cognito_user_pool_id
+            GroupName="users", UserPoolId=settings.cognito_user_pool_id
         )
 
     @staticmethod
@@ -754,10 +738,10 @@ class testAdminDelete:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "delete_group"       
+            "delete_group",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -765,6 +749,7 @@ class testAdminDelete:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
 
 @pytest.mark.anyio
 class testAdminPatch:
@@ -780,8 +765,7 @@ class testAdminPatch:
         assert response.message == "Enabled shaun"
 
         mock_admin_enable_user.assert_called_once_with(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username="shaun"
+            UserPoolId=settings.cognito_user_pool_id, Username="shaun"
         )
 
     @staticmethod
@@ -791,10 +775,10 @@ class testAdminPatch:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "admin_enable_user"       
+            "admin_enable_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -814,8 +798,7 @@ class testAdminPatch:
         assert response.message == "Disabled shaun"
 
         mock_admin_disable_user.assert_called_once_with(
-            UserPoolId=settings.cognito_user_pool_id,
-            Username="shaun"
+            UserPoolId=settings.cognito_user_pool_id, Username="shaun"
         )
 
     @staticmethod
@@ -825,10 +808,10 @@ class testAdminPatch:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "admin_disable_user"       
+            "admin_disable_user",
         )
 
         with pytest.raises(HTTPException) as exec:
@@ -836,6 +819,7 @@ class testAdminPatch:
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
+
 
 @pytest.mark.anyio
 class testAdminPut:
@@ -864,10 +848,10 @@ class testAdminPut:
             {
                 "Error": {
                     "Code": "InternalErrorException",
-                    "Message": "Internal server error"
+                    "Message": "Internal server error",
                 }
             },
-            "get_user"       
+            "get_user",
         )
 
         with pytest.raises(HTTPException) as exec:

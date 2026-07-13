@@ -373,7 +373,7 @@ class MatchData(BaseModel):
     soloBaronKills: int
     SWARM_DefeatAatrox: int
     SWARM_DefeatBriar: int
-    SWARM_DefeatMiniBosses: int 
+    SWARM_DefeatMiniBosses: int
     SWARM_EvolveWeapon: int
     SWARM_Have3Passives: int
     SWARM_KillEnemy: int
@@ -408,6 +408,7 @@ class MatchData(BaseModel):
     tower_kills: int
     teams_teamId: int
     teams_win: bool
+
 
 class ProfileData(BaseModel):
     endOfGameResult: str

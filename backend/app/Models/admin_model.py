@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
 class UserResponse(BaseModel):
     username: str
     email: str | None
@@ -10,9 +11,11 @@ class UserResponse(BaseModel):
     enabled: bool
     user_status: str
 
+
 class Response(BaseModel):
     success: bool = True
     message: str = ""
+
 
 class CreateGroupResponse(BaseModel):
     group_name: str

@@ -3,6 +3,7 @@ from fastapi import HTTPException  # , status
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
+
 # from sqlmodel import col
 from typing import Any
 from app.database.models import Users
@@ -145,7 +146,7 @@ class ProfileService:
         try:
             if access_token == "":
                 raise HTTPException(status_code=400, detail="Access Token is empty.")
-            
+
             # find in user.sud in db, due to social login first find in cognito then look for in db, if not create user
             response = await asyncio.to_thread(
                 client.get_user, AccessToken=access_token
@@ -156,11 +157,11 @@ class ProfileService:
                 for attr in response["UserAttributes"]
             }
             # todo need to change object as can't hardcode user type
-            #need to update this to what is expected give error due ti wrong data retrieved
+            # need to update this to what is expected give error due ti wrong data retrieved
             user = UserProfile(
                 sub=attributes["sub"],
                 email=attributes["email"],
-                username=response["Username"]         
+                username=response["Username"],
             )
 
             statement = select(Users).where(Users.cognito_sub == user.sub)
@@ -186,7 +187,7 @@ class ProfileService:
                 raise HTTPException(status_code=400, detail="User objects is empty.")
 
             if user.username is None:
-                raise HTTPException(status_code=400, detail="Username is missing.")          
+                raise HTTPException(status_code=400, detail="Username is missing.")
 
             # create profile and get then return profile as is. Used when laod profile. Lazy loading
             # create in db
