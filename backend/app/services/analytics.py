@@ -587,8 +587,8 @@ class LiveAnalyticsService:
             response = ItemData(
                 itemId=item_id,
                 timestamp=event_timestamp,
-                championId=champion_id,
-                champLevel=champion_level,
+                championId=player["championId"],
+                champLevel=player["champLevel"],
                 currentGold=currentGold,
                 level=level,
                 xp=xp,
@@ -605,10 +605,94 @@ class LiveAnalyticsService:
 
             return response
         except HTTPException:
-                raise HTTPException(status_code=500, detail="Internal server error")
+                raise
         except KeyError as e:
-            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}") 
+            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
+        except Exception:
+                raise HTTPException(status_code=500, detail="Internal server error") 
                 
                 
     async def skill_data(self, match_id: str, puuid: str) -> Any:          
+        try:
+            timeline = await riot_service.get_match_timeline(match_id)
+            match = await riot_service.get_match_detail(match_id)
+
+            frames = timeline["info"]["frames"]
+
+            player = next(
+                (p for p in match["info"]["participants"] if p["puuid"] == puuid),
+                None
+            )
+
+            if player is None:
+                raise HTTPException(status_code=404, detail="Player not found in match")
+            
+            participant_id = str(player["participantId"])
+
+            item_events = [event for frame in frames for event in frame["events"]
+                           if event.get("participantId") == int(participant_id)]
+            
+            event_timestamp = [event["timestamp"] for event in item_events]
+            skill_events = [event for event in item_events
+                            if event["type"] == "SKILL_LEVEL_UP"]
+            
+            skill_slot = [event["skillSlot"] for event in skill_events]
+            level_up_type = [event["levelUpType"] for event in skill_events]
+            
+            level = [
+                frame["participantFrames"][participant_id]["level"]
+                for frame in frames
+            ]
+            
+            goldPerSecond = [
+                frame["participantFrames"][participant_id]["goldPerSecond"] for frame in frames
+            ]
+            magicDamageDone = [
+                frame["participantFrames"][participant_id]["damageStats"]["magicDamageDone"] for frame in frames
+            ]
+            physicalDamageDone = [
+                frame["participantFrames"][participant_id]["damageStats"]["physicalDamageDone"] for frame in frames
+            ]
+            totalDamageDone = [
+                frame["participantFrames"][participant_id]["damageStats"]["totalDamageDone"] for frame in frames
+            ]
+            abilityHaste = [
+                frame["participantFrames"][participant_id]["championStats"]["abilityHaste"] for frame in frames
+            ]
+            armor = [
+                frame["participantFrames"][participant_id]["championStats"]["armor"] for frame in frames
+            ]
+            attackDamage = [
+                frame["participantFrames"][participant_id]["championStats"]["attackDamage"] for frame in frames
+            ]
+            attackSpeed = [
+                frame["participantFrames"][participant_id]["championStats"]["attackSpeed"] for frame in frames
+            ]
+            cooldownReduction = [
+                frame["participantFrames"][participant_id]["championStats"]["cooldownReduction"] for frame in frames
+            ]
+            health = [
+                frame["participantFrames"][participant_id]["championStats"]["health"] for frame in frames
+            ]
+            healthMax = [
+                frame["participantFrames"][participant_id]["championStats"]["healthMax"] for frame in frames
+            ]
+            healthRegen = [
+                frame["participantFrames"][participant_id]["championStats"]["healthRegen"] for frame in frames
+            ]
+            lifesteal = [
+                frame["participantFrames"][participant_id]["championStats"]["lifesteal"] for frame in frames
+            ]
+            movementSpeed = [
+                frame["participantFrames"][participant_id]["championStats"]["movementSpeed"] for frame in frames
+            ]
+            power = [
+                frame["participantFrames"][participant_id]["championStats"]["power"] for frame in frames
+            ]
+            magicPen = [
+                frame["participantFrames"][participant_id]["championStats"]["magicPen"] for frame in frames
+            ]
+
+            
+
 
