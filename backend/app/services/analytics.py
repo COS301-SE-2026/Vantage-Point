@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import MapReplay, MapSuggestData, ProfileData, MatchData
+from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -473,7 +473,7 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    async def champion_data(self, match_id: str, puuid: str) -> Any:
+    async def champion_data(self, match_id: str, puuid: str) -> ChampionData:
         try:
             match = await riot_service.get_match_detail(match_id)
             info = match["info"]
@@ -493,4 +493,17 @@ class LiveAnalyticsService:
                 if (p["puuid"] != puuid):
                     champion_ids.append(p["championId"])
 
-            response: Any = 
+            response = ChampionData(
+                championId=player_data["championId"],
+                teamPosition=player_data["teamPostion"],
+                roles=player_data["role"],
+                lane=player_data["lane"],
+                participants_championId=champion_ids
+            )
+
+            return response
+        except HTTPException:
+            raise HTTPException(status_code=500, detail="Internal server error")
+        except KeyError as e:
+            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
+
