@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict
 from urllib.parse import urlparse
+from types import FrameType
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -63,12 +64,14 @@ logger.add(
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
+        level: str | int
         try:
             level = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
-        frame, depth = logging.currentframe(), 2
+        frame: FrameType | None = logging.currentframe()
+        depth = 2
         while frame and frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
             depth += 1

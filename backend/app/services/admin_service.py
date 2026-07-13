@@ -285,7 +285,7 @@ class admin_service:
                 ),
                 deletion_scheduled_at=None,
             )
-            response = UserResponse(
+            return_value = UserResponse(
                 username=profile.display_name or username,
                 email=profile.email,
                 sub=profile.cognito_sub,
@@ -299,7 +299,7 @@ class admin_service:
             await session.commit()
             await session.refresh(profile)
 
-            return response
+            return return_value
         except ClientError as e:
             logger.exception("Admin create user")
             error = e.response.get("Error", {})
@@ -329,7 +329,7 @@ class admin_service:
                 Precedence=precedence,
             )
             group = response["Group"]
-            response = CreateGroupResponse(
+            return_value = CreateGroupResponse(
                 group_name=group.get("GroupName", group_name),
                 user_pool_id=group.get("UserPoolId", ""),
                 descriptipn=group.get("Description", description),
@@ -342,7 +342,7 @@ class admin_service:
                 ),
             )
 
-            return response
+            return return_value
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")

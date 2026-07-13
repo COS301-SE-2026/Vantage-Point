@@ -365,7 +365,7 @@ class LiveAnalyticsService:
             champion_id: list[int] = []
             pick_turn: list[int] = []
 
-            if teams in None:
+            if teams is None:
                 raise HTTPException(
                     status_code=500, detail="Could not get data from Riot API"
                 )
