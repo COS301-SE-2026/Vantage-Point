@@ -507,12 +507,22 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    async def item_data(self, match_id: str) -> ItemData:
+    async def item_data(self, match_id: str, puuid: str) -> ItemData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
 
             frames = timeline["info"]["frames"]
+
+            player = next(
+                (p for p in match["info"]["participants"] if p["puuid"] == puuid),
+                None
+            )
+
+            if player is None:
+                raise HTTPException(status_code=404, detail="Player not found in match")
+            
+            participant_id = str(player["participantId"])
 
             currentGold = {}
             level = {}
@@ -527,59 +537,52 @@ class LiveAnalyticsService:
             powerMax = {}
             armor = {}
 
-            for i in range(1, 11):
-                currentGold[str(i)] = [
-                    frame["participantFrames"][str(i)]["currentGold"] for frame in frames
-                ]
-                level[str(i)] = [
-                    frame["participantFrames"][str(i)]["level"] for frame in frames
-                ]
-                xp[str(i)] = [
-                    frame["participantFrames"][str(i)]["xp"] for frame in frames
-                ]
-                totalDamageDone[str(i)] = [
-                    frame["participantFrames"][str(i)]["damageStats"]["totalDamageDone"] for frame in frames
-                ]
-                totalDamageTaken[str(i)] = [
-                    frame["participantFrames"][str(i)]["damageStats"]["totalDamageTaken"] for frame in frames
-                ]
-                health[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["health"] for frame in frames
-                ]
-                healthMax[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["healthMax"] for frame in frames
-                ]
-                healthRegen[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["healthRegen"] for frame in frames
-                ]
-                lifesteal[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["lifesteal"] for frame in frames
-                ]
-                power[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["power"] for frame in frames
-                ]
-                powerMax[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["powerMax"] for frame in frames
-                ]
-                armor[str(i)] = [
-                    frame["participantFrames"][str(i)]["championStats"]["armor"] for frame in frames
-                ]
+            currentGold = [
+                frame["participantFrames"][participant_id]["currentGold"] for frame in frames
+            ]
+            level = [
+                frame["participantFrames"][participant_id]["level"] for frame in frames
+            ]
+            xp = [
+                frame["participantFrames"][participant_id]["xp"] for frame in frames
+            ]
+            totalDamageDone = [
+                frame["participantFrames"][participant_id]["damageStats"]["totalDamageDone"] for frame in frames
+            ]
+            totalDamageTaken = [
+                frame["participantFrames"][participant_id]["damageStats"]["totalDamageTaken"] for frame in frames
+            ]
+            health = [
+                frame["participantFrames"][participant_id]["championStats"]["health"] for frame in frames
+            ]
+            healthMax = [
+                frame["participantFrames"][participant_id]["championStats"]["healthMax"] for frame in frames
+            ]
+            healthRegen = [
+                frame["participantFrames"][participant_id]["championStats"]["healthRegen"] for frame in frames
+            ]
+            lifesteal = [
+                frame["participantFrames"][participant_id]["championStats"]["lifesteal"] for frame in frames
+            ]
+            power = [
+                frame["participantFrames"][participant_id]["championStats"]["power"] for frame in frames
+            ]
+            powerMax = [
+                frame["participantFrames"][participant_id]["championStats"]["powerMax"] for frame in frames
+            ]
+            armor = [
+                frame["participantFrames"][participant_id]["championStats"]["armor"] for frame in frames
+            ]
             
             event_timestamp = {}
             item_id = {}
 
-            for i, frame in enumerate(frames):
-                item_event = [event for event in frame["events"] if "teamId" in event]
-                event_timestamp[str(i)] = [event["timestamp"] for event in item_event]
-                item_id[str(i)] = [event["itemId"] for event in item_event]
-
-            champion_id = {}
-            champion_level = {}
-
-            for p in match["info"]["participants"]:
-                pid = str(p["participantId"])
-                champion_id[pid] = p["championId"]
-                champion_level[pid] = p["champLevel"]
+            item_events = [event for frame in frames for event in frame["events"]
+                           if event.get("participantId") == int(participant_id)]
+            
+            event_timestamp = [event["timestamp"] for event in item_events]
+            item_id = [event["itemId"] for event in item_events
+                       if "itemId" in event]
 
             response = ItemData(
                 itemId=item_id,
@@ -607,5 +610,5 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}") 
                 
                 
-                    
+    async def skill_data(self, match_id: str, puuid: str) -> Any:          
 
