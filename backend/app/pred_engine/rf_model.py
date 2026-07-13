@@ -20,7 +20,10 @@ def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
     }
 
     grid_search = GridSearchCV(
-        RandomForestClassifier(random_state=69420), param_grid=param_grid, cv=2, random_state=69420
+        RandomForestClassifier(random_state=69420),
+        param_grid=param_grid,
+        cv=2,
+        random_state=69420,
     )
     grid_search.fit(x_train, y_train)
 
