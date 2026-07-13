@@ -610,8 +610,7 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
                 raise HTTPException(status_code=500, detail="Internal server error") 
-                
-                
+                              
     async def skill_data(self, match_id: str, puuid: str) -> SkillData:          
         try:
             timeline = await riot_service.get_match_timeline(match_id)
@@ -723,6 +722,39 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
-                raise HTTPException(status_code=500, detail="Internal server error") 
+                raise HTTPException(status_code=500, detail="Internal server error")
+
+    async def role_data(self, match_id: str, puuid: str) -> Any: 
+        try:
+            timeline = await riot_service.get_match_timeline(match_id)
+            match = await riot_service.get_match_detail(match_id)
+
+            frames = timeline["info"]["frames"]
+
+            player = next(
+                (p for p in match["info"]["participants"] if p["puuid"] == puuid),
+                None
+            )
+
+            if player is None:
+                raise HTTPException(status_code=404, detail="Player not found in match")
+
+            participant_id = str(player["participantId"])
+            start_frame = frames[0]
+            end_frame = frames[-1]
+
+            start_stats = start_frame["participantFrames"][participant_id]["championStats"]
+            end_stats = end_frame["participantFrames"][participant_id]["championStats"]
+
+            start_movementSpeed = start_frame["movementSpeed"]
+            start_health = start_frame["health"]
+            start_healthMax = start_frame["healthMax"]
+            start_healthRegen = start_frame["healthRegen"]
+            start_armor = start_frame["armor"]
+            end_movementSpeed = end_frame["movementSpeed"]
+            end_health = end_frame["health"]
+            end_healthMax = end_frame["healthMax"]
+            end_healthRegen = end_frame["healthRegen"]
+            end_armor = end_frame["armor"]
 
 
