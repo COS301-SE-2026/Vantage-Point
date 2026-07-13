@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData, ItemData)
+from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData, ItemData, SkillData)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -612,7 +612,7 @@ class LiveAnalyticsService:
                 raise HTTPException(status_code=500, detail="Internal server error") 
                 
                 
-    async def skill_data(self, match_id: str, puuid: str) -> Any:          
+    async def skill_data(self, match_id: str, puuid: str) -> SkillData:          
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -693,6 +693,36 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["magicPen"] for frame in frames
             ]
 
-            
+            response = SkillData(
+                skillslot=skill_slot,
+                levelUpType=level_up_type,
+                timestamp=event_timestamp,
+                level=level,
+                championId=player["championId"],
+                goldPerSecond=goldPerSecond,
+                damageStats_magicDamageDone=magicDamageDone,
+                damageStats_physicalDamageDone=physicalDamageDone,
+                damageStats_totalDamageDone=totalDamageDone,
+                championStats_abilityHaste=abilityHaste,
+                championStats_armor=armor,
+                championStats_attackDamage=attackDamage,
+                championStats_attackSpeed=attackSpeed,
+                championStats_cooldownReduction=cooldownReduction,
+                championStats_health=health,
+                championStats_healthMax=healthMax,
+                championStats_healthRegen=healthRegen,
+                championStats_lifesteal=lifesteal,
+                championStats_movementSpeed=movementSpeed,
+                championStats_power=power,
+                championStats_magicPen=magicPen
+            )
+
+            return response
+        except HTTPException:
+                raise
+        except KeyError as e:
+            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
+        except Exception:
+                raise HTTPException(status_code=500, detail="Internal server error") 
 
 
