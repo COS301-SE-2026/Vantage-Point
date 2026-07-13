@@ -58,7 +58,7 @@ def optimize_agging(p1, p2, file_name):
     best_k = p1
     best_weights = p2
     bagged_knn = KNeighborsRegressor(n_neighbors=best_k, weights=best_weights)
-    bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=None)
+    bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=69420)
     bagging_model.fit(x_train, y_train)  # slow here
     test_preds_grid = bagging_model.predict(x_test)
     test_mse = mean_squared_error(y_test, test_preds_grid)
@@ -114,7 +114,7 @@ def get_knn(file_name):
         exit()
 
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
-    bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=None)
+    bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=69420)
     bagging_model.fit(x_train, y_train)
 
     return bagging_model
