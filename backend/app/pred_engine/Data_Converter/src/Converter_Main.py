@@ -1,7 +1,7 @@
-import csv
-import random
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
+import csv
+import random
 
 file_error_text = "Training file not found"
 
@@ -97,6 +97,8 @@ def format_data_univar(data, pos, role, lane):
 
 
 def remove_dup(row, prev_row, r):
+    random.seed(69420)
+
     # if feature values are identical, take random row
     if r != 0 and row[1:] == prev_row[1:]:
         num = int(random.random())

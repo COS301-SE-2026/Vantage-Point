@@ -19,7 +19,7 @@ def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
         "bootstrap": [True, False],
     }
 
-    grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, cv=2)
+    grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, cv=2, random_state=None)
     grid_search.fit(x_train, y_train)
 
     model_grid = RandomForestClassifier(
@@ -28,6 +28,8 @@ def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
         min_samples_leaf=grid_search.best_params_.get("min_samples_leaf"),
         min_samples_split=grid_search.best_params_.get("min_samples_split"),
         bootstrap=grid_search.best_params_.get("bootstrap"),
+        max_features='sqrt',
+        random_state=None
     )
 
     print(grid_search.best_params_.get("max_depth"))
@@ -53,7 +55,7 @@ def hyperparam_gridsearch(x_train, x_test, y_train, y_test, run_cat):
 
 
 def rf_univariate(x_train, x_test, y_train, y_test):
-    rf = RandomForestClassifier()
+    rf = RandomForestClassifier(random_state=None, min_samples_leaf=1 ,max_features='sqrt')
     rf.fit(x_train, y_train)
 
     y_pred = rf.predict(x_test)
@@ -61,7 +63,7 @@ def rf_univariate(x_train, x_test, y_train, y_test):
 
 
 def rf_multivariate(x_train, x_test, y_train, y_test):
-    rf = RandomForestClassifier()
+    rf = RandomForestClassifier(random_state=None, min_samples_leaf=1 ,max_features='sqrt')
     rf_multi = MultiOutputClassifier(rf, n_jobs=-1)
 
     rf_multi.fit(x_train, y_train)
@@ -138,6 +140,8 @@ def final_train(file_name, run_cat):
                 min_samples_leaf=2,
                 min_samples_split=5,
                 bootstrap=True,
+                max_features='sqrt',
+                random_state=None
             )
             rf_model.fit(x_train, y_train)
             y_pred_grid = rf_model.predict(x_test)
@@ -150,6 +154,8 @@ def final_train(file_name, run_cat):
                 min_samples_leaf=1,
                 min_samples_split=2,
                 bootstrap=True,
+                max_features='sqrt',
+                random_state=None
             )
             rf_model = MultiOutputClassifier(rf, n_jobs=-1)
             rf_model.fit(x_train, y_train)
