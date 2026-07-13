@@ -473,4 +473,24 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    # async def champion_data
+    async def champion_data(self, match_id: str, puuid: str) -> Any:
+        try:
+            match = await riot_service.get_match_detail(match_id)
+            info = match["info"]
+
+            participants = info["participants"]
+
+            player_data = next(
+                (p for p in participants if p["puuid"] == puuid), 
+                None
+            )
+
+            if player_data is None:
+                raise HTTPException(status_code=404,detail="User not found in match. Incorrect puuid or matchid")
+            
+            champion_ids: list[int] = []
+            for p in participants:
+                if (p["puuid"] != puuid):
+                    champion_ids.append(p["championId"])
+
+            response: Any = 

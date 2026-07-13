@@ -443,3 +443,7 @@ class ProfileData(BaseModel):
     kills: int
     lane: str
     teamPosition: str
+
+
+class ChampionData(BaseModel):
+    
