@@ -446,4 +446,8 @@ class ProfileData(BaseModel):
 
 
 class ChampionData(BaseModel):
-    
+    championId: int
+    teamPosition: str
+    roles: str
+    lane: str
+    participants_championId: list[int]
