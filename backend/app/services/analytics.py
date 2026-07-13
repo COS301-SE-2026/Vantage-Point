@@ -507,3 +507,5 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
+    async def item_data(self, match_id: str, puuid: str):
+        

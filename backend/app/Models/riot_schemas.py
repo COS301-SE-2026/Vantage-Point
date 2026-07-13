@@ -451,3 +451,21 @@ class ChampionData(BaseModel):
     roles: str
     lane: str
     participants_championId: list[int]
+
+class ItemData(BaseModel):
+    itemId: str
+    timestamp: float
+    championId: int
+    champLevel: int
+    currentGold: int
+    level: int
+    xp: int
+    damageStats_totalDamageDone: int
+    damageStats_totalDamageTaken: int
+    championStats_health: int
+    championStats_healthMax: int
+    championStats_healthRegen: int
+    championStats_lifesteal: int
+    championStats_power: int
+    championStats_powerMax: int
+    championStats_armor: int
