@@ -145,7 +145,7 @@ class ProfileService:
         try:
             if access_token == "":
                 raise HTTPException(status_code=400, detail="Access Token is empty.")
-            
+
             # find in user.sud in db, due to social login first find in cognito then look for in db, if not create user
             response = await asyncio.to_thread(
                 client.get_user, AccessToken=access_token
@@ -160,7 +160,7 @@ class ProfileService:
             user = Users(
                 cognito_sub=attributes["sub"],
                 email=attributes["email"],
-                display_name=response["Username"],           
+                display_name=response["Username"],
             )
 
             statement = select(Users).where(Users.cognito_sub == user.cognito_sub)
@@ -186,7 +186,7 @@ class ProfileService:
                 raise HTTPException(status_code=400, detail="User objects is empty.")
 
             if user.display_name is None:
-                raise HTTPException(status_code=400, detail="Username is missing.")          
+                raise HTTPException(status_code=400, detail="Username is missing.")
 
             # create profile and get then return profile as is. Used when laod profile. Lazy loading
             # create in db

@@ -3,13 +3,11 @@ services:
   # The Python/FastAPI environment
   app:
     image: mcr.microsoft.com/devcontainers/python:3.12
-    env_file:
-      - .env
     volumes:
       - ..:/workspaces:cached
-      - pip-cache:/home/vscode/.cache/pip        
+      - pip-cache:/home/vscode/.cache/pip
       # persists pip download cache
-      - npm-cache:/home/vscode/.npm       
+      - npm-cache:/home/vscode/.npm
       # persists npm download cache
     # Keeps the container running so you can code inside it
     command: sleep infinity
@@ -30,7 +28,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST_AUTH_METHOD: trust
     # Persistent storage: data stays even if you stop the container
     volumes:
       - postgres_data:/var/lib/postgresql/data

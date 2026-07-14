@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import asyncio
 import os
 from contextlib import asynccontextmanager
@@ -11,10 +12,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+=======
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from contextlib import asynccontextmanager
+from typing import Any, Dict
+
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+>>>>>>> dev
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
+<<<<<<< HEAD
 from app.api.router import admin_routes, profile_routes, auth_routes
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
@@ -26,6 +38,15 @@ import sys
 import logging
 from starlette.middleware.base import RequestResponseEndpoint
 
+=======
+from app.api.middleware import ProcessTimeMiddleware
+from app.api.routes import router
+from app.database.models import GameAccounts
+from app.database.session import async_session_maker, init_db
+from app.schemas.generic_schemas import get_error_reason
+from app.services.riot_api import get_puuid_by_riot_id
+
+>>>>>>> dev
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
 
@@ -43,7 +64,7 @@ load_dotenv()
 
 # limiter = Limiter(key_func=get_remote_address)
 logger.remove(0)
-logger.add(sys.stdout, enqueue=True, 
+logger.add(sys.stdout, enqueue=True,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
 
 logger.add(
@@ -63,7 +84,7 @@ class InterceptHandler(logging.Handler):
             level = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
-        
+
         frame, depth = logging.currentframe(), 2
         while frame and frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back

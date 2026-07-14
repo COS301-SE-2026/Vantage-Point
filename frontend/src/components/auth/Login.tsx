@@ -141,15 +141,21 @@ function InputField({
   value: string;
   onChange: (value: string) => void;
 }>) {
+  // Derive a stable id from the label text (e.g. "Email" → "field-email")
+  const id = `field-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div
       className="content-stretch flex flex-col gap-[8px] items-stretch"
       data-name="Input Field"
     >
-      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
+      <label
+        htmlFor={id}
+        className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]"
+      >
         {label}
-      </p>
+      </label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -169,10 +175,12 @@ function CheckboxAndLabel({
 }>) {
   return (
     <label
+      htmlFor="show-password"
       className="flex gap-[12px] items-center cursor-pointer self-start mt-1"
       data-name="Checkbox and Label"
     >
       <input
+        id="show-password"
         type="checkbox"
         checked={showPassword}
         onChange={(e) => setShowPassword(e.target.checked)}
@@ -183,7 +191,6 @@ function CheckboxAndLabel({
           showPassword ? "bg-[#2c2c2c]" : "bg-white border border-[#d9d9d9]"
         }`}
       >
-        =
         {showPassword && (
           <svg className="w-3 h-3" fill="none" viewBox="0 0 12.2667 8.93333">
             <path
@@ -196,9 +203,9 @@ function CheckboxAndLabel({
           </svg>
         )}
       </div>
-      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
+      <span className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
         Show password
-      </p>
+      </span>
     </label>
   );
 }
@@ -328,13 +335,9 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
             <button
               type="submit"
               disabled={form.loading}
-              className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap"
             >
-              <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
-                <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
-                  {form.loading ? "Signing in…" : "Sign In"}
-                </p>
-              </div>
+              {form.loading ? "Signing in…" : "Sign In"}
             </button>
 
             <RegistrationLink />

@@ -9,7 +9,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces",
-  
+
   // Features are pre-built install scripts that layer on top of the base image.
   // Node is not included in the Python base image so we add it here.
   "features": {
@@ -27,7 +27,7 @@
         // frontend development
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        // database tools; Microsoft maintained PostgreSQL extension 
+        // database tools; Microsoft maintained PostgreSQL extension
         //"ms-ossdata.vscode-pgsql", not working currently so using alt
 	      "ckolkman.vscode-postgres",
         "cweijan.vscode-postgresql-client2", // this is a nice alternative to the Chris Kolkman one, it has a better UI and more features, recommended by @Vele189
@@ -38,13 +38,9 @@
     }
   },
 
-  "mounts": [
-    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
-  ],
-
   // 8000 = FastAPI Backend , 5173 = Vite frontend dev server, 5432 = Postgres (for DBeaver or the VS Code extension on the host)
   // @NeoMachabaUP : we are using 3000 for the frontend, but we can change this if we want to use 5173 instead. I just wanted to avoid confusion with the default Vite port.
   "forwardPorts": [8000, 3000, 5432, 5173],
   "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh",
-  "postStartCommand": "/bin/bash /workspaces/.devcontainer/start-services.sh"  
+  "postStartCommand": "/bin/bash /workspaces/.devcontainer/start-services.sh"
 }

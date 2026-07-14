@@ -2,12 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore[i
 from pydantic import field_validator
 from functools import lru_cache
 from typing import Any, List, Optional
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-load_dotenv(os.path.join(os.path.dirname(__file__), '/.env'))
 
 class Settings(BaseSettings):
     """Application settings loaded from .env file"""
@@ -18,14 +13,10 @@ class Settings(BaseSettings):
     riot_platform: str = "na1"
 
     # ============ AWS Cognito Configuration ============
-    aws_region: str = "eu-north-1"
-    cognito_user_pool_id: str = "eu-north-1_V2oWQIRB9"
-    cognito_client_id: str = "7ca1djteu2tpo5itu5ve9huh2p"
-    cognito_client_secret: str = "hkj5b1rh9sg028f0lnr2pqpbr7pblncoslr8n6n0qcjhfqi2hip"
-
-    # ============ AWS IAM Credentials ============
-    aws_access_key_id: Any = os.getenv("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key: Any = os.getenv("AWS_SECRET_ACCESS_KEY") 
+    aws_region: str = "eu-west-1"
+    cognito_user_pool_id: str = ""
+    cognito_client_id: str = ""
+    cognito_client_secret: str = ""
 
     # ============ Server Configuration ============
     debug: bool = True

@@ -9,7 +9,7 @@ pydantic-settings
 pydantic[email]
 pandas
 scikit-learn
-httpx>=0.27,<0.29
+httpx
 python-dotenv
 python-jose[cryptography]
 bcrypt
