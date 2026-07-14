@@ -45,11 +45,11 @@ class TestAdminGet:
         assert response.username == "shaun"
         assert response.email == "shaun@gmail.com"
         assert response.sub == "12345"
-        assert response.user_created_date == datetime.fromisoformat(
-            "2026-07-01T20:08:52.115000+02:00"
+        assert response.user_created_date == datetime(
+            2026, 7, 1, 20, 8, 52, 115000, tzinfo=timezone.utc
         )
-        assert response.user_last_modified_date == datetime.fromisoformat(
-            "2026-07-01T20:09:42.094000+02:00"
+        assert response.user_last_modified_date == datetime(
+            2026, 7, 1, 20, 9, 42, 94000, tzinfo=timezone.utc
         )
         assert response.enabled is True
         assert response.user_status == "CONFIRMED"
@@ -70,7 +70,7 @@ class TestAdminGet:
             await admin_service.get_user("shaun")
 
         assert exec.value.status_code == 404
-        assert exec.value.detail == "User not found!"
+        assert exec.value.detail == "User not found"
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
@@ -162,7 +162,7 @@ class TestAdminGet:
     @patch("app.services.admin_service.client.list_users")
     async def test_get_users_user_not_found(mock_admin_get_users: MagicMock):
         mock_admin_get_users.side_effect = ClientError(
-            {"Error": {"Code": "UserNotFoundException", "Message": "User not found."}},
+            {"Error": {"Code": "UserNotFoundException", "Message": "User not found"}},
             "get_users",
         )
 
@@ -179,7 +179,7 @@ class TestAdminGet:
             {
                 "Error": {
                     "Code": "InvalidParamaterException",
-                    "Message": "Invalid Username",
+                    "Message": "Invalid username",
                 }
             },
             "get_users",
