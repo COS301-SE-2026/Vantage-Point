@@ -746,17 +746,51 @@ class LiveAnalyticsService:
             start_stats = start_frame["participantFrames"][participant_id]["championStats"]
             end_stats = end_frame["participantFrames"][participant_id]["championStats"]
 
-            start_movementSpeed = start_frame["movementSpeed"]
-            start_health = start_frame["health"]
-            start_healthMax = start_frame["healthMax"]
-            start_healthRegen = start_frame["healthRegen"]
-            start_armor = start_frame["armor"]
-            end_movementSpeed = end_frame["movementSpeed"]
-            end_health = end_frame["health"]
-            end_healthMax = end_frame["healthMax"]
-            end_healthRegen = end_frame["healthRegen"]
-            end_armor = end_frame["armor"]
+            start_movementSpeed = start_stats["movementSpeed"]
+            start_health = start_stats["health"]
+            start_healthMax = start_stats["healthMax"]
+            start_healthRegen = start_stats["healthRegen"]
+            start_armor = start_stats["armor"]
+            end_movementSpeed = end_stats["movementSpeed"]
+            end_health = end_stats["health"]
+            end_healthMax = end_stats["healthMax"]
+            end_healthRegen = end_stats["healthRegen"]
+            end_armor = end_stats["armor"]
 
-            response = RoleData()
+            response = RoleData(
+                teamPosition=player["teamPosition"],
+                lane=player["lane"],
+                championId=player["champioId"],
+                kills=player["kills"],
+                physicalDamageDealt=player["physicalDamageDealt"],
+                totalDamageDealt=player["totalDamageDealt"],
+                magicDamageDealt=player["magicDamageDealt"],
+                totalHeal=player["totalHeal"],
+                totalEnemyJungleMinionsKilled=player["totalEnemyJungleMinionsKilled"],
+                totalHealsOnTeammates=player["totalHealsOnTeammates"],
+                totalUnitsHealed=player["totalUnitsHealed"],
+                wardsKilled=player["wardsKilled"],
+                wardsPlaced=player["wardsPlaced"],
+                detectorWardsPlaced=player["detectorWardsPlaced"],
+
+                start_movementSpeed=start_movementSpeed,
+                start_health=start_health,
+                start_healthMax=start_healthMax,
+                start_healthRegen=start_healthRegen,
+                start_armor=start_armor,
+                end_movementSpeed=end_movementSpeed,
+                end_health=end_health,
+                end_healthMax=end_healthMax,
+                end_healthRegen=end_healthRegen,
+                end_armor=end_armor
+            )
+
+            return response
+        except HTTPException:
+                raise
+        except KeyError as e:
+            raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
+        except Exception:
+                raise HTTPException(status_code=500, detail="Internal server error")
 
 
