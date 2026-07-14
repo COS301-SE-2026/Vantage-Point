@@ -32,3 +32,11 @@ async def map_replay(_: Annotated[User, Depends(require_group(10))], match_id: s
 async def map_suggest_data(_: Annotated[User, Depends(require_group(10))], match_id: str):
     return await LiveAnalyticsService.map_suggest_data(match_id)
 
+@router.get(
+    "/analytics/profile_data/{match_id}",
+    response_model=ProfileData,
+    tags=["Analytics"]
+)
+async def profile_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
+    return await LiveAnalyticsService.profile_data(match_id, puuid)
+
