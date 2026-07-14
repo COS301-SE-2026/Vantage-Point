@@ -40,3 +40,18 @@ async def map_suggest_data(_: Annotated[User, Depends(require_group(10))], match
 async def profile_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
     return await LiveAnalyticsService.profile_data(match_id, puuid)
 
+@router.get(
+    "/analytics/match_data/{match_id}",
+    response_model=MatchData,
+    tags=["Analytics"]
+)
+async def match_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
+    return await LiveAnalyticsService.match_data(match_id, puuid)
+
+@router.get(
+    "/analytics/match_data/{match_id}",
+    response_model=ChampionData,
+    tags=["Analytics"]
+)
+async def champion_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
+    return await LiveAnalyticsService.champion_data(match_id, puuid)
