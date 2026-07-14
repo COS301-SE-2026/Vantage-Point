@@ -143,6 +143,7 @@ app.include_router(profile_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(analytics_router.router)
 
+
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
     return {
         "status": "error",

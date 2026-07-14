@@ -20,6 +20,7 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: i
 user_not_found: str = "User not found"
 invalid_username: str = "Invalid username"
 
+
 class admin_service:
     @staticmethod
     async def get_users(limit: int = 10) -> list[UserResponse]:

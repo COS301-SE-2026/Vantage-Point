@@ -16,6 +16,8 @@ from fastapi import HTTPException
 
 internal_server_error: str = "Internal server error"
 player_not_found: str = "PLayer not found in match"
+
+
 class LiveAnalyticsService:
     @staticmethod
     def _empty_live_metrics() -> LiveAdvancedMetrics:
@@ -271,18 +273,14 @@ class LiveAnalyticsService:
             health=health,
             health_max=health_max,
             health_regen=health_regen,
-            champion_id=[
-                p["championId"] for p in match["info"]["participants"]
-            ],
+            champion_id=[p["championId"] for p in match["info"]["participants"]],
             true_damage_done=true_damage_done,
             true_damage_done_to_champion=true_damage_done_to_champions,
             true_damage_taken=true_damage_taken,
             gold_per_second=gold_per_second,
             level=level,
             xp=xp,
-            team_position=[
-                p["teamPosition"] for p in match["info"]["participants"]
-            ],
+            team_position=[p["teamPosition"] for p in match["info"]["participants"]],
             lane=[p["lane"] for p in match["info"]["participants"]],
         )
 
@@ -309,7 +307,9 @@ class LiveAnalyticsService:
 
             game_duration_min = info.get("gameDuration", 0) / 60
             gold_earned = participants.get("goldEarned", 0)
-            gold_per_minute = gold_earned / game_duration_min if game_duration_min > 0 else 0
+            gold_per_minute = (
+                gold_earned / game_duration_min if game_duration_min > 0 else 0
+            )
 
             response = ProfileData(
                 endOfGameResult=info["endOfGameResult"],
@@ -318,7 +318,11 @@ class LiveAnalyticsService:
                 champExperience=participants.get("champExperience", 0),
                 champLevel=participants.get("champLevel", 1),
                 goldPerMinute=gold_per_minute,
-                kda=participants.get("challenges", {}).get("kda", 0) if participants.get("challenges") else 0,
+                kda=(
+                    participants.get("challenges", {}).get("kda", 0)
+                    if participants.get("challenges")
+                    else 0
+                ),
                 deaths=participants.get("deaths", 0),
                 doubleKills=participants.get("doubleKills", 0),
                 killingSprees=participants.get("killingSprees", 0),
@@ -414,7 +418,9 @@ class LiveAnalyticsService:
                 highestChampionDamage=get_challenges("highestChampionDamage", 0),
                 takedownFirst25Min=get_challenges("takedownFirst25Min", 0),
                 teleportTakedowns=get_challenges("teleportTakedowns", 0),
-                thirdInhibitorDestroyedTime=get_challenges("thirdInhibitorDestroyedTime", 0),
+                thirdInhibitorDestroyedTime=get_challenges(
+                    "thirdInhibitorDestroyedTime", 0
+                ),
                 fistBumpTakedowns=get_challenges("fistBumpTakedowns", 0),
                 baronTakedowns=get_challenges("baronTakedowns", 0),
                 bountyGold=get_challenges("bountyGold", 0),
@@ -429,7 +435,9 @@ class LiveAnalyticsService:
                 kda=get_challenges("kda"),
                 killingSprees=get_challenges("killingSprees"),
                 lostAnInhibitor=get_challenges("lostAnInhibitor"),
-                perfectDragonSoulsTaken=get_challenges("perfectDragonSoulsTaken", False),
+                perfectDragonSoulsTaken=get_challenges(
+                    "perfectDragonSoulsTaken", False
+                ),
                 quickFirstTurrentKills=get_challenges("quickFirstTurrentKills"),
                 quickSoloKills=get_challenges("quickSoloKills"),
                 scuttleCrabKills=get_challenges("scuttleCrabKills"),
@@ -442,7 +450,9 @@ class LiveAnalyticsService:
                 SWARM_KillEnemy=get_challenges("SWARM_KillEnemy"),
                 SWARM_PickupGold=get_challenges("SWARM_PickupGold"),
                 SWARM_ReachLevel50=get_challenges("SWARM_ReachLevel50"),
-                SWARM_WinWith5EvolvedWeapons=get_challenges("SWARM_WinWith5EvolvedWeapons"),
+                SWARM_WinWith5EvolvedWeapons=get_challenges(
+                    "SWARM_WinWith5EvolvedWeapons"
+                ),
                 soloKills=get_challenges("soloKills"),
                 stealthWardsPlaced=get_challenges("stealthWardsPlaced"),
                 takedowns=get_challenges("takedowns"),
@@ -452,25 +462,51 @@ class LiveAnalyticsService:
                 unseenRecalls=get_challenges("unseenRecalls"),
                 visionScorePerMinute=get_challenges("visionScorePerMinute"),
                 wardTakedowns=get_challenges("wardTakedowns"),
-
                 platformId=info.get("platformId", ""),
                 championId=champion_id,
                 pickTurn=pick_turn,
-
-                baron_first=teams.get("objectives", {}).get("baron", {}).get("first", False),
-                baron_kills=teams.get("objectives", {}).get("baron", {}).get("kills", 0),
-                champion_first=teams.get("objectives", {}).get("champion", {}).get("first", False),
-                champion_kills=teams.get("objectives", {}).get("champion", {}).get("kills", 0),
-                dragon_first=teams.get("objectives", {}).get("dragon", {}).get("first", False),
-                dragon_kills=teams.get("objectives", {}).get("dragon", {}).get("kills", 0),
-                horde_first=teams.get("objectives", {}).get("horde", {}).get("first", False),
-                horde_kills=teams.get("objectives", {}).get("horde", {}).get("kills", 0),
-                inhibitor_first=teams.get("objectives", {}).get("inhibitor", {}).get("first", False),
-                inhobitor_kills=teams.get("objectives", {}).get("inhibitor", {}).get("kills", 0),
-                riftHerald_first=teams.get("objectives", {}).get("riftHerald", {}).get("first", False),
-                riftherald_kills=teams.get("objectives", {}).get("riftHerald", {}).get("kills", 0),
-                tower_first=teams.get("objectives", {}).get("tower", {}).get("first", False),
-                tower_kills=teams.get("objectives", {}).get("tower", {}).get("kills", 0),
+                baron_first=teams.get("objectives", {})
+                .get("baron", {})
+                .get("first", False),
+                baron_kills=teams.get("objectives", {})
+                .get("baron", {})
+                .get("kills", 0),
+                champion_first=teams.get("objectives", {})
+                .get("champion", {})
+                .get("first", False),
+                champion_kills=teams.get("objectives", {})
+                .get("champion", {})
+                .get("kills", 0),
+                dragon_first=teams.get("objectives", {})
+                .get("dragon", {})
+                .get("first", False),
+                dragon_kills=teams.get("objectives", {})
+                .get("dragon", {})
+                .get("kills", 0),
+                horde_first=teams.get("objectives", {})
+                .get("horde", {})
+                .get("first", False),
+                horde_kills=teams.get("objectives", {})
+                .get("horde", {})
+                .get("kills", 0),
+                inhibitor_first=teams.get("objectives", {})
+                .get("inhibitor", {})
+                .get("first", False),
+                inhobitor_kills=teams.get("objectives", {})
+                .get("inhibitor", {})
+                .get("kills", 0),
+                riftHerald_first=teams.get("objectives", {})
+                .get("riftHerald", {})
+                .get("first", False),
+                riftherald_kills=teams.get("objectives", {})
+                .get("riftHerald", {})
+                .get("kills", 0),
+                tower_first=teams.get("objectives", {})
+                .get("tower", {})
+                .get("first", False),
+                tower_kills=teams.get("objectives", {})
+                .get("tower", {})
+                .get("kills", 0),
                 teams_teamId=teams.get("teamId", 0),
                 teams_win=teams.get("win", False),
             )
@@ -597,8 +633,8 @@ class LiveAnalyticsService:
                 for frame in frames
             ]
 
-            event_timestamp:list[int] = []
-            item_id:list[int] = []
+            event_timestamp: list[int] = []
+            item_id: list[int] = []
 
             item_events = [
                 event
@@ -832,7 +868,9 @@ class LiveAnalyticsService:
                 totalDamageDealt=player.get("totalDamageDealt", 0),
                 magicDamageDealt=player.get("magicDamageDealt", 0),
                 totalHeal=player.get("totalHeal", 0),
-                totalEnemyJungleMinionsKilled=player.get("totalEnemyJungleMinionsKilled", 0),
+                totalEnemyJungleMinionsKilled=player.get(
+                    "totalEnemyJungleMinionsKilled", 0
+                ),
                 totalHealsOnTeammates=player.get("totalHealsOnTeammates", 0),
                 totalUnitsHealed=player.get("totalUnitsHealed", 0),
                 wardsKilled=player.get("wardsKilled", 0),
@@ -856,4 +894,6 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Internal server error {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Internal server error {str(e)}"
+            )
