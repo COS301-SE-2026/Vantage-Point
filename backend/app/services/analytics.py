@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData, ItemData, SkillData)
+from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData, ItemData, SkillData, RoleData)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -756,5 +756,7 @@ class LiveAnalyticsService:
             end_healthMax = end_frame["healthMax"]
             end_healthRegen = end_frame["healthRegen"]
             end_armor = end_frame["armor"]
+
+            response = RoleData()
 
 
