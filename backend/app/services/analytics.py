@@ -199,7 +199,7 @@ class LiveAnalyticsService:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await LiveAnalyticsService.map_replay(timeline)
+        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
 
         armor: dict[str, list[int]] = {}
         attack_damage: dict[str, list[int]] = {}
@@ -272,7 +272,7 @@ class LiveAnalyticsService:
             health_max=health_max,
             health_regen=health_regen,
             champion_id=[
-                p["championId"] for p in match["info"]["participants"]["championId"]
+                p["championId"] for p in match["info"]["participants"]
             ],
             true_damage_done=true_damage_done,
             true_damage_done_to_champion=true_damage_done_to_champions,
@@ -281,9 +281,9 @@ class LiveAnalyticsService:
             level=level,
             xp=xp,
             team_position=[
-                p["teamPosition"] for p in match["info"]["participants"]["championId"]
+                p["teamPosition"] for p in match["info"]["participants"]
             ],
-            lane=[p["lane"] for p in match["info"]["participants"]["championId"]],
+            lane=[p["lane"] for p in match["info"]["participants"]],
         )
 
     @staticmethod
