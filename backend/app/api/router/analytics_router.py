@@ -71,3 +71,11 @@ async def item_data(_: Annotated[User, Depends(require_group(10))], match_id: st
 )
 async def skill_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
     return await LiveAnalyticsService.skill_data(match_id, puuid)
+
+@router.get(
+    "/analytics/skill_data/{match_id}",
+    response_model=RoleData,
+    tags=["Analytics"]
+)
+async def role_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
+    return await LiveAnalyticsService.role_data(match_id, puuid)
