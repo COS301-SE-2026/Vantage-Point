@@ -1,3 +1,4 @@
+# seems like a helper class to build profile and get profiles. Nothing about updating/deleting profiles
 from collections import Counter
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +14,7 @@ from app.database.models import (
     UserFeaturedGames,
     Users,
 )
-from app.schemas.profile import (
+from app.Models.profile import (
     FeaturedGameSlideResponse,
     PlayerAchievementResponse,
     PlayerProfileResponse,

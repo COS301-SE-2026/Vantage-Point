@@ -7,7 +7,7 @@ import logging
 from fastapi import HTTPException
 from app.config import get_settings
 from botocore.exceptions import ClientError
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
 
 if TYPE_CHECKING:
@@ -33,6 +33,7 @@ def get_secret_hash(username: str):
     return base64.b64encode(dig).decode()
 
 
+# might change to do all over log and then move to another functionality
 def log_registration(username: str, email: str):
     """Writes new user info to a local text file"""
     with open("registrations.txt", "a") as f:
@@ -54,7 +55,12 @@ def handle_cognito_error(e: ClientError) -> NoReturn:
     raise HTTPException(status_code=status_code, detail=error_message)
 
 
-async def register_user(username: str, password: str, email: str) -> Mapping[str, Any]:
+async def register_user(username: str, password: str, email: str):
+    if not (("@" in email) and (len(password) >= 8) and (len(username) > 0)):
+        raise HTTPException(
+            status_code=400, detail="Param does not met min requirements"
+        )
+
     try:
         response = await asyncio.to_thread(
             client.sign_up,
@@ -64,27 +70,16 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
             Password=password,
             UserAttributes=[{"Name": "email", "Value": email}],
         )
-
-        # 2. AUTO-CONFIRM
-        # This makes the user active immediately so they can login.
-        if settings.debug:  # Use debug flag from config.py
-            await asyncio.to_thread(
-                client.admin_confirm_sign_up,
-                UserPoolId=settings.cognito_user_pool_id,
-                Username=username,
-                SecretHash=get_secret_hash(username),  # type: ignore[call-arg]
-            )
-            logger.info(f"User automatically confirmed in debug mode: {username}")
-
-        # await asyncio.to_thread(log_registration, username, email)
-        logger.info(f"User registration initialized: {username} | Email: {email}")
         return response
-
     except ClientError as e:
         handle_cognito_error(e)
 
 
 async def login_user(username: str, password: str) -> Mapping[str, Any]:
+    if not (len(username) > 0 and len(password) >= 8):
+        raise HTTPException(
+            status_code=400, detail="Param does not meet min requirements"
+        )
     try:
         response = await asyncio.to_thread(
             client.initiate_auth,
@@ -96,14 +91,23 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
                 "SECRET_HASH": get_secret_hash(username),
             },
         )
-        # This returns the AccessToken, IdToken, and RefreshToken
-        return response["AuthenticationResult"]
+        auth_result = cast(dict[str, Any], response["AuthenticationResult"])
+        return {
+            "access_token": auth_result["AccessToken"],
+            "id_token": auth_result["IdToken"],
+            "refresh_token": auth_result["RefreshToken"],
+            "expires_in": 3600,
+        }
     except ClientError as e:
         handle_cognito_error(e)
 
 
 async def confirm_user(username: str, code: str):
     """Confirm the user using the code sent to their email."""
+    if not (len(username) > 0 and len(code) == 6):
+        raise HTTPException(
+            status_code=400, detail="Not meeting min param requirements"
+        )
     try:
         await asyncio.to_thread(
             client.confirm_sign_up,
@@ -138,8 +142,6 @@ async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
             Token=refresh_token,
             ClientId=settings.cognito_client_id,
             ClientSecret=settings.cognito_client_secret,
-            # SecretHash is NOT needed for revoke_token,
-            # but ClientSecret IS if your client has one
         )
         return {"status": "success", "message": "Refresh token revoked."}
     except ClientError as e:

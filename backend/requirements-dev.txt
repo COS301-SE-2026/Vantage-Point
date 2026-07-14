@@ -24,3 +24,6 @@ joblib
 python-jose[cryptography]
 mypy-boto3-cognito-idp
 psycopg2-binary
+
+#logging
+loguru==0.7.3

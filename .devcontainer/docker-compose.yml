@@ -5,9 +5,9 @@ services:
     image: mcr.microsoft.com/devcontainers/python:3.12
     volumes:
       - ..:/workspaces:cached
-      - pip-cache:/home/vscode/.cache/pip        
+      - pip-cache:/home/vscode/.cache/pip
       # persists pip download cache
-      - npm-cache:/home/vscode/.npm       
+      - npm-cache:/home/vscode/.npm
       # persists npm download cache
     # Keeps the container running so you can code inside it
     command: sleep infinity

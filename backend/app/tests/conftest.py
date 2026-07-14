@@ -1,3 +1,10 @@
+import os
+import pytest
+from fastapi.testclient import TestClient
+from unittest.mock import MagicMock, AsyncMock
+from app.main import app
+from typing import Any
+
 """
 Test configuration and fixtures for Vantage Point Backend.
 
@@ -7,18 +14,10 @@ allowing tests to run while the database is still being set up.
 
 # pytest_plugins = ["app.tests.postgres_fixtures"]
 
-import os  # noqa: E402
 
 from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E402
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
-
-import pytest  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
-from unittest.mock import MagicMock, AsyncMock  # noqa: E402
-from app.main import app  # noqa: E402
-from typing import Any
-
 
 @pytest.fixture(scope="function")
 def client():

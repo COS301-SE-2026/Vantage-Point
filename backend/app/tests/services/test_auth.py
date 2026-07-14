@@ -185,7 +185,9 @@ class TestRegisterUser:
 
     @patch("app.services.auth_service.client")
     @patch("app.services.auth_service.log_registration")
-    async def test_register_user_success(self, _mock_log: Any, mock_client: MagicMock):
+    async def test_register_user_success(
+        self, _mock_log: Any, mock_client: MagicMock
+    ) -> Any:
         """Test successful user registration.
 
         Real register_user() executes with mocked Cognito client.

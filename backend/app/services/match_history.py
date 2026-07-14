@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
 from app.database.models import Champions, Matches, Participants
-from app.schemas.match import MatchHistorySummaryResponse
+from app.Models.match import MatchHistorySummaryResponse
 from app.utils.game_labels import map_label
 
 

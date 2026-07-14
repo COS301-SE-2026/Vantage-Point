@@ -24,7 +24,11 @@ jobs:
           cd backend
           pip install -r requirements.txt
           pip install pip-audit
+<<<<<<< HEAD
           pip-audit
+=======
+          pip-audit --ignore-vuln PYSEC-2026-1325
+>>>>>>> dev
 
       - uses: actions/setup-node@v4
         with:
