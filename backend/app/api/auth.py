@@ -10,7 +10,7 @@ from typing import Any, cast, Annotated
 from app.Models.profile_schemas import User
 
 settings = get_settings()
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+
 oauth2_scheme = HTTPBearer()
 
 # Cache keys to avoid hitting AWS on every single request

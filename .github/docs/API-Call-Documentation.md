@@ -34,7 +34,7 @@ Output:
 
 Get Match Details at the end of match
 Basis: /lol/match/v5/matches/{matchId}
-Example: https://americas.api.riotgames.com/lol/match/v5/matches/NA1_5549204828?api_key=xxxxx...
+Example: https://americas.api.riotgames.com/lol/match/v5/matches/NA1_5549204828?api_key=RGAPI-b567c1ba-1c25-4373-88a5-489ef5dcb5e0
 Output too big to paste here.
 
 
