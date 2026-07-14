@@ -355,14 +355,14 @@ class MatchData(BaseModel):
     fistBumpTakedowns: int
     baronTakedowns: int
     bountyGold: int
-    damagePerMinute: int
+    damagePerMinute: float
     deatshByEnemyChamps: int
     elderDragonMultikill: int
     enemyJungleMonsterKills: int
     firstTurretKilled: bool
     firstTuttetKilledTime: int
-    gameLength: int
-    goldPerMinute: int
+    gameLength: float
+    goldPerMinute: float
     kda: float
     killingSprees: int
     lostAnInhibitor: int

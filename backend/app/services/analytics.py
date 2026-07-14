@@ -500,13 +500,13 @@ class LiveAnalyticsService:
             champion_ids: list[int] = []
             for p in participants:
                 if p["puuid"] != puuid:
-                    champion_ids.append(p["championId"])
+                    champion_ids.append(p.get("championId", 0))
 
             response = ChampionData(
-                championId=player_data["championId"],
-                teamPosition=player_data["teamPostion"],
-                roles=player_data["role"],
-                lane=player_data["lane"],
+                championId=player_data.get("championId", 0),
+                teamPosition=player_data.get("teamPosition", 0),
+                roles=player_data.get("role", ""),
+                lane=player_data.get("lane", ""),
                 participants_championId=champion_ids,
             )
 
