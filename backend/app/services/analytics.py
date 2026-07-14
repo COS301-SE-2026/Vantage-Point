@@ -672,29 +672,29 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["level"] for frame in frames
             ]
 
-            goldPerSecond = [
+            gold_per_second = [
                 frame["participantFrames"][participant_id]["goldPerSecond"]
                 for frame in frames
             ]
-            magicDamageDone = [
+            magic_damage_done = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "magicDamageDone"
                 ]
                 for frame in frames
             ]
-            physicalDamageDone = [
+            physical_damage_done = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "physicalDamageDone"
                 ]
                 for frame in frames
             ]
-            totalDamageDone = [
+            total_damage_done = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "totalDamageDone"
                 ]
                 for frame in frames
             ]
-            abilityHaste = [
+            ability_haste = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "abilityHaste"
                 ]
@@ -704,19 +704,19 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["armor"]
                 for frame in frames
             ]
-            attackDamage = [
+            attack_damage = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "attackDamage"
                 ]
                 for frame in frames
             ]
-            attackSpeed = [
+            attack_speed = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "attackSpeed"
                 ]
                 for frame in frames
             ]
-            cooldownReduction = [
+            cooldown_reduction = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "cooldownReduction"
                 ]
@@ -726,11 +726,11 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["health"]
                 for frame in frames
             ]
-            healthMax = [
+            health_max = [
                 frame["participantFrames"][participant_id]["championStats"]["healthMax"]
                 for frame in frames
             ]
-            healthRegen = [
+            health_regen = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "healthRegen"
                 ]
@@ -740,7 +740,7 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["lifesteal"]
                 for frame in frames
             ]
-            movementSpeed = [
+            movement_speed = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "movementSpeed"
                 ]
@@ -750,7 +750,7 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["power"]
                 for frame in frames
             ]
-            magicPen = [
+            magic_pen = [
                 frame["participantFrames"][participant_id]["championStats"]["magicPen"]
                 for frame in frames
             ]
@@ -761,22 +761,22 @@ class LiveAnalyticsService:
                 timestamp=event_timestamp,
                 level=level,
                 championId=player["championId"],
-                goldPerSecond=goldPerSecond,
-                damageStats_magicDamageDone=magicDamageDone,
-                damageStats_physicalDamageDone=physicalDamageDone,
-                damageStats_totalDamageDone=totalDamageDone,
-                championStats_abilityHaste=abilityHaste,
+                goldPerSecond=gold_per_second,
+                damageStats_magicDamageDone=magic_damage_done,
+                damageStats_physicalDamageDone=physical_damage_done,
+                damageStats_totalDamageDone=total_damage_done,
+                championStats_abilityHaste=ability_haste,
                 championStats_armor=armor,
-                championStats_attackDamage=attackDamage,
-                championStats_attackSpeed=attackSpeed,
-                championStats_cooldownReduction=cooldownReduction,
+                championStats_attackDamage=attack_damage,
+                championStats_attackSpeed=attack_speed,
+                championStats_cooldownReduction=cooldown_reduction,
                 championStats_health=health,
-                championStats_healthMax=healthMax,
-                championStats_healthRegen=healthRegen,
+                championStats_healthMax=health_max,
+                championStats_healthRegen=health_regen,
                 championStats_lifesteal=lifesteal,
-                championStats_movementSpeed=movementSpeed,
+                championStats_movementSpeed=movement_speed,
                 championStats_power=power,
-                championStats_magicPen=magicPen,
+                championStats_magicPen=magic_pen,
             )
 
             return response
@@ -810,15 +810,15 @@ class LiveAnalyticsService:
             ]
             end_stats = end_frame["participantFrames"][participant_id]["championStats"]
 
-            start_movementSpeed = start_stats["movementSpeed"]
+            start_movement_speed = start_stats["movementSpeed"]
             start_health = start_stats["health"]
-            start_healthMax = start_stats["healthMax"]
-            start_healthRegen = start_stats["healthRegen"]
+            start_health_max = start_stats["healthMax"]
+            start_health_regen = start_stats["healthRegen"]
             start_armor = start_stats["armor"]
-            end_movementSpeed = end_stats["movementSpeed"]
+            end_movement_speed = end_stats["movementSpeed"]
             end_health = end_stats["health"]
-            end_healthMax = end_stats["healthMax"]
-            end_healthRegen = end_stats["healthRegen"]
+            end_health_max = end_stats["healthMax"]
+            end_health_regen = end_stats["healthRegen"]
             end_armor = end_stats["armor"]
 
             response = RoleData(
@@ -836,15 +836,15 @@ class LiveAnalyticsService:
                 wardsKilled=player["wardsKilled"],
                 wardsPlaced=player["wardsPlaced"],
                 detectorWardsPlaced=player["detectorWardsPlaced"],
-                start_movementSpeed=start_movementSpeed,
+                start_movementSpeed=start_movement_speed,
                 start_health=start_health,
-                start_healthMax=start_healthMax,
-                start_healthRegen=start_healthRegen,
+                start_healthMax=start_health_max,
+                start_healthRegen=start_health_regen,
                 start_armor=start_armor,
-                end_movementSpeed=end_movementSpeed,
+                end_movementSpeed=end_movement_speed,
                 end_health=end_health,
-                end_healthMax=end_healthMax,
-                end_healthRegen=end_healthRegen,
+                end_healthMax=end_health_max,
+                end_healthRegen=end_health_regen,
                 end_armor=end_armor,
             )
 
