@@ -3,10 +3,12 @@ from fastapi import HTTPException  # , status
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
+
 # from sqlmodel import col
 from typing import Any
 from app.database.models import Users
-# from app.Models.profile_schemas import User
+
+from app.Models.profile_schemas import User
 
 # from app.Models.profile_schemas import (
 #     PlayerSummary,
@@ -156,7 +158,7 @@ class ProfileService:
                 for attr in response["UserAttributes"]
             }
             # todo need to change object as can't hardcode user type
-            #need to update this to what is expected give error due ti wrong data retrieved
+            # need to update this to what is expected give error due ti wrong data retrieved
             user = Users(
                 cognito_sub=attributes["sub"],
                 email=attributes["email"],

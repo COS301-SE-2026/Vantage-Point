@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from loguru import logger
-from app.Models.admin_model import (UserResponse)
+from app.Models.admin_model import UserResponse
 
 settings = get_settings()
 
@@ -30,18 +30,20 @@ class admin_service:
             for user in response["Users"]:
                 attributes: Any = {
                     attr["Name"]: attr.get("Value", "")
-                    for attr in user.get("Attributes",[])
+                    for attr in user.get("Attributes", [])
                 }
-            
+
                 users.append(
                     UserResponse(
                         username=user.get("Username", ""),
                         email=attributes.get("email", ""),
                         sub=attributes.get("sub", ""),
                         user_created_date=user.get("UserCreateDate", datetime.now()),
-                        user_last_modified_date=user.get("UserLastModifiedDate", datetime.now()),
+                        user_last_modified_date=user.get(
+                            "UserLastModifiedDate", datetime.now()
+                        ),
                         enabled=user.get("Enabled", True),
-                        user_status=user.get("UserStatus", "")
+                        user_status=user.get("UserStatus", ""),
                     )
                 )
 
@@ -67,9 +69,8 @@ class admin_service:
             )
 
             attributes = {
-                attr["Name"]: attr.get("Value")
-                for attr in response["UserAttributes"]
-                }
+                attr["Name"]: attr.get("Value") for attr in response["UserAttributes"]
+            }
 
             user = UserResponse(
                 username=response["Username"],
@@ -78,7 +79,7 @@ class admin_service:
                 user_created_date=response["UserCreateDate"],
                 user_last_modified_date=response["UserLastModifiedDate"],
                 enabled=response["Enabled"],
-                user_status=response["UserStatus"]
+                user_status=response["UserStatus"],
             )
 
             return user

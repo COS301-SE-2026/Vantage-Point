@@ -4,8 +4,6 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.passwords import hash_password
-from app.tests.constants import TEST_USER_PASSWORD
 from app.database.models import (
     Champions,
     GameAccounts,

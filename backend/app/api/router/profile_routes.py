@@ -10,6 +10,7 @@ from app.Models.auth_model import User
 from app.database.models import Users
 from app.api.auth import require_group
 from botocore.exceptions import ClientError
+
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 oauth2_scheme = HTTPBearer()
 

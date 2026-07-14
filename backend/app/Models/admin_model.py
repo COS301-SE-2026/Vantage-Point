@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
 class UserResponse(BaseModel):
     username: str
     email: str | None
