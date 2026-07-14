@@ -597,8 +597,8 @@ class LiveAnalyticsService:
                 for frame in frames
             ]
 
-            event_timestamp = {}
-            item_id = {}
+            event_timestamp:list[int] = []
+            item_id:list[int] = []
 
             item_events = [
                 event
