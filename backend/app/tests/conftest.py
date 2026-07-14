@@ -19,7 +19,6 @@ from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E40
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
-
 @pytest.fixture(scope="function")
 def client():
     """

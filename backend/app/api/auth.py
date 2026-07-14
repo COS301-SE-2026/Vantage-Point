@@ -13,7 +13,8 @@ settings = get_settings()
 # in client applications communicating with AWS Cognito.
 oauth2_scheme = HTTPBearer()
 
-# Cache keys to avoid hitting AWS on every single request
+# cache keys to avoid hitting AWS on every single request
+# need to add to change or get jwks no stale data
 jwks_cache: dict[str, Any] | None = None
 
 
