@@ -161,8 +161,9 @@ class LiveAnalyticsService:
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
+    @staticmethod
     async def map_replay(
-        self, match_id: str, puuid: str | None = None, data: MapReplay | None = None
+        match_id: str, puuid: str | None = None, data: MapReplay | None = None
     ) -> MapReplay:
         if data is None:
             _data: Any = await riot_service.get_match_timeline(match_id)
@@ -192,11 +193,12 @@ class LiveAnalyticsService:
             position_y=y_values,
         )
 
-    async def map_suggest_data(self, match_id: str) -> MapSuggestData:
+    @staticmethod
+    async def map_suggest_data(match_id: str) -> MapSuggestData:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await self.map_replay(timeline)
+        map_replay: MapReplay = await map_replay(timeline)
 
         armor: dict[str, list[int]] = {}
         attack_damage: dict[str, list[int]] = {}
@@ -283,7 +285,8 @@ class LiveAnalyticsService:
             lane=[p["lane"] for p in match["info"]["participants"]["championId"]],
         )
 
-    async def profile_data(self, match_id: str, puuid: str) -> ProfileData:
+    @staticmethod
+    async def profile_data(match_id: str, puuid: str) -> ProfileData:
         try:
             match = await riot_service.get_match_detail(match_id)
 
@@ -349,7 +352,8 @@ class LiveAnalyticsService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
 
-    async def match_data(self, match_id: str, puuid: str) -> MatchData:
+    @staticmethod
+    async def match_data(match_id: str, puuid: str) -> MatchData:
         try:
             match = await riot_service.get_match_detail(match_id)
             # cast
@@ -483,7 +487,8 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    async def champion_data(self, match_id: str, puuid: str) -> ChampionData:
+    @staticmethod
+    async def champion_data(match_id: str, puuid: str) -> ChampionData:
         try:
             match = await riot_service.get_match_detail(match_id)
             info = match["info"]
@@ -517,7 +522,8 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    async def item_data(self, match_id: str, puuid: str) -> ItemData:
+    @staticmethod
+    async def item_data(match_id: str, puuid: str) -> ItemData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -637,7 +643,8 @@ class LiveAnalyticsService:
         except Exception:
             raise HTTPException(status_code=500, detail=internal_server_error)
 
-    async def skill_data(self, match_id: str, puuid: str) -> SkillData:
+    @staticmethod
+    async def skill_data(match_id: str, puuid: str) -> SkillData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -787,7 +794,8 @@ class LiveAnalyticsService:
         except Exception:
             raise HTTPException(status_code=500, detail=internal_server_error)
 
-    async def role_data(self, match_id: str, puuid: str) -> Any:
+    @staticmethod
+    async def role_data(match_id: str, puuid: str) -> Any:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
