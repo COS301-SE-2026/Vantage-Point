@@ -393,6 +393,11 @@ class LiveAnalyticsService:
                 champion_id.append(ban.get("championId", 0))
                 pick_turn.append(ban["pickTurn"])
 
+            challenges = participants.get("challenges", {})
+
+            def get_challenges(field: str, default: Any = 0):
+                return challenges.get(field, default)
+
             response = MatchData(
                 end_of_game_result=info["endOfGameResult"],
                 gameDuration=info["gameDuration"],
@@ -402,72 +407,56 @@ class LiveAnalyticsService:
                 champExperience=participants["champExperience"],
                 champLevel=participants["champLevel"],
                 championName=participants["championName"],
-                earliestBaron=participants["challenges"]["earliestBaron"],
-                earliestDragonTakedown=participants["challenges"][
-                    "earliestDragonTakedown"
-                ],
-                earliestElderDragon=participants["challenges"]["earliestElderDragon"],
-                fastestLegendary=participants["challenges"]["fastestLegendary"],
-                highestChampionDamage=participants["challenges"][
-                    "highestChampionDamage"
-                ],
-                takedownFirst25Min=participants["challenges"]["takedownFirst25Min"],
-                teleportTakedowns=participants["challenges"]["teleportTakedowns"],
-                thirdInhibitorDestroyedTime=participants["challenges"][
-                    "thirdInhibitorDestroyedTime"
-                ],
-                fistBumpTakedowns=participants["challenges"]["fistBumpTakedowns"],
-                baronTakedowns=participants["challenges"]["baronTakedowns"],
-                bountyGold=participants["challenges"]["bountyGold"],
-                damagePerMinute=participants["challenges"]["damagePerMinute"],
-                deatshByEnemyChamps=participants["challenges"]["deatshByEnemyChamps"],
-                elderDragonMultikill=participants["challenges"]["elderDragonMultikill"],
-                enemyJungleMonsterKills=participants["challenges"][
-                    "enemyJungleMonsterKills"
-                ],
-                firstTurretKilled=participants["challenges"]["firstTurretKilled"],
-                firstTuttetKilledTime=participants["challenges"][
-                    "firstTuttetKilledTime"
-                ],
-                gameLength=participants["challenges"]["gameLength"],
-                goldPerMinute=participants["challenges"]["goldPerMinute"],
-                kda=participants["challenges"]["kda"],
-                killingSprees=participants["challenges"]["killingSprees"],
-                lostAnInhibitor=participants["challenges"]["lostAnInhibitor"],
-                perfectDragonSoulsTaken=participants["challenges"][
-                    "perfectDragonSoulsTaken"
-                ],
-                quickFirstTurrentKills=participants["challenges"][
-                    "quickFirstTurrentKills"
-                ],
-                quickSoloKills=participants["challenges"]["quickSoloKills"],
-                scuttleCrabKills=participants["challenges"]["scuttleCrabKills"],
-                soloBaronKills=participants["challenges"]["soloBaronKills"],
-                SWARM_DefeatAatrox=participants["challenges"]["SWARM_DefeatAatrox"],
-                SWARM_DefeatBriar=participants["challenges"]["SWARM_DefeatBriar"],
-                SWARM_DefeatMiniBosses=participants["challenges"][
-                    "SWARM_DefeatMiniBosses"
-                ],
-                SWARM_EvolveWeapon=participants["challenges"]["SWARM_EvolveWeapon"],
-                SWARM_Have3Passives=participants["challenges"]["SWARM_Have3Passives"],
-                SWARM_KillEnemy=participants["challenges"]["SWARM_KillEnemy"],
-                SWARM_PickupGold=participants["challenges"]["SWARM_PickupGold"],
-                SWARM_ReachLevel50=participants["challenges"]["SWARM_ReachLevel50"],
-                SWARM_WinWith5EvolvedWeapons=participants["challenges"][
-                    "SWARM_WinWith5EvolvedWeapons"
-                ],
-                soloKills=participants["challenges"]["soloKills"],
-                stealthWardsPlaced=participants["challenges"]["stealthWardsPlaced"],
-                takedowns=participants["challenges"]["takedowns"],
-                teamBaronKills=participants["challenges"]["teamBaronKills"],
-                teamElderDragonKills=participants["challenges"]["teamElderDragonKills"],
-                teamRiftHeraldKills=participants["challenges"]["teamRiftHeraldKills"],
-                unseenRecalls=participants["challenges"]["unseenRecalls"],
-                visionScorePerMinute=participants["challenges"]["visionScorePerMinute"],
-                wardTakedowns=participants["challenges"]["wardTakedowns"],
-                platformId=info["platformId"],
+                earliestBaron=get_challenges("earliestBaron"),
+                earliestDragonTakedown=get_challenges("earliestDragonTakedown", 0),
+                earliestElderDragon=get_challenges("earliestElderDragon", 0),
+                fastestLegendary=get_challenges("fastestLegendary", 0),
+                highestChampionDamage=get_challenges("highestChampionDamage", 0),
+                takedownFirst25Min=get_challenges("takedownFirst25Min", 0),
+                teleportTakedowns=get_challenges("teleportTakedowns", 0),
+                thirdInhibitorDestroyedTime=get_challenges("thirdInhibitorDestroyedTime", 0),
+                fistBumpTakedowns=get_challenges("fistBumpTakedowns", 0),
+                baronTakedowns=get_challenges("baronTakedowns", 0),
+                bountyGold=get_challenges("bountyGold", 0),
+                damagePerMinute=get_challenges("damagePerMinute", 0),
+                deatshByEnemyChamps=get_challenges("deatshByEnemyChamps", 0),
+                elderDragonMultikill=get_challenges("elderDragonMultikill", 0),
+                enemyJungleMonsterKills=get_challenges("enemyJungleMonsterKills", 0),
+                firstTurretKilled=get_challenges("firstTurretKilled", False),
+                firstTuttetKilledTime=get_challenges("firstTurretKilled"),
+                gameLength=get_challenges("gameLength"),
+                goldPerMinute=get_challenges("goldPerMinute"),
+                kda=get_challenges("kda"),
+                killingSprees=get_challenges("killingSprees"),
+                lostAnInhibitor=get_challenges("lostAnInhibitor"),
+                perfectDragonSoulsTaken=get_challenges("perfectDragonSoulsTaken", False),
+                quickFirstTurrentKills=get_challenges("quickFirstTurrentKills"),
+                quickSoloKills=get_challenges("quickSoloKills"),
+                scuttleCrabKills=get_challenges("scuttleCrabKills"),
+                soloBaronKills=get_challenges("soloBaronKills"),
+                SWARM_DefeatAatrox=get_challenges("SWARM_DefeatAatrox"),
+                SWARM_DefeatBriar=get_challenges("SWARM_DefeatBriar"),
+                SWARM_DefeatMiniBosses=get_challenges("SWARM_DefeatMiniBosses"),
+                SWARM_EvolveWeapon=get_challenges("SWARM_EvolveWeapon"),
+                SWARM_Have3Passives=get_challenges("SWARM_Have3Passives"),
+                SWARM_KillEnemy=get_challenges("SWARM_KillEnemy"),
+                SWARM_PickupGold=get_challenges("SWARM_PickupGold"),
+                SWARM_ReachLevel50=get_challenges("SWARM_ReachLevel50"),
+                SWARM_WinWith5EvolvedWeapons=get_challenges("SWARM_WinWith5EvolvedWeapons"),
+                soloKills=get_challenges("soloKills"),
+                stealthWardsPlaced=get_challenges("stealthWardsPlaced"),
+                takedowns=get_challenges("takedowns"),
+                teamBaronKills=get_challenges("teamBaronKills"),
+                teamElderDragonKills=get_challenges("teamElderDragonKills"),
+                teamRiftHeraldKills=get_challenges("teamRiftHeraldKills"),
+                unseenRecalls=get_challenges("unseenRecalls"),
+                visionScorePerMinute=get_challenges("visionScorePerMinute"),
+                wardTakedowns=get_challenges("wardTakedowns"),
+
+                platformId=info.get("platformId", ""),
                 championId=champion_id,
                 pickTurn=pick_turn,
+
                 baron_first=teams["objectives"]["baron"]["first"],
                 baron_kills=teams["objectives"]["baron"]["kills"],
                 champion_first=teams["objectives"]["champion"]["first"],
