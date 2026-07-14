@@ -170,7 +170,7 @@ class TestAdminGet:
             await admin_service.get_users()
 
         assert exec.value.status_code == 404
-        assert exec.value.detail == "User not found."
+        assert exec.value.detail == "User not found"
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")

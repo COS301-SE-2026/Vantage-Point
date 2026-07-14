@@ -253,8 +253,8 @@ class TestLoginUser:
         # Real function executes
         result = await login_user("testuser", "TestPass123!")
 
-        assert "AccessToken" in result
-        assert result["AccessToken"] == "access_token_123"
+        assert "access_token" in result
+        assert result["access_token"] == "access_token_123"
 
     @patch("app.services.auth_service.asyncio.to_thread")
     async def test_login_user_invalid_credentials(self, mock_to_thread: MagicMock):
