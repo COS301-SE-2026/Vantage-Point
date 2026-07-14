@@ -812,32 +812,32 @@ class LiveAnalyticsService:
             ]
             end_stats = end_frame["participantFrames"][participant_id]["championStats"]
 
-            start_movement_speed = start_stats["movementSpeed"]
-            start_health = start_stats["health"]
-            start_health_max = start_stats["healthMax"]
-            start_health_regen = start_stats["healthRegen"]
-            start_armor = start_stats["armor"]
-            end_movement_speed = end_stats["movementSpeed"]
-            end_health = end_stats["health"]
-            end_health_max = end_stats["healthMax"]
-            end_health_regen = end_stats["healthRegen"]
-            end_armor = end_stats["armor"]
+            start_movement_speed = start_stats.get("movementSpeed", 0)
+            start_health = start_stats.get("health", 0)
+            start_health_max = start_stats.get("healthMax", 0)
+            start_health_regen = start_stats.get("healthRegen", 0)
+            start_armor = start_stats.get("armor", 0)
+            end_movement_speed = end_stats.get("movementSpeed", 0)
+            end_health = end_stats.get("health", 0)
+            end_health_max = end_stats.get("healthMax", 0)
+            end_health_regen = end_stats.get("healthRegen", 0)
+            end_armor = end_stats.get("armor", 0)
 
             response = RoleData(
-                teamPosition=player["teamPosition"],
-                lane=player["lane"],
-                championId=player["champioId"],
-                kills=player["kills"],
-                physicalDamageDealt=player["physicalDamageDealt"],
-                totalDamageDealt=player["totalDamageDealt"],
-                magicDamageDealt=player["magicDamageDealt"],
-                totalHeal=player["totalHeal"],
-                totalEnemyJungleMinionsKilled=player["totalEnemyJungleMinionsKilled"],
-                totalHealsOnTeammates=player["totalHealsOnTeammates"],
-                totalUnitsHealed=player["totalUnitsHealed"],
-                wardsKilled=player["wardsKilled"],
-                wardsPlaced=player["wardsPlaced"],
-                detectorWardsPlaced=player["detectorWardsPlaced"],
+                teamPosition=player.get("teamPosition", ""),
+                lane=player.get("lane", ""),
+                championId=player.get("championId", 0),
+                kills=player.get("kills", 0),
+                physicalDamageDealt=player.get("physicalDamageDealt", 0),
+                totalDamageDealt=player.get("totalDamageDealt", 0),
+                magicDamageDealt=player.get("magicDamageDealt", 0),
+                totalHeal=player.get("totalHeal", 0),
+                totalEnemyJungleMinionsKilled=player.get("totalEnemyJungleMinionsKilled", 0),
+                totalHealsOnTeammates=player.get("totalHealsOnTeammates", 0),
+                totalUnitsHealed=player.get("totalUnitsHealed", 0),
+                wardsKilled=player.get("wardsKilled", 0),
+                wardsPlaced=player.get("wardsPlaced", 0),
+                detectorWardsPlaced=player.get("detectorWardsPlaced", 0),
                 start_movementSpeed=start_movement_speed,
                 start_health=start_health,
                 start_healthMax=start_health_max,
@@ -855,5 +855,5 @@ class LiveAnalyticsService:
             raise
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
-        except Exception:
-            raise HTTPException(status_code=500, detail="Internal server error")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Internal server error {str(e)}")

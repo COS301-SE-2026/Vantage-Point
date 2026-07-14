@@ -497,7 +497,7 @@ class SkillData(BaseModel):
 
 
 class RoleData(BaseModel):
-    teamPosition: int
+    teamPosition: str
     lane: str
     championId: int
     kills: int
