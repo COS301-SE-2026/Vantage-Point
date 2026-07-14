@@ -1,0 +1,364 @@
+map_replay data:
+
+data from match timeline
+goes to db
+
+info.participants.puuid
+info.participants.partcipantId 
+info.frameInterval
+info.frames.timestamp
+info.frames.participantFrames.{1..10}.position.x
+info.frames.participantFrames.{1..10}.position.y
+
+###########################################################################
+profile_data
+
+data from match (not timeline)
+info to create a player profile for suggestions and profile display info
+goes to db
+
+info.endOfGameResult
+info.gameDuration
+info.participants.puuid
+info.participants.puuid.champExperience
+info.participants.puuid.champLevel
+info.participants.puuid.challenges.goldPerMinute
+info.participants.puuid..challenges.kda
+info.participants.puuid.deaths
+info.participants.puuid.doubleKills
+info.participants.puuid.killingSprees
+info.participants.puuid.largestKillingSpree
+info.participants.puuid.largestMultiKill
+????following is questionable
+info.participants.puuid.playerScore0
+info.participants.puuid.playerScore1
+info.participants.puuid.playerScore2
+info.participants.puuid.playerScore3
+info.participants.puuid.playerScore4
+info.participants.puuid.playerScore5
+info.participants.puuid.playerScore6
+info.participants.puuid.playerScore7
+info.participants.puuid.playerScore8
+info.participants.puuid.playerScore9
+info.participants.puuid.playerScore10
+info.participants.puuid.playerScore11
+?????????questions end
+info.participants.puuid.pentakills
+info.participants.puuid.quadrakills
+info.participants.puuid.timePlayed
+info.participants.puuid.tripleKills
+info.participants.puuid.unreal
+//dpm
+//creep score
+//xp
+//teamPosition
+//lane
+
+###########################################################################
+map_suggest_data
+
+used for KNN to predict best position
+uses both static and timeline match data
+
+
+info.frames.participantFrames.{1..10}.position.x
+info.frames.participantFrames.{1..10}.position.y
+info.participants.teamPosition
+info.participants.lane
+info.participants.role
+info.frames.timestamp
+info.frames.participantFrames.{1..10}.position.x #previous
+info.frames.participantFrames.{1..10}.position.y #previous
+info.frames.participantFrames.{1..10}.position.x #prev previous
+info.frames.participantFrames.{1..10}.position.y #prev previous
+info.participants.champExperience
+info.participants.champLevel
+info.partcipants.championId
+info.gameDuration
+info.partcipants.deaths
+info.partcipants.itemsPurchased
+info.partcipants.killingSprees
+info.partcipants.kills
+info.partcipants.visionScore
+info.frames.participantFrames.jungleMinionsKilled
+info.frames.participantFrames.level
+info.frames.participantFrames.minionsKilled
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.xp
+info.frames.participantFrames.damage.totalDamageDone
+info.frames.participantFrames.damage.totalDamageDoneToChampions
+info.frames.participantFrames.damage.totalDamageTaken
+info.frames.participantFrames.championStats.abilityHaste
+info.frames.participantFrames.championStats.abilityPower
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.ccReduction
+info.frames.participantFrames.championStats.cooldownReduction
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
+
+###########################################################################
+match_data
+
+data that goes to match page on frontend
+used to do match reccomendations
+static match data
+goes to db
+
+info.endOfGameResult
+info.gameDuration
+info.gameMode
+info.gameName
+info.mapId
+info.participants.champExperience
+info.participants.champLevel
+info.participants.championName
+info.participants.challenges.earliestBaron
+info.participants.challenges.earliestDragonTakedown
+info.participants.challenges.earliestElderDragon
+info.participants.challenges.fastestLegendary
+info.participants.challenges.hadAfkTeammate
+info.participants.challenges.highestChampionDamage
+info.participants.challenges.takedownsFirst25Minutes
+info.participants.challenges.teleportTakedowns
+info.participants.challenges.thirdInhibitorDestroyedTime
+info.participants.challenges.fistBumpParticipation
+info.participants.challenges.baronTakedowns
+info.participants.challenges.bountyGold
+info.participants.challenges.damagePerMinute
+info.participants.challenges.deathsByEnemyChamps
+info.participants.challenges.elderDragonKillsWithOpposingSoul
+info.participants.challenges.elderDragonMultikills
+info.participants.challenges.enemyJungleMonsterKills
+info.participants.challenges.firstTurretKilled
+info.participants.challenges.firstTurretKilledTime
+info.participants.challenges.gameLength
+info.participants.challenges.goldPerMinute
+info.participants.challenges.kda
+info.participants.challenges.killingSprees
+info.participants.challenges.lostAnInhibitor
+info.participants.challenges.perfectDragonSoulsTaken
+info.participants.challenges.quickFirstTurret
+info.participants.challenges.quickSoloKills
+info.participants.challenges.scuttleCrabKills
+info.participants.challenges.soloBaronKills
+info.participants.challenges.SWARM_DefeatAatrox
+info.participants.challenges.SWARM_DefeatBriar
+info.participants.challenges.SWARM_DefeatMiniBosses
+info.participants.challenges.SWARM_EvolveWeapon
+info.participants.challenges.SWARM_Have3Passives
+info.participants.challenges.SWARM_KillEnemy
+info.participants.challenges.SWARM_PickupGold
+info.participants.challenges.SWARM_ReachLevel50
+info.participants.challenges.SWARM_WinWith5EvolvedWeapons
+info.participants.challenges.soloKills
+info.participants.challenges.stealthWardsPlaced
+info.participants.challenges.takedowns
+info.participants.challenges.teamBaronKills
+info.participants.challenges.teamElderDragonKills
+info.participants.challenges.teamRiftHeraldKills
+info.participants.challenges.unseenRecalls
+info.participants.challenges.visionScorePerMinute
+info.participants.challenges.wardTakedowns
+info.platformId
+info.teams.bans.championId
+info.teams.bans.pickTurn
+info.teams.objectives.baron.first
+info.teams.objectives.baron.kills
+info.teams.objectives.champion.first
+info.teams.objectives.champion.kills
+info.teams.objectives.dragon.first
+info.teams.objectives.dragon.kills
+info.teams.objectives.horde.first
+info.teams.objectives.horde.kills
+info.teams.objectives.inhibitor.first
+info.teams.objectives.inhobitor.kills
+info.teams.objectives.riftHerald.first
+info.teams.objectives.riftherald.kills
+info.teams.objectives.tower.first
+info.teams.objectives.tower.kills
+info.teams.teamId
+info.teams.win
+
+###########################################################################
+RANDOM FOREST
+###########################################################################
+Champion data
+
+info.partcipants.championId
+info.partcipants.teamPosition
+info.partcipants.role
+info.partcipants.lane
+info.partcipants.damageDealtToBuildings
+info.partcipants.damageDealtToObjectives
+info.partcipants.damageDealtToTurrets
+info.partcipants.damageSelfMitigated
+info.partcipants.deaths
+info.partcipants.inhibitorTakedowns
+info.partcipants.inhibitorsLost
+info.partcipants.itemsPurchased
+info.partcipants.killingSprees
+info.partcipants.kills
+info.partcipants.totalHeal
+info.partcipants.totalHealsOnTeammates
+info.partcipants.visionScore
+info.frames.participantFrames.currentGold
+info.frames.participantFrames.goldPerSecond
+info.frames.participantFrames.level
+info.frames.participantFrames.minionsKilled
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.totalGold
+info..frames.participantFrames.xp
+info.frames.participantFrames.damageStats.magicDamageDone
+info.frames.participantFrames.damageStats.magicDamageDoneToChampions
+info.frames.participantFrames.damageStats.magicDamageTaken
+info.frames.participantFrames.damageStats.physicalDamageDone
+info.frames.participantFrames.damageStats.physicalDamageDoneToChampions
+info.frames.participantFrames.damageStats.physicalDamageTaken
+info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDoneToChampions
+info.frames.participantFrames.damageStats.totalDamageTaken
+info.frames.participantFrames.damageStats.trueDamageDone
+info.frames.participantFrames.damageStats.trueDamageDoneToChampions
+info.frames.participantFrames.damageStats.trueDamageTaken
+info.frames.participantFrames.championStats.abilityPower
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.armorPenPercent
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.ccReduction
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.magicPen
+info.frames.participantFrames.championStats.magicPenPercent
+info.frames.participantFrames.championStats.magicResist
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.omnivamp
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
+
+###########################################################################
+Item data
+
+the events are labled type=ITEM_PURCHASED
+
+info.frames.events.itemId
+info.frames.events.timestamp
+info.partcipants.lane
+info.partcipants.champExperience
+info.partcipants.champLevel
+info.partcipants.championId
+info.frames.participantFrames.currentGold
+info.frames.participantFrames.level
+info.frames.participantFrames.minionsKilled
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.totalGold
+info.frames.participantFrames.xp
+info.frames.participantFrames.position.x
+info.frames.participantFrames.position.y
+info.frames.participantFrames.damageStats.magicDamageDone
+info.frames.participantFrames.damageStats.magicDamageDoneToChampions
+info.frames.participantFrames.damageStats.magicDamageTaken
+info.frames.participantFrames.damageStats.physicalDamageDone
+info.frames.participantFrames.damageStats.physicalDamageDoneToChampions
+info.frames.participantFrames.damageStats.physicalDamageTaken
+info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDoneToChampions
+info.frames.participantFrames.damageStats.totalDamageTaken
+info.frames.participantFrames.damageStats.trueDamageDone
+info.frames.participantFrames.damageStats.trueDamageDoneToChampions
+info.frames.participantFrames.damageStats.trueDamageTaken
+info.frames.participantFrames.championStats.abilityPower
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.armorPenPercent
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.ccReduction
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.healthRegen
+info.frames.participantFrames.championStats.lifesteal
+info.frames.participantFrames.championStats.magicPen
+info.frames.participantFrames.championStats.magicPenPercent
+info.frames.participantFrames.championStats.magicResist
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.omnivamp
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
+
+###########################################################################
+Skill data
+
+the events are labled type=SKILL_LEVEL_UP
+
+info.frames.events.skillslot
+info.frames.events.levelUpType
+info.frames.events.timestamp
+info.participants.championId
+info.participants.damageSelfMitigated
+info.participants.deaths
+info.participants.kills
+info.participants.totalHeal
+info.frames.participantFrames.level
+info.frames.participantFrames.timeEnemySpentControlled
+info.frames.participantFrames.totalGold
+info.frames.participantFrames.xp
+info.frames.participantFrames.position.x
+info.frames.participantFrames.position.y
+info.frames.participantFrames.damageStats.magicDamageDone
+info.frames.participantFrames.damageStats.physicalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDone
+info.frames.participantFrames.damageStats.totalDamageDoneToChampions
+info.frames.participantFrames.damageStats.totalDamageTaken
+info.frames.participantFrames.championStats.armor
+info.frames.participantFrames.championStats.attackDamage
+info.frames.participantFrames.championStats.attackSpeed
+info.frames.participantFrames.championStats.health
+info.frames.participantFrames.championStats.healthMax
+info.frames.participantFrames.championStats.movementSpeed
+info.frames.participantFrames.championStats.power
+info.frames.participantFrames.championStats.powerMax
+
+###########################################################################
+Role data
+
+regular data taken from static match data
+
+info.participants.teamPosition
+info.participants.lane
+info.participants.championId
+info.participants.kills
+info.participants.physicalDamageDealt
+info.participants.totalDamageDealt
+info.participants.magicDamageDealt
+info.participants.totalHeal
+info.participants.totalEnemyJungleMinionsKilled
+info.participants.totalHealsOnTeammates
+info.participants.totalUnitsHealed
+info.participants.wardsKilled
+info.participants.wardsPlaced
+info.participants.detectorWardsPlaced
+
+take the first and last frames and pull data from them
+
+start_movementSpeed = info.frames.participantFrames.championStats.movementSpeed
+start_health = info.frames.participantFrames.championStats.health
+start_healthMax = info.frames.participantFrames.championStats.healthMax
+start_healthRegen = info.frames.participantFrames.championStats.healthRegen
+start_armor = info.frames.participantFrames.championStats.armor
+end_movementSpeed = info.frames.participantFrames.championStats.movementSpeed
+end_health = info.frames.participantFrames.championStats.health
+end_healthMax = info.frames.participantFrames.championStats.healthMax
+end_healthRegen = info.frames.participantFrames.championStats.healthRegen
+end_armor = info.frames.participantFrames.championStats.armor
+
+###########################################################################
+
