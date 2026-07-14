@@ -308,9 +308,9 @@ class SimplifiedMatchResponse(BaseModel):
 
 class MapReplay(BaseModel):
     puuid: List[str]
-    participant_id: List[str]
+    participant_id: List[int]
     frame_interval: int
-    timestamp: int
+    timestamp: list[int]
     position_x: Any
     position_y: Any
 

@@ -16,7 +16,7 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-from app.api.router import admin_routes, profile_routes, auth_routes
+from app.api.router import admin_routes, profile_routes, auth_routes, analytics_router
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.Models.generic_schemas import get_error_reason
@@ -141,7 +141,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(profile_routes.router)
 app.include_router(admin_routes.router)
-
+app.include_router(analytics_router.router)
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
     return {

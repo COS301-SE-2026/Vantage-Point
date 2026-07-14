@@ -73,7 +73,7 @@ async def skill_data(_: Annotated[User, Depends(require_group(10))], match_id: s
     return await LiveAnalyticsService.skill_data(match_id, puuid)
 
 @router.get(
-    "/analytics/skill_data/{match_id}",
+    "/analytics/role_data/{match_id}",
     response_model=RoleData,
     tags=["Analytics"]
 )

@@ -173,6 +173,7 @@ class LiveAnalyticsService:
         x_values: dict[str, list[int]] = {}
         y_values: dict[str, list[int]] = {}
         frames = _data["info"]["frames"]
+        timestamps: Any = [frame["timestamp"] for frame in frames]
 
         for i in range(1, 10):
             x_values[str(i)] = [
@@ -188,7 +189,7 @@ class LiveAnalyticsService:
                 p["participantId"] for p in _data["info"]["participants"]
             ],  # is a list need to change/update the model as it stands
             frame_interval=_data["info"]["frameInterval"],
-            timestamp=_data["info"]["frames"]["timestamp"],
+            timestamp=timestamps,
             position_x=x_values,
             position_y=y_values,
         )
@@ -198,7 +199,7 @@ class LiveAnalyticsService:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await map_replay(timeline)
+        map_replay: MapReplay = await LiveAnalyticsService.map_replay(timeline)
 
         armor: dict[str, list[int]] = {}
         attack_damage: dict[str, list[int]] = {}
@@ -795,7 +796,7 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=internal_server_error)
 
     @staticmethod
-    async def role_data(match_id: str, puuid: str) -> Any:
+    async def role_data(match_id: str, puuid: str) -> RoleData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
