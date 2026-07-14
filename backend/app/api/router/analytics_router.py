@@ -49,9 +49,25 @@ async def match_data(_: Annotated[User, Depends(require_group(10))], match_id: s
     return await LiveAnalyticsService.match_data(match_id, puuid)
 
 @router.get(
-    "/analytics/match_data/{match_id}",
+    "/analytics/champion_data/{match_id}",
     response_model=ChampionData,
     tags=["Analytics"]
 )
 async def champion_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
     return await LiveAnalyticsService.champion_data(match_id, puuid)
+
+@router.get(
+    "/analytics/item_data/{match_id}",
+    response_model=ItemData,
+    tags=["Analytics"]
+)
+async def item_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
+    return await LiveAnalyticsService.item_data(match_id, puuid)
+
+@router.get(
+    "/analytics/skill_data/{match_id}",
+    response_model=SkillData,
+    tags=["Analytics"]
+)
+async def skill_data(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str):
+    return await LiveAnalyticsService.skill_data(match_id, puuid)
