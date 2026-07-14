@@ -494,27 +494,27 @@ class SkillData(BaseModel):
     championStats_magicPen: list[int]
 
 class RoleData(BaseModel):
-    teamPosition
-    lane
-    championId
-    kills
-    physicalDamageDealt
-    totalDamageDealt
-    magicDamageDealt
-    totalHeal
-    totalEnemyJungleMinionsKilled
-    totalHealsOnTeammates
-    totalUnitsHealed
-    wardsKilled
-    wardsPlaced
-    detectorWardsPlaced
-    start_movementSpeed
-    start_health
-    start_healthMax
-    start_healthRegen
-    start_armor
-    end_movementSpeed
-    end_health
-    end_healthMax
-    end_healthRegen
-    end_armor
+    teamPosition: int
+    lane: str
+    championId: int
+    kills: int
+    physicalDamageDealt: int
+    totalDamageDealt: int
+    magicDamageDealt: int
+    totalHeal: int
+    totalEnemyJungleMinionsKilled: int
+    totalHealsOnTeammates: int
+    totalUnitsHealed: int
+    wardsKilled: int
+    wardsPlaced: int
+    detectorWardsPlaced: int
+    start_movementSpeed: int
+    start_health: int
+    start_healthMax: int
+    start_healthRegen: float
+    start_armor: int
+    end_movementSpeed: int
+    end_health: int
+    end_healthMax: int
+    end_healthRegen: float
+    end_armor: int
