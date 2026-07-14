@@ -1,6 +1,7 @@
-<<<<<<< HEAD
 import asyncio
 import os
+import sys
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict
@@ -12,60 +13,31 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-=======
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
-from contextlib import asynccontextmanager
-from typing import Any, Dict
-
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
->>>>>>> dev
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import RequestResponseEndpoint
 from dotenv import load_dotenv
+from loguru import logger
 
-<<<<<<< HEAD
+# Route & Middleware Imports
 from app.api.router import admin_routes, profile_routes, auth_routes
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
-from app.Models.generic_schemas import get_error_reason
-from app.services.riot_api import get_puuid_by_riot_id
-
-from loguru import logger
-import sys
-import logging
-from starlette.middleware.base import RequestResponseEndpoint
-
-=======
-from app.api.middleware import ProcessTimeMiddleware
-from app.api.routes import router
-from app.database.models import GameAccounts
-from app.database.session import async_session_maker, init_db
 from app.schemas.generic_schemas import get_error_reason
 from app.services.riot_api import get_puuid_by_riot_id
 
->>>>>>> dev
-# from typing import List, Optional
-# above commit commited out as import not used but will be used later
-
-# (Make sure riot_api.py is in backend/app/services/)
-# (make sure models.py is in backend/app/database/ )
-
 load_dotenv()
 
-# DATABASE & APP SETUP
-# (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
+# =====================================================
+# Structured Logging Setup (Loguru + Uvicorn Intercept)
+# =====================================================
 
-# from slowapi import _rate_limit_exceeded_handler
-# from slowapi.errors import RateLimitExceeded
-# from slowapi.middleware import SlowAPIMiddleware
-
-# limiter = Limiter(key_func=get_remote_address)
 logger.remove(0)
-logger.add(sys.stdout, enqueue=True,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
+logger.add(
+    sys.stdout,
+    enqueue=True,
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+)
 
 logger.add(
     "logs/fastapi_logs",
@@ -75,8 +47,9 @@ logger.add(
     compression="zip",
     enqueue=True,
     backtrace=True,
-    diagnose=True
+    diagnose=True,
 )
+
 
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
@@ -90,14 +63,24 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
+
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 for name in ("uvicorn", "uvicorn.access", "uvicorn.error", "fastapi"):
     logging.getLogger(name).handlers = [InterceptHandler()]
     logging.getLogger(name).propagate = False
 
+
+# =====================================================
+# Database Lifespan Helpers & Initialization
+# =====================================================
+
+
 def should_skip_startup_db_init() -> bool:
+    """Skips DB init if we are running unit tests or if we are outside Docker."""
     if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):
         return True
 
@@ -121,6 +104,10 @@ async def lifespan(app: FastAPI):
     yield
 
 
+# =====================================================
+# FastAPI Application Setup
+# =====================================================
+
 app = FastAPI(
     title="Vantage Point Backend",
     description=(
@@ -131,12 +118,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# app.state.limiter = limiter
-# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
-# app.add_middleware(SlowAPIMiddleware)
-# CORS for frontend
-# 3000 = React default, 5173 = Vite default.
+# Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=".*",
@@ -151,6 +133,11 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(profile_routes.router)
 app.include_router(admin_routes.router)
+
+
+# =====================================================
+# Global Exception Handlers
+# =====================================================
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
@@ -191,6 +178,11 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     )
 
 
+# =====================================================
+# API Schemas & System Endpoints
+# =====================================================
+
+
 class RootResponse(BaseModel):
     status: str = Field(..., description="Current backend status")
     message: str = Field(..., description="API status message")
@@ -212,7 +204,7 @@ class TestResponse(BaseModel):
     description="Returns a simple message confirming that the backend is running.",
 )
 async def get_root() -> RootResponse:
-    # Explicitly call your schema class
+    # Explicitly call the schema class
     return RootResponse(status="success", message="Welcome to Vantage Point API")
 
 
@@ -247,17 +239,16 @@ async def register_summoner(
     tag_line: str,
     session: AsyncSession = Depends(get_session),
 ) -> dict[str, str]:
-    # 1. Get PUUID from Riot Service; Gets name + tag
+    # 1. Get PUUID from Riot Service
     puuid = await get_puuid_by_riot_id(game_name, tag_line)
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 
-    # 2. Save to Database; should only do so if this player is not in the DB already
+    # 2. Save to Database if player doesn't exist
     statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
     result = await session.execute(statement)
     existing_account = result.scalar_one_or_none()
 
-    # adding this check just to be safe and security even if no exist is already below it
     if existing_account:
         return {"message": "Summoner already in database."}
 
@@ -276,12 +267,18 @@ async def register_summoner(
         "puuid": puuid,
     }
 
+
+# =====================================================
+# Middleware
+# =====================================================
+
+
 @app.middleware("http")
 async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
     try:
         return await call_next(request)
     except Exception as e:
         logger.bind(url=str(request.url), method=request.method).exception(
-            f"Bug detected in {request.method}{request.url.path}"
+            f"Bug detected in {request.method} {request.url.path}"
         )
         raise e
