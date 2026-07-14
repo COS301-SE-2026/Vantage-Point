@@ -14,7 +14,8 @@ from app.Models.riot_schemas import (
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
-
+internal_server_error: str = "Internal server error"
+player_not_found: str = "PLayer not found in match"
 class LiveAnalyticsService:
     @staticmethod
     def _empty_live_metrics() -> LiveAdvancedMetrics:
@@ -478,7 +479,7 @@ class LiveAnalyticsService:
 
             return response
         except HTTPException:
-            raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail=internal_server_error)
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
@@ -512,7 +513,7 @@ class LiveAnalyticsService:
 
             return response
         except HTTPException:
-            raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail=internal_server_error)
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
@@ -532,20 +533,20 @@ class LiveAnalyticsService:
 
             participant_id = str(player["participantId"])
 
-            currentGold = {}
-            level = {}
-            xp = {}
-            totalDamageDone = {}
-            totalDamageTaken = {}
-            health = {}
-            healthMax = {}
-            healthRegen = {}
-            lifesteal = {}
-            power = {}
-            powerMax = {}
-            armor = {}
+            current_gold: list[int] = []
+            level = []
+            xp: list[int] = []
+            total_damage_done: list[int] = []
+            total_damage_taken: list[int] = []
+            health: list[int] = []
+            health_max: list[int] = []
+            health_regen: list[float] = []
+            lifesteal: list[float] = []
+            power: list[int] = []
+            power_max: list[int] = []
+            armor: list[int] = []
 
-            currentGold = [
+            current_gold = [
                 frame["participantFrames"][participant_id]["currentGold"]
                 for frame in frames
             ]
@@ -553,13 +554,13 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["level"] for frame in frames
             ]
             xp = [frame["participantFrames"][participant_id]["xp"] for frame in frames]
-            totalDamageDone = [
+            total_damage_done = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "totalDamageDone"
                 ]
                 for frame in frames
             ]
-            totalDamageTaken = [
+            total_damage_taken = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "totalDamageTaken"
                 ]
@@ -569,11 +570,11 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["health"]
                 for frame in frames
             ]
-            healthMax = [
+            health_max = [
                 frame["participantFrames"][participant_id]["championStats"]["healthMax"]
                 for frame in frames
             ]
-            healthRegen = [
+            health_regen = [
                 frame["participantFrames"][participant_id]["championStats"][
                     "healthRegen"
                 ]
@@ -587,7 +588,7 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["power"]
                 for frame in frames
             ]
-            powerMax = [
+            power_max = [
                 frame["participantFrames"][participant_id]["championStats"]["powerMax"]
                 for frame in frames
             ]
@@ -614,17 +615,17 @@ class LiveAnalyticsService:
                 timestamp=event_timestamp,
                 championId=player["championId"],
                 champLevel=player["champLevel"],
-                currentGold=currentGold,
+                currentGold=current_gold,
                 level=level,
                 xp=xp,
-                damageStats_totalDamageDone=totalDamageDone,
-                damageStats_totalDamageTaken=totalDamageTaken,
+                damageStats_totalDamageDone=total_damage_done,
+                damageStats_totalDamageTaken=total_damage_taken,
                 championStats_health=health,
-                championStats_healthMax=healthMax,
-                championStats_healthRegen=healthRegen,
+                championStats_healthMax=health_max,
+                championStats_healthRegen=health_regen,
                 championStats_lifesteal=lifesteal,
                 championStats_power=power,
-                championStats_powerMax=powerMax,
+                championStats_powerMax=power_max,
                 championStats_armor=armor,
             )
 
@@ -634,7 +635,7 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
-            raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail=internal_server_error)
 
     async def skill_data(self, match_id: str, puuid: str) -> SkillData:
         try:
@@ -648,7 +649,7 @@ class LiveAnalyticsService:
             )
 
             if player is None:
-                raise HTTPException(status_code=404, detail="Player not found in match")
+                raise HTTPException(status_code=404, detail=player_not_found)
 
             participant_id = str(player["participantId"])
 
@@ -784,7 +785,7 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
-            raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail=internal_server_error)
 
     async def role_data(self, match_id: str, puuid: str) -> Any:
         try:

@@ -17,8 +17,8 @@ client = boto3.client("cognito-idp", region_name=settings.aws_region)  # type: i
 
 # admin abilities/services
 
-user_not_found: str = "User not found!"
-
+user_not_found: str = "User not found"
+invalid_username: str = "Invalid username"
 
 class admin_service:
     @staticmethod
@@ -54,11 +54,10 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
-                raise HTTPException(status_code=404, detail="User not found.")
+                raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid username")
+                raise HTTPException(status_code=422, detail=invalid_username)
             raise HTTPException(status_code=400, detail=error_code)
-        #    raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def get_user(username: str) -> UserResponse:
@@ -90,7 +89,7 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid username")
+                raise HTTPException(status_code=422, detail=invalid_username)
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
@@ -237,9 +236,9 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
-                raise HTTPException(status_code=404, detail="User not found.")
+                raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid username")
+                raise HTTPException(status_code=422, detail=invalid_username)
             raise HTTPException(status_code=400, detail=error_code)
 
     # require db
