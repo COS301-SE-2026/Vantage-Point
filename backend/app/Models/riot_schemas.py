@@ -452,6 +452,7 @@ class ChampionData(BaseModel):
     lane: str
     participants_championId: list[int]
 
+
 class ItemData(BaseModel):
     itemId: list[int]
     timestamp: list[int]
@@ -469,6 +470,7 @@ class ItemData(BaseModel):
     championStats_power: list[int]
     championStats_powerMax: list[int]
     championStats_armor: list[int]
+
 
 class SkillData(BaseModel):
     skillslot: list[int]
@@ -492,6 +494,7 @@ class SkillData(BaseModel):
     championStats_movementSpeed: list[int]
     championStats_power: list[int]
     championStats_magicPen: list[int]
+
 
 class RoleData(BaseModel):
     teamPosition: int

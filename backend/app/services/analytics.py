@@ -1,7 +1,16 @@
 import asyncio
 from typing import Any
 from app.Models.profile_schemas import LiveAdvancedMetrics
-from app.Models.riot_schemas import (MapReplay, MapSuggestData, ProfileData, MatchData, ChampionData, ItemData, SkillData, RoleData)
+from app.Models.riot_schemas import (
+    MapReplay,
+    MapSuggestData,
+    ProfileData,
+    MatchData,
+    ChampionData,
+    ItemData,
+    SkillData,
+    RoleData,
+)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -480,17 +489,17 @@ class LiveAnalyticsService:
 
             participants = info["participants"]
 
-            player_data = next(
-                (p for p in participants if p["puuid"] == puuid), 
-                None
-            )
+            player_data = next((p for p in participants if p["puuid"] == puuid), None)
 
             if player_data is None:
-                raise HTTPException(status_code=404,detail="User not found in match. Incorrect puuid or matchid")
-            
+                raise HTTPException(
+                    status_code=404,
+                    detail="User not found in match. Incorrect puuid or matchid",
+                )
+
             champion_ids: list[int] = []
             for p in participants:
-                if (p["puuid"] != puuid):
+                if p["puuid"] != puuid:
                     champion_ids.append(p["championId"])
 
             response = ChampionData(
@@ -498,7 +507,7 @@ class LiveAnalyticsService:
                 teamPosition=player_data["teamPostion"],
                 roles=player_data["role"],
                 lane=player_data["lane"],
-                participants_championId=champion_ids
+                participants_championId=champion_ids,
             )
 
             return response
@@ -515,13 +524,12 @@ class LiveAnalyticsService:
             frames = timeline["info"]["frames"]
 
             player = next(
-                (p for p in match["info"]["participants"] if p["puuid"] == puuid),
-                None
+                (p for p in match["info"]["participants"] if p["puuid"] == puuid), None
             )
 
             if player is None:
                 raise HTTPException(status_code=404, detail="Player not found in match")
-            
+
             participant_id = str(player["participantId"])
 
             currentGold = {}
@@ -538,51 +546,68 @@ class LiveAnalyticsService:
             armor = {}
 
             currentGold = [
-                frame["participantFrames"][participant_id]["currentGold"] for frame in frames
+                frame["participantFrames"][participant_id]["currentGold"]
+                for frame in frames
             ]
             level = [
                 frame["participantFrames"][participant_id]["level"] for frame in frames
             ]
-            xp = [
-                frame["participantFrames"][participant_id]["xp"] for frame in frames
-            ]
+            xp = [frame["participantFrames"][participant_id]["xp"] for frame in frames]
             totalDamageDone = [
-                frame["participantFrames"][participant_id]["damageStats"]["totalDamageDone"] for frame in frames
+                frame["participantFrames"][participant_id]["damageStats"][
+                    "totalDamageDone"
+                ]
+                for frame in frames
             ]
             totalDamageTaken = [
-                frame["participantFrames"][participant_id]["damageStats"]["totalDamageTaken"] for frame in frames
+                frame["participantFrames"][participant_id]["damageStats"][
+                    "totalDamageTaken"
+                ]
+                for frame in frames
             ]
             health = [
-                frame["participantFrames"][participant_id]["championStats"]["health"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["health"]
+                for frame in frames
             ]
             healthMax = [
-                frame["participantFrames"][participant_id]["championStats"]["healthMax"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["healthMax"]
+                for frame in frames
             ]
             healthRegen = [
-                frame["participantFrames"][participant_id]["championStats"]["healthRegen"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "healthRegen"
+                ]
+                for frame in frames
             ]
             lifesteal = [
-                frame["participantFrames"][participant_id]["championStats"]["lifesteal"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["lifesteal"]
+                for frame in frames
             ]
             power = [
-                frame["participantFrames"][participant_id]["championStats"]["power"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["power"]
+                for frame in frames
             ]
             powerMax = [
-                frame["participantFrames"][participant_id]["championStats"]["powerMax"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["powerMax"]
+                for frame in frames
             ]
             armor = [
-                frame["participantFrames"][participant_id]["championStats"]["armor"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["armor"]
+                for frame in frames
             ]
-            
+
             event_timestamp = {}
             item_id = {}
 
-            item_events = [event for frame in frames for event in frame["events"]
-                           if event.get("participantId") == int(participant_id)]
-            
+            item_events = [
+                event
+                for frame in frames
+                for event in frame["events"]
+                if event.get("participantId") == int(participant_id)
+            ]
+
             event_timestamp = [event["timestamp"] for event in item_events]
-            item_id = [event["itemId"] for event in item_events
-                       if "itemId" in event]
+            item_id = [event["itemId"] for event in item_events if "itemId" in event]
 
             response = ItemData(
                 itemId=item_id,
@@ -605,13 +630,13 @@ class LiveAnalyticsService:
 
             return response
         except HTTPException:
-                raise
+            raise
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
-                raise HTTPException(status_code=500, detail="Internal server error") 
-                              
-    async def skill_data(self, match_id: str, puuid: str) -> SkillData:          
+            raise HTTPException(status_code=500, detail="Internal server error")
+
+    async def skill_data(self, match_id: str, puuid: str) -> SkillData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -619,77 +644,114 @@ class LiveAnalyticsService:
             frames = timeline["info"]["frames"]
 
             player = next(
-                (p for p in match["info"]["participants"] if p["puuid"] == puuid),
-                None
+                (p for p in match["info"]["participants"] if p["puuid"] == puuid), None
             )
 
             if player is None:
                 raise HTTPException(status_code=404, detail="Player not found in match")
-            
+
             participant_id = str(player["participantId"])
 
-            item_events = [event for frame in frames for event in frame["events"]
-                           if event.get("participantId") == int(participant_id)]
-            
+            item_events = [
+                event
+                for frame in frames
+                for event in frame["events"]
+                if event.get("participantId") == int(participant_id)
+            ]
+
             event_timestamp = [event["timestamp"] for event in item_events]
-            skill_events = [event for event in item_events
-                            if event["type"] == "SKILL_LEVEL_UP"]
-            
+            skill_events = [
+                event for event in item_events if event["type"] == "SKILL_LEVEL_UP"
+            ]
+
             skill_slot = [event["skillSlot"] for event in skill_events]
             level_up_type = [event["levelUpType"] for event in skill_events]
-            
+
             level = [
-                frame["participantFrames"][participant_id]["level"]
+                frame["participantFrames"][participant_id]["level"] for frame in frames
+            ]
+
+            goldPerSecond = [
+                frame["participantFrames"][participant_id]["goldPerSecond"]
                 for frame in frames
             ]
-            
-            goldPerSecond = [
-                frame["participantFrames"][participant_id]["goldPerSecond"] for frame in frames
-            ]
             magicDamageDone = [
-                frame["participantFrames"][participant_id]["damageStats"]["magicDamageDone"] for frame in frames
+                frame["participantFrames"][participant_id]["damageStats"][
+                    "magicDamageDone"
+                ]
+                for frame in frames
             ]
             physicalDamageDone = [
-                frame["participantFrames"][participant_id]["damageStats"]["physicalDamageDone"] for frame in frames
+                frame["participantFrames"][participant_id]["damageStats"][
+                    "physicalDamageDone"
+                ]
+                for frame in frames
             ]
             totalDamageDone = [
-                frame["participantFrames"][participant_id]["damageStats"]["totalDamageDone"] for frame in frames
+                frame["participantFrames"][participant_id]["damageStats"][
+                    "totalDamageDone"
+                ]
+                for frame in frames
             ]
             abilityHaste = [
-                frame["participantFrames"][participant_id]["championStats"]["abilityHaste"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "abilityHaste"
+                ]
+                for frame in frames
             ]
             armor = [
-                frame["participantFrames"][participant_id]["championStats"]["armor"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["armor"]
+                for frame in frames
             ]
             attackDamage = [
-                frame["participantFrames"][participant_id]["championStats"]["attackDamage"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "attackDamage"
+                ]
+                for frame in frames
             ]
             attackSpeed = [
-                frame["participantFrames"][participant_id]["championStats"]["attackSpeed"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "attackSpeed"
+                ]
+                for frame in frames
             ]
             cooldownReduction = [
-                frame["participantFrames"][participant_id]["championStats"]["cooldownReduction"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "cooldownReduction"
+                ]
+                for frame in frames
             ]
             health = [
-                frame["participantFrames"][participant_id]["championStats"]["health"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["health"]
+                for frame in frames
             ]
             healthMax = [
-                frame["participantFrames"][participant_id]["championStats"]["healthMax"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["healthMax"]
+                for frame in frames
             ]
             healthRegen = [
-                frame["participantFrames"][participant_id]["championStats"]["healthRegen"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "healthRegen"
+                ]
+                for frame in frames
             ]
             lifesteal = [
-                frame["participantFrames"][participant_id]["championStats"]["lifesteal"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["lifesteal"]
+                for frame in frames
             ]
             movementSpeed = [
-                frame["participantFrames"][participant_id]["championStats"]["movementSpeed"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"][
+                    "movementSpeed"
+                ]
+                for frame in frames
             ]
             power = [
-                frame["participantFrames"][participant_id]["championStats"]["power"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["power"]
+                for frame in frames
             ]
             magicPen = [
-                frame["participantFrames"][participant_id]["championStats"]["magicPen"] for frame in frames
+                frame["participantFrames"][participant_id]["championStats"]["magicPen"]
+                for frame in frames
             ]
 
             response = SkillData(
@@ -713,18 +775,18 @@ class LiveAnalyticsService:
                 championStats_lifesteal=lifesteal,
                 championStats_movementSpeed=movementSpeed,
                 championStats_power=power,
-                championStats_magicPen=magicPen
+                championStats_magicPen=magicPen,
             )
 
             return response
         except HTTPException:
-                raise
+            raise
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
-                raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
-    async def role_data(self, match_id: str, puuid: str) -> Any: 
+    async def role_data(self, match_id: str, puuid: str) -> Any:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -732,8 +794,7 @@ class LiveAnalyticsService:
             frames = timeline["info"]["frames"]
 
             player = next(
-                (p for p in match["info"]["participants"] if p["puuid"] == puuid),
-                None
+                (p for p in match["info"]["participants"] if p["puuid"] == puuid), None
             )
 
             if player is None:
@@ -743,7 +804,9 @@ class LiveAnalyticsService:
             start_frame = frames[0]
             end_frame = frames[-1]
 
-            start_stats = start_frame["participantFrames"][participant_id]["championStats"]
+            start_stats = start_frame["participantFrames"][participant_id][
+                "championStats"
+            ]
             end_stats = end_frame["participantFrames"][participant_id]["championStats"]
 
             start_movementSpeed = start_stats["movementSpeed"]
@@ -772,7 +835,6 @@ class LiveAnalyticsService:
                 wardsKilled=player["wardsKilled"],
                 wardsPlaced=player["wardsPlaced"],
                 detectorWardsPlaced=player["detectorWardsPlaced"],
-
                 start_movementSpeed=start_movementSpeed,
                 start_health=start_health,
                 start_healthMax=start_healthMax,
@@ -782,15 +844,13 @@ class LiveAnalyticsService:
                 end_health=end_health,
                 end_healthMax=end_healthMax,
                 end_healthRegen=end_healthRegen,
-                end_armor=end_armor
+                end_armor=end_armor,
             )
 
             return response
         except HTTPException:
-                raise
+            raise
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
         except Exception:
-                raise HTTPException(status_code=500, detail="Internal server error")
-
-
+            raise HTTPException(status_code=500, detail="Internal server error")
