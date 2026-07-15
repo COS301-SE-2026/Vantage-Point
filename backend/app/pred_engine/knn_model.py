@@ -106,10 +106,10 @@ def get_knn(file_name):
         print(file_error_text)
         exit()
 
-    y_train, _, x_train, _ = converter.get_train_test_data_knn(file_name)
+    x_train, _, y_train, _ = converter.get_train_test_data_knn(file_name)
 
     # nullcheck data
-    if x_train == [] | y_train == []:
+    if len(x_train) == 0 or len(y_train) == 0:
         print(data_error_text)
         exit()
 
