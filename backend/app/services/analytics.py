@@ -160,6 +160,18 @@ class LiveAnalyticsService:
             win_rate=f"{round((stats['wins'] / games) * 100)}%",
         )
 
+    @staticmethod
+    def find_participant_id(frames: Any, puuid: str) -> int | None:
+        if not frames or puuid:
+            return None
+        
+        for participant_id, participant_data in frames[0]["participantFrames"].items():
+            if participant_data.get("puuid") == puuid:
+                return participant_id
+            
+        return None
+
+
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
@@ -197,7 +209,7 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    async def map_suggest_data(match_id: str) -> MapSuggestData:
+    async def map_suggest_data(match_id: str, puuid: str) -> MapSuggestData:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
@@ -215,7 +227,9 @@ class LiveAnalyticsService:
         gold_per_second: dict[str, list[int]] = {}
         level: dict[str, list[int]] = {}
         xp: dict[str, list[int]] = {}
+
         frames = timeline["info"]["frames"]
+         
 
         for i in range(1, 10):
             armor[str(i)] = [
@@ -264,6 +278,14 @@ class LiveAnalyticsService:
             ]
             xp[str(i)] = [frame["participantFrames"][str(i)]["xp"] for frame in frames]
 
+        paritcipants: Any = match["info"]["participant"]
+        player = next(
+            (p for p in paritcipants if p["puuid"] == puuid)
+        ) 
+
+        if player is None:
+            raise HTTPException(status_code=404, detail=player_not_found)
+        
         return MapSuggestData(
             map_replay=map_replay,
             end_of_game_result=match["info"]["endOfGameResult"],
