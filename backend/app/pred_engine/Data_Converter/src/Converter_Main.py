@@ -1,14 +1,9 @@
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
+import numpy as np
 import csv
 
 file_error_text = "Training file not found"
-
-
-# needs to be changed still
-def get_from_api():
-    # change to get from api later
-    return
 
 
 def convert_to_int(row, lane, role, pos):
@@ -73,14 +68,23 @@ def format_data_univar(data, pos, role, lane):
     r = -1
     data_arr = []
     y = []
+    prev_row = []
+
     for row in data:
         if r == -1:
             r = r + 1
             continue
 
         convert_to_int(row, lane, role, pos)
-        data_arr.append([])
-        y.append([])
+
+        # if item data (4, 3, 2)
+        if pos == 4 and role == 3 and lane == 2 and remove_dup(row, prev_row, r):
+            r = r - 1
+            y[r] = []
+            data_arr[r] = []
+        else:
+            data_arr.append([])
+            y.append([])
 
         c = 0
         for i in row:
@@ -91,6 +95,7 @@ def format_data_univar(data, pos, role, lane):
                 data_arr[r].append(i)
                 c = c + 1
         r = r + 1
+        prev_row = row
 
     return data_arr, y
 
@@ -116,7 +121,8 @@ def format_data_multivar(data, pos, role, lane):
 
         convert_to_int(row, lane, role, pos)
 
-        if remove_dup(row, prev_row, r):
+        # if skill data (-1, -1, -1)
+        if pos == -1 and role == -1 and lane == -1 and remove_dup(row, prev_row, r):
             r = r - 1
             y[r] = []
             data_arr[r] = []
@@ -154,12 +160,12 @@ def get_train_test_data_knn(file_name):
         x_data, y_data = format_data_multivar(data, 2, 4, 3)
 
         scaler = StandardScaler()
-        y_data = scaler.fit_transform(y_data)
+        x_data = scaler.fit_transform(x_data)
     # Do train/test split
     x_train, x_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
     )
-    # x is target, y is given
+    # x is given, y is target
     return x_train, x_test, y_train, y_test
 
 
@@ -179,11 +185,53 @@ def get_train_test_data_rf(file_name, category):
             case "champion":
                 x_data, y_data = format_data_univar(data, 1, 2, 3)
             case "item":
-                x_data, y_data = format_data_univar(data, 4, 3, 2)
+                x_data, y_data = format_data_univar(data, 4, 3, 2)  # remove dup
             case "skill":
-                x_data, y_data = format_data_multivar(data, -1, -1, -1)
+                x_data, y_data = format_data_multivar(data, -1, -1, -1)  # remove dup
             case "role":
                 x_data, y_data = format_data_multivar(data, 0, -1, 1)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        x_data, y_data, test_size=0.2, random_state=42, stratify=None
+    )
+
+    # X is given, y is target
+    return X_train, X_test, y_train, y_test
+
+
+def convert_json(json_data):
+    numpy_array = np.array(json_data)
+    print(numpy_array)
+
+
+def format_api_data_knn(json_data):
+    data = json_data
+
+    x_data, y_data = format_data_multivar(data, 2, 4, 3)
+
+    scaler = StandardScaler()
+    y_data = scaler.fit_transform(y_data)
+
+    x_train, x_test, y_train, y_test = train_test_split(
+        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
+    )
+
+    # x is target, y is given
+    return x_train, x_test, y_train, y_test
+
+
+def format_api_data_rf(json_data, category):
+    data = json_data
+
+    match category:
+        case "champion":
+            x_data, y_data = format_data_univar(data, 1, 2, 3)
+        case "item":
+            x_data, y_data = format_data_univar(data, 4, 3, 2)
+        case "skill":
+            x_data, y_data = format_data_multivar(data, -1, -1, -1)
+        case "role":
+            x_data, y_data = format_data_multivar(data, 0, -1, 1)
 
     X_train, X_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=0.2, random_state=42, stratify=None
