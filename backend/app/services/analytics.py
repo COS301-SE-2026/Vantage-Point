@@ -611,7 +611,7 @@ class LiveAnalyticsService:
                 bountyGold=get_challenges("bountyGold", 0),
                 damagePerMinute=get_challenges("damagePerMinute", 0),
                 deatshByEnemyChamps=get_challenges("deatshByEnemyChamps", 0),
-                elderDragonKillsWithOpposingSoul=get_challenges("elderDragonKillsWithOpposingSoul", 0)
+                elderDragonKillsWithOpposingSoul=get_challenges("elderDragonKillsWithOpposingSoul", 0),
                 elderDragonMultikill=get_challenges("elderDragonMultikill", 0),
                 enemyJungleMonsterKills=get_challenges("enemyJungleMonsterKills", 0),
                 firstTurretKilled=get_challenges("firstTurretKilled", False),
@@ -980,7 +980,7 @@ class LiveAnalyticsService:
             participants_data = LiveAnalyticsService.get_participants_data(frames, (participant_id))
             champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, (participant_id))
             damage_stats_data = LiveAnalyticsService.get_damage_stats(frames, (participant_id))
-
+            map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
             response = SkillData(
                 skillslot=skill_slot,
                 levelUpType=level_up_type,
@@ -994,8 +994,8 @@ class LiveAnalyticsService:
                 timeEnemySpentControlled=participants_data.timeEnemySpentControlled,
                 totalGold=participants_data.totalGold,
                 xp=participants_data.xp,
-                position_x=participants_data.position.x,
-                position_y=participants_data.position.y,
+                position_x=map_replay.position_x[participant_id],
+                position_y=map_replay.position_y[participant_id],
                 magicDamageDone=magic_damage_done,
                 physicalDamageDone=physical_damage_done,
                 totalDamageDone=total_damage_done,

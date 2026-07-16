@@ -372,6 +372,7 @@ class MatchData(BaseModel):
     earliestDragonTakedown: int
     earliestElderDragon: int
     fastestLegendary: int
+    hadAfkTeammate: int
     highestChampionDamage: int
     takedownFirst25Min: int
     teleportTakedowns: int
@@ -381,6 +382,7 @@ class MatchData(BaseModel):
     bountyGold: int
     damagePerMinute: float
     deatshByEnemyChamps: int
+    elderDragonKillsWithOpposingSoul: list[int]
     elderDragonMultikill: int
     enemyJungleMonsterKills: int
     firstTurretKilled: bool
@@ -509,8 +511,8 @@ class ChampionData(BaseModel):
     ccReduction: list[int] 
     health: list[int] 
     healthMax: list[int] 
-    healthRegen: list[int] 
-    lifesteal: list[int] 
+    healthRegen: list[float] 
+    lifesteal: list[float] 
     magicPen: list[int] 
     magicPenPercent: list[int] 
     magicResist: list[int] 
