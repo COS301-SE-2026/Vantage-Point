@@ -215,79 +215,89 @@ class LiveAnalyticsService:
         # cover part of knn required data
         map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
 
-        armor: dict[str, list[int]] = {}
-        attack_damage: dict[str, list[int]] = {}
-        attack_speed: dict[str, list[int]] = {}
-        health: dict[str, list[int]] = {}
-        health_max: dict[str, list[int]] = {}
-        health_regen: dict[str, list[int]] = {}
-        true_damage_done: dict[str, list[int]] = {}
-        true_damage_done_to_champions: dict[str, list[int]] = {}
-        true_damage_taken: dict[str, list[int]] = {}
-        gold_per_second: dict[str, list[int]] = {}
-        level: dict[str, list[int]] = {}
-        xp: dict[str, list[int]] = {}
-
-        frames = timeline["info"]["frames"]
-         
-
-        for i in range(1, 10):
-            armor[str(i)] = [
-                frame["participantFrames"][str(i)]["championStats"]["armor"]
-                for frame in frames
-            ]
-            attack_damage[str(i)] = [
-                frame["participantFrames"][str(i)]["championStats"]["attackDamage"]
-                for frame in frames
-            ]
-            attack_speed[str(i)] = [
-                frame["participantFrames"][str(i)]["championStats"]["attackSpeed"]
-                for frame in frames
-            ]
-            health[str(i)] = [
-                frame["participantFrames"][str(i)]["championStats"]["health"]
-                for frame in frames
-            ]
-            health_max[str(i)] = [
-                frame["participantFrames"][str(i)]["championStats"]["healthMax"]
-                for frame in frames
-            ]
-            health_regen[str(i)] = [
-                frame["participantFrames"][str(i)]["championStats"]["healthRegen"]
-                for frame in frames
-            ]
-            true_damage_done[str(i)] = [
-                frame["participantFrames"][str(i)]["damageStats"]["trueDamageDone"]
-                for frame in frames
-            ]
-            true_damage_done_to_champions[str(i)] = [
-                frame["participantFrames"][str(i)]["damageStats"][
-                    "trueDamageDoneToChampions"
-                ]
-                for frame in frames
-            ]
-            true_damage_taken[str(i)] = [
-                frame["participantFrames"][str(i)]["damageStats"]["trueDamageTaken"]
-                for frame in frames
-            ]
-            gold_per_second[str(i)] = [
-                frame["participantFrames"][str(i)]["goldPerSecond"] for frame in frames
-            ]
-            level[str(i)] = [
-                frame["participantFrames"][str(i)]["level"] for frame in frames
-            ]
-            xp[str(i)] = [frame["participantFrames"][str(i)]["xp"] for frame in frames]
-
         paritcipants: Any = match["info"]["participant"]
         player = next(
             (p for p in paritcipants if p["puuid"] == puuid)
-        ) 
+        )
 
         if player is None:
             raise HTTPException(status_code=404, detail=player_not_found)
+
+        frames = timeline["info"]["frames"]
+        paritcipant_id = LiveAnalyticsService.find_participant_id(frames, puuid)
+
+        armor = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["armor"]
+            for frame in frames
+        ]
+        attack_damage = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["attackDamage"]
+            for frame in frames
+        ]
+        attack_speed = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["attackSpeed"]
+            for frame in frames
+        ]
+        health = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["health"]
+            for frame in frames
+        ]
+        health_max = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["healthMax"]
+            for frame in frames
+        ]
+        health_regen = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["healthRegen"]
+            for frame in frames
+        ]
+        true_damage_done = [
+            frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDone"]
+            for frame in frames
+        ]
+        true_damage_done_to_champions = [
+            frame["participantFrames"][paritcipant_id]["damageStats"][
+                "trueDamageDoneToChampions"
+            ]
+            for frame in frames
+        ]
+        true_damage_taken = [
+            frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageTaken"]
+            for frame in frames
+        ]
+        gold_per_second = [
+            frame["participantFrames"][paritcipant_id]["goldPerSecond"] for frame in frames
+        ]
+        level = [
+            frame["participantFrames"][paritcipant_id]["level"] for frame in frames
+        ]
+        xp = [frame["participantFrames"][paritcipant_id]["xp"] for frame in frames]
+        jungle_minions_killed = [frame["participantFrames"][paritcipant_id]["jungleMinionsKilled"] for frame in frames]
+        minions_killed = [frame["participantFrames"][paritcipant_id]["minionsKilled"] for frame in frames]
+        time_enemy_spent_controlled = [frame["participantFrames"][paritcipant_id]["timeEnemySpentControlled"] for frame in frames]
+
+
         
         return MapSuggestData(
-            map_replay=map_replay,
+            position_x=map_replay.position_x,
+            position_y=map_replay.positon_y,
+            team_position=player["teamPosition"],
+            lane=player["lane"],
+            role=player["role"],
+            timestamp=map_replay.timestamp,
+
+            champExperience=player["champExperience"],
+            champLevel=player["champLevel"],
+            champion_id=player["championId"],
+            game_duration=player["gameDuration"],
+            deaths=player.get("deaths", 0),
+            itemsPurchased=player.get("itemsPurchased", 0),
+            killingSprees=player.get("killingSprees", 0),
+            kills=player["kills"],
+            visionScore=player.get("visionScore", 0),
+            jungleMinionsKilled=jungle_minions_killed,
+            minionsKilled=minions_killed,
+            timeEnemySpentControlled=time_enemy_spent_controlled,
+            level=level,
             end_of_game_result=match["info"]["endOfGameResult"],
             armor=armor,
             attack_damage=attack_damage,
@@ -295,15 +305,11 @@ class LiveAnalyticsService:
             health=health,
             health_max=health_max,
             health_regen=health_regen,
-            champion_id=[p["championId"] for p in match["info"]["participants"]],
             true_damage_done=true_damage_done,
             true_damage_done_to_champion=true_damage_done_to_champions,
             true_damage_taken=true_damage_taken,
             gold_per_second=gold_per_second,
-            level=level,
             xp=xp,
-            team_position=[p["teamPosition"] for p in match["info"]["participants"]],
-            lane=[p["lane"] for p in match["info"]["participants"]],
         )
 
     @staticmethod
