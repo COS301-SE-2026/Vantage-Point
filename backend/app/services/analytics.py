@@ -10,7 +10,8 @@ from app.Models.riot_schemas import (
     ItemData,
     SkillData,
     RoleData,
-    ChampionStats
+    ChampionStats,
+    DamageStats
 )
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
@@ -172,7 +173,7 @@ class LiveAnalyticsService:
             
         return None
     @staticmethod
-    def get_champion_stats(frames: Any, paritcipant_id: int):       
+    def get_champion_stats(frames: Any, paritcipant_id: int) -> ChampionStats:       
         return ChampionStats(
             magicDamageDone = [
                 frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
@@ -253,9 +254,44 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    def get_damage_stats(frames: Any, paritcipant_id: int):
-        return (
-
+    def get_damage_stats(frames: Any, paritcipant_id: int) -> DamageStats:
+        return DamageStats(
+            magicDamageDone = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
+                for frame in frames],
+            magicDamageDoneToChampions = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDoneToChampions"]
+                for frame in frames],
+            magicDamageTaken = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageTaken"]
+                for frame in frames],
+            physicalDamageDone = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDone"]
+                for frame in frames],
+            physicalDamageDoneToChampions = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDoneToChampions"]
+                for frame in frames],
+            physicalDamageTaken = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageTaken"]
+                for frame in frames],
+            totalDamageDone = [
+                frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDone"]
+                for frame in frames],
+            totalDamageDoneToChampions = [
+                frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDoneToChampions"]
+                for frame in frames],
+            totalDamageTaken = [
+                frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageTaken"]
+                for frame in frames],
+            trueDamageDone = [
+                frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDone"]
+                for frame in frames],
+            trueDamageDoneToChampions = [
+                frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDoneToChampions"]
+                for frame in frames],
+            trueDamageTaken = [
+                frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageTaken"]
+                for frame in frames],
         )
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
