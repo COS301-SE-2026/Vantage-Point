@@ -10,6 +10,7 @@ from app.Models.riot_schemas import (
     ItemData,
     SkillData,
     RoleData,
+    ChampionStats
 )
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
@@ -172,7 +173,7 @@ class LiveAnalyticsService:
         return None
     @staticmethod
     def get_champion_stats(frames: Any, paritcipant_id: int):       
-        return (
+        return ChampionStats(
             magicDamageDone = [
                 frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
                 for frame in frames],
@@ -241,10 +242,21 @@ class LiveAnalyticsService:
                 for frame in frames],
             powerMax = [
                 frame["participantFrames"][paritcipant_id]["championStats"]["powerMax"]
+                for frame in frames],
+            physicalVamp = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalVamp"]
+                for frame in frames],
+            spellVamp = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["spellVamp"]
                 for frame in frames]
+            
         )
 
+    @staticmethod
+    def get_damage_stats(frames: Any, paritcipant_id: int):
+        return (
 
+        )
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
