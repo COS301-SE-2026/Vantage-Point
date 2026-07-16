@@ -316,45 +316,47 @@ class MapReplay(BaseModel):
 
 
 class MapSuggestData(BaseModel):
-    position_x=map_replay.position_x,
-    position_y=map_replay.positon_y,
-    team_position=player["teamPosition"],
-    lane=player["lane"],
-    role=player["role"],
-    timestamp=map_replay.timestamp,
-    prev_x:
-    prev_y
-    prev_prev_x
-    prev_prev_y
-    champExperience
-champLevel
-championId
-gameDuration
-deaths
-itemsPurchased
-killingSprees
-kills
-visionScore
-jungleMinionsKilled
-level: Any
-minionsKilled 
-timeEnemySpentControlled
-xp: Any
+    position_x:list[int]
+    position_y:list[int]
+    team_position:list[int]
+    lane:list[int]
+    role:list[int]
+    timestamp:list[int]
+    prev_x:list[int]
+    prev_y:list[int]
+    prev_prev_x:list[int]
+    prev_prev_y:list[int]
+    champExperience:list[int]
+    champLevel:list[int]
+    championId:list[int]
+    gameDuration:list[int]
+    deaths:list[int]
+    itemsPurchased:list[int]
+    killingSprees:list[int]
+    kills:list[int]
+    visionScore:list[int]
+    jungleMinionsKilled:list[int]
+    level: Any
+    minionsKilled:list[int]
+    timeEnemySpentControlled:list[int]
+    xp: Any
+    totalDamageDone:list[int]
+    totalDamageDoneToChampions:list[int]
+    totalDamageTaken:list[int]
+    abilityHaste:list[int]
+    abilityPower:list[int]
     armor: Any
-    attack_damage: Any
-    attack_speed: Any
+    attackDamage: Any
+    attackSpeed: Any
+    ccReduction:list[int]
+    cooldownReduction:list[int]
     health: Any
     health_max: Any
     health_regen: Any
-    champion_id: Any
-    true_damage_done: Any
-    true_damage_done_to_champion: Any
-    true_damage_taken: Any
-    gold_per_second: Any
-    level: Any
-    xp: Any
-    team_position: Any
-    lane: Any
+    lifesteal:list[int]
+    movementSpeed:list[int]
+    power:list[int]
+    powerMax:list[int]
 
 
 class MatchData(BaseModel):
