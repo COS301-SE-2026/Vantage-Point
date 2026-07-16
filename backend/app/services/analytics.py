@@ -164,8 +164,8 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    def find_participant_id(frames: Any, puuid: str) -> int | None:
-        if not frames or puuid:
+    def find_participant_id(frames: Any, puuid: str) -> str | None:
+        if not frames or not puuid:
             return None
         
         for participant_id, participant_data in frames[0]["participantFrames"].items():
@@ -174,7 +174,7 @@ class LiveAnalyticsService:
             
         return None
     @staticmethod
-    def get_champion_stats(frames: Any, paritcipant_id: int) -> ChampionStats:       
+    def get_champion_stats(frames: Any, paritcipant_id: str) -> ChampionStats:       
         return ChampionStats(
             magicDamageDone = [
                 frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
@@ -255,7 +255,7 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    def get_damage_stats(frames: Any, paritcipant_id: int) -> DamageStats:
+    def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
         return DamageStats(
             magicDamageDone = [
                 frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
@@ -296,7 +296,7 @@ class LiveAnalyticsService:
         )
     
     @staticmethod
-    def get_participants_data(frames: Any, paritcipant_id: int) - > Participant:
+    def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
         return Participant(
             currentGold = [frame["participantFrames"][paritcipant_id]["currentGold"] for frame in frames],
             goldPerSecond = [frame["participantFrames"][paritcipant_id]["currentGold"] for frame in frames],
@@ -942,10 +942,6 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["level"] for frame in frames
             ]
 
-            gold_per_second = [
-                frame["participantFrames"][participant_id]["goldPerSecond"]
-                for frame in frames
-            ]
             magic_damage_done = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "magicDamageDone"
@@ -961,12 +957,6 @@ class LiveAnalyticsService:
             total_damage_done = [
                 frame["participantFrames"][participant_id]["damageStats"][
                     "totalDamageDone"
-                ]
-                for frame in frames
-            ]
-            ability_haste = [
-                frame["participantFrames"][participant_id]["championStats"][
-                    "abilityHaste"
                 ]
                 for frame in frames
             ]
@@ -986,28 +976,12 @@ class LiveAnalyticsService:
                 ]
                 for frame in frames
             ]
-            cooldown_reduction = [
-                frame["participantFrames"][participant_id]["championStats"][
-                    "cooldownReduction"
-                ]
-                for frame in frames
-            ]
             health = [
                 frame["participantFrames"][participant_id]["championStats"]["health"]
                 for frame in frames
             ]
             health_max = [
                 frame["participantFrames"][participant_id]["championStats"]["healthMax"]
-                for frame in frames
-            ]
-            health_regen = [
-                frame["participantFrames"][participant_id]["championStats"][
-                    "healthRegen"
-                ]
-                for frame in frames
-            ]
-            lifesteal = [
-                frame["participantFrames"][participant_id]["championStats"]["lifesteal"]
                 for frame in frames
             ]
             movement_speed = [
@@ -1020,14 +994,10 @@ class LiveAnalyticsService:
                 frame["participantFrames"][participant_id]["championStats"]["power"]
                 for frame in frames
             ]
-            magic_pen = [
-                frame["participantFrames"][participant_id]["championStats"]["magicPen"]
-                for frame in frames
-            ]
 
-            participants_data = LiveAnalyticsService.get_participants_data(frames, int(participant_id))
-            champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, int(participant_id))
-            damage_stats_data = LiveAnalyticsService.get_damage_stats(frames, int(participant_id))
+            participants_data = LiveAnalyticsService.get_participants_data(frames, (participant_id))
+            champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, (participant_id))
+            damage_stats_data = LiveAnalyticsService.get_damage_stats(frames, (participant_id))
 
             response = SkillData(
                 skillslot=skill_slot,
@@ -1050,15 +1020,12 @@ class LiveAnalyticsService:
                 totalDamageDoneToChampions=damage_stats_data.totalDamageDoneToChampions,
                 totalDamageTaken=damage_stats_data.totalDamageTaken,
                 armor=armor,
-                championStats_attackDamage=attack_damage,
-                championStats_attackSpeed=attack_speed,
-                championStats_cooldownReduction=cooldown_reduction,
-                championStats_health=health,
-                championStats_healthMax=health_max,
-                championStats_healthRegen=health_regen,
-                championStats_lifesteal=lifesteal,
-                championStats_movementSpeed=movement_speed,
-                championStats_power=power,
+                attackDamage=attack_damage,
+                attackSpeed=attack_speed,
+                health=health,
+                healthMax=health_max,
+                movementSpeed=movement_speed,
+                power=power,
                 powerMax=champion_stats_data.powerMax
             )
 

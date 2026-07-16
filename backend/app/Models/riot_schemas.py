@@ -563,7 +563,7 @@ class SkillData(BaseModel):
     damageSelfMitigated: list[int]
     deaths: list[int]
     kills: list[int]
-    totalHealth: list[int]
+    totalHeal: list[int]
     level: list[int]
     timeEnemySpentControlled: list[int]
     totalGold: list[int]
