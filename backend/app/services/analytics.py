@@ -296,7 +296,7 @@ class LiveAnalyticsService:
         )
     
     @staticmethod
-    def get_participants(frames: Any, paritcipant_id: int) - > Participant:
+    def get_participants_data(frames: Any, paritcipant_id: int) - > Participant:
         return Participant(
             currentGold = [frame["participantFrames"][paritcipant_id]["currentGold"] for frame in frames],
             goldPerSecond = [frame["participantFrames"][paritcipant_id]["currentGold"] for frame in frames],
@@ -746,6 +746,13 @@ class LiveAnalyticsService:
             frames = timeline["info"]["frames"]
             paritcipant_id = LiveAnalyticsService.find_participant_id(frames, puuid)
 
+            if paritcipant_id is None:
+                raise HTTPException(status_code=404, detail=player_not_found)
+
+            participant_data = LiveAnalyticsService.get_participants_data(frames, paritcipant_id)
+            champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, paritcipant_id)
+            damage_stats_data = LiveAnalyticsService.get_damage_stats(frames, paritcipant_id)
+
             response = ChampionData(
                 championId=player_data.get("championId", 0),
                 teamPosition=player_data.get("teamPosition", 0),
@@ -765,43 +772,44 @@ class LiveAnalyticsService:
                 totalHealsOnTeammates=player_data.get("totalHealsOnTeammates", 0),
                 visionScore=player_data.get("visionScore", 0),
 
-                currentGold = ,
-                goldPerSecond = ,
-                level = ,
-                minionsKilled = ,
-                timeEnemySpentControlled = ,
-                totalGold = ,
-                xp = ,
+                currentGold = participant_data.currentGold,
+                goldPerSecond = participant_data.goldPerSecond,
+                level = participant_data.level,
+                minionsKilled = participant_data.minionsKilled,
+                timeEnemySpentControlled = participant_data.timeEnemySpentControlled,
+                totalGold = participant_data.totalGold,
+                xp = participant_data.xp,
 
-                magicDamageDone = ,
-                magicDamageDoneToChampions = 
-                magicDamageTaken = ,
-                physicalDamageDone = ,
-                physicalDamageDoneToChampions = ,
-                physicalDamageTaken = 
-                totalDamageDone = ,
-                totalDamageDoneToChampions = ,
-                totalDamageTaken = ,
-                trueDamageDone = ,
-                trueDamageDoneToChampions = ,
-                trueDamageTaken = ,
-                abilityPower = ,
-                armor = ,
-                armorPenPercent = ,
-                attackDamage =,
-                attackSpeed = ,
-                ccReduction = ,
-                health = ,
-                healthMax = ,
-                healthRegen = ,
-                 lifesteal = ,
-                 magicPen = ,
-                 magicPenPercent = ,
-                magicResist = ,
-                movementSpeed = ,
-                omnivamp = ,
-                power = ,
-                powerMax             
+                magicDamageDone = damage_stats_data.magicDamageDone,
+                magicDamageDoneToChampions = damage_stats_data.magicDamageDoneToChampions,
+                magicDamageTaken =damage_stats_data.magicDamageTaken ,
+                physicalDamageDone = damage_stats_data.physicalDamageDone,
+                physicalDamageDoneToChampions = damage_stats_data.physicalDamageDoneToChampions,
+                physicalDamageTaken = damage_stats_data.physicalDamageTaken,
+                totalDamageDone = damage_stats_data.totalDamageDone,
+                totalDamageDoneToChampions = damage_stats_data.totalDamageDoneToChampions,
+                totalDamageTaken = damage_stats_data.totalDamageTaken,
+                trueDamageDone = damage_stats_data.trueDamageDone,
+                trueDamageDoneToChampions = damage_stats_data.trueDamageDoneToChampions,
+                trueDamageTaken = damage_stats_data.trueDamageTaken,
+
+                abilityPower = champion_stats_data.abilityPower,
+                armor = champion_stats_data.armor,
+                armorPenPercent = champion_stats_data.armorPenPercent,
+                attackDamage =champion_stats_data.attackDamage,
+                attackSpeed = champion_stats_data.attackSpeed,
+                ccReduction = champion_stats_data.ccReduction,
+                health = champion_stats_data.health,
+                healthMax = champion_stats_data.healthMax,
+                healthRegen = champion_stats_data.healthRegen,
+                lifesteal = champion_stats_data.lifesteal,
+                magicPen = champion_stats_data.magicPen,
+                magicPenPercent = champion_stats_data.magicPenPercent,
+                magicResist = champion_stats_data.magicResist,
+                movementSpeed = champion_stats_data.movementSpeed,
+                omniVamp = champion_stats_data.omnivamp,
+                power = champion_stats_data.power,
+                powerMax = champion_stats_data.powerMax,            
             )
 
             return response
