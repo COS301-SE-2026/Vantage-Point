@@ -316,23 +316,47 @@ class MapReplay(BaseModel):
 
 
 class MapSuggestData(BaseModel):
-    map_replay: MapReplay
-    end_of_game_result: str
-    armor: Any
-    attack_damage: Any
-    attack_speed: Any
-    health: Any
-    health_max: Any
-    health_regen: Any
-    champion_id: Any
-    true_damage_done: Any
-    true_damage_done_to_champion: Any
-    true_damage_taken: Any
-    gold_per_second: Any
-    level: Any
-    xp: Any
-    team_position: Any
-    lane: Any
+    position_x: Any
+    position_y: Any
+    teamPosition: str
+    lane: str
+    role: str
+    timestamp: int
+    prev_position_x: Any
+    prev_position_y: Any
+    p_prev_position_x: Any
+    p_prev_position_y: Any
+    champExperience: int
+    champLevel: int
+    championId: int
+    gameDuration: int
+    deaths: int
+    itemsPurchased: int
+    killingSprees: int
+    kills: int
+    visionScore: int
+    jungleMinionsKilled: int
+    level: int
+    minionsKilled: int
+    timeEnemySpentControlled: int
+    xp: int
+    damageStats_totalDamageDone: int
+    damageStats_totalDamageDoneToChampions: int
+    damageStats_totalDamageTaken: int
+    championStats_abilityHaste: int
+    championStats_abilityPower: int
+    championStats_armor: int
+    championStats_attackDamage: int
+    championStats_attackSpeed: int
+    championStats_ccReduction: int
+    championStats_cooldownReduction: int
+    championStats_health: int
+    championStats_healthMax: int
+    championStats_healthRegen: int
+    championStats_lifesteal: int
+    championStats_movementSpeed: int
+    championStats_power: int
+    championStats_powerMax: int
 
 
 class MatchData(BaseModel):
@@ -408,7 +432,7 @@ class MatchData(BaseModel):
     tower_kills: int
     teams_teamId: int
     teams_win: bool
-
+    
 
 class ProfileData(BaseModel):
     endOfGameResult: str
@@ -448,52 +472,132 @@ class ProfileData(BaseModel):
 class ChampionData(BaseModel):
     championId: int
     teamPosition: str
-    roles: str
+    role: str
     lane: str
-    participants_championId: list[int]
-
+    damageDealtToBuildings: int
+    damageDealtToObjectives: int
+    damageDealtToTurrets: int
+    damageSelfMitigated: int
+    deaths: int
+    inhibitorTakedowns: int
+    inhibitorsLost: int
+    itemsPurchased: int
+    killingSprees: int
+    kills: int
+    totalHeal: int
+    totalHealsOnTeammates: int
+    visionScore: int
+    currentGold: int
+    goldPerSecond: int
+    level: int
+    minionsKilled: int
+    timeEnemySpentControlled: int
+    totalGold: int
+    xp: int
+    damageStats_magicDamageDone: int
+    damageStats_magicDamageDoneToChampions: int
+    damageStats_magicDamageTaken: int
+    damageStats_physicalDamageDone: int
+    damageStats_physicalDamageDoneToChampions: int
+    damageStats_physicalDamageTaken: int
+    damageStats_totalDamageDone: int
+    damageStats_totalDamageDoneToChampions: int
+    damageStats_totalDamageTaken: int
+    damageStats_trueDamageDone: int
+    damageStats_trueDamageDoneToChampions: int
+    damageStats_trueDamageTaken: int
+    championStats_abilityPower: int
+    championStats_armor: int
+    championStats_armorPenPercent: int
+    championStats_attackDamage: int
+    championStats_attackSpeed: int
+    championStats_ccReduction: int
+    championStats_health: int
+    championStats_healthMax: int
+    championStats_healthRegen: int
+    championStats_lifesteal: int
+    championStats_magicPen: int
+    championStats_magicPenPercent: int
+    championStats_magicResist: int
+    championStats_movementSpeed: int
+    championStats_omnivamp: int
+    championStats_power: int
+    championStats_powerMax: int
 
 class ItemData(BaseModel):
-    itemId: list[int]
-    timestamp: list[int]
-    championId: int
+    itemId: int
+    timestamp: int
+    lane: str
+    champExperience: int
     champLevel: int
-    currentGold: list[int]
-    level: list[int]
-    xp: list[int]
-    damageStats_totalDamageDone: list[int]
-    damageStats_totalDamageTaken: list[int]
-    championStats_health: list[int]
-    championStats_healthMax: list[int]
-    championStats_healthRegen: list[float]
-    championStats_lifesteal: list[float]
-    championStats_power: list[int]
-    championStats_powerMax: list[int]
-    championStats_armor: list[int]
+    championId: int
+    currentGold: int
+    level: int
+    minionsKilled: int
+    timeEnemySpentControlled: int
+    totalGold: int
+    xp: int
+    position_x: Any
+    position_y: Any
+    damageStats_magicDamageDone: int
+    damageStats_magicDamageDoneToChampions: int
+    damageStats_magicDamageTaken: int
+    damageStats_physicalDamageDone: int
+    damageStats_physicalDamageDoneToChampions: int
+    damageStats_physicalDamageTaken: int
+    damageStats_totalDamageDone: int
+    damageStats_totalDamageDoneToChampions: int
+    damageStats_totalDamageTaken: int
+    damageStats_trueDamageDone: int
+    damageStats_trueDamageDoneToChampions: int
+    damageStats_trueDamageTaken: int
+    championStats_ablityPower: int
+    championStats_armor: int
+    championStats_armorPenPercent: int
+    championStats_attackDamage: int
+    championStats_attackSpeed: int
+    championStats_ccReduction: int
+    championStats_health: int
+    championStats_healthMax: int
+    championStats_healthRegen: int
+    championStats_lifesteal: int
+    championStats_magicPen: int
+    championStats_magicPenPercent: int
+    championStats_magicResist: int
+    championStats_movementSpeed: int
+    championStats_omnivamp: int
+    championStats_power: int
+    championStats_powerMax: int
 
 
 class SkillData(BaseModel):
-    skillslot: list[int]
-    levelUpType: list[str]
-    timestamp: list[int]
-    level: list[int]
+    skillslot: int
+    levelUpType: str
+    timestamp: int
     championId: int
-    goldPerSecond: list[int]
-    damageStats_magicDamageDone: list[int]
-    damageStats_physicalDamageDone: list[int]
-    damageStats_totalDamageDone: list[int]
-    championStats_abilityHaste: list[int]
-    championStats_armor: list[int]
-    championStats_attackDamage: list[int]
-    championStats_attackSpeed: list[int]
-    championStats_cooldownReduction: list[int]
-    championStats_health: list[int]
-    championStats_healthMax: list[int]
-    championStats_healthRegen: list[float]
-    championStats_lifesteal: list[float]
-    championStats_movementSpeed: list[int]
-    championStats_power: list[int]
-    championStats_magicPen: list[int]
+    damageSelfMitigated: int
+    deaths: int
+    kills: int
+    totalHeal: int
+    level: int
+    timeEnemySpentControlled: int
+    totalGold: int
+    xp: int
+    position_x: Any
+    position_y: Any
+    damageStats_magicDamageDone: int
+    damageStats_physicalDamageDone: int
+    damageStats_totalDamageDone: int
+    damageStats_totalDamageDoneToChampions: int
+    damageStats_totalDamageTaken: int
+    championStats_armor: int
+    championStats_attackDamage: int
+    championStats_attackSpeed: int
+    championStats_health: int
+    championStats_healthMax: int
+    championStats_movementSpeed: int
+    championStats_power: int
+    championStats_powerMax: int
 
 
 class RoleData(BaseModel):
