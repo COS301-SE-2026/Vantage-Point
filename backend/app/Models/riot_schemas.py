@@ -521,7 +521,6 @@ class ItemData(BaseModel):
     totalGold: list[int]
     position_x: list[int]
     position_y: list[int]
-
     xp: list[int]
     damageStats_totalDamageDone: list[int]
     damageStats_totalDamageTaken: list[int]
@@ -537,7 +536,6 @@ class ItemData(BaseModel):
     damageStats_trueDamageDone: list[int]
     damageStats_trueDamageDoneToChampions: list[int]
     damageStats_trueDamageTaken: list[int]
-
     armor: list[int]
     armorPenPercent: list[int]
     attackDamage: list[int]
@@ -555,8 +553,7 @@ class ItemData(BaseModel):
     championStats_power: list[int]
     championStats_powerMax: list[int]
     
-
-
+    
 class SkillData(BaseModel):
     skillslot: list[int]
     levelUpType: list[str]

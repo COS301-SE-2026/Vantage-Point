@@ -855,21 +855,47 @@ class LiveAnalyticsService:
             response = ItemData(
                 itemId=item_id,
                 timestamp=event_timestamp,
-                championId=player["championId"],
+                lane=,
+                champExperience=,
                 champLevel=player["champLevel"],
-                champExpe
+                championId=player["championId"],
                 currentGold=current_gold,
                 level=level,
+                minionsKilled=
+                timeEnemySpentControlled=,
+                totalGold=,
                 xp=xp,
-                damageStats_totalDamageDone=total_damage_done,
-                damageStats_totalDamageTaken=total_damage_taken,
+                position_y=,
+                position_y=,
+                magicDamageDone=
+                magicDamageDoneToChampions=
+                magicDamageTaken=
+                physicalDamageDone=
+                physicalDamageDoneToChampions=
+                physicalDamageTaken=
+                totalDamageDone=
+                totalDamageDoneToChampions=
+                totalDamageTaken=
+                trueDamageDone=
+                trueDamageDoneToChampions=
+                trueDamageTaken=
+                abilityPower=
+                armor=armor,
+                armorPenPercent
+                attackDamage
+                attackSpeed
+                ccReduction
                 championStats_health=health,
                 championStats_healthMax=health_max,
                 championStats_healthRegen=health_regen,
                 championStats_lifesteal=lifesteal,
-                championStats_power=power,
-                championStats_powerMax=power_max,
-                championStats_armor=armor,
+                magicPen
+                magicPenPercent
+                magicResist
+                movementSpeed
+                omnivamp
+                power=power,
+                powerMax=power_max,
             )
 
             return response
