@@ -605,7 +605,7 @@ class Participant(BaseModel):
     jungleMinionsKilled: list[int]	
     level: list[int]	
     minionsKilled: list[int]		
-    participantId: list[int]	
+    participantId: int	
     timeEnemySpentControlled: list[int]		
     totalGold: list[int]	
     xp: list[int]	
