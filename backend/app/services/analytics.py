@@ -250,6 +250,39 @@ class LiveAnalyticsService:
             frame["participantFrames"][paritcipant_id]["championStats"]["healthRegen"]
             for frame in frames
         ]
+        ability_haste = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["abilityHaste"]
+            for frame in frames
+        ]
+        ability_power = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["abilityPower"]
+            for frame in frames
+        ]
+        cc_reduction = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["ccReduction"]
+            for frame in frames
+        ]
+        cooldown_reduction = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["cooldownReduction"]
+            for frame in frames
+        ]
+        lifesteal = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["lifesteal"]
+            for frame in frames
+        ]
+        movement_speed = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["movementSpeed"]
+            for frame in frames
+        ]
+        power = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["power"]
+            for frame in frames
+        ]
+        power_max = [
+            frame["participantFrames"][paritcipant_id]["championStats"]["powerMax"]
+            for frame in frames
+        ]
+
         true_damage_done = [
             frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDone"]
             for frame in frames
@@ -260,10 +293,25 @@ class LiveAnalyticsService:
             ]
             for frame in frames
         ]
+        total_damage_done = [
+            frame["participantFrames"][paritcipant_id]["damageStats"][
+                "totalDamageDone"
+            ]
+            for frame in frames
+        ]
         true_damage_taken = [
             frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageTaken"]
             for frame in frames
         ]
+        total_damage_done_to_champions = [
+            frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDoneToChampions"]
+            for frame in frames
+        ]
+        total_damage_taken = [
+            frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageTaken"]
+            for frame in frames
+        ]
+
         gold_per_second = [
             frame["participantFrames"][paritcipant_id]["goldPerSecond"] for frame in frames
         ]
@@ -295,9 +343,14 @@ class LiveAnalyticsService:
             kills=player["kills"],
             visionScore=player.get("visionScore", 0),
             jungleMinionsKilled=jungle_minions_killed,
+            level=level,
             minionsKilled=minions_killed,
             timeEnemySpentControlled=time_enemy_spent_controlled,
-            level=level,
+            xp=xp,
+            totalDamageDone=total_damage_done,
+            totalDamageDoneToChampions=total_damage_done_to_champions,
+            totalDamageTaken=total_damage_taken,
+
             end_of_game_result=match["info"]["endOfGameResult"],
             armor=armor,
             attack_damage=attack_damage,
@@ -309,7 +362,6 @@ class LiveAnalyticsService:
             true_damage_done_to_champion=true_damage_done_to_champions,
             true_damage_taken=true_damage_taken,
             gold_per_second=gold_per_second,
-            xp=xp,
         )
 
     @staticmethod
