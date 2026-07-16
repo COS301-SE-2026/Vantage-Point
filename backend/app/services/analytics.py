@@ -1025,17 +1025,30 @@ class LiveAnalyticsService:
                 for frame in frames
             ]
 
+            participants_data = LiveAnalyticsService.get_participants_data(frames, int(participant_id))
+            champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, int(participant_id))
+            damage_stats_data = LiveAnalyticsService.get_damage_stats(frames, int(participant_id))
+
             response = SkillData(
                 skillslot=skill_slot,
                 levelUpType=level_up_type,
                 timestamp=event_timestamp,
-                level=level,
                 championId=player["championId"],
-                goldPerSecond=gold_per_second,
+                damageSelfMitigated=player.get("damageSelfMitigated", 0),
+                deaths=player.get("deaths", 0)
+                kills=player.get("kills", 0),
+                totalHeal=player.get("totalHeal", 0)
+                level=level,
+                timeEnemySpentControlled=participants_data.timeEnemySpentControlled,
+                totalGold=participants_data.totalGold,
+                xp=participants_data.xp,
+                position_x=participants_data.position.x,
+                position_y=participants_data.position.y,
                 damageStats_magicDamageDone=magic_damage_done,
                 damageStats_physicalDamageDone=physical_damage_done,
                 damageStats_totalDamageDone=total_damage_done,
-                championStats_abilityHaste=ability_haste,
+                totalDamageDoneToChampions=damage_stats_data.totalDamageDoneToChampions,
+                totalDamageTaken=damage_stats_data.totalDamageTaken,
                 championStats_armor=armor,
                 championStats_attackDamage=attack_damage,
                 championStats_attackSpeed=attack_speed,
@@ -1046,7 +1059,7 @@ class LiveAnalyticsService:
                 championStats_lifesteal=lifesteal,
                 championStats_movementSpeed=movement_speed,
                 championStats_power=power,
-                championStats_magicPen=magic_pen,
+                powerMax=champion_stats_data.powerMax
             )
 
             return response
