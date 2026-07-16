@@ -2,7 +2,7 @@
 
 > **Spatial Intelligence Platform for Competitive Gamers**
 
-![Logo](.github/images/EPI-USE.svg)
+![Logo](.github/images/EPIUSE.svg)
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
