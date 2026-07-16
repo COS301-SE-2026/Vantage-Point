@@ -316,8 +316,30 @@ class MapReplay(BaseModel):
 
 
 class MapSuggestData(BaseModel):
-    map_replay: MapReplay
-    end_of_game_result: str
+    position_x=map_replay.position_x,
+    position_y=map_replay.positon_y,
+    team_position=player["teamPosition"],
+    lane=player["lane"],
+    role=player["role"],
+    timestamp=map_replay.timestamp,
+    prev_x:
+    prev_y
+    prev_prev_x
+    prev_prev_y
+    champExperience
+champLevel
+championId
+gameDuration
+deaths
+itemsPurchased
+killingSprees
+kills
+visionScore
+jungleMinionsKilled
+level: Any
+minionsKilled 
+timeEnemySpentControlled
+xp: Any
     armor: Any
     attack_damage: Any
     attack_speed: Any
@@ -652,7 +674,7 @@ class Participant(BaseModel):
     jungleMinionsKilled: list[int]	
     level: list[int]	
     minionsKilled: list[int]		
-    participantId: int	
+    participantId: str	
     timeEnemySpentControlled: list[int]		
     totalGold: list[int]	
     xp: list[int]	
