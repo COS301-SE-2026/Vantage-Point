@@ -738,7 +738,7 @@ class LiveAnalyticsService:
             response = ChampionData(
                 championId=player_data.get("championId", 0),
                 teamPosition=player_data.get("teamPosition", 0),
-                roles=player_data.get("role", ""),
+                role=player_data.get("role", ""),
                 lane=player_data.get("lane", ""),
                 damageDealtToBuildings=player_data.get("damageDealtToBuildings", 0),
                 damageDealtToObjectives=player_data.get("damageDealtToObjectives", 0),
