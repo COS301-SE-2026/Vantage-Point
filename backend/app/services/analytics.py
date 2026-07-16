@@ -747,118 +747,45 @@ class LiveAnalyticsService:
                 kills=player_data.get("kills", 0),
                 totalHeal=player_data.get("totalHeal", 0),
                 totalHealsOnTeammates=player_data.get("totalHealsOnTeammates", 0),
-                visionScore=player_data.get("visionScore", 0),          
-                participants_championId=champion_ids,
+                visionScore=player_data.get("visionScore", 0),
 
-                currentGold = [
-                    frame["participantFrames"][paritcipant_id]["currentGold"]
-                    for frame in frames],
-                goldPerSecond = [
-                    frame["participantFrames"][paritcipant_id]["goldPerSecond"]
-                    for frame in frames],
-                level = [
-                    frame["participantFrames"][paritcipant_id]["level"]
-                    for frame in frames],
-                minionsKilled = [
-                    frame["participantFrames"][paritcipant_id]["minionsKilled"]
-                    for frame in frames],
-                timeEnemySpentControlled = [
-                    frame["participantFrames"][paritcipant_id]["timeEnemySpentControlled"]
-                    for frame in frames],
-                totalGold = [
-                    frame["participantFrames"][paritcipant_id]["totalGold"]
-                    for frame in frames],
-                xp = [
-                    frame["participantFrames"][paritcipant_id]["xp"]
-                    for frame in frames],
+                currentGold = ,
+                goldPerSecond = ,
+                level = ,
+                minionsKilled = ,
+                timeEnemySpentControlled = ,
+                totalGold = ,
+                xp = ,
 
-                magicDamageDone = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
-                    for frame in frames],
-                magicDamageDoneToChampions = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDoneToChampions"]
-                    for frame in frames],
-                magicDamageTaken = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageTaken"]
-                    for frame in frames],
-                physicalDamageDone = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDone"]
-                    for frame in frames],
-                physicalDamageDoneToChampions = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDoneToChampions"]
-                    for frame in frames],
-                physicalDamageTaken = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageTaken"]
-                    for frame in frames],
-                totalDamageDone = [
-                    frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDone"]
-                    for frame in frames],
-                totalDamageDoneToChampions = [
-                    frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDoneToChampions"]
-                    for frame in frames],
-                totalDamageTaken = [
-                    frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageTaken"]
-                    for frame in frames],
-                trueDamageDone = [
-                    frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDone"]
-                    for frame in frames],
-                trueDamageDoneToChampions = [
-                    frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDoneToChampions"]
-                    for frame in frames],
-                trueDamageTaken = [
-                    frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageTaken"]
-                    for frame in frames],
-                abilityPower = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["abilityPower"]
-                    for frame in frames],
-                armor = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["armor"]
-                    for frame in frames],
-                armorPenPercent = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["armorPenPercent"]
-                    for frame in frames],
-                attackDamage = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["attackDamage"]
-                    for frame in frames],
-                attackSpeed = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["attackSpeed"]
-                    for frame in frames],
-                ccReduction = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["ccReduction"]
-                    for frame in frames],
-                health = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["health"]
-                    for frame in frames],
-                healthMax = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["healthMax"]
-                    for frame in frames],
-                healthRegen = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["healthRegen"]
-                    for frame in frames],
-                 lifesteal = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["lifesteal"]
-                    for frame in frames],
-                 magicPen = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["magicPen"]
-                    for frame in frames],
-                 magicPenPercent = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["magicPenPercent"]
-                    for frame in frames],
-                magicResist = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["magicResist"]
-                    for frame in frames],
-                movementSpeed = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["movementSpeed"]
-                    for frame in frames],
-                omnivamp = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["omnivamp"]
-                    for frame in frames],
-                power = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["power"]
-                    for frame in frames],
-                powerMax = [
-                    frame["participantFrames"][paritcipant_id]["championStats"]["powerMax"]
-                    for frame in frames],              
+                magicDamageDone = ,
+                magicDamageDoneToChampions = 
+                magicDamageTaken = ,
+                physicalDamageDone = ,
+                physicalDamageDoneToChampions = ,
+                physicalDamageTaken = 
+                totalDamageDone = ,
+                totalDamageDoneToChampions = ,
+                totalDamageTaken = ,
+                trueDamageDone = ,
+                trueDamageDoneToChampions = ,
+                trueDamageTaken = ,
+                abilityPower = ,
+                armor = ,
+                armorPenPercent = ,
+                attackDamage =,
+                attackSpeed = ,
+                ccReduction = ,
+                health = ,
+                healthMax = ,
+                healthRegen = ,
+                 lifesteal = ,
+                 magicPen = ,
+                 magicPenPercent = ,
+                magicResist = ,
+                movementSpeed = ,
+                omnivamp = ,
+                power = ,
+                powerMax             
             )
 
             return response
