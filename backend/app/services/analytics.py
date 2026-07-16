@@ -425,16 +425,16 @@ class LiveAnalyticsService:
 
         
         return MapSuggestData(
-            position_x=map_replay.position_x,
-            position_y=map_replay.positon_y,
+            position_x=map_replay.position_x[paritcipant_id][0],
+            position_y=map_replay.position_y[paritcipant_id][0],
             team_position=player["teamPosition"],
             lane=player["lane"],
             role=player["role"],
             timestamp=map_replay.timestamp,
-            prev_x=,
-            prev_y=,
-            prev_prev_x=,
-            prev_prev_y=,
+            prev_x=map_replay.position_x[paritcipant_id][-1],
+            prev_y=map_replay.position_y[paritcipant_id][-1],
+            prev_prev_x=map_replay.position_x[paritcipant_id][-2],
+            prev_prev_y=map_replay.position_x[paritcipant_id][-2],
             champExperience=player["champExperience"],
             champLevel=player["champLevel"],
             championId=player["championId"],
