@@ -759,7 +759,7 @@ class LiveAnalyticsService:
                 roles=player_data.get("role", ""),
                 lane=player_data.get("lane", ""),
                 damageDealtToBuildings=player_data.get("damageDealtToBuildings", 0),
-                damageDealtToObjectives=player_data.get("damageDealtToObjectives", 0)
+                damageDealtToObjectives=player_data.get("damageDealtToObjectives", 0),
                 damageDealtToTurrets=player_data.get("damageDealtToTurrets", 0),
                 damageSelfMitigated=player_data.get("damageSelfMitigated", 0),
                 deaths=player_data.get("deaths", 0),

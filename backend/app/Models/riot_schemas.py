@@ -491,7 +491,7 @@ class ChampionData(BaseModel):
     magicPenPercent: list[int] 
     magicResist: list[int] 
     movementSpeed: list[int] 
-    omnivamp: list[int] 
+    omniVamp: list[int] 
     power: list[int] 
     powerMax: list[int]
     magicDamageDone: list[int]	
