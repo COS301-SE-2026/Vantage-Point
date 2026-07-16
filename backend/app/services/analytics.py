@@ -815,7 +815,10 @@ class LiveAnalyticsService:
             if player is None:
                 raise HTTPException(status_code=404, detail="Player not found in match")
 
-            participant_id = player["participantId"]
+            participant_id = LiveAnalyticsService.find_participant_id(match["info"]["participants"], puuid)
+
+            if participant_id is None:
+                raise HTTPException(status_code=404, detail=player_not_found)
 
             event_timestamp: list[int] = []
             item_id: list[int] = []
@@ -824,7 +827,7 @@ class LiveAnalyticsService:
                 event
                 for frame in frames
                 for event in frame["events"]
-                if event.get("participantId") == int(participant_id)
+                if event.get("participantId") == (participant_id)
             ]
 
             event_timestamp = [event["timestamp"] for event in item_events]
@@ -833,6 +836,8 @@ class LiveAnalyticsService:
             damage_stats_data =  LiveAnalyticsService.get_damage_stats(frames, participant_id)
             champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, participant_id)
             participant_data = LiveAnalyticsService.get_participants_data(frames, participant_id)
+            map_replay = await LiveAnalyticsService.map_replay(match_id)
+            
 
             response = ItemData(
                 itemId=item_id,
@@ -847,8 +852,8 @@ class LiveAnalyticsService:
                 timeEnemySpentControlled=participant_data.timeEnemySpentControlled,
                 totalGold=participant_data.totalGold,
                 xp=participant_data.xp,
-                position_x=[],
-                position_y=[],
+                position_x=map_replay.position_x[participant_id][0],
+                position_y=map_replay.position_x[participant_id][0],
                 magicDamageDone=damage_stats_data.magicDamageDone,
                 magicDamageDoneToChampions=damage_stats_data.magicDamageDoneToChampions,
                 magicDamageTaken=damage_stats_data.magicDamageTaken,
