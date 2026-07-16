@@ -170,6 +170,79 @@ class LiveAnalyticsService:
                 return participant_id
             
         return None
+    @staticmethod
+    def get_champion_stats(frames: Any, paritcipant_id: int):       
+        return (
+            magicDamageDone = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
+                for frame in frames],
+            magicDamageDoneToChampions = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDoneToChampions"]
+                for frame in frames],
+            magicDamageTaken = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageTaken"]
+                for frame in frames],
+            physicalDamageDone = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDone"]
+                for frame in frames],
+            physicalDamageDoneToChampions = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDoneToChampions"]
+                for frame in frames],
+            physicalDamageTaken = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageTaken"]
+                for frame in frames],
+            abilityPower = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["abilityPower"]
+                for frame in frames],
+            armor = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["armor"]
+                for frame in frames],
+            armorPenPercent = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["armorPenPercent"]
+                for frame in frames],
+            attackDamage = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["attackDamage"]
+                for frame in frames],
+            attackSpeed = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["attackSpeed"]
+                for frame in frames],
+            ccReduction = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["ccReduction"]
+                for frame in frames],
+            health = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["health"]
+                for frame in frames],
+            healthMax = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["healthMax"]
+                for frame in frames],
+            healthRegen = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["healthRegen"]
+                for frame in frames],
+            lifesteal = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["lifesteal"]
+                for frame in frames],
+            magicPen = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicPen"]
+                for frame in frames],
+            magicPenPercent = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicPenPercent"]
+                for frame in frames],
+            magicResist = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["magicResist"]
+                for frame in frames],
+            movementSpeed = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["movementSpeed"]
+                for frame in frames],
+            omnivamp = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["omnivamp"]
+                for frame in frames],
+            power = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["power"]
+                for frame in frames],
+            powerMax = [
+                frame["participantFrames"][paritcipant_id]["championStats"]["powerMax"]
+                for frame in frames]
+        )
 
 
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it

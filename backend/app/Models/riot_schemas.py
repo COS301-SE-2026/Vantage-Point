@@ -521,3 +521,6 @@ class RoleData(BaseModel):
     end_healthMax: int
     end_healthRegen: float
     end_armor: int
+
+class ChampionStats(BaseModel):
+    
