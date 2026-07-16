@@ -340,7 +340,7 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=404, detail=player_not_found)
 
         frames = timeline["info"]["frames"]
-        paritcipant_id = LiveAnalyticsService.find_participant_id(frames, puuid)
+        paritcipant_id = LiveAnalyticsService.find_participant_id(timeline["info"]["participants"], puuid)
 
         armor = [
             frame["participantFrames"][paritcipant_id]["championStats"]["armor"]
@@ -726,7 +726,7 @@ class LiveAnalyticsService:
                     champion_ids.append(p.get("championId", 0))
 
             frames = timeline["info"]["frames"]
-            paritcipant_id = LiveAnalyticsService.find_participant_id(frames, puuid)
+            paritcipant_id = LiveAnalyticsService.find_participant_id(timeline["info"]["participants"], puuid)
 
             if paritcipant_id is None:
                 raise HTTPException(status_code=404, detail=player_not_found)
@@ -815,7 +815,7 @@ class LiveAnalyticsService:
             if player is None:
                 raise HTTPException(status_code=404, detail="Player not found in match")
 
-            participant_id = LiveAnalyticsService.find_participant_id(match["info"]["participants"], puuid)
+            participant_id = LiveAnalyticsService.find_participant_id(timeline["info"]["participants"], puuid)
 
             if participant_id is None:
                 raise HTTPException(status_code=404, detail=player_not_found)
