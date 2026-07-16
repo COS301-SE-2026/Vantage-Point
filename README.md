@@ -1,8 +1,11 @@
 # Vantage Point
 
 > **Spatial Intelligence Platform for Competitive Gamers**
-
-![Logo](.github/images/EPIUSE.svg)
+<div align="center">
+<br/><br/>
+<img src=".github/images/EPIUSE.svg" alt="EPI-USE" width="110"/>
+<br/><br/>
+</div>
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
