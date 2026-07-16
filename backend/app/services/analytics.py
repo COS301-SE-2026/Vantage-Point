@@ -350,18 +350,20 @@ class LiveAnalyticsService:
             totalDamageDone=total_damage_done,
             totalDamageDoneToChampions=total_damage_done_to_champions,
             totalDamageTaken=total_damage_taken,
-
-            end_of_game_result=match["info"]["endOfGameResult"],
+            abilityHaste=ability_haste,
+            abilityPower=ability_power,
             armor=armor,
             attack_damage=attack_damage,
             attack_speed=attack_speed,
+            ccReduction=cc_reduction,
+            cooldownReduction=cooldown_reduction,
             health=health,
             health_max=health_max,
             health_regen=health_regen,
-            true_damage_done=true_damage_done,
-            true_damage_done_to_champion=true_damage_done_to_champions,
-            true_damage_taken=true_damage_taken,
-            gold_per_second=gold_per_second,
+            lifesteal=lifesteal,
+            movementSpeed=movement_speed,
+            power=power,
+            powerMax=power_max
         )
 
     @staticmethod
