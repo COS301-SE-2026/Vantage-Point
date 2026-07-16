@@ -2,6 +2,8 @@
 
 > **Spatial Intelligence Platform for Competitive Gamers**
 
+![Logo](.github/images/EPI-USE.svg)
+
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 
 [![Backend Tests](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/COS301-SE-2026/Vantage-Point/actions/workflows/backend_tests.yml)
