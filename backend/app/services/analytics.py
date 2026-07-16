@@ -164,36 +164,15 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    def find_participant_id(frames: Any, puuid: str) -> str | None:
-        if not frames or not puuid:
-            return None
-        
-        for participant_id, participant_data in frames[0]["participantFrames"].items():
-            if participant_data.get("puuid") == puuid:
-                return participant_id
+    def find_participant_id(participants: Any, puuid: str) -> str | None:        
+        for participant in participants:
+            if participant["puuid"] == puuid:
+                return str(participant["participantId"])
             
         return None
     @staticmethod
     def get_champion_stats(frames: Any, paritcipant_id: str) -> ChampionStats:       
         return ChampionStats(
-            magicDamageDone = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
-                for frame in frames],
-            magicDamageDoneToChampions = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDoneToChampions"]
-                for frame in frames],
-            magicDamageTaken = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageTaken"]
-                for frame in frames],
-            physicalDamageDone = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDone"]
-                for frame in frames],
-            physicalDamageDoneToChampions = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDoneToChampions"]
-                for frame in frames],
-            physicalDamageTaken = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageTaken"]
-                for frame in frames],
             abilityPower = [
                 frame["participantFrames"][paritcipant_id]["championStats"]["abilityPower"]
                 for frame in frames],
@@ -258,22 +237,22 @@ class LiveAnalyticsService:
     def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
         return DamageStats(
             magicDamageDone = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDone"]
+                frame["participantFrames"][paritcipant_id]["damageStats"]["magicDamageDone"]
                 for frame in frames],
             magicDamageDoneToChampions = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageDoneToChampions"]
+                frame["participantFrames"][paritcipant_id]["damageStats"]["magicDamageDoneToChampions"]
                 for frame in frames],
             magicDamageTaken = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicDamageTaken"]
+                frame["participantFrames"][paritcipant_id]["damageStats"]["magicDamageTaken"]
                 for frame in frames],
             physicalDamageDone = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDone"]
+                frame["participantFrames"][paritcipant_id]["damageStats"]["physicalDamageDone"]
                 for frame in frames],
             physicalDamageDoneToChampions = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageDoneToChampions"]
+                frame["participantFrames"][paritcipant_id]["damageStats"]["physicalDamageDoneToChampions"]
                 for frame in frames],
             physicalDamageTaken = [
-                frame["participantFrames"][paritcipant_id]["championStats"]["physicalDamageTaken"]
+                frame["participantFrames"][paritcipant_id]["damageStats"]["physicalDamageTaken"]
                 for frame in frames],
             totalDamageDone = [
                 frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDone"]
@@ -299,7 +278,7 @@ class LiveAnalyticsService:
     def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
         return Participant(
             currentGold = [frame["participantFrames"][paritcipant_id]["currentGold"] for frame in frames],
-            goldPerSecond = [frame["participantFrames"][paritcipant_id]["currentGold"] for frame in frames],
+            goldPerSecond = [frame["participantFrames"][paritcipant_id]["goldPerSecond"] for frame in frames],
             jungleMinionsKilled = [frame["participantFrames"][paritcipant_id]["jungleMinionsKilled"] for frame in frames],
             level = [frame["participantFrames"][paritcipant_id]["level"] for frame in frames],
             minionsKilled = [frame["participantFrames"][paritcipant_id]["minionsKilled"] for frame in frames],

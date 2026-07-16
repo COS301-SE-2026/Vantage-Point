@@ -612,12 +612,6 @@ class RoleData(BaseModel):
     end_armor: int
 
 class ChampionStats(BaseModel):
-    magicDamageDone: list[int]       
-    magicDamageDoneToChampions: list[int]        
-    magicDamageTaken: list[int] 
-    physicalDamageDone: list[int] 
-    physicalDamageDoneToChampions: list[int] 
-    physicalDamageTaken: list[int] 
     abilityPower: list[int] 
     armor: list[int] 
     armorPenPercent: list[int] 
