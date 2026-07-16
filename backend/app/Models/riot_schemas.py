@@ -598,3 +598,14 @@ class DamageStats(BaseModel):
     trueDamageDone: list[int]	
     trueDamageDoneToChampions: list[int]		
     trueDamageTaken: list[int]	
+
+class Participant(BaseModel):
+    currentGold: list[int]	
+    goldPerSecond: list[int]	
+    jungleMinionsKilled: list[int]	
+    level: list[int]	
+    minionsKilled: list[int]		
+    participantId: list[int]	
+    timeEnemySpentControlled: list[int]		
+    totalGold: list[int]	
+    xp: list[int]	
