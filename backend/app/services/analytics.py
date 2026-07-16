@@ -855,47 +855,47 @@ class LiveAnalyticsService:
             response = ItemData(
                 itemId=item_id,
                 timestamp=event_timestamp,
-                lane=,
-                champExperience=,
+                lane=player["lane"],
+                champExperience=player["champExperience"],
                 champLevel=player["champLevel"],
                 championId=player["championId"],
-                currentGold=current_gold,
-                level=level,
-                minionsKilled=
-                timeEnemySpentControlled=,
-                totalGold=,
-                xp=xp,
-                position_y=,
-                position_y=,
-                magicDamageDone=
-                magicDamageDoneToChampions=
-                magicDamageTaken=
-                physicalDamageDone=
-                physicalDamageDoneToChampions=
-                physicalDamageTaken=
-                totalDamageDone=
-                totalDamageDoneToChampions=
-                totalDamageTaken=
-                trueDamageDone=
-                trueDamageDoneToChampions=
-                trueDamageTaken=
-                abilityPower=
-                armor=armor,
-                armorPenPercent
-                attackDamage
-                attackSpeed
-                ccReduction
-                championStats_health=health,
-                championStats_healthMax=health_max,
-                championStats_healthRegen=health_regen,
-                championStats_lifesteal=lifesteal,
-                magicPen
-                magicPenPercent
-                magicResist
-                movementSpeed
-                omnivamp
-                power=power,
-                powerMax=power_max,
+                currentGold=participant_data.currentGold,
+                level=participant_data.level,
+                minionsKilled=participant_data.minionsKilled,
+                timeEnemySpentControlled=participant_data.timeEnemySpentControlled,
+                totalGold=participant_data.totalGold,
+                xp=participant_data.xp,
+                position_x=[],
+                position_y=[],
+                magicDamageDone=damage_stats_data.magicDamageDone,
+                magicDamageDoneToChampions=damage_stats_data.magicDamageDoneToChampions,
+                magicDamageTaken=damage_stats_data.magicDamageTaken,
+                physicalDamageDone=damage_stats_data.physicalDamageDone,
+                physicalDamageDoneToChampions=damage_stats_data.physicalDamageDoneToChampions,
+                physicalDamageTaken=damage_stats_data.physicalDamageTaken,
+                totalDamageDone=damage_stats_data.totalDamageDone,
+                totalDamageDoneToChampions=damage_stats_data.totalDamageDoneToChampions,
+                totalDamageTaken=damage_stats_data.totalDamageTaken,
+                trueDamageDone=damage_stats_data.trueDamageDone,
+                trueDamageDoneToChampions=damage_stats_data.trueDamageDoneToChampions,
+                trueDamageTaken=damage_stats_data.trueDamageTaken,
+                abilityPower=champion_stats_data.abilityPower,
+                armor=champion_stats_data.armor,
+                armorPenPercent=champion_stats_data.armorPenPercent,
+                attackDamage=champion_stats_data.attackDamage,
+                attackSpeed=champion_stats_data.attackSpeed,
+                ccReduction=champion_stats_data.ccReduction,
+                health=champion_stats_data.health,
+                healthMax=champion_stats_data.healthMax,
+                healthRegen=champion_stats_data.healthRegen,
+                lifesteal=champion_stats_data.lifesteal,
+                magicPen=champion_stats_data.magicPen,
+                magicPenPercent=champion_stats_data.magicPenPercent,
+                magicResist=champion_stats_data.magicResist,
+                movementSpeed=champion_stats_data.movementSpeed,
+                omnivamp=champion_stats_data.omnivamp,
+                power=champion_stats_data.power,
+                powerMax=champion_stats_data.powerMax,
             )
 
             return response
