@@ -434,7 +434,7 @@ class MatchData(BaseModel):
     tower_kills: int
     teams_teamId: int
     teams_win: bool
-
+    
 
 class ProfileData(BaseModel):
     endOfGameResult: str
@@ -474,7 +474,7 @@ class ProfileData(BaseModel):
 class ChampionData(BaseModel):
     championId: int
     teamPosition: str
-    roles: str
+    role: str
     lane: str
     damageDealtToBuildings: list[int]
     damageDealtToObjectives: list[int]

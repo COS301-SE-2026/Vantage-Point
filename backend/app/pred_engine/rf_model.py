@@ -89,7 +89,7 @@ def rf_multivariate(x_train, x_test, y_train, y_test):
 ###### TESTING AND EVALUATION #######
 
 
-def test_and_eval(file_name, run_cat, y_val):
+def test_and_eval(file_name, run_cat):
     # add file check
     try:
         open(file_name, "r")
@@ -100,7 +100,7 @@ def test_and_eval(file_name, run_cat, y_val):
     x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
 
     # nullcheck data
-    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+    if len(x_train) == 0 or len(x_test) == 0 or len(y_train) == 0 or len(y_test) == 0:
         print(data_error_text)
         exit()
 
@@ -132,10 +132,12 @@ def final_train(file_name, run_cat):
         print(file_error_text)
         exit()
 
-    x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
+    x_train, x_test, y_train, y_test = converter.get_train_test_data_rf(
+        file_name, run_cat
+    )
 
     # nullcheck data
-    if x_train == [] | x_test == [] | y_train == [] | y_test == []:
+    if len(x_train) == 0 or len(x_test) == 0 or len(y_train) == 0 or len(y_test) == 0:
         print(data_error_text)
         exit()
 
