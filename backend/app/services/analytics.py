@@ -833,71 +833,7 @@ class LiveAnalyticsService:
             if player is None:
                 raise HTTPException(status_code=404, detail="Player not found in match")
 
-            participant_id = str(player["participantId"])
-
-            current_gold: list[int] = []
-            level = []
-            xp: list[int] = []
-            total_damage_done: list[int] = []
-            total_damage_taken: list[int] = []
-            health: list[int] = []
-            health_max: list[int] = []
-            health_regen: list[float] = []
-            lifesteal: list[float] = []
-            power: list[int] = []
-            power_max: list[int] = []
-            armor: list[int] = []
-
-            current_gold = [
-                frame["participantFrames"][participant_id]["currentGold"]
-                for frame in frames
-            ]
-            level = [
-                frame["participantFrames"][participant_id]["level"] for frame in frames
-            ]
-            xp = [frame["participantFrames"][participant_id]["xp"] for frame in frames]
-            total_damage_done = [
-                frame["participantFrames"][participant_id]["damageStats"][
-                    "totalDamageDone"
-                ]
-                for frame in frames
-            ]
-            total_damage_taken = [
-                frame["participantFrames"][participant_id]["damageStats"][
-                    "totalDamageTaken"
-                ]
-                for frame in frames
-            ]
-            health = [
-                frame["participantFrames"][participant_id]["championStats"]["health"]
-                for frame in frames
-            ]
-            health_max = [
-                frame["participantFrames"][participant_id]["championStats"]["healthMax"]
-                for frame in frames
-            ]
-            health_regen = [
-                frame["participantFrames"][participant_id]["championStats"][
-                    "healthRegen"
-                ]
-                for frame in frames
-            ]
-            lifesteal = [
-                frame["participantFrames"][participant_id]["championStats"]["lifesteal"]
-                for frame in frames
-            ]
-            power = [
-                frame["participantFrames"][participant_id]["championStats"]["power"]
-                for frame in frames
-            ]
-            power_max = [
-                frame["participantFrames"][participant_id]["championStats"]["powerMax"]
-                for frame in frames
-            ]
-            armor = [
-                frame["participantFrames"][participant_id]["championStats"]["armor"]
-                for frame in frames
-            ]
+            participant_id = player["participantId"]
 
             event_timestamp: list[int] = []
             item_id: list[int] = []
@@ -912,11 +848,16 @@ class LiveAnalyticsService:
             event_timestamp = [event["timestamp"] for event in item_events]
             item_id = [event["itemId"] for event in item_events if "itemId" in event]
 
+            damage_stats_data =  LiveAnalyticsService.get_damage_stats(frames, participant_id)
+            champion_stats_data = LiveAnalyticsService.get_champion_stats(frames, participant_id)
+            participant_data = LiveAnalyticsService.get_participants_data(frames, participant_id)
+
             response = ItemData(
                 itemId=item_id,
                 timestamp=event_timestamp,
                 championId=player["championId"],
                 champLevel=player["champLevel"],
+                champExpe
                 currentGold=current_gold,
                 level=level,
                 xp=xp,

@@ -510,20 +510,51 @@ class ChampionData(BaseModel):
 class ItemData(BaseModel):
     itemId: list[int]
     timestamp: list[int]
-    championId: int
+    lane: str
+    champExperience: int
     champLevel: int
+    championId: int
     currentGold: list[int]
     level: list[int]
+    minionsKilled: list[int]
+    timeEnemySpentControlled: list[int]
+    totalGold: list[int]
+    position_x: list[int]
+    position_y: list[int]
+
     xp: list[int]
     damageStats_totalDamageDone: list[int]
     damageStats_totalDamageTaken: list[int]
+    damageStats_magicDamageDone: list[int]
+    damageStats_magicDamageDoneToChampions: list[int]
+    damageStats_magicDamageTaken: list[int]
+    damageStats_physicalDamageDone: list[int]
+    damageStats_physicalDamageDoneToChampions: list[int]
+    damageStats_physicalDamageTaken: list[int]
+    damageStats_totalDamageDone: list[int]
+    damageStats_totalDamageDoneToChampions: list[int]
+    damageStats_totalDamageTaken: list[int]
+    damageStats_trueDamageDone: list[int]
+    damageStats_trueDamageDoneToChampions: list[int]
+    damageStats_trueDamageTaken: list[int]
+
+    armor: list[int]
+    armorPenPercent: list[int]
+    attackDamage: list[int]
+    attackSpeed: list[int]
+    ccReduction: list[int]
     championStats_health: list[int]
     championStats_healthMax: list[int]
     championStats_healthRegen: list[float]
     championStats_lifesteal: list[float]
+    magicPen: list[int]
+    magicPenPercent: list[int]
+    magicResist: list[int]
+    movementSpeed: list[int]
+    omnivamp: list[int]
     championStats_power: list[int]
     championStats_powerMax: list[int]
-    championStats_armor: list[int]
+    
 
 
 class SkillData(BaseModel):
