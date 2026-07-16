@@ -283,24 +283,10 @@ class LiveAnalyticsService:
             for frame in frames
         ]
 
-        true_damage_done = [
-            frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageDone"]
-            for frame in frames
-        ]
-        true_damage_done_to_champions = [
-            frame["participantFrames"][paritcipant_id]["damageStats"][
-                "trueDamageDoneToChampions"
-            ]
-            for frame in frames
-        ]
         total_damage_done = [
             frame["participantFrames"][paritcipant_id]["damageStats"][
                 "totalDamageDone"
             ]
-            for frame in frames
-        ]
-        true_damage_taken = [
-            frame["participantFrames"][paritcipant_id]["damageStats"]["trueDamageTaken"]
             for frame in frames
         ]
         total_damage_done_to_champions = [
@@ -312,9 +298,6 @@ class LiveAnalyticsService:
             for frame in frames
         ]
 
-        gold_per_second = [
-            frame["participantFrames"][paritcipant_id]["goldPerSecond"] for frame in frames
-        ]
         level = [
             frame["participantFrames"][paritcipant_id]["level"] for frame in frames
         ]
@@ -497,6 +480,7 @@ class LiveAnalyticsService:
                 earliestDragonTakedown=get_challenges("earliestDragonTakedown", 0),
                 earliestElderDragon=get_challenges("earliestElderDragon", 0),
                 fastestLegendary=get_challenges("fastestLegendary", 0),
+                hadAfkTeammate=get_challenges("hadAfkTeammate", 0),
                 highestChampionDamage=get_challenges("highestChampionDamage", 0),
                 takedownFirst25Min=get_challenges("takedownFirst25Min", 0),
                 teleportTakedowns=get_challenges("teleportTakedowns", 0),
@@ -508,10 +492,11 @@ class LiveAnalyticsService:
                 bountyGold=get_challenges("bountyGold", 0),
                 damagePerMinute=get_challenges("damagePerMinute", 0),
                 deatshByEnemyChamps=get_challenges("deatshByEnemyChamps", 0),
+                elderDragonKillsWithOpposingSoul=get_challenges("elderDragonKillsWithOpposingSoul", 0)
                 elderDragonMultikill=get_challenges("elderDragonMultikill", 0),
                 enemyJungleMonsterKills=get_challenges("enemyJungleMonsterKills", 0),
                 firstTurretKilled=get_challenges("firstTurretKilled", False),
-                firstTuttetKilledTime=get_challenges("firstTurretKilled"),
+                firstTuttetKilledTime=get_challenges("firstTurretKilledTime"),
                 gameLength=get_challenges("gameLength"),
                 goldPerMinute=get_challenges("goldPerMinute"),
                 kda=get_challenges("kda"),
