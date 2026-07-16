@@ -523,4 +523,26 @@ class RoleData(BaseModel):
     end_armor: int
 
 class ChampionStats(BaseModel):
-    
+    magicDamageDone: list[int]       
+    magicDamageDoneToChampions: list[int]        
+    magicDamageTaken: list[int] 
+    physicalDamageDone: list[int] 
+    physicalDamageDoneToChampions: list[int] 
+    physicalDamageTaken: list[int] 
+    abilityPower: list[int] 
+    armor: list[int] 
+    armorPenPercent: list[int] 
+    attackDamage: list[int] 
+    attackSpeed: list[int] 
+    ccReduction: list[int] 
+    health: list[int] 
+    healthMax: list[int] 
+    healthRegen: list[int] 
+    lifesteal: list[int] 
+    magicPen: list[int] 
+    magicPenPercent: list[int] 
+    magicResist: list[int] 
+    movementSpeed: list[int] 
+    omnivamp: list[int] 
+    power: list[int] 
+    powerMax: list[int] 
