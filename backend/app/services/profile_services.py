@@ -16,7 +16,7 @@ from app.config import get_settings
 from loguru import logger
 
 settings = get_settings()
-client: CognitoIdentityProviderClient = boto3.client( # type: ignore
+client: CognitoIdentityProviderClient = boto3.client(  # type: ignore
     "cognito-idp", region_name=settings.aws_region
 )  # pyright: ignore[reportUnknownMemberType]
 
