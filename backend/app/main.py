@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict
 from urllib.parse import urlparse
 from types import FrameType
+from typing import Annotated
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -19,7 +20,6 @@ from dotenv import load_dotenv
 from app.api.router import admin_routes, profile_routes, auth_routes, analytics_router
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
-from app.Models.generic_schemas import get_error_reason
 from app.services.riot_api import get_puuid_by_riot_id
 
 from loguru import logger
@@ -38,11 +38,7 @@ load_dotenv()
 # DATABASE & APP SETUP
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
-# from slowapi import _rate_limit_exceeded_handler
-# from slowapi.errors import RateLimitExceeded
-# from slowapi.middleware import SlowAPIMiddleware
 
-# limiter = Limiter(key_func=get_remote_address)
 logger.remove(0)
 logger.add(
     sys.stdout,
@@ -61,7 +57,22 @@ logger.add(
     diagnose=True,
 )
 
-
+def get_error_reason(status_code: int)-> str:
+    reasons = {
+        400: "Bad request",
+        401: "Unauthorized",
+        403: "Forbidden",
+        404: "Not found",
+        405: "Method not allowed",
+        409: "Conflict",
+        422: "Unprocessable Entity",
+        429: "Too many Requests",
+        500: "Internal server error",
+        502: "Bad gateway",
+        503: "Service unavailable",
+        504: "Gateway timeout",
+    }
+    return reasons.get(status_code, "Unknown Error")
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
         level: str | int
@@ -224,7 +235,7 @@ async def health() -> HealthResponse:
     description="Accepts any JSON object and echoes it back for quick API testing.",
     response_model=TestResponse,
 )
-async def test_endpoint(data: Dict[str, Any]) -> TestResponse:
+async def test_endpoint(data: Dict[str, Any]):
     print(f"Test endpoint called with data: {data}")
     return TestResponse(received=data, message="Test successful")
 
@@ -236,7 +247,7 @@ async def test_endpoint(data: Dict[str, Any]) -> TestResponse:
 async def register_summoner(
     game_name: str,
     tag_line: str,
-    session: AsyncSession = Depends(get_session),
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
     puuid = await get_puuid_by_riot_id(game_name, tag_line)

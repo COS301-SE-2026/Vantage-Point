@@ -2,8 +2,7 @@ from app.services.admin_service import admin_service
 from fastapi import Depends, APIRouter
 from app.Models.auth_model import User
 from app.api.auth import require_group
-from typing import Annotated
-from typing import Any
+from typing import Any, Annotated
 from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Models.admin_model import UserResponse
