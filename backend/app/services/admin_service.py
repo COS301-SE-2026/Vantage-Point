@@ -192,7 +192,7 @@ class admin_service:
                 )
             raise HTTPException(status_code=400, detail=error_code)
 
-    # todo update user attr
+    # update user attr
 
     @staticmethod
     async def user_global_sign_out(username: str) -> Response:

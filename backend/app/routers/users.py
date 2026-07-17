@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from typing import Any
 from app.auth.deps import get_current_user
 from app.database.models import Users
 from app.database.session import get_session
@@ -24,7 +24,7 @@ from app.services.user_accounts import (
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 
-def _user_me_response(user: Users, account) -> UserMeResponse:
+def _user_me_response(user: Users, account: Any) -> UserMeResponse:
     tag = riot_id_tag(account.game_name, account.tag_line) if account else None
     return UserMeResponse(
         cognito_sub=user.cognito_sub,

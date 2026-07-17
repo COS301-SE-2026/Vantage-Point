@@ -5,13 +5,10 @@ from app.services.profile_services import ProfileService
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from datetime import datetime
-from fastapi import HTTPException
 from app.Models.auth_model import User
 from app.database.models import Users
 from app.api.auth import require_group
-from botocore.exceptions import ClientError
 
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 from app.api.auth import oauth2_scheme
 
 router = APIRouter()
@@ -29,13 +26,8 @@ async def get_or_create_profile(
     session: Annotated[AsyncSession, Depends(get_session)],
     access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ) -> Any:
-    print("Reached router")
-    try:
         return await ProfileService.get_or_create_profile(
-            session, access_token.credentials
-        )
-    except ClientError as e:
-        raise HTTPException(status_code=400, detail=e.response)
+            session, access_token.credentials)     
 
 
 @router.post(
@@ -70,4 +62,4 @@ async def undo_account_deletion(
     return await ProfileService.undo_account_deletion(session, access_token.credentials)
 
 
-# todo update email/user in db
+#  update email/user in db

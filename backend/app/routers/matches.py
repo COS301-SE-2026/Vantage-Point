@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.deps import get_current_user
 from app.database.models import Users
 from app.database.session import get_session
-from app.schemas.match import MatchDetailResponse, MatchHistorySummaryResponse
+from app.Models.match import MatchDetailResponse, MatchHistorySummaryResponse
 from app.services.match_detail import get_match_detail, user_has_match_access
 from app.services.match_history import list_match_history
 from app.services.user_accounts import get_linked_puuids, get_primary_linked_puuid
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
 async def get_matches(
     current_user: Users = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-):
+) -> list[MatchHistorySummaryResponse]:
     puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
     if not puuid:
         return []
