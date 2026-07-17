@@ -442,7 +442,7 @@ class TestAdminServicePost:
         assert response.user_last_modified_date == created
         assert response.enabled is True
         assert response.user_status == "FORCE_CHANGE_PASSWORD"
-
+        temp_pass = "TemPass@123"
         mock_admin_create_user.assert_called_once_with(
             UserPoolId=settings.cognito_user_pool_id,
             Username="john123",
@@ -450,7 +450,7 @@ class TestAdminServicePost:
                 {"Name": "email", "Value": "john@gmail.com"},
                 {"Name": "email_verified", "Value": "true"},
             ],
-            TemporaryPassword="TemPass@123",
+            TemporaryPassword=temp_pass,
             MessageAction="SUPPRESS",
         )
 
@@ -602,7 +602,7 @@ class TestAdminServicePost:
 
 
 @pytest.mark.anyio
-class testAdminDelete:
+class TestAdminDelete:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_remove_user_from_group")
@@ -752,7 +752,7 @@ class testAdminDelete:
 
 
 @pytest.mark.anyio
-class testAdminPatch:
+class TestAdminPatch:
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_enable_user")
@@ -822,7 +822,7 @@ class testAdminPatch:
 
 
 @pytest.mark.anyio
-class testAdminPut:
+class TestAdminPut:
 
     @staticmethod
     @patch("app.services.admin_service.client.update_group")
