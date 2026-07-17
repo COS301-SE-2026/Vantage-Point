@@ -852,8 +852,8 @@ class LiveAnalyticsService:
                 timeEnemySpentControlled=participant_data.timeEnemySpentControlled,
                 totalGold=participant_data.totalGold,
                 xp=participant_data.xp,
-                position_x=map_replay.position_x[participant_id][0],
-                position_y=map_replay.position_x[participant_id][0],
+                position_x=map_replay.position_x[participant_id],
+                position_y=map_replay.position_x[participant_id],
                 magicDamageDone=damage_stats_data.magicDamageDone,
                 magicDamageDoneToChampions=damage_stats_data.magicDamageDoneToChampions,
                 magicDamageTaken=damage_stats_data.magicDamageTaken,
@@ -890,8 +890,8 @@ class LiveAnalyticsService:
             raise
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
-        except Exception:
-            raise HTTPException(status_code=500, detail=internal_server_error)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"{internal_server_error}: {str(e)}")
 
     @staticmethod
     async def skill_data(match_id: str, puuid: str) -> SkillData:
@@ -1021,8 +1021,8 @@ class LiveAnalyticsService:
             raise
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
-        except Exception:
-            raise HTTPException(status_code=500, detail=internal_server_error)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"{internal_server_error}: {str(e)}")
 
     @staticmethod
     async def role_data(match_id: str, puuid: str) -> RoleData:

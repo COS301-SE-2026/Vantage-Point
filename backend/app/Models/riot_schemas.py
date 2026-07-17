@@ -586,10 +586,10 @@ class SkillData(BaseModel):
     levelUpType: list[str]
     timestamp: list[int]
     championId: int
-    damageSelfMitigated: list[int]
-    deaths: list[int]
-    kills: list[int]
-    totalHeal: list[int]
+    damageSelfMitigated: int
+    deaths: int
+    kills: int
+    totalHeal: int
     level: list[int]
     timeEnemySpentControlled: list[int]
     totalGold: list[int]
