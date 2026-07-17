@@ -331,7 +331,7 @@ class LiveAnalyticsService:
         # cover part of knn required data
         map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
 
-        paritcipants: Any = match["info"]["participant"]
+        paritcipants: Any = match["info"]["participants"]
         player = next(
             (p for p in paritcipants if p["puuid"] == puuid)
         )
@@ -425,20 +425,20 @@ class LiveAnalyticsService:
 
         
         return MapSuggestData(
-            position_x=map_replay.position_x[paritcipant_id][0],
-            position_y=map_replay.position_y[paritcipant_id][0],
+            position_x=map_replay.position_x[paritcipant_id],
+            position_y=map_replay.position_y[paritcipant_id],
             team_position=player["teamPosition"],
             lane=player["lane"],
             role=player["role"],
             timestamp=map_replay.timestamp,
-            prev_x=map_replay.position_x[paritcipant_id][-1],
-            prev_y=map_replay.position_y[paritcipant_id][-1],
-            prev_prev_x=map_replay.position_x[paritcipant_id][-2],
-            prev_prev_y=map_replay.position_x[paritcipant_id][-2],
+            prev_x=map_replay.position_x[paritcipant_id],
+            prev_y=map_replay.position_y[paritcipant_id],
+            prev_prev_x=map_replay.position_x[paritcipant_id],
+            prev_prev_y=map_replay.position_x[paritcipant_id],
             champExperience=player["champExperience"],
             champLevel=player["champLevel"],
             championId=player["championId"],
-            gameDuration=player["gameDuration"],
+            gameDuration=match["info"]["gameDuration"],
             deaths=player.get("deaths", 0),
             itemsPurchased=player.get("itemsPurchased", 0),
             killingSprees=player.get("killingSprees", 0),

@@ -30,9 +30,9 @@ async def map_replay(_: Annotated[User, Depends(require_group(10))], match_id: s
     tags=["Analytics"],
 )
 async def map_suggest_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str
+    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
 ):
-    return await LiveAnalyticsService.map_suggest_data(match_id)
+    return await LiveAnalyticsService.map_suggest_data(match_id, puuid)
 
 
 @router.get(

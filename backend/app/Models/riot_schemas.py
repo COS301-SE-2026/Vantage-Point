@@ -318,23 +318,23 @@ class MapReplay(BaseModel):
 class MapSuggestData(BaseModel):
     position_x:list[int]
     position_y:list[int]
-    team_position:list[int]
-    lane:list[int]
-    role:list[int]
+    team_position:str
+    lane:str
+    role:str
     timestamp:list[int]
     prev_x:list[int]
     prev_y:list[int]
     prev_prev_x:list[int]
     prev_prev_y:list[int]
-    champExperience:list[int]
-    champLevel:list[int]
-    championId:list[int]
-    gameDuration:list[int]
-    deaths:list[int]
-    itemsPurchased:list[int]
-    killingSprees:list[int]
-    kills:list[int]
-    visionScore:list[int]
+    champExperience:int
+    champLevel:int
+    championId:int
+    gameDuration:int
+    deaths:int
+    itemsPurchased:int
+    killingSprees:int
+    kills:int
+    visionScore:int
     jungleMinionsKilled:list[int]
     level: Any
     minionsKilled:list[int]
@@ -382,11 +382,11 @@ class MatchData(BaseModel):
     bountyGold: int
     damagePerMinute: float
     deatshByEnemyChamps: int
-    elderDragonKillsWithOpposingSoul: list[int]
+    elderDragonKillsWithOpposingSoul: int
     elderDragonMultikill: int
     enemyJungleMonsterKills: int
     firstTurretKilled: bool
-    firstTuttetKilledTime: int
+    firstTuttetKilledTime: float
     gameLength: float
     goldPerMinute: float
     kda: float
@@ -434,7 +434,7 @@ class MatchData(BaseModel):
     tower_kills: int
     teams_teamId: int
     teams_win: bool
-    
+
 
 class ProfileData(BaseModel):
     endOfGameResult: str
@@ -476,19 +476,19 @@ class ChampionData(BaseModel):
     teamPosition: str
     role: str
     lane: str
-    damageDealtToBuildings: list[int]
-    damageDealtToObjectives: list[int]
-    damageDealtToTurrets: list[int]
-    damageSelfMitigated: list[int]
-    deaths: list[int]
-    inhibitorTakedowns: list[int]
-    inhibitorsLost: list[int]
-    itemsPurchased: list[int]
-    killingSprees: list[int]
-    kills: list[int]
-    totalHeal: list[int]
-    totalHealsOnTeammates: list[int]
-    visionScore: list[int]
+    damageDealtToBuildings: int
+    damageDealtToObjectives: int
+    damageDealtToTurrets: int
+    damageSelfMitigated: int
+    deaths: int
+    inhibitorTakedowns: int
+    inhibitorsLost: int
+    itemsPurchased: int
+    killingSprees: int
+    kills: int
+    totalHeal: int
+    totalHealsOnTeammates: int
+    visionScore: int
 
     currentGold: list[int]
     goldPerSecond: list[int]
