@@ -16,11 +16,15 @@ from app.config import get_settings
 from loguru import logger
 
 settings = get_settings()
-client: CognitoIdentityProviderClient = boto3.client("cognito-idp", region_name=settings.aws_region) # pyright: ignore[reportUnknownMemberType]
+client: CognitoIdentityProviderClient = boto3.client( # type: ignore
+    "cognito-idp", region_name=settings.aws_region
+)  # pyright: ignore[reportUnknownMemberType]
 
 access_token_empty: str = "Access Token is empty."
+
+
 class ProfileService:
-        
+
     # need to add email, will do this later. At the moment is not of that much importance
     @staticmethod
     async def get_or_create_profile(session: AsyncSession, access_token: str) -> Users:
@@ -106,7 +110,7 @@ class ProfileService:
                 attr["Name"]: attr.get("Value", "")
                 for attr in response["UserAttributes"]
             }
-            #need to change object as can't hardcode user type
+            # need to change object as can't hardcode user type
             user = UserProfile(
                 sub=attributes["sub"],
                 username=response["Username"],
@@ -145,7 +149,7 @@ class ProfileService:
                 attr["Name"]: attr.get("Value", "")
                 for attr in response["UserAttributes"]
             }
-            #need to change object as can't hardcode user type
+            # need to change object as can't hardcode user type
             user = UserProfile(
                 sub=attributes["sub"],
                 username=response["Username"],
@@ -176,7 +180,9 @@ class ProfileService:
             if email is None:
                 raise HTTPException(status_code=400, detail="Email is empty")
             # will fix this a bit later
-            client: CognitoIdentityProviderClient = boto3.client( # pyright: ignore[reportUnknownMemberType]
+            client: (
+                CognitoIdentityProviderClient
+            ) = boto3.client(  # pyright: ignore[reportUnknownMemberType]
                 "cognito-idp", region_name=settings.aws_region
             )  # type: ignore
 

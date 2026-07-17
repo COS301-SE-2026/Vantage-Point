@@ -1,6 +1,7 @@
 from typing import List, Any
 from pydantic import BaseModel
 
+
 class MapReplay(BaseModel):
     puuid: List[str]
     participant_id: List[int]
@@ -11,47 +12,47 @@ class MapReplay(BaseModel):
 
 
 class MapSuggestData(BaseModel):
-    position_x:list[int]
-    position_y:list[int]
-    team_position:str
-    lane:str
-    role:str
-    timestamp:list[int]
-    prev_x:list[int]
-    prev_y:list[int]
-    prev_prev_x:list[int]
-    prev_prev_y:list[int]
-    champExperience:int
-    champLevel:int
-    championId:int
-    gameDuration:int
-    deaths:int
-    itemsPurchased:int
-    killingSprees:int
-    kills:int
-    visionScore:int
-    jungleMinionsKilled:list[int]
+    position_x: list[int]
+    position_y: list[int]
+    team_position: str
+    lane: str
+    role: str
+    timestamp: list[int]
+    prev_x: list[int]
+    prev_y: list[int]
+    prev_prev_x: list[int]
+    prev_prev_y: list[int]
+    champExperience: int
+    champLevel: int
+    championId: int
+    gameDuration: int
+    deaths: int
+    itemsPurchased: int
+    killingSprees: int
+    kills: int
+    visionScore: int
+    jungleMinionsKilled: list[int]
     level: Any
-    minionsKilled:list[int]
-    timeEnemySpentControlled:list[int]
+    minionsKilled: list[int]
+    timeEnemySpentControlled: list[int]
     xp: Any
-    totalDamageDone:list[int]
-    totalDamageDoneToChampions:list[int]
-    totalDamageTaken:list[int]
-    abilityHaste:list[int]
-    abilityPower:list[int]
+    totalDamageDone: list[int]
+    totalDamageDoneToChampions: list[int]
+    totalDamageTaken: list[int]
+    abilityHaste: list[int]
+    abilityPower: list[int]
     armor: Any
     attackDamage: Any
     attackSpeed: Any
-    ccReduction:list[int]
-    cooldownReduction:list[int]
+    ccReduction: list[int]
+    cooldownReduction: list[int]
     health: Any
     health_max: Any
     health_regen: Any
-    lifesteal:list[int]
-    movementSpeed:list[int]
-    power:list[int]
-    powerMax:list[int]
+    lifesteal: list[int]
+    movementSpeed: list[int]
+    power: list[int]
+    powerMax: list[int]
 
 
 class MatchData(BaseModel):
@@ -192,41 +193,36 @@ class ChampionData(BaseModel):
     timeEnemySpentControlled: list[int]
     totalGold: list[int]
     xp: list[int]
-    magicDamageDone: list[int]       
-    magicDamageDoneToChampions: list[int]        
-    magicDamageTaken: list[int] 
-    physicalDamageDone: list[int] 
-    physicalDamageDoneToChampions: list[int] 
-    physicalDamageTaken: list[int] 
-    abilityPower: list[int] 
-    armor: list[int] 
-    armorPenPercent: list[int] 
-    attackDamage: list[int] 
-    attackSpeed: list[int] 
-    ccReduction: list[int] 
-    health: list[int] 
-    healthMax: list[int] 
-    healthRegen: list[float] 
-    lifesteal: list[float] 
-    magicPen: list[int] 
-    magicPenPercent: list[int] 
-    magicResist: list[int] 
-    movementSpeed: list[int] 
-    omniVamp: list[int] 
-    power: list[int] 
+    magicDamageDone: list[int]
+    magicDamageDoneToChampions: list[int]
+    magicDamageTaken: list[int]
+    physicalDamageDone: list[int]
+    physicalDamageDoneToChampions: list[int]
+    physicalDamageTaken: list[int]
+    abilityPower: list[int]
+    armor: list[int]
+    armorPenPercent: list[int]
+    attackDamage: list[int]
+    attackSpeed: list[int]
+    ccReduction: list[int]
+    health: list[int]
+    healthMax: list[int]
+    healthRegen: list[float]
+    lifesteal: list[float]
+    magicPen: list[int]
+    magicPenPercent: list[int]
+    magicResist: list[int]
+    movementSpeed: list[int]
+    omniVamp: list[int]
+    power: list[int]
     powerMax: list[int]
-    magicDamageDone: list[int]	
-    magicDamageDoneToChampions: list[int]	
-    magicDamageTaken: list[int]	
-    physicalDamageDone: list[int]	
-    physicalDamageDoneToChampions: list[int]		
-    physicalDamageTaken: list[int]	
-    totalDamageDone: list[int]	
-    totalDamageDoneToChampions: list[int]		
-    totalDamageTaken: list[int]	
-    trueDamageDone: list[int]	
-    trueDamageDoneToChampions: list[int]		
-    trueDamageTaken: list[int]	
+    totalDamageDone: list[int]
+    totalDamageDoneToChampions: list[int]
+    totalDamageTaken: list[int]
+    trueDamageDone: list[int]
+    trueDamageDoneToChampions: list[int]
+    trueDamageTaken: list[int]
+
 
 class ItemData(BaseModel):
     itemId: list[int]
@@ -243,8 +239,6 @@ class ItemData(BaseModel):
     position_x: list[int]
     position_y: list[int]
     xp: list[int]
-    totalDamageDone: list[int]
-    totalDamageTaken: list[int]
     magicDamageDone: list[int]
     magicDamageDoneToChampions: list[int]
     magicDamageTaken: list[int]
@@ -274,7 +268,7 @@ class ItemData(BaseModel):
     omnivamp: list[int]
     power: list[int]
     powerMax: list[int]
-    
+
 
 class SkillData(BaseModel):
     skillslot: list[int]
@@ -332,48 +326,51 @@ class RoleData(BaseModel):
     end_healthRegen: float
     end_armor: int
 
+
 class ChampionStats(BaseModel):
-    abilityPower: list[int] 
-    armor: list[int] 
-    armorPenPercent: list[int] 
-    attackDamage: list[int] 
-    attackSpeed: list[int] 
-    ccReduction: list[int] 
-    health: list[int] 
-    healthMax: list[int] 
-    healthRegen: list[float] 
-    lifesteal: list[float] 
-    magicPen: list[int] 
-    magicPenPercent: list[int] 
-    magicResist: list[int] 
-    movementSpeed: list[int] 
-    omnivamp: list[int] 
-    power: list[int] 
+    abilityPower: list[int]
+    armor: list[int]
+    armorPenPercent: list[int]
+    attackDamage: list[int]
+    attackSpeed: list[int]
+    ccReduction: list[int]
+    health: list[int]
+    healthMax: list[int]
+    healthRegen: list[float]
+    lifesteal: list[float]
+    magicPen: list[int]
+    magicPenPercent: list[int]
+    magicResist: list[int]
+    movementSpeed: list[int]
+    omnivamp: list[int]
+    power: list[int]
     powerMax: list[int]
     physicalVamp: list[int]
     spellVamp: list[int]
 
+
 class DamageStats(BaseModel):
-    magicDamageDone: list[int]	
-    magicDamageDoneToChampions: list[int]	
-    magicDamageTaken: list[int]	
-    physicalDamageDone: list[int]	
-    physicalDamageDoneToChampions: list[int]		
-    physicalDamageTaken: list[int]	
-    totalDamageDone: list[int]	
-    totalDamageDoneToChampions: list[int]		
-    totalDamageTaken: list[int]	
-    trueDamageDone: list[int]	
-    trueDamageDoneToChampions: list[int]		
-    trueDamageTaken: list[int]	
+    magicDamageDone: list[int]
+    magicDamageDoneToChampions: list[int]
+    magicDamageTaken: list[int]
+    physicalDamageDone: list[int]
+    physicalDamageDoneToChampions: list[int]
+    physicalDamageTaken: list[int]
+    totalDamageDone: list[int]
+    totalDamageDoneToChampions: list[int]
+    totalDamageTaken: list[int]
+    trueDamageDone: list[int]
+    trueDamageDoneToChampions: list[int]
+    trueDamageTaken: list[int]
+
 
 class Participant(BaseModel):
-    currentGold: list[int]	
-    goldPerSecond: list[int]	
-    jungleMinionsKilled: list[int]	
-    level: list[int]	
-    minionsKilled: list[int]		
-    participantId: str	
-    timeEnemySpentControlled: list[int]		
-    totalGold: list[int]	
-    xp: list[int]	
+    currentGold: list[int]
+    goldPerSecond: list[int]
+    jungleMinionsKilled: list[int]
+    level: list[int]
+    minionsKilled: list[int]
+    participantId: str
+    timeEnemySpentControlled: list[int]
+    totalGold: list[int]
+    xp: list[int]

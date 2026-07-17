@@ -26,8 +26,7 @@ async def get_or_create_profile(
     session: Annotated[AsyncSession, Depends(get_session)],
     access_token: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ) -> Any:
-        return await ProfileService.get_or_create_profile(
-            session, access_token.credentials)     
+    return await ProfileService.get_or_create_profile(session, access_token.credentials)
 
 
 @router.post(
