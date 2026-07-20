@@ -57,7 +57,8 @@ logger.add(
     diagnose=True,
 )
 
-def get_error_reason(status_code: int)-> str:
+
+def get_error_reason(status_code: int) -> str:
     reasons = {
         400: "Bad request",
         401: "Unauthorized",
@@ -73,6 +74,8 @@ def get_error_reason(status_code: int)-> str:
         504: "Gateway timeout",
     }
     return reasons.get(status_code, "Unknown Error")
+
+
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
         level: str | int

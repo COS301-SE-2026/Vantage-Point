@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 from typing import Any, Annotated
 from app.api.auth import require_group
 from app.Models.profile_schemas import User
@@ -24,6 +25,14 @@ from app.services.user_accounts import (
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
+async def get_users(sub: str, session: AsyncSession) -> Users:
+    statement = select(Users).where(Users.cognito_sub == sub)
+    result: Any =  await session.execute(statement)
+    response: Users | None = result.scalar_one_or_none()
+
+    if response is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return response
 
 def _user_me_response(user: Users, account: Any) -> UserMeResponse:
     tag = riot_id_tag(account.game_name, account.tag_line) if account else None
@@ -40,8 +49,9 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
+    
     account = await get_primary_linked_account(session, current_user.sub)
     return _user_me_response(current_user, account)
 
@@ -50,7 +60,7 @@ async def get_me(
 async def update_me(
     body: UpdateUserMeRequest,
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     current_user.username = body.display_name.strip()
     session.add(current_user)
@@ -62,9 +72,9 @@ async def update_me(
 
 @router.post("/me/avatar", response_model=AvatarUploadResponse)
 async def upload_avatar(
-    file: UploadFile = File(...),
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
+    file: Annotated[UploadFile, File(...)],
 ):
     avatar_path = await save_avatar(current_user.sub, file)
     current_user.avatar_url = avatar_path
@@ -75,8 +85,8 @@ async def upload_avatar(
 
 @router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_avatar(
-   current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     delete_avatar_files(current_user.sub)
     current_user.avatar_url = None
@@ -87,24 +97,24 @@ async def delete_avatar(
 @router.get("/me/profile", response_model=PlayerProfileResponse)
 async def get_my_profile(
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    account = await get_primary_linked_account(session, current_user.cognito_sub)
+    account = await get_primary_linked_account(session, current_user.sub)
     riot_id_tag_value = (
         riot_id_tag(account.game_name, account.tag_line) if account else None
     )
-    puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
+    puuid = await get_primary_linked_puuid(session, current_user.sub)
     return await build_player_profile(session, current_user, puuid, riot_id_tag_value)
 
 
 async def _link_game_account_impl(
     body: LinkGameAccountRequest,
-    current_user: Users,
+    current_user: User,
     session: AsyncSession,
 ) -> LinkGameAccountResponse:
     puuid, tag = await link_riot_account_for_user(
         session,
-        current_user.cognito_sub,
+        current_user.sub,
         riot_id=body.riot_id,
         game_name=body.game_name,
         tag_line=body.tag_line,
@@ -120,7 +130,7 @@ async def _link_game_account_impl(
 async def link_game_account(
     body: LinkGameAccountRequest,
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     return await _link_game_account_impl(body, current_user, session)
 
@@ -129,6 +139,6 @@ async def link_game_account(
 async def update_game_account(
     body: LinkGameAccountRequest,
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     return await _link_game_account_impl(body, current_user, session)
