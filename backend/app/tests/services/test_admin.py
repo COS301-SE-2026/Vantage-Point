@@ -792,7 +792,7 @@ class TestAdminPatch:
     async def test_admin_disable_user_success(mock_admin_disable_user: MagicMock):
         mock_admin_disable_user.return_value = {}
 
-        response = await admin_service.enable_user("shaun")
+        response = await admin_service.disable_user("shaun")
 
         assert response.success is True
         assert response.message == "Disabled shaun"
@@ -815,7 +815,7 @@ class TestAdminPatch:
         )
 
         with pytest.raises(HTTPException) as exec:
-            await admin_service.enable_user("shaun")
+            await admin_service.disable_user("shaun")
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
@@ -855,7 +855,7 @@ class TestAdminPut:
         )
 
         with pytest.raises(HTTPException) as exec:
-            await admin_service.get_user("shaun")
+            await admin_service.update_group_attr("users", 12, "wsdrdfr")
 
         assert exec.value.status_code == 400
         assert exec.value.detail == "InternalErrorException"
