@@ -51,9 +51,9 @@ async def get_me(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    
+    response: Users = await get_users(current_user.sub, session)
     account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(current_user, account)
+    return _user_me_response(response, account)
 
 
 @router.patch("/me", response_model=UserMeResponse)
@@ -66,8 +66,9 @@ async def update_me(
     session.add(current_user)
     await session.commit()
     await session.refresh(current_user)
+    response = await get_users(current_user.sub, session)
     account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(current_user, account)
+    return _user_me_response(response, account)
 
 
 @router.post("/me/avatar", response_model=AvatarUploadResponse)
@@ -77,8 +78,9 @@ async def upload_avatar(
     file: Annotated[UploadFile, File(...)],
 ):
     avatar_path = await save_avatar(current_user.sub, file)
-    current_user.avatar_url = avatar_path
-    session.add(current_user)
+    response = await get_users(current_user.sub, session)
+    response.avatar_url = avatar_path
+    session.add(response)
     await session.commit()
     return AvatarUploadResponse(avatar_url=avatar_path)
 
@@ -89,8 +91,9 @@ async def delete_avatar(
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     delete_avatar_files(current_user.sub)
-    current_user.avatar_url = None
-    session.add(current_user)
+    response = await get_users(current_user.sub, session)
+    response.avatar_url = None
+    session.add(response)
     await session.commit()
 
 
@@ -103,8 +106,9 @@ async def get_my_profile(
     riot_id_tag_value = (
         riot_id_tag(account.game_name, account.tag_line) if account else None
     )
+    response = await get_users(current_user.sub, session)
     puuid = await get_primary_linked_puuid(session, current_user.sub)
-    return await build_player_profile(session, current_user, puuid, riot_id_tag_value)
+    return await build_player_profile(session, response, puuid, riot_id_tag_value)
 
 
 async def _link_game_account_impl(
