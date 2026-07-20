@@ -177,6 +177,9 @@ def get_train_test_data_rf(file_name, category):
         print(file_error_text)
         exit()
 
+    x_data = []
+    y_data = []
+
     with f:
         data = csv.reader(f)
         # kinds of decisions to be made
@@ -199,43 +202,51 @@ def get_train_test_data_rf(file_name, category):
     return X_train, X_test, y_train, y_test
 
 
-def convert_json(json_data):
-    numpy_array = np.array(json_data)
-    print(numpy_array)
+# -----------------------------------------------------------------------------------#
 
+def convert_to_rows(data):
+    #for each frame
+        #create new row
+        #add data stuffs to each row
+
+    return data
 
 def format_api_data_knn(json_data):
     data = json_data
+    x_data_rows = []
+    y_data_rows = []
 
-    x_data, y_data = format_data_multivar(data, 2, 4, 3)
+    #need to convert to consist of a row of data for each frame
+    data = convert_to_rows(data)
 
-    scaler = StandardScaler()
-    y_data = scaler.fit_transform(y_data)
-
-    x_train, x_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
-    )
+    #run thru format function
+    x_data_rows, y_data_rows = format_data_multivar(data, 2, 4, 3)
 
     # x is target, y is given
-    return x_train, x_test, y_train, y_test
+    return x_data_rows, y_data_rows
 
 
 def format_api_data_rf(json_data, category):
     data = json_data
+    x_data_rows = []
+    y_data_rows = []
 
+    #need to convert to consist of a row of data for each frame
+    data = convert_to_rows(data)
+
+    #run thru format function
     match category:
         case "champion":
-            x_data, y_data = format_data_univar(data, 1, 2, 3)
+            x_data_rows, y_data_rows = format_data_univar(data, 1, 2, 3)
         case "item":
-            x_data, y_data = format_data_univar(data, 4, 3, 2)
+            x_data_rows, y_data_rows = format_data_univar(data, 4, 3, 2)
         case "skill":
-            x_data, y_data = format_data_multivar(data, -1, -1, -1)
+            x_data_rows, y_data_rows = format_data_multivar(data, -1, -1, -1)
         case "role":
-            x_data, y_data = format_data_multivar(data, 0, -1, 1)
+            x_data_rows, y_data_rows = format_data_multivar(data, 0, -1, 1)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, random_state=42, stratify=None
-    )
 
     # X is given, y is target
-    return X_train, X_test, y_train, y_test
+    return x_data_rows, y_data_rows
+
+
