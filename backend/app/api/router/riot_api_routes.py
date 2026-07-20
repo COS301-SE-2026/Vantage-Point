@@ -33,9 +33,19 @@ async def get_match_timeline(match_id: str, riot: RiotServiceDep) -> Any:
 async def get_match_ids(riot: RiotServiceDep, server_region: str, puuid: str, count: int=5) -> Any:
     return await riot.get_match_ids(server_region, puuid, count)
 
+@router.get(
+        "/riot/get_puuid_by_riot_id",
+        summary="Gets the player id using his riot id",
+        tags=["riot"],
+)
 async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
     return await get_puuid_by_riot_id(game_name, tag_line)
 
+@router.get(
+        "/riot/get_summoner_data",
+        summary="Gets the sumoner level, profile icon and last time modified using the player id",
+        tags=["riot"],
+)
 async def get_summoner_data(riot: RiotServiceDep, puuid: str) -> Any:
     return await riot.get_summoner_data(puuid)
 
