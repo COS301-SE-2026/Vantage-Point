@@ -2,8 +2,8 @@ import os
 import httpx
 from dotenv import load_dotenv
 from app.config import get_settings
-from fastapi import HTTPException
-from typing import Any
+from fastapi import HTTPException, Depends
+from typing import Any, Annotated
 
 load_dotenv()
 
@@ -12,11 +12,9 @@ API_KEY = os.getenv("RIOT_API_KEY")
 BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
-
 class RiotService:
     def __init__(self):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
-        # Riot uses different base URLs for account data vs game data
         self.account_url = (
             "https://europe.api.riotgames.com"  # Region (americas, europe, etc)
         )
@@ -209,3 +207,8 @@ class RiotService:
 
 
 riot_service = RiotService()
+
+def get_riot_service() -> RiotService:
+    return RiotService()
+
+RiotServiceDep = Annotated[RiotService, Depends(get_riot_service)]
