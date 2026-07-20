@@ -38,7 +38,7 @@ async def get_match_ids(riot: RiotServiceDep, server_region: str, puuid: str, co
         summary="Gets the player id using his riot id",
         tags=["riot"],
 )
-async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
+async def get_puuid(game_name: str, tag_line: str) -> str | None:
     return await get_puuid_by_riot_id(game_name, tag_line)
 
 @router.get(
