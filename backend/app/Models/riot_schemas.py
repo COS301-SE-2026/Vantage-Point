@@ -1,6 +1,6 @@
 from typing import List, Any
 from pydantic import BaseModel
-
+import numpy as np
 
 class MapReplay(BaseModel):
     puuid: List[str]
@@ -53,6 +53,63 @@ class MapSuggestData(BaseModel):
     movementSpeed: list[int]
     power: list[int]
     powerMax: list[int]
+
+    def convert_to_arr(self):
+        #returns a 2D array of object contents
+        out_arr = []
+        p_x, p_y, pp_x, pp_y = 0,0,0,0
+        for i in range(0, len(self.position_x)):
+            row = np.array([
+                self.position_x[i],
+                self.position_y[i],
+                self.team_position[i],
+                self.lane[i],
+                self.role[i],
+                self.timestamp[i],
+                p_x,
+                p_y,
+                pp_x,
+                pp_y,
+                self.champExperience,
+                self.champLevel,
+                self.championId,
+                self.gameDuration,
+                self.deaths,
+                self.itemsPurchased,
+                self.killingSprees,
+                self.kills,
+                self.visionScore,
+                self.jungleMinionsKilled[i],
+                self.level,
+                self.minionsKilled[i],
+                self.timeEnemySpentControlled[i],
+                self.xp[i],
+                self.totalDamageDone[i],
+                self.totalDamageDoneToChampions[i],
+                self.totalDamageTaken[i],
+                self.abilityHaste[i],
+                self.abilityPower[i],
+                self.armor[i],
+                self.attackDamage[i],
+                self.attackSpeed[i],
+                self.ccReduction[i],
+                self.cooldownReduction[i],
+                self.health[i],
+                self.health_max[i],
+                self.health_regen[i],
+                self.lifesteal[i],
+                self.movementSpeed[i],
+                self.power[i],
+                self.powerMax[i]
+            ])
+            pp_x = p_x
+            pp_y = p_y
+            p_x = self.position_x[i]
+            p_y = self.position_y[i]
+
+            out_arr.append(row)
+        return out_arr
+
 
 
 class MatchData(BaseModel):

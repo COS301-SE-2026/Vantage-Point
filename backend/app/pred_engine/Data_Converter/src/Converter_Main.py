@@ -2,6 +2,19 @@ from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 import numpy as np
 import csv
+from Models.riot_schemas import (
+    MapReplay,
+    MapSuggestData,
+    ProfileData,
+    MatchData,
+    ChampionData,
+    ItemData,
+    SkillData,
+    RoleData,
+    ChampionStats,
+    DamageStats,
+    Participant,
+)
 
 file_error_text = "Training file not found"
 
@@ -160,7 +173,7 @@ def get_train_test_data_knn(file_name):
         x_data, y_data = format_data_multivar(data, 2, 4, 3)
 
         scaler = StandardScaler()
-        x_data = scaler.fit_transform(x_data)
+        x_data = scaler.fit_transform(x_data) # pyright: ignore[reportArgumentType]
     # Do train/test split
     x_train, x_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
@@ -205,11 +218,16 @@ def get_train_test_data_rf(file_name, category):
 # -----------------------------------------------------------------------------------#
 
 def convert_to_rows(data):
-    #for each frame
-        #create new row
-        #add data stuffs to each row
+    #Check that data is one of following
+    #Objects
+        #MapSuggestData
+        #ChampionData
+        #ItemData
+        #SkillData
+        #RoleData
+    data_arr = data.convert_to_arr(data)
 
-    return data
+    return data_arr
 
 def format_api_data_knn(json_data):
     data = json_data
