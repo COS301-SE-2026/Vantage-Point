@@ -1,6 +1,6 @@
 from typing import List, Any
 from pydantic import BaseModel
-import numpy as np
+
 
 class MapReplay(BaseModel):
     puuid: List[str]
@@ -55,9 +55,9 @@ class MapSuggestData(BaseModel):
     powerMax: list[int]
 
     def convert_to_arr(self):
-        #returns a 2D array of object contents
+        # returns a 2D array of object contents
         out_arr = []
-        p_x, p_y, pp_x, pp_y = 0,0,0,0
+        p_x, p_y, pp_x, pp_y = 0, 0, 0, 0
         for i in range(0, len(self.position_x)):
             row = [
                 self.position_x[i],
@@ -100,7 +100,7 @@ class MapSuggestData(BaseModel):
                 self.lifesteal[i],
                 self.movementSpeed[i],
                 self.power[i],
-                self.powerMax[i]
+                self.powerMax[i],
             ]
             pp_x = p_x
             pp_y = p_y
@@ -279,8 +279,8 @@ class ChampionData(BaseModel):
     trueDamageTaken: list[int]
 
     def convert_to_arr(self):
-         #returns a 2D array of object contents
-         #take only the last frame
+        # returns a 2D array of object contents
+        # take only the last frame
         out_arr = []
         row = [
             self.championId,
@@ -339,8 +339,7 @@ class ChampionData(BaseModel):
         ]
         out_arr.append(row)
         return out_arr
-        
-        
+
 
 class ItemData(BaseModel):
     itemId: list[int]
@@ -389,7 +388,7 @@ class ItemData(BaseModel):
 
     def convert_to_arr(self):
         out_arr = []
-        for i in range(0,len(self.itemId)):
+        for i in range(0, len(self.itemId)):
             row = [
                 self.itemId[i],
                 self.timestamp[i],
@@ -433,7 +432,7 @@ class ItemData(BaseModel):
                 self.movementSpeed[i],
                 self.omnivamp[i],
                 self.power[i],
-                self. powerMax[i],
+                self.powerMax[i],
             ]
             out_arr.append(row)
         return out_arr
@@ -470,7 +469,7 @@ class SkillData(BaseModel):
 
     def convert_to_arr(self):
         out_arr = []
-        for i in range(0,len(self.skillslot)):
+        for i in range(0, len(self.skillslot)):
             row = [
                 self.skillslot[i],
                 self.levelUpType[i],
@@ -556,10 +555,10 @@ class RoleData(BaseModel):
             self.end_health,
             self.end_healthMax,
             self.end_healthRegen,
-            self.end_armor,       
+            self.end_armor,
         ]
         out_arr.append(row)
-        return out_arr    
+        return out_arr
 
 
 class ChampionStats(BaseModel):

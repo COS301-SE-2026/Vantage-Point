@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
 @router.get("")
 async def get_matches(
     current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[MatchHistorySummaryResponse]:
     puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
