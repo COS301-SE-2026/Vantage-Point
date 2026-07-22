@@ -232,8 +232,8 @@ def convert_to_rows(data):
     return data_arr
 
 
-def format_api_data_knn(json_data):
-    data = json_data
+def format_api_data_knn(obj_data):
+    data = obj_data
     x_data_rows = []
     y_data_rows = []
 
@@ -247,8 +247,8 @@ def format_api_data_knn(json_data):
     return x_data_rows, y_data_rows
 
 
-def format_api_data_rf(json_data, category):
-    data = json_data
+def format_api_data_rf(obj_data, category):
+    data = obj_data
     x_data_rows = []
     y_data_rows = []
 

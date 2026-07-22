@@ -1,5 +1,6 @@
-import rf_model as rf
-import knn_model as knn
+import rf_model as rf # type: ignore
+import knn_model as knn # type: ignore
+import Data_Converter.src.Converter_Main as converter  # type: ignore
 
 def create_models():
     champ_rf, _ = rf.final_train('/workspaces/backend/app/pred_engine/Training_csv/champ_rf_training.csv', "champion")
@@ -13,8 +14,16 @@ def create_models():
 
 def run_knn(knn_model, data):
     #data parameter comes from api
+    x_data, _ = converter.format_api_data_knn(data)
+
+    y_output = knn_model.predict(x_data)
+    return y_output
 
 
-
-def run_rf(rf_model, data):
+def run_rf(rf_model, data, cat):
     #data parameter comes from api
+    #cat is "champion", "item", "skill", "role"
+    x_data , _ = converter.format_api_data_rf(data, cat)
+
+    y_output = rf_model.predict(x_data)
+    return y_output

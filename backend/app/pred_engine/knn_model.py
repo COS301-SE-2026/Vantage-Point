@@ -40,7 +40,7 @@ def optimize_grid_search(file_name):
     )
 
 
-def optimize_agging(p1, p2, file_name):
+def optimize_bagging(p1, p2, file_name):
     # add file check
     try:
         open(file_name, "r")
