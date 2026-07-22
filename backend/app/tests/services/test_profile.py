@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from botocore.exceptions import ClientError
 from app.services.profile_services import ProfileService
 from app.database.models import Users
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from app.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
@@ -108,4 +108,21 @@ class ProfileServiceTest():
         with pytest.raises(HTTPException) as exc:
             await ProfileService.schedule_account_deletion(session, "valid_token")
         assert exc.value.status_code == 404
-    
+
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_undo_account_deletion_success(mock_client: Any):
+        mock_client.get_user = MagicMock(make_cognito_response)
+        created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
+        deletion = created_at + timedelta(30)
+        profile = Users(
+            cognito_sub="sub-123", email="test@test.com", display_name="testuser",
+            deletion_scheduled_at=deletion, created_at=created_at, updated_at=created_at
+        )
+
+        session = make_mock_session(profile)
+        result = await ProfileService.undo_account_deletion(session, "valid-token")
+
+        assert result == "testuser"
+        assert profile.deletion_scheduled_at == datetime(1999, 12, 31)
