@@ -19,7 +19,7 @@ type_err = "Input data is the wrong type"
 def convert_to_int(row, lane, role, pos):
     # add logic to convert everything to int
     for j in range(len(row)):
-        if any(char.isdigit() for char in row[j]):
+        if isinstance(row[j], str) and any(char.isdigit() for char in row[j]):
             row[j] = int(row[j])
 
     if lane != -1:
@@ -81,7 +81,7 @@ def format_data_univar(data, pos, role, lane):
     prev_row = []
 
     for row in data:
-        if r == -1:
+        if r == -1 and (not isinstance(data, list)):
             r = r + 1
             continue
 
