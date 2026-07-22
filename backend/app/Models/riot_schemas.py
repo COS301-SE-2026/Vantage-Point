@@ -530,6 +530,37 @@ class RoleData(BaseModel):
     end_healthRegen: float
     end_armor: int
 
+    def convert_to_arr(self):
+        out_arr = []
+        row = [
+            self.teamPosition,
+            self.lane,
+            self.championId,
+            self.kills,
+            self.physicalDamageDealt,
+            self.totalDamageDealt,
+            self.magicDamageDealt,
+            self.totalHeal,
+            self.totalEnemyJungleMinionsKilled,
+            self.totalHealsOnTeammates,
+            self.totalUnitsHealed,
+            self.wardsKilled,
+            self.wardsPlaced,
+            self.detectorWardsPlaced,
+            self.start_movementSpeed,
+            self.start_health,
+            self.start_healthMax,
+            self.start_healthRegen,
+            self.start_armor,
+            self.end_movementSpeed,
+            self.end_health,
+            self.end_healthMax,
+            self.end_healthRegen,
+            self.end_armor,       
+        ]
+        out_arr.append(row)
+        return out_arr    
+
 
 class ChampionStats(BaseModel):
     abilityPower: list[int]
