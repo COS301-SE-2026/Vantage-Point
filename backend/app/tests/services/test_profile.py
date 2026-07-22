@@ -68,3 +68,13 @@ class ProfileServiceTest():
             result = await ProfileService.get_or_create_profile(session, "valid-token")
         assert result == "new_profile"
         session.execute.assert_called_once()
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_create_profile_none_uer_raises():
+        session = AsyncMock()
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.create_profile(session,None)
+        assert exc.value.status_code == 400
+
+    
