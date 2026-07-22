@@ -136,4 +136,16 @@ class ProfileServiceTest():
             await ProfileService.undo_account_deletion(session, "valid-token")
         assert exc.value.status_code == 404
 
-        
+    @staticmethod
+    @patch("app.services.profile_services.boto3.client")
+    async def test_update_email_success(mock_client: Any):
+        mock_cognito = MagicMock()
+        mock_client.return_value = mock_cognito
+        created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
+        profile = Users(cognito_sub="sub-123", email="old@test.com", display_name="testuser", created_at=created_at, updated_at=created_at)
+        session = make_mock_session(profile)
+
+        result = await ProfileService.update_email(session, "new@test.com", "valid-token")
+
+        assert result.email == "new@test.com"
+        mock_cognito.update_user_attributes.assert_called_once()
