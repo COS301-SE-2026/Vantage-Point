@@ -28,7 +28,7 @@ async def get_matches(
 async def get_match_by_id(
     match_id: str,
     current_user: Annotated[User, Depends(require_group)],
-        session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     puuids = await get_linked_puuids(session, current_user.sub)
     if not await user_has_match_access(session, puuids, match_id):
