@@ -126,3 +126,14 @@ class ProfileServiceTest():
 
         assert result == "testuser"
         assert profile.deletion_scheduled_at == datetime(1999, 12, 31)
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_undo_account_deletion_not_found(mock_client: Any):
+        mock_client.get_user = MagicMock(make_cognito_response)
+        session = make_mock_session(None)
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.undo_account_deletion(session, "valid-token")
+        assert exc.value.status_code == 404
+
+        
