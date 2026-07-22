@@ -149,3 +149,19 @@ class ProfileServiceTest():
 
         assert result.email == "new@test.com"
         mock_cognito.update_user_attributes.assert_called_once()
+
+    @staticmethod
+    @patch("app.services.profile_services.boto3.client")
+    async def test_update_email_no_email():
+        session = AsyncMock()
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.update_email(session, None, "valid-token")
+        assert exc.value.status_code == 400
+
+    @staticmethod
+    @patch("app.services.profile_services.boto3.client")
+    async def test_update_email_user_not_found():
+        session = make_mock_session(None)
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.update_email(session, "new@test.com", "valid-token")
+        assert exc.value.status_code == 400
