@@ -281,7 +281,8 @@ class ChampionData(BaseModel):
     def convert_to_arr(self):
          #returns a 2D array of object contents
          #take only the last frame
-        out_arr = [
+        out_arr = []
+        row = [
             self.championId,
             self.teamPosition,
             self.role,
@@ -336,6 +337,7 @@ class ChampionData(BaseModel):
             self.trueDamageDoneToChampions[-1],
             self.trueDamageTaken[-1],
         ]
+        out_arr.append(row)
         return out_arr
         
         
@@ -384,6 +386,57 @@ class ItemData(BaseModel):
     omnivamp: list[int]
     power: list[int]
     powerMax: list[int]
+
+    def convert_to_arr(self):
+        out_arr = []
+        for i in range(0,len(self.itemId)):
+            row = [
+                self.itemId[i],
+                self.timestamp[i],
+                self.lane,
+                self.champExperience,
+                self.champLevel,
+                self.championId,
+                self.currentGold[i],
+                self.level[i],
+                self.minionsKilled[i],
+                self.timeEnemySpentControlled[i],
+                self.totalGold[i],
+                self.position_x[i],
+                self.position_y[i],
+                self.xp[i],
+                self.magicDamageDone[i],
+                self.magicDamageDoneToChampions[i],
+                self.magicDamageTaken[i],
+                self.physicalDamageDone[i],
+                self.physicalDamageDoneToChampions[i],
+                self.physicalDamageTaken[i],
+                self.totalDamageDone[i],
+                self.totalDamageDoneToChampions[i],
+                self.totalDamageTaken[i],
+                self.trueDamageDone[i],
+                self.trueDamageDoneToChampions[i],
+                self.trueDamageTaken[i],
+                self.abilityPower[i],
+                self.armor[i],
+                self.armorPenPercent[i],
+                self.attackDamage[i],
+                self.attackSpeed[i],
+                self.ccReduction[i],
+                self.health[i],
+                self.healthMax[i],
+                self.healthRegen[i],
+                self.lifesteal[i],
+                self.magicPen[i],
+                self.magicPenPercent[i],
+                self.magicResist[i],
+                self.movementSpeed[i],
+                self.omnivamp[i],
+                self.power[i],
+                self. powerMax[i],
+            ]
+            out_arr.append(row)
+        return out_arr
 
 
 class SkillData(BaseModel):
