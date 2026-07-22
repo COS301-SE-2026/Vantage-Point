@@ -111,7 +111,6 @@ class MapSuggestData(BaseModel):
         return out_arr
 
 
-
 class MatchData(BaseModel):
     end_of_game_result: str
     gameDuration: int
@@ -242,7 +241,6 @@ class ChampionData(BaseModel):
     totalHeal: int
     totalHealsOnTeammates: int
     visionScore: int
-
     currentGold: list[int]
     goldPerSecond: list[int]
     level: list[int]
@@ -280,6 +278,67 @@ class ChampionData(BaseModel):
     trueDamageDoneToChampions: list[int]
     trueDamageTaken: list[int]
 
+    def convert_to_arr(self):
+         #returns a 2D array of object contents
+         #take only the last frame
+        out_arr = [
+            self.championId,
+            self.teamPosition,
+            self.role,
+            self.lane,
+            self.damageDealtToBuildings,
+            self.damageDealtToObjectives,
+            self.damageDealtToTurrets,
+            self.damageSelfMitigated,
+            self.deaths,
+            self.inhibitorTakedowns,
+            self.inhibitorsLost,
+            self.itemsPurchased,
+            self.killingSprees,
+            self.kills,
+            self.totalHeal,
+            self.totalHealsOnTeammates,
+            self.visionScore,
+            self.currentGold[-1],
+            self.goldPerSecond[-1],
+            self.level[-1],
+            self.minionsKilled[-1],
+            self.timeEnemySpentControlled[-1],
+            self.totalGold[-1],
+            self.xp[-1],
+            self.magicDamageDone[-1],
+            self.magicDamageDoneToChampions[-1],
+            self.magicDamageTaken[-1],
+            self.physicalDamageDone[-1],
+            self.physicalDamageDoneToChampions[-1],
+            self.physicalDamageTaken[-1],
+            self.abilityPower[-1],
+            self.armor[-1],
+            self.armorPenPercent[-1],
+            self.attackDamage[-1],
+            self.attackSpeed[-1],
+            self.ccReduction[-1],
+            self.health[-1],
+            self.healthMax[-1],
+            self.healthRegen[-1],
+            self.lifesteal[-1],
+            self.magicPen[-1],
+            self.magicPenPercent[-1],
+            self.magicResist[-1],
+            self.movementSpeed[-1],
+            self.omniVamp[-1],
+            self.power[-1],
+            self.powerMax[-1],
+            self.totalDamageDone[-1],
+            self.totalDamageDoneToChampions[-1],
+            self.totalDamageTaken[-1],
+            self.trueDamageDone[-1],
+            self.trueDamageDoneToChampions[-1],
+            self.trueDamageTaken[-1],
+        ]
+        return out_arr
+        
+        
 
 class ItemData(BaseModel):
     itemId: list[int]
