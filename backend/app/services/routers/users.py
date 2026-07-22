@@ -1,6 +1,10 @@
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
+from typing import Any, Annotated
+from app.api.auth import require_group
+from app.Models.profile_schemas import User
 from app.auth.deps import get_current_user
 from app.database.models import Users
 from app.database.session import get_session
@@ -23,8 +27,17 @@ from app.services.user_accounts import (
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
+async def _get_users(sub: str, session: AsyncSession) -> Users:
+    statement = select(Users).where(Users.cognito_sub == sub)
+    result: Any = await session.execute(statement)
+    response: Users | None = result.scalar_one_or_none()
 
-def _user_me_response(user: Users, account) -> UserMeResponse:
+    if response is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return response
+
+def _user_me_response(user: Users, account: Any) -> UserMeResponse:
     tag = riot_id_tag(account.game_name, account.tag_line) if account else None
     return UserMeResponse(
         cognito_sub=user.cognito_sub,
@@ -38,62 +51,66 @@ def _user_me_response(user: Users, account) -> UserMeResponse:
 
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    account = await get_primary_linked_account(session, current_user.cognito_sub)
-    return _user_me_response(current_user, account)
-
+    response: Users = await _get_users(current_user.sub, session)
+    account = await get_primary_linked_account(session, current_user.sub)
+    return _user_me_response(response, account)
 
 @router.patch("/me", response_model=UserMeResponse)
 async def update_me(
     body: UpdateUserMeRequest,
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    current_user.display_name = body.display_name.strip()
-    session.add(current_user)
+    user: Users = await _get_users(current_user.sub, session)
+    user.display_name = body.display_name.strip()
+    session.add(user)
     await session.commit()
-    await session.refresh(current_user)
-    account = await get_primary_linked_account(session, current_user.cognito_sub)
-    return _user_me_response(current_user, account)
+    await session.refresh(user)
+    account = await get_primary_linked_account(session, current_user.sub)
+    return _user_me_response(user, account)
 
 
 @router.post("/me/avatar", response_model=AvatarUploadResponse)
 async def upload_avatar(
-    file: UploadFile = File(...),
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    file: Annotated[UploadFile, File(...)],
 ):
-    avatar_path = await save_avatar(current_user.cognito_sub, file)
-    current_user.avatar_url = avatar_path
-    session.add(current_user)
+    avatar_path = await save_avatar(current_user.sub, file)
+    user: Users = await _get_users(current_user.sub, session)
+    user.avatar_url = avatar_path
+    session.add(user)
     await session.commit()
     return AvatarUploadResponse(avatar_url=avatar_path)
 
 
 @router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_avatar(
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    delete_avatar_files(current_user.cognito_sub)
-    current_user.avatar_url = None
-    session.add(current_user)
+    delete_avatar_files(current_user.sub)
+    user: Users = await _get_users(current_user.sub, session)
+    user.avatar_url = None
+    session.add(user)
     await session.commit()
 
 
 @router.get("/me/profile", response_model=PlayerProfileResponse)
 async def get_my_profile(
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    account = await get_primary_linked_account(session, current_user.cognito_sub)
+    account = await get_primary_linked_account(session, current_user.sub)
     riot_id_tag_value = (
         riot_id_tag(account.game_name, account.tag_line) if account else None
     )
-    puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
-    return await build_player_profile(session, current_user, puuid, riot_id_tag_value)
+    puuid = await get_primary_linked_puuid(session, current_user.sub)
+    response = await _get_users(current_user.sub, session)
+    return await build_player_profile(session, response, puuid, riot_id_tag_value)
 
 
 async def _link_game_account_impl(
@@ -118,16 +135,18 @@ async def _link_game_account_impl(
 @router.post("/me/game-accounts", response_model=LinkGameAccountResponse)
 async def link_game_account(
     body: LinkGameAccountRequest,
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    return await _link_game_account_impl(body, current_user, session)
+    response = await _get_users(current_user.sub, session)
+    return await _link_game_account_impl(body, response, session)
 
 
 @router.put("/me/game-accounts", response_model=LinkGameAccountResponse)
 async def update_game_account(
     body: LinkGameAccountRequest,
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    return await _link_game_account_impl(body, current_user, session)
+    response = await _get_users(current_user.sub, session)
+    return await _link_game_account_impl(body, response, session)

@@ -72,13 +72,13 @@ async def update_me(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    current_user.username = body.display_name.strip()
-    session.add(current_user)
+    user = await _get_users(current_user.sub, session)
+    user.username = body.display_name.strip()
+    session.add(user)
     await session.commit()
-    await session.refresh(current_user)
-    response = await _get_users(current_user.sub, session)
+    await session.refresh(user)
     account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(response, account)
+    return _user_me_response(user, account)
 
 
 @router.post(
