@@ -73,6 +73,8 @@ def convert_to_int(row, lane, role, pos):
         if not isinstance(row[j], int):
             row[j] = 0
 
+    return row
+
 
 def format_data_univar(data, pos, role, lane):
     r = -1
@@ -125,11 +127,16 @@ def format_data_multivar(data, pos, role, lane):
     prev_row = []
 
     for row in data:
-        if r == -1:
+        if not isinstance(data, list):
+            row = list(row.values())
+        if r == -1 and (not isinstance(data, list)):
             r = r + 1
             continue
 
-        convert_to_int(row, lane, role, pos)
+        if r == 129842:
+            print("breakpoint")
+
+        row = convert_to_int(row, lane, role, pos)
 
         # if skill data (-1, -1, -1)
         if pos == -1 and role == -1 and lane == -1 and remove_dup(row, prev_row, r):
@@ -151,6 +158,15 @@ def format_data_multivar(data, pos, role, lane):
         r = r + 1
         prev_row = row
 
+    num = 0
+    count = 0
+    for e in data_arr:
+        if num == 0:
+            num = len(e)
+        elif num != len(e):
+            print(len(e))
+            print(count)
+        count = count + 1    
     return data_arr, y
 
 
@@ -166,7 +182,7 @@ def get_train_test_data_knn(file_name):
         exit()
 
     with f:
-        data = csv.reader(f)
+        data = csv.DictReader(f)
         x_data, y_data = format_data_multivar(data, 2, 4, 3)
 
         scaler = StandardScaler()
@@ -272,52 +288,4 @@ def format_api_data_rf(obj_data, category):
     return x_data_rows, y_data_rows
 
 
-"""
-testObj = MapSuggestData(
-            position_x=[0,1,2,3],
-            position_y=[0,1,2,3],
-            team_position="a",
-            lane="lane",
-            role="role",
-            timestamp=[0,1,2,3],
-            prev_x=[0,1,2,3],
-            prev_y=[0,1,2,3],
-            prev_prev_x=[0,1,2,3],
-            prev_prev_y=[0,1,2,3],
-            champExperience=0,
-            champLevel=1,
-            championId=2,
-            gameDuration=3,
-            deaths=4,
-            itemsPurchased=5,
-            killingSprees=6,
-            kills=7,
-            visionScore=8,
-            jungleMinionsKilled=[0,1,2,3],
-            level=[0,1,2,3],
-            minionsKilled=[0,1,2,3],
-            timeEnemySpentControlled=[0,1,2,3],
-            xp=[0,1,2,3],
-            totalDamageDone=[0,1,2,3],
-            totalDamageDoneToChampions=[0,1,2,3],
-            totalDamageTaken=[0,1,2,3],
-            abilityHaste=[0,1,2,3],
-            abilityPower=[0,1,2,3],
-            armor=[0,1,2,3],
-            attackDamage=[0,1,2,3],
-            attackSpeed=[0,1,2,3],
-            ccReduction=[0,1,2,3],
-            cooldownReduction=[0,1,2,3],
-            health=[0,1,2,3],
-            health_max=[0,1,2,3],
-            health_regen=[0,1,2,3],
-            lifesteal=[0,1,2,3],
-            movementSpeed=[0,1,2,3],
-            power=[0,1,2,3],
-            powerMax=[0,1,2,3],
-        )
 
-testArr = testObj.convert_to_arr()
-print(type(testArr))
-print(testArr)
-"""

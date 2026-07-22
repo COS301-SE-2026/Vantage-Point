@@ -106,17 +106,29 @@ def get_knn(file_name):
         print(file_error_text)
         exit()
 
-    x_train, _, y_train, _ = converter.get_train_test_data_knn(file_name)
+    x_train, x_test, y_train, y_test = converter.get_train_test_data_knn(file_name)
 
     # nullcheck data
     if len(x_train) == 0 or len(y_train) == 0:
         print(data_error_text)
         exit()
 
+    num = 0
+    count = 0
+    for e in x_train:
+        if num == 0:
+            num = len(e)
+        elif num != len(e):
+            print(e)
+        count = count + 1
+
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=69420)
     bagging_model.fit(x_train, y_train)
+    #test_preds_grid = bagging_model.predict(x_test)
+    #test_r2 = r2_score(y_test, test_preds_grid)
+    #print(test_r2)
 
     return bagging_model
 
-#get_knn('/workspaces/backend/app/pred_engine/Training_csv/knn_training.csv')
+
