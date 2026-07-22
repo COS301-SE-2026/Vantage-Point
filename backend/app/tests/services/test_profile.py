@@ -27,7 +27,12 @@ def make_cognito_response(sub: str="sub-123", email:str="test@test.com", usernam
         ],
     }
 
-
+def make_mock_session(scalar_return: Any=None) -> Any:
+    session = AsyncSession()
+    result = MagicMock()
+    result.scalar_one_or_none.return_value = scalar_return
+    session.execute.return_value = result
+    return session
 
 @pytest.mark.anyio
 class ProfileServiceTest():
