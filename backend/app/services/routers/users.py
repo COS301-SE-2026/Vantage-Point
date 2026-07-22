@@ -26,7 +26,8 @@ from app.services.user_accounts import (
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
-user_not_found:str = "User not found"
+user_not_found: str = "User not found"
+
 
 async def _get_users(sub: str, session: AsyncSession) -> Users:
     statement = select(Users).where(Users.cognito_sub == sub)
@@ -35,8 +36,9 @@ async def _get_users(sub: str, session: AsyncSession) -> Users:
 
     if response is None:
         raise HTTPException(status_code=404, detail=user_not_found)
-    
+
     return response
+
 
 def _user_me_response(user: Users, account: Any) -> UserMeResponse:
     tag = riot_id_tag(account.game_name, account.tag_line) if account else None
@@ -50,7 +52,11 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
     )
 
 
-@router.get("/me", response_model=UserMeResponse,responses={404: {"description": user_not_found}})
+@router.get(
+    "/me",
+    response_model=UserMeResponse,
+    responses={404: {"description": user_not_found}},
+)
 async def get_me(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -59,7 +65,12 @@ async def get_me(
     account = await get_primary_linked_account(session, current_user.sub)
     return _user_me_response(response, account)
 
-@router.patch("/me", response_model=UserMeResponse,responses={404: {"description": user_not_found}})
+
+@router.patch(
+    "/me",
+    response_model=UserMeResponse,
+    responses={404: {"description": user_not_found}},
+)
 async def update_me(
     body: UpdateUserMeRequest,
     current_user: Annotated[User, Depends(require_group(10))],
@@ -74,7 +85,11 @@ async def update_me(
     return _user_me_response(user, account)
 
 
-@router.post("/me/avatar", response_model=AvatarUploadResponse, responses={404: {"description": user_not_found}})
+@router.post(
+    "/me/avatar",
+    response_model=AvatarUploadResponse,
+    responses={404: {"description": user_not_found}},
+)
 async def upload_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -88,7 +103,11 @@ async def upload_avatar(
     return AvatarUploadResponse(avatar_url=avatar_path)
 
 
-@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT, responses={404: {"description": user_not_found}})
+@router.delete(
+    "/me/avatar",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": user_not_found}},
+)
 async def delete_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -100,7 +119,11 @@ async def delete_avatar(
     await session.commit()
 
 
-@router.get("/me/profile", response_model=PlayerProfileResponse, responses={404: {"description": user_not_found}})
+@router.get(
+    "/me/profile",
+    response_model=PlayerProfileResponse,
+    responses={404: {"description": user_not_found}},
+)
 async def get_my_profile(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -133,7 +156,11 @@ async def _link_game_account_impl(
     )
 
 
-@router.post("/me/game-accounts", response_model=LinkGameAccountResponse, responses={404: {"description": user_not_found}})
+@router.post(
+    "/me/game-accounts",
+    response_model=LinkGameAccountResponse,
+    responses={404: {"description": user_not_found}},
+)
 async def link_game_account(
     body: LinkGameAccountRequest,
     current_user: Annotated[User, Depends(require_group(10))],
@@ -143,7 +170,11 @@ async def link_game_account(
     return await _link_game_account_impl(body, response, session)
 
 
-@router.put("/me/game-accounts", response_model=LinkGameAccountResponse, responses={404: {"description": user_not_found}})
+@router.put(
+    "/me/game-accounts",
+    response_model=LinkGameAccountResponse,
+    responses={404: {"description": user_not_found}},
+)
 async def update_game_account(
     body: LinkGameAccountRequest,
     current_user: Annotated[User, Depends(require_group(10))],
