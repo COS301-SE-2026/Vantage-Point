@@ -7,7 +7,6 @@ Test all profile services defined in profile_servcie page, and player_profile
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi import HTTPException
-from botocore.exceptions import ClientError
 from app.services.profile_services import ProfileService
 from app.database.models import Users
 from datetime import datetime, timezone, timedelta
@@ -28,8 +27,8 @@ def make_cognito_response(sub: str="sub-123", email:str="test@test.com", usernam
         ],
     }
 
-def make_mock_session(scalar_return: Any=None) -> Any:
-    session = AsyncSession()
+def make_mock_session(scalar_return: Any=None) -> AsyncMock:
+    session = AsyncMock(spec=AsyncSession)
     result = MagicMock()
     result.scalar_one_or_none.return_value = scalar_return
     session.execute.return_value = result
@@ -67,7 +66,7 @@ class ProfileServiceTest():
         with patch.object(ProfileService, "create_profile", new=AsyncMock(return_value="new_profile")) as mock_create:
             result = await ProfileService.get_or_create_profile(session, "valid-token")
         assert result == "new_profile"
-        session.execute.assert_called_once()
+        mock_create.assert_called_once()
 
     @staticmethod
     async def test_create_profile_none_user():
