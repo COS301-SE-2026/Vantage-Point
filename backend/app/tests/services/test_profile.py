@@ -57,3 +57,14 @@ class ProfileServiceTest():
         result = await ProfileService.get_or_create_profile(session, "valid-token")
         assert result is existing_user
         session.execute.assert_called_once()
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_get_or_create_profile_creates_new_user(mock_client: Any):
+        mock_client.get_user = MagicMock(return_value=make_cognito_response())
+        session = make_mock_session(None)
+
+        with patch.object(ProfileService, "create_profile", new=AsyncMock(return_value="new_profile")) as mock_create:
+            result = await ProfileService.get_or_create_profile(session, "valid-token")
+        assert result == "new_profile"
+        session.execute.assert_called_once()
