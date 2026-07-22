@@ -18,24 +18,29 @@ settings = get_settings()
 
 mock_session = AsyncMock(spec=AsyncSession)
 
-def make_cognito_response(sub: str="sub-123", email:str="test@test.com", username:str="testuser") -> Any:
+
+def make_cognito_response(
+    sub: str = "sub-123", email: str = "test@test.com", username: str = "testuser"
+) -> Any:
     return {
         "Username": username,
         "UserAttributes": [
             {"Name": "sub", "Value": sub},
-            {"Name": "sub", "Value": email}
+            {"Name": "sub", "Value": email},
         ],
     }
 
-def make_mock_session(scalar_return: Any=None) -> AsyncMock:
+
+def make_mock_session(scalar_return: Any = None) -> AsyncMock:
     session = AsyncMock(spec=AsyncSession)
     result = MagicMock()
     result.scalar_one_or_none.return_value = scalar_return
     session.execute.return_value = result
     return session
 
+
 @pytest.mark.anyio
-class ProfileServiceTest():
+class ProfileServiceTest:
 
     @staticmethod
     async def test_get_or_create_profile_empty_token():
@@ -50,7 +55,13 @@ class ProfileServiceTest():
         mock_client.get_user = MagicMock(return_value=make_cognito_response())
         created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
         updated_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
-        existing_user: Any = Users(cognito_sub="sub-123", email="test@test.com", display_name="testuser", created_at=created_at, updated_at=updated_at)
+        existing_user: Any = Users(
+            cognito_sub="sub-123",
+            email="test@test.com",
+            display_name="testuser",
+            created_at=created_at,
+            updated_at=updated_at,
+        )
         session = make_mock_session(existing_user)
 
         result = await ProfileService.get_or_create_profile(session, "valid-token")
@@ -63,7 +74,9 @@ class ProfileServiceTest():
         mock_client.get_user = MagicMock(return_value=make_cognito_response())
         session = make_mock_session(None)
 
-        with patch.object(ProfileService, "create_profile", new=AsyncMock(return_value="new_profile")) as mock_create:
+        with patch.object(
+            ProfileService, "create_profile", new=AsyncMock(return_value="new_profile")
+        ) as mock_create:
             result = await ProfileService.get_or_create_profile(session, "valid-token")
         assert result == "new_profile"
         mock_create.assert_called_once()
@@ -72,7 +85,7 @@ class ProfileServiceTest():
     async def test_create_profile_none_user():
         session = AsyncMock()
         with pytest.raises(HTTPException) as exc:
-            await ProfileService.create_profile(session,None)
+            await ProfileService.create_profile(session, None)
         assert exc.value.status_code == 400
 
     @staticmethod
@@ -89,7 +102,13 @@ class ProfileServiceTest():
         mock_client.get_user = MagicMock(return_value=make_cognito_response)
         created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
         updated_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
-        profile: Any = Users(cognito_sub="sub-123", email="test@test.com", display_name="testuser", created_at=created_at, updated_at=updated_at)
+        profile: Any = Users(
+            cognito_sub="sub-123",
+            email="test@test.com",
+            display_name="testuser",
+            created_at=created_at,
+            updated_at=updated_at,
+        )
         session = make_mock_session(profile)
 
         result = await ProfileService.schedule_account_deletion(session, "valid_token")
@@ -108,7 +127,6 @@ class ProfileServiceTest():
             await ProfileService.schedule_account_deletion(session, "valid_token")
         assert exc.value.status_code == 404
 
-
     @staticmethod
     @patch("app.services.profile_services.client")
     async def test_undo_account_deletion_success(mock_client: Any):
@@ -116,8 +134,12 @@ class ProfileServiceTest():
         created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
         deletion = created_at + timedelta(30)
         profile = Users(
-            cognito_sub="sub-123", email="test@test.com", display_name="testuser",
-            deletion_scheduled_at=deletion, created_at=created_at, updated_at=created_at
+            cognito_sub="sub-123",
+            email="test@test.com",
+            display_name="testuser",
+            deletion_scheduled_at=deletion,
+            created_at=created_at,
+            updated_at=created_at,
         )
 
         session = make_mock_session(profile)
@@ -141,10 +163,18 @@ class ProfileServiceTest():
         mock_cognito = MagicMock()
         mock_client.return_value = mock_cognito
         created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
-        profile = Users(cognito_sub="sub-123", email="old@test.com", display_name="testuser", created_at=created_at, updated_at=created_at)
+        profile = Users(
+            cognito_sub="sub-123",
+            email="old@test.com",
+            display_name="testuser",
+            created_at=created_at,
+            updated_at=created_at,
+        )
         session = make_mock_session(profile)
 
-        result = await ProfileService.update_email(session, "new@test.com", "valid-token")
+        result = await ProfileService.update_email(
+            session, "new@test.com", "valid-token"
+        )
 
         assert result.email == "new@test.com"
         mock_cognito.update_user_attributes.assert_called_once()
