@@ -226,10 +226,12 @@ def convert_to_rows(data):
         or isinstance(data, RoleData)
     ):
         data_arr = data.convert_to_arr()
-    else:
+    elif isinstance(data, list) and (not isinstance(data[0], list)): #check if 1D array
+        data_arr.append(data)
+    else: 
         print(type_err)
-
-    return data_arr
+    
+    return data_arr    
 
 
 def format_api_data_knn(obj_data):
