@@ -36,3 +36,10 @@ def make_mock_session(scalar_return: Any=None) -> Any:
 
 @pytest.mark.anyio
 class ProfileServiceTest():
+
+    @staticmethod
+    async def test_get_or_create_profile_empty_token():
+        session = make_mock_session()
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.get_or_create_profile(session, "")
+        assert exc.value.status_code == 500
