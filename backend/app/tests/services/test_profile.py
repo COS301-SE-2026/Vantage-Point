@@ -70,11 +70,16 @@ class ProfileServiceTest():
         session.execute.assert_called_once()
 
     @staticmethod
-    @patch("app.services.profile_services.client")
-    async def test_create_profile_none_uer_raises():
+    async def test_create_profile_none_user():
         session = AsyncMock()
         with pytest.raises(HTTPException) as exc:
             await ProfileService.create_profile(session,None)
         assert exc.value.status_code == 400
 
-    
+    @staticmethod
+    async def test_create_profile_missing_username():
+        session = AsyncMock()
+        user = MagicMock(sub="sub-123", email="test@test.com", username=None)
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.create_profile(session, user)
+        assert exc.value.status_code == 400
