@@ -83,3 +83,29 @@ class ProfileServiceTest():
         with pytest.raises(HTTPException) as exc:
             await ProfileService.create_profile(session, user)
         assert exc.value.status_code == 400
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_schedule_account_deletion_success(mock_client: Any):
+        mock_client.get_user = MagicMock(return_value=make_cognito_response)
+        created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
+        updated_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
+        profile: Any = Users(cognito_sub="sub-123", email="test@test.com", display_name="testuser", created_at=created_at, updated_at=updated_at)
+        session = make_mock_session(profile)
+
+        result = await ProfileService.schedule_account_deletion(session, "valid_token")
+
+        assert isinstance(result, datetime)
+        assert (result - datetime.now()).days in (29, 30)
+        session.commit.assert_called_once()
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_schedule_account_deletion_user_not_found(mock_client: Any):
+        mock_client.get_user = MagicMock(make_cognito_response)
+        session = make_mock_session(None)
+
+        with pytest.raises(HTTPException) as exc:
+            await ProfileService.schedule_account_deletion(session, "valid_token")
+        assert exc.value.status_code == 404
+    
