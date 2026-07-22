@@ -468,6 +468,41 @@ class SkillData(BaseModel):
     power: list[int]
     powerMax: list[int]
 
+    def convert_to_arr(self):
+        out_arr = []
+        for i in range(0,len(self.skillslot)):
+            row = [
+                self.skillslot[i],
+                self.levelUpType[i],
+                self.timestamp[i],
+                self.championId,
+                self.damageSelfMitigated,
+                self.deaths,
+                self.kills,
+                self.totalHeal,
+                self.level[i],
+                self.timeEnemySpentControlled[i],
+                self.totalGold[i],
+                self.xp[i],
+                self.position_x[i],
+                self.position_y[i],
+                self.magicDamageDone[i],
+                self.physicalDamageDone[i],
+                self.totalDamageDone[i],
+                self.totalDamageDoneToChampions[i],
+                self.totalDamageTaken[i],
+                self.armor[i],
+                self.attackDamage[i],
+                self.attackSpeed[i],
+                self.health[i],
+                self.healthMax[i],
+                self.movementSpeed[i],
+                self.power[i],
+                self.powerMax[i],
+            ]
+            out_arr.append(row)
+        return out_arr
+
 
 class RoleData(BaseModel):
     teamPosition: str
