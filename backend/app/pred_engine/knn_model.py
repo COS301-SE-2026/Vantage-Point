@@ -118,3 +118,5 @@ def get_knn(file_name):
     bagging_model.fit(x_train, y_train)
 
     return bagging_model
+
+#get_knn('/workspaces/backend/app/pred_engine/Training_csv/knn_training.csv')
