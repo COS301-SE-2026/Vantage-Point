@@ -9,6 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
 from app.services.profile_services import ProfileService
+from app.database.models import Users
 from datetime import datetime, timezone
 from app.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,3 +44,16 @@ class ProfileServiceTest():
         with pytest.raises(HTTPException) as exc:
             await ProfileService.get_or_create_profile(session, "")
         assert exc.value.status_code == 500
+
+    @staticmethod
+    @patch("app.services.profile_services.client")
+    async def test_get_or_create_profile_existing_user(mock_client: Any):
+        mock_client.get_user = MagicMock(return_value=make_cognito_response())
+        created_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
+        updated_at = datetime(2026, 7, 22, 10, 30, 0, tzinfo=timezone.utc)
+        existing_user: Any = Users(cognito_sub="sub-123", email="test@test.com", display_name="testuser", created_at=created_at, updated_at=updated_at)
+        session = make_mock_session(existing_user)
+
+        result = await ProfileService.get_or_create_profile(session, "valid-token")
+        assert result is existing_user
+        session.execute.assert_called_once()
