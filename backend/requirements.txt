@@ -21,6 +21,7 @@ idna
 starlette
 psycopg2-binary
 asyncpg
+numpy
 
 #logging
 loguru==0.7.3

@@ -59,12 +59,12 @@ class MapSuggestData(BaseModel):
         out_arr = []
         p_x, p_y, pp_x, pp_y = 0,0,0,0
         for i in range(0, len(self.position_x)):
-            row = np.array([
+            row = [
                 self.position_x[i],
                 self.position_y[i],
-                self.team_position[i],
-                self.lane[i],
-                self.role[i],
+                self.team_position,
+                self.lane,
+                self.role,
                 self.timestamp[i],
                 p_x,
                 p_y,
@@ -80,7 +80,7 @@ class MapSuggestData(BaseModel):
                 self.kills,
                 self.visionScore,
                 self.jungleMinionsKilled[i],
-                self.level,
+                self.level[i],
                 self.minionsKilled[i],
                 self.timeEnemySpentControlled[i],
                 self.xp[i],
@@ -101,7 +101,7 @@ class MapSuggestData(BaseModel):
                 self.movementSpeed[i],
                 self.power[i],
                 self.powerMax[i]
-            ])
+            ]
             pp_x = p_x
             pp_y = p_y
             p_x = self.position_x[i]

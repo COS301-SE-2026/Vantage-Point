@@ -2,6 +2,8 @@ from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 import numpy as np
 import csv
+import sys
+sys.path.insert(1, '/workspaces/backend/app')
 from Models.riot_schemas import (
     MapReplay,
     MapSuggestData,
@@ -225,7 +227,7 @@ def convert_to_rows(data):
         #ItemData
         #SkillData
         #RoleData
-    data_arr = data.convert_to_arr(data)
+    data_arr = data.convert_to_arr()
 
     return data_arr
 
@@ -268,3 +270,55 @@ def format_api_data_rf(json_data, category):
     return x_data_rows, y_data_rows
 
 
+
+
+
+'''
+testObj = MapSuggestData(
+            position_x=[0,1,2,3],
+            position_y=[0,1,2,3],
+            team_position="a",
+            lane="lane",
+            role="role",
+            timestamp=[0,1,2,3],
+            prev_x=[0,1,2,3],
+            prev_y=[0,1,2,3],
+            prev_prev_x=[0,1,2,3],
+            prev_prev_y=[0,1,2,3],
+            champExperience=0,
+            champLevel=1,
+            championId=2,
+            gameDuration=3,
+            deaths=4,
+            itemsPurchased=5,
+            killingSprees=6,
+            kills=7,
+            visionScore=8,
+            jungleMinionsKilled=[0,1,2,3],
+            level=[0,1,2,3],
+            minionsKilled=[0,1,2,3],
+            timeEnemySpentControlled=[0,1,2,3],
+            xp=[0,1,2,3],
+            totalDamageDone=[0,1,2,3],
+            totalDamageDoneToChampions=[0,1,2,3],
+            totalDamageTaken=[0,1,2,3],
+            abilityHaste=[0,1,2,3],
+            abilityPower=[0,1,2,3],
+            armor=[0,1,2,3],
+            attackDamage=[0,1,2,3],
+            attackSpeed=[0,1,2,3],
+            ccReduction=[0,1,2,3],
+            cooldownReduction=[0,1,2,3],
+            health=[0,1,2,3],
+            health_max=[0,1,2,3],
+            health_regen=[0,1,2,3],
+            lifesteal=[0,1,2,3],
+            movementSpeed=[0,1,2,3],
+            power=[0,1,2,3],
+            powerMax=[0,1,2,3],
+        )
+
+testArr = testObj.convert_to_arr()
+print(type(testArr))
+print(testArr)
+'''
