@@ -4,7 +4,7 @@ import csv
 import sys
 
 sys.path.insert(1, "/workspaces/backend/app")
-from app.Models.riot_schemas import (
+from Models.riot_schemas import (
     MapSuggestData,
     ChampionData,
     ItemData,

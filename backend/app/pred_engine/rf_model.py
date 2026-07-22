@@ -97,13 +97,14 @@ def test_and_eval(file_name, run_cat):
         print(file_error_text)
         exit()
 
-    x_train, x_test, y_train, y_test = converter.getTrainTestDataRF(file_name, run_cat)
+    x_train, x_test, y_train, y_test = converter.get_train_test_data_rf(file_name, run_cat)
 
     # nullcheck data
     if len(x_train) == 0 or len(x_test) == 0 or len(y_train) == 0 or len(y_test) == 0:
         print(data_error_text)
         exit()
 
+    base_ac = 0
     match run_cat:
         case "champion":
             base_ac, _ = rf_univariate(x_train, x_test, y_train, y_test)
@@ -140,6 +141,9 @@ def final_train(file_name, run_cat):
     if len(x_train) == 0 or len(x_test) == 0 or len(y_train) == 0 or len(y_test) == 0:
         print(data_error_text)
         exit()
+
+    rf_model = None
+    base_ac = 0
 
     a = ["champion", "item"]
     b = ["skill", "role"]
