@@ -31,9 +31,4 @@ def run_rf(rf_model, data, cat):
     y_output = rf_model.predict(x_data)
     return y_output
 
-def knn_normalizer(knn_model, data):
-    #error control for knn model output
-    #figure out average dist between x and y values of given data
-    #check dif between predicted values
-    #fix as needed
-    print()
+
