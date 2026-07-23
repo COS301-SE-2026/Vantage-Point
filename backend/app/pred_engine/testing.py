@@ -1,34 +1,41 @@
-import rf_model as rf # type: ignore
 import knn_model as knn # type: ignore
 import Data_Converter.src.Converter_Main as converter  # type: ignore
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
 def create_knn_model():
     knn_model = knn.get_knn('/workspaces/backend/app/pred_engine/Training_csv/knn_training.csv')
 
     return knn_model
 
-def knn_normalizer(data):
+def knn_normalizer(data1, data2):
     #error control for knn model output
     #figure out average dist between x and y values of given data
     x = []
+    x2 = []
     y = []
+    y2 = []
     for row in data:
         #first 2 values is (x,y)
         x.append(row[0])
         y.append(row[1])
+    for row in data2:
+        #first 2 values is (x,y)
+        x2.append(int(row[0]))
+        y2.append(int(row[1]))
     
     x = np.array(x)
     y = np.array(y)
+    x2 = np.array(x2)
+    y2 = np.array(y2)
     plt.plot(x, y, marker='.')
+    plt.plot(x2, y2, marker='o')
     plt.xlabel('X-coord')
     plt.ylabel('Y-coord')
     plt.show()
     
     #check dif between predicted values
     #fix as needed
-
 data = [
     [603,611,'TOP','NONE','DUO',0,0,0,0,0,9172,12,23,921,3,18,0,2,9,1,0,0,0,0,0,0,0,0,33,66,100,0,0,696,696,17,0,345,0,100,662,285,362,135,130,401,298,675,14103,14195,14426,14170,14321,14673,14589,14454,14055,14493],
     [3260,11427,'TOP','NONE','DUO',60011,603,611,0,0,9172,12,23,921,3,18,0,2,9,1,0,0,0,0,0,0,0,0,33,86,103,0,0,761,761,17,0,258,0,100,3403,8161,7083,7611,9323,3749,8372,7183,3529,11010,7101,11141,7532,8537,12957,2499,12853,1817],
@@ -50,3 +57,5 @@ data = [
 ]
 
 knn_normalizer(data)
+
+#try running the scaler on all the data including coords

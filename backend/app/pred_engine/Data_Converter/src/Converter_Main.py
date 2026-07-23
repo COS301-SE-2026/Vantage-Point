@@ -129,12 +129,12 @@ def format_data_multivar(data, pos, role, lane):
     for row in data:
         if not isinstance(data, list):
             row = list(row.values())
-        if r == -1 and (not isinstance(data, list)):
-            r = r + 1
-            continue
+            if r == -1:
+                r = r + 1
+                continue
+        elif r == -1:
+            r = 0
 
-        if r == 129842:
-            print("breakpoint")
 
         row = convert_to_int(row, lane, role, pos)
 
@@ -158,17 +158,7 @@ def format_data_multivar(data, pos, role, lane):
         r = r + 1
         prev_row = row
 
-    num = 0
-    count = 0
-    for e in data_arr:
-        if num == 0:
-            num = len(e)
-        elif num != len(e):
-            print(len(e))
-            print(count)
-        count = count + 1    
     return data_arr, y
-
 
 # -----------------------------------------------------------------------------------#
 
@@ -242,8 +232,11 @@ def convert_to_rows(data):
         or isinstance(data, RoleData)
     ):
         data_arr = data.convert_to_arr()
-    elif isinstance(data, list) and (not isinstance(data[0], list)): #check if 1D array
-        data_arr.append(data)
+    elif isinstance(data, list):
+        if (not isinstance(data[0], list)): #check if 1D array
+            data_arr.append(data)
+        else:
+            data_arr = data
     else: 
         print(type_err)
     
