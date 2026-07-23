@@ -39,13 +39,13 @@ interface MatchHistoryListRowProps {
 }
 
 const MATCH_ROW_GRID =
-  "grid w-full grid-cols-[88px_minmax(0,1fr)_72px_80px_20px] items-center gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[88px_minmax(0,1fr)_52px_72px_72px_80px_20px]";
+  "grid h-[30px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 px-3";
 
 const STAT_LABEL_CLASS =
-  "font-['Inter:Regular',sans-serif] text-[11px] font-medium uppercase tracking-wide text-[#757575]";
+  "font-['Inter:Regular',sans-serif] text-[10px] font-medium uppercase tracking-[0.275px] text-[#757575]";
 
 const STAT_VALUE_CLASS =
-  "font-['Inter:Regular',sans-serif] text-[14px] text-[#1e1e1e] tabular-nums";
+  "font-['Inter:Regular',sans-serif] text-[12px] text-[#1e1e1e] tabular-nums";
 
 function matchRowAriaLabel(item: DashboardMatchListItem): string {
   return `View match as ${item.champion_name}, ${item.outcome}, role ${item.roleLabel}, KDA ${item.kdaLabel}, ${item.cs} creep score, ${item.duration_minutes} minutes`;
@@ -54,18 +54,15 @@ function matchRowAriaLabel(item: DashboardMatchListItem): string {
 function MatchStatCell({
   children,
   className = "",
-  hideOnMobile = false,
   align = "start",
 }: Readonly<{
   children: ReactNode;
   className?: string;
-  hideOnMobile?: boolean;
   align?: "start" | "end";
 }>) {
-  const visibility = hideOnMobile ? "hidden sm:block" : "block";
   const alignment = align === "end" ? "text-right" : "text-left";
   return (
-    <div className={`${visibility} min-w-0 ${alignment} ${className}`}>
+    <div className={`block min-w-0 ${alignment} ${className}`}>
       {children}
     </div>
   );
@@ -73,26 +70,20 @@ function MatchStatCell({
 
 function MatchHistoryListHeader() {
   return (
-    <div className={`${MATCH_ROW_GRID} border-b border-[#eee] py-2`} role="row">
+    <div className="grid h-[20px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 border-b border-[#eee] px-3">
       <span role="columnheader" className={STAT_LABEL_CLASS}>
         Result
       </span>
       <span role="columnheader" className={STAT_LABEL_CLASS}>
         Champion
       </span>
-      <span
-        role="columnheader"
-        className={`${STAT_LABEL_CLASS} hidden sm:inline`}
-      >
+      <span role="columnheader" className={STAT_LABEL_CLASS}>
         Role
       </span>
       <span role="columnheader" className={STAT_LABEL_CLASS}>
         KDA
       </span>
-      <span
-        role="columnheader"
-        className={`${STAT_LABEL_CLASS} hidden sm:inline`}
-      >
+      <span role="columnheader" className={STAT_LABEL_CLASS}>
         CS
       </span>
       <span role="columnheader" className={`${STAT_LABEL_CLASS} text-right`}>
@@ -116,35 +107,35 @@ function MatchHistoryListRow({
     >
       <MatchStatCell>
         <span
-          className={`font-['Inter:Semi_Bold',sans-serif] text-[14px] font-semibold ${outcomeClass(item.outcome)}`}
+          className={`font-['Inter:Semi_Bold',sans-serif] text-[13px] font-semibold ${outcomeClass(item.outcome)}`}
         >
           {item.outcome}
         </span>
       </MatchStatCell>
       <MatchStatCell>
-        <span className="truncate font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e]">
+        <span className="truncate font-['Inter:Regular',sans-serif] text-[12px] text-[#1e1e1e]">
           {item.champion_name}
         </span>
       </MatchStatCell>
-      <MatchStatCell hideOnMobile>
-        <span className={`${STAT_VALUE_CLASS} font-medium uppercase`}>
+      <MatchStatCell>
+        <span className={`${STAT_VALUE_CLASS} uppercase`}>
           {item.roleLabel}
         </span>
       </MatchStatCell>
       <MatchStatCell>
-        <span className="font-['Inter:Semi_Bold',sans-serif] text-[14px] font-semibold text-[#1e1e1e] tabular-nums">
+        <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#1e1e1e] tabular-nums">
           {item.kdaLabel}
         </span>
       </MatchStatCell>
-      <MatchStatCell hideOnMobile>
+      <MatchStatCell>
         <span className={STAT_VALUE_CLASS}>{item.cs}</span>
       </MatchStatCell>
       <MatchStatCell align="end">
         <span className={STAT_VALUE_CLASS}>{item.durationLabel}</span>
       </MatchStatCell>
       <ChevronRight
-        className="size-5 shrink-0 justify-self-end text-[#757575]"
-        strokeWidth={2}
+        className="size-4 shrink-0 justify-self-end text-[#757575]"
+        strokeWidth={1.8}
         aria-hidden
       />
     </button>
@@ -159,11 +150,8 @@ function MatchHistoryDaySection({
   onOpenMatch: (matchId: string) => void;
 }>) {
   return (
-    <section
-      className="flex flex-col gap-3"
-      aria-label={`Matches on ${dayRow.dateLabel}`}
-    >
-      <h2 className="font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-[1.4] text-[#1e1e1e]">
+    <section className="flex flex-col gap-1.5" aria-label={`Matches on ${dayRow.dateLabel}`}>
+      <h2 className="font-['Inter:Regular',sans-serif] text-[28px] font-normal leading-[1] text-[#1e1e1e]">
         {dayRow.dateLabel}
       </h2>
       <div role="table" className="flex flex-col gap-2">
@@ -252,39 +240,41 @@ export default function MatchesListView(
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="matches-list-view"
     >
-      <div className="relative h-full overflow-auto px-10 pt-8 pb-8">
+      <div className="relative h-full overflow-auto px-0 pb-8 pt-6">
         {!loading && !error ? (
-          <MatchesListToolbar
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
-            filterId={filterId}
-            onFilterIdChange={setFilterId}
-            sortId={sortId}
-            onSortIdChange={setSortId}
-          />
+          <div className="mx-auto w-full max-w-[820px]">
+            <MatchesListToolbar
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              filterId={filterId}
+              onFilterIdChange={setFilterId}
+              sortId={sortId}
+              onSortIdChange={setSortId}
+            />
+          </div>
         ) : null}
         {loading ? (
-          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+          <p className="mx-auto w-full max-w-[820px] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
             Loading matches…
           </p>
         ) : null}
         {error ? (
-          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#c44a4a]">
+          <p className="mx-auto w-full max-w-[820px] font-['Inter:Regular',sans-serif] text-[16px] text-[#c44a4a]">
             {error}
           </p>
         ) : null}
         {hasNoMatches ? (
-          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+          <p className="mx-auto w-full max-w-[820px] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
             No matches yet. Link your Riot ID or sign in with the seeded test
             account.
           </p>
         ) : null}
         {hasNoVisibleMatches ? (
-          <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+          <p className="mx-auto w-full max-w-[820px] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
             No matches match your search or filters.
           </p>
         ) : null}
-        <div className="flex flex-col gap-8">
+        <div className="mx-auto flex w-full max-w-[820px] flex-col gap-6">
           {dayRows.map((dayRow) => (
             <MatchHistoryDaySection
               key={dayRow.dayKey}

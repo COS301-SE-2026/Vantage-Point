@@ -17,7 +17,7 @@ import {
 } from "./ui/dropdown-menu";
 
 const TOOLBAR_ICON_BUTTON_CLASS =
-  "flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#0a0a0a] hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4]";
+  "flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#1e1e1e] hover:bg-[#dfdfdf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4]";
 
 interface MatchesListToolbarMenusProps {
   readonly filterId: MatchFilterId;
@@ -33,7 +33,7 @@ export default function MatchesListToolbarMenus({
   onSortIdChange,
 }: Readonly<MatchesListToolbarMenusProps>) {
   return (
-    <div className="ml-auto flex shrink-0 items-center gap-2">
+    <div className="flex shrink-0 items-center gap-1">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
@@ -41,7 +41,7 @@ export default function MatchesListToolbarMenus({
             aria-label={`Filter matches: ${matchFilterLabel(filterId)}`}
             className={TOOLBAR_ICON_BUTTON_CLASS}
           >
-            <Filter className="size-[22px]" strokeWidth={2} aria-hidden />
+            <Filter className="size-[18px]" strokeWidth={1.9} aria-hidden />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -70,7 +70,7 @@ export default function MatchesListToolbarMenus({
             aria-label={`Sort matches: ${matchSortLabel(sortId)}`}
             className={TOOLBAR_ICON_BUTTON_CLASS}
           >
-            <ArrowUpDown className="size-[22px]" strokeWidth={2} aria-hidden />
+            <ArrowUpDown className="size-[18px]" strokeWidth={1.9} aria-hidden />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
