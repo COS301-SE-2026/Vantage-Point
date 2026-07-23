@@ -10,8 +10,12 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from app.api.middleware import ProcessTimeMiddleware
 from app.api.routes import router
+from app.routers.users import router as users_router
+from app.routers.matches import router as matches_router
 from app.database.models import GameAccounts
 from app.database.session import async_session_maker, init_db
 from app.schemas.generic_schemas import get_error_reason
@@ -22,8 +26,6 @@ from app.services.riot_api import get_puuid_by_riot_id
 
 # (Make sure riot_api.py is in backend/app/services/)
 # (make sure models.py is in backend/app/database/ )
-
-load_dotenv()
 
 # DATABASE & APP SETUP
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
@@ -72,6 +74,8 @@ app.add_middleware(
 app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(router, prefix="/api")
+app.include_router(users_router)
+app.include_router(matches_router)
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:

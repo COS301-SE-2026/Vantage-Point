@@ -1,9 +1,13 @@
 from urllib.parse import parse_qs
+import os
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
+from app.auth.jwt import create_access_token, create_refresh_token
 from app.services import auth_service
+from app.config import get_settings
+from app.database.models import Users
 from app.schemas.auth_schemas import (
     UserRegister,
     UserLogin,
@@ -23,6 +27,7 @@ from typing import Annotated, Any
 from pydantic import BaseModel, Field
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 from app.database.session import get_session
 from app.schemas.riot_schemas import SimplifiedMatchResponse
 from app.services.profile_services import ProfileService
@@ -30,6 +35,7 @@ from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
+settings = get_settings()
 
 router = APIRouter()
 
@@ -61,11 +67,45 @@ async def register(user: UserRegister):
         401: {"model": ErrorResponse, "description": "Invalid username or password"},
     },
 )
-async def login(user: UserLogin) -> dict[str, Any]:
-    result = await auth_service.login_user(user.username, user.password)
-    if "error" in result:
+async def login(
+    user: UserLogin,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    cognito_configured = bool(
+        settings.cognito_client_id
+        and settings.cognito_client_secret
+        and settings.cognito_user_pool_id
+    )
+    if cognito_configured:
+        result = await auth_service.login_user(user.username, user.password)
+        if "error" in result:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        return {
+            "access_token": result["AccessToken"],
+            "refresh_token": result["RefreshToken"],
+            "token_type": "bearer",
+        }
+
+    seed_password = os.getenv("SEED_DEV_PASSWORD", "")
+    if not seed_password:
+        raise HTTPException(
+            status_code=500,
+            detail="SEED_DEV_PASSWORD is required for local dev login fallback",
+        )
+
+    if user.password != seed_password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
-    return dict(result)
+
+    result = await session.execute(select(Users).where(Users.email == user.username))
+    matched_user = result.scalar_one_or_none()
+    if not matched_user:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    return {
+        "access_token": create_access_token(matched_user.cognito_sub),
+        "refresh_token": create_refresh_token(matched_user.cognito_sub),
+        "token_type": "bearer",
+    }
 
 
 @router.post(
