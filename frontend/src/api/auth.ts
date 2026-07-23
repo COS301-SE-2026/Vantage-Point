@@ -9,7 +9,7 @@ export interface RegisterPayload {
 }
 
 export interface LoginPayload {
-  readonly email: string;
+  readonly username: string;
   readonly password: string;
 }
 
@@ -18,7 +18,7 @@ async function storeTokensFromResponse(tokens: TokenResponse): Promise<void> {
 }
 
 export async function registerUser(payload: RegisterPayload): Promise<void> {
-  const tokens = await apiFetchPublic<TokenResponse>("/api/v1/auth/register", {
+  const tokens = await apiFetchPublic<TokenResponse>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -26,7 +26,7 @@ export async function registerUser(payload: RegisterPayload): Promise<void> {
 }
 
 export async function loginUser(payload: LoginPayload): Promise<void> {
-  const tokens = await apiFetchPublic<TokenResponse>("/api/v1/auth/login", {
+  const tokens = await apiFetchPublic<TokenResponse>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify(payload),
   });

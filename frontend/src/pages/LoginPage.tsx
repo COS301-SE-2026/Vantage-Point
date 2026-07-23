@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const me = await login({ email: email.trim(), password });
+      const me = await login({ username: email.trim(), password });
       if (me.has_linked_riot) {
         navigate("/loading", { replace: true });
       } else {
