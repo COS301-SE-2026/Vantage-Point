@@ -31,8 +31,9 @@ def run_rf(rf_model, data, cat):
     y_output = rf_model.predict(x_data)
     return y_output
 
-data = [
-    2424,12488,'TOP','NONE','DUO',360179,2153,12682,3267,13137,9172,12,23,921,3,18,0,2,9,6,47,10458,3036,13718,2081,2602,0,0,51,115,129,0,0,1169,1187,24,0,370,100,100,13364,2619,2535,1977,11974,2446,3297,2573,12460,2611,11780,3647,7275,7840,13232,3327,12555,2629
-]
-y = run_knn(create_knn_model(), data)
-print(y)
+def knn_normalizer(knn_model, data):
+    #error control for knn model output
+    #figure out average dist between x and y values of given data
+    #check dif between predicted values
+    #fix as needed
+    print()
