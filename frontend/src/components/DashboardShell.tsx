@@ -2,20 +2,20 @@ import type { CSSProperties, ReactNode } from "react";
 import UserAccountMenu from "./UserAccountMenu";
 import { getDashboardContentBackdropStyle } from "../lib/dashboardLayout";
 import svgPaths from "./dashboard-shell-svg";
-import imgLogo from "../assets/images/logos/logo.webp";
+import imgLogo from "../assets/images/dashboard/dashboard-logo-mark.png";
 
+/** Figma 14:665 — left nav parent panel */
 const DASHBOARD_SIDEBAR_LEFT = 28;
-const DASHBOARD_SIDEBAR_WIDTH = 220;
+const DASHBOARD_SIDEBAR_WIDTH = 180;
 const DASHBOARD_SIDEBAR_TOP = 94;
 const DASHBOARD_NAV_INSET = 10;
-const DASHBOARD_TOGGLE_OFFSET = 12;
-const DASHBOARD_SIDEBAR_HEIGHT = 400;
+const DASHBOARD_TOGGLE_OFFSET = -10;
+const DASHBOARD_SIDEBAR_HEIGHT = 560;
 const DASHBOARD_NAV_WIDTH = DASHBOARD_SIDEBAR_WIDTH - DASHBOARD_NAV_INSET * 2;
-const DASHBOARD_NAV_LEFT = DASHBOARD_SIDEBAR_LEFT + DASHBOARD_NAV_INSET;
 const DASHBOARD_TOGGLE_LEFT_OPEN =
   DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_TOGGLE_OFFSET;
 
-export type DashboardSection = "matches" | "profile";
+export type DashboardSection = "matches" | "replay" | "metrics" | "profile";
 
 interface DashboardShellProps {
   readonly children: ReactNode;
@@ -24,94 +24,38 @@ interface DashboardShellProps {
   readonly activeSection?: DashboardSection;
   readonly onLogout?: () => void;
   readonly onMatchesClick?: () => void;
+  readonly onReplayClick?: () => void;
+  readonly onMetricsClick?: () => void;
   readonly onProfileClick?: () => void;
   readonly accountInitials?: string;
   readonly accountAvatarUrl?: string | null;
 }
 
-interface FrameProps {
-  readonly sidebarOpen: boolean;
-}
-
 function Logo() {
   return (
-    <div className="absolute contents left-[12px] top-[8px]" data-name="logo">
-      <div className="absolute h-[97px] left-[12px] top-[8px] w-[99px]">
+    <div
+      className="absolute left-[18px] top-[18px] z-20 flex items-center gap-[10px]"
+      data-name="logo"
+    >
+      <div className="h-[42px] w-[56px]">
         <img
-          alt=""
-          className="absolute inset-0 max-w-none object-cover pointer-events-none size-full"
+          alt="Vantage Point logo"
+          className="h-full w-full object-contain"
           src={imgLogo}
         />
       </div>
+      <p className="font-['League_Spartan',sans-serif] text-[31px] font-semibold leading-none tracking-[0.01em] text-[#1e1e1e]">
+        VANTAGE POINT
+      </p>
     </div>
   );
 }
 
-function Frame({ sidebarOpen }: Readonly<FrameProps>) {
+function NavItemLabel({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <div
-      className="absolute left-0 top-0 min-h-screen w-full min-w-0 overflow-clip bg-white"
-      data-name="Frame"
-    >
-      <Logo />
-      {sidebarOpen ? (
-        <div id="dashboard-sidebar" className="contents">
-          <div
-            className="absolute rounded-[15px] bg-[rgba(117,117,117,0.12)]"
-            style={{
-              left: DASHBOARD_SIDEBAR_LEFT,
-              top: DASHBOARD_SIDEBAR_TOP,
-              width: DASHBOARD_SIDEBAR_WIDTH,
-              height: DASHBOARD_SIDEBAR_HEIGHT,
-            }}
-          />
-          <div
-            className="absolute h-[47px] rounded-[10px] bg-white"
-            style={{
-              left: DASHBOARD_NAV_LEFT,
-              top: 148,
-              width: DASHBOARD_NAV_WIDTH,
-            }}
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-[-3px] rounded-[13px] border-3 border-solid border-white"
-            />
-          </div>
-          <div
-            className="absolute h-[47px] rounded-[10px] bg-white"
-            style={{
-              left: DASHBOARD_NAV_LEFT,
-              top: 213,
-              width: DASHBOARD_NAV_WIDTH,
-            }}
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-[-3px] rounded-[13px] border-3 border-solid border-[#fdfdfd]"
-            />
-          </div>
-          <div
-            className="absolute h-[47px] rounded-[10px] bg-white"
-            style={{
-              left: DASHBOARD_NAV_LEFT,
-              top: 278,
-              width: DASHBOARD_NAV_WIDTH,
-            }}
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-[-3px] rounded-[13px] border-3 border-solid border-[#fdfdfd]"
-            />
-          </div>
-        </div>
-      ) : null}
-      <p className="absolute left-[128px] top-[36px] max-w-[calc(100%-160px)] truncate font-sarina text-[clamp(18px,1.6vw,24px)] leading-normal not-italic text-black">{`Vantage Point `}</p>
-      <div
-        className="absolute bg-white transition-[left,width] duration-300 ease-out"
-        style={getDashboardContentBackdropStyle(sidebarOpen)}
-      />
-    </div>
+    <span className="absolute left-[14px] top-[7px] font-['Inter:Regular',sans-serif] text-[20px] font-normal leading-[1.05] text-[#1e1e1e]">
+      {children}
+    </span>
   );
 }
 
@@ -122,8 +66,10 @@ export default function DashboardShell({
   activeSection = "matches",
   onLogout,
   onMatchesClick,
+  onReplayClick,
+  onMetricsClick,
   onProfileClick,
-  accountInitials = "VP",
+  accountInitials = "UN",
   accountAvatarUrl = null,
 }: Readonly<DashboardShellProps>) {
   const panelVars = {
@@ -132,8 +78,19 @@ export default function DashboardShell({
   } as CSSProperties;
 
   return (
-    <div className="relative min-h-screen w-full min-w-0">
-      <Frame sidebarOpen={sidebarOpen} />
+    <div className="relative min-h-screen w-full min-w-0 bg-white">
+      {/* Page canvas — white so #f0f0f0 panels are visible */}
+      <div
+        className="absolute left-0 top-0 min-h-screen w-full min-w-0 overflow-clip bg-white"
+        data-name="Frame"
+      >
+        <Logo />
+        <div
+          className="absolute bg-white transition-[left,width] duration-300 ease-out"
+          style={getDashboardContentBackdropStyle(sidebarOpen)}
+        />
+      </div>
+
       <div className="absolute right-6 top-[29px] z-20">
         <UserAccountMenu
           onProfileClick={onProfileClick}
@@ -142,6 +99,68 @@ export default function DashboardShell({
           avatarUrl={accountAvatarUrl}
         />
       </div>
+
+      {sidebarOpen ? (
+        <nav
+          id="dashboard-sidebar"
+          data-name="Rectangle 5"
+          aria-label="Dashboard navigation"
+          className="absolute z-10 flex flex-col rounded-[15px] bg-[#f0f0f0]"
+          style={{
+            left: DASHBOARD_SIDEBAR_LEFT,
+            top: DASHBOARD_SIDEBAR_TOP,
+            width: DASHBOARD_SIDEBAR_WIDTH,
+            height: DASHBOARD_SIDEBAR_HEIGHT,
+          }}
+        >
+          <div className="flex flex-col gap-[13px] px-[10px] pt-[30px]">
+            <button
+              type="button"
+              onClick={onMatchesClick}
+              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              style={{ width: DASHBOARD_NAV_WIDTH }}
+              aria-label="Matches"
+              aria-current={activeSection === "matches" ? "page" : undefined}
+            >
+              <NavItemLabel>Matches</NavItemLabel>
+            </button>
+            <button
+              type="button"
+              onClick={onReplayClick}
+              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              style={{ width: DASHBOARD_NAV_WIDTH }}
+              data-name="Match Replay"
+              aria-label="Match Replay"
+              aria-current={activeSection === "replay" ? "page" : undefined}
+            >
+              <NavItemLabel>Match Replay</NavItemLabel>
+            </button>
+            <button
+              type="button"
+              onClick={onMetricsClick}
+              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              style={{ width: DASHBOARD_NAV_WIDTH }}
+              data-name="Metrics"
+              aria-label="Metrics"
+              aria-current={activeSection === "metrics" ? "page" : undefined}
+            >
+              <NavItemLabel>Metrics</NavItemLabel>
+            </button>
+          </div>
+          <div className="mt-auto px-[10px] pb-[20px]">
+            <button
+              type="button"
+              onClick={onLogout}
+              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              style={{ width: DASHBOARD_NAV_WIDTH }}
+              aria-label="Log out"
+            >
+              <NavItemLabel>Log out</NavItemLabel>
+            </button>
+          </div>
+        </nav>
+      ) : null}
+
       <button
         type="button"
         onClick={onSidebarToggle}
@@ -150,8 +169,9 @@ export default function DashboardShell({
         aria-label={
           sidebarOpen ? "Collapse navigation panel" : "Expand navigation panel"
         }
-        className="absolute top-[94px] z-30 flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-neutral-100"
+        className="absolute z-30 flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-[#e8e8e8]"
         style={{
+          top: DASHBOARD_SIDEBAR_TOP,
           left: sidebarOpen ? DASHBOARD_TOGGLE_LEFT_OPEN : 44,
           ...panelVars,
         }}
@@ -180,49 +200,7 @@ export default function DashboardShell({
           </div>
         </div>
       </button>
-      {sidebarOpen ? (
-        <>
-          <button
-            type="button"
-            onClick={onMatchesClick}
-            className="absolute top-[148px] z-10 h-[47px] cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-left transition-opacity hover:opacity-80"
-            style={{
-              left: DASHBOARD_NAV_LEFT,
-              width: DASHBOARD_NAV_WIDTH,
-            }}
-            aria-label="Matches"
-            aria-current={activeSection === "matches" ? "page" : undefined}
-          >
-            <span className="absolute left-[20px] top-[12px] font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] text-[#1e1e1e]">
-              Matches
-            </span>
-          </button>
-          <div
-            className="absolute top-[224px] flex content-stretch items-start pointer-events-none"
-            style={{
-              left: DASHBOARD_NAV_LEFT + 20,
-              width: DASHBOARD_NAV_WIDTH - 20,
-            }}
-            data-name="Text"
-          >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
-              Analysis
-            </p>
-          </div>
-          <div
-            className="absolute top-[286px] flex content-stretch items-start pointer-events-none"
-            style={{
-              left: DASHBOARD_NAV_LEFT + 20,
-              width: DASHBOARD_NAV_WIDTH - 20,
-            }}
-            data-name="Text"
-          >
-            <p className="relative shrink-0 whitespace-nowrap font-['Inter:Regular',sans-serif] text-[14px] font-normal leading-[1.4] not-italic text-[#1e1e1e]">
-              Metrics
-            </p>
-          </div>
-        </>
-      ) : null}
+
       {children}
     </div>
   );
