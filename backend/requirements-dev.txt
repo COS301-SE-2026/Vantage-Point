@@ -21,5 +21,6 @@ boto3-stubs==1.43.7
 # Utilities
 python-dotenv
 joblib
+python-jose[cryptography]
 mypy-boto3-cognito-idp
 psycopg2-binary

@@ -1,20 +1,21 @@
-from typing import cast
+# from typing import cast, Any
 
-from fastapi.testclient import TestClient
+# from fastapi.testclient import TestClient
 
-from app.tests.constants import TEST_USER_PASSWORD
-
-
-def _login(client: TestClient, email: str) -> str:
-    response = client.post(
-        "/api/v1/auth/login",
-        json={"email": email, "password": TEST_USER_PASSWORD},
-    )
-    assert response.status_code == 200
-    return cast(str, response.json()["access_token"])
+# from app.tests.constants import TEST_USER_PASSWORD
+# import pytest
 
 
-# @requires_postgres
+# def _login(client: TestClient, email: str) -> str:
+#     response = client.post(
+#         "/api/v1/auth/login",
+#         json={"email": email, "password": TEST_USER_PASSWORD},
+#     )
+#     assert response.status_code == 200
+#     return cast(str, response.json()["access_token"])
+
+
+# @pytest.mark.requires_postgres
 # def test_match_list_detail_and_profile(seeded_db_client: TestClient):
 #     client = seeded_db_client
 #     email = "match_test@vantagepoint.dev"
@@ -61,7 +62,11 @@ def _login(client: TestClient, email: str) -> str:
 #     assert viewer_5["win"] is True
 #     assert match_5_list["outcome"] == "Victory"
 
-#     detail_6 = client.get("/api/v1/matches/EUW1_700000006", headers=headers).json()
+#     detail_6_response = client.get(
+#         "/api/v1/matches/EUW1_700000006", headers=headers
+#     ).json()
+#     assert detail_6_response.status_code == 200
+#     detail_6 = detail_6_response.json()
 #     viewer_6 = viewer_from_detail(detail_6)
 #     assert viewer_5["gold_earned"] != viewer_6["gold_earned"]
 
@@ -81,7 +86,7 @@ def _login(client: TestClient, email: str) -> str:
 #     assert missing.status_code == 404
 
 
-# @requires_postgres
+# @pytest.mark.requires_postgres
 # def test_matches_empty_without_linked_account(db_client: TestClient):
 #     client = db_client
 #     email = "nolink@vantagepoint.dev"

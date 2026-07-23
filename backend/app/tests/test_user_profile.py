@@ -1,24 +1,25 @@
-from typing import cast
-
-from fastapi.testclient import TestClient
-
-from app.tests.constants import TEST_USER_PASSWORD
-
-
-def _register_and_token(client: TestClient, email: str) -> str:
-    reg = client.post(
-        "/api/v1/auth/register",
-        json={
-            "email": email,
-            "display_name": "Test Player",
-            "password": TEST_USER_PASSWORD,
-        },
-    )
-    assert reg.status_code == 200
-    return cast(str, reg.json()["access_token"])
+# from typing import cast, Any
+# import pytest
+# from io import BytesIO
+# from fastapi.testclient import TestClient
+# from unittest.mock import patch, AsyncMock
+# from app.tests.constants import TEST_USER_PASSWORD
 
 
-# @requires_postgres
+# def _register_and_token(client: TestClient, email: str) -> str:
+#     reg = client.post(
+#         "/api/v1/auth/register",
+#         json={
+#             "email": email,
+#             "display_name": "Test Player",
+#             "password": TEST_USER_PASSWORD,
+#         },
+#     )
+#     assert reg.status_code == 200
+#     return cast(str, reg.json()["access_token"])
+
+
+# @pytest.mark.requires_postgres
 # def test_patch_me_updates_display_name(db_client: TestClient):
 #     client = db_client
 #     token = _register_and_token(client, "patch_me@vantagepoint.dev")
@@ -36,7 +37,7 @@ def _register_and_token(client: TestClient, email: str) -> str:
 #     assert me.json()["display_name"] == "Renamed Player"
 
 
-# @requires_postgres
+# @pytest.mark.requires_postgres
 # def test_upload_and_delete_avatar(db_client: TestClient):
 #     client = db_client
 #     token = _register_and_token(client, "avatar_me@vantagepoint.dev")
@@ -46,10 +47,13 @@ def _register_and_token(client: TestClient, email: str) -> str:
 #         b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
 #         b"\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
 #     )
+
+#     files: dict[str, Any] = {"file": ("avatar.png", BytesIO(png_bytes), "image/png")}
+
 #     upload = client.post(
 #         "/api/v1/users/me/avatar",
 #         headers=headers,
-#         files={"file": ("avatar.png", io.BytesIO(png_bytes), "image/png")},
+#         files=files,
 #     )
 #     assert upload.status_code == 200
 #     avatar_url = upload.json()["avatar_url"]
@@ -68,12 +72,12 @@ def _register_and_token(client: TestClient, email: str) -> str:
 #     assert me_after.json()["avatar_url"] is None
 
 
-# @requires_postgres
+# @pytest.mark.requires_postgres
 # @patch(
 #     "app.services.user_accounts.get_puuid_by_riot_id",
 #     new_callable=AsyncMock,
 # )
-# def test_relink_refreshes_game_account_names(mock_puuid, db_client: TestClient):
+# def test_relink_refreshes_game_account_names(mock_puuid: Any, db_client: TestClient):
 #     client = db_client
 #     mock_puuid.return_value = "stable-puuid-relink"
 #     token = _register_and_token(client, "relink_me@vantagepoint.dev")

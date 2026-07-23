@@ -47,7 +47,6 @@ env.bak/
 # Environment Variables
 .env
 .env.local
-.env.windows
 
 # IDE
 .vscode/
@@ -77,6 +76,4 @@ backend/uploads/
 
 # Other
 .postman
-test*.csv
-output.txt
-events.txt
+logs/

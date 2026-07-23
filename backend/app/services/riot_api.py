@@ -58,7 +58,4 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
                     "Riot API rate limit reached. Wait a minute and try again."
                 )
 
-            # 404 on this cluster — try the next routing region
-            continue
-
     return None

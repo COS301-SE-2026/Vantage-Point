@@ -5,11 +5,14 @@ This setup uses simple mocks instead of database connections,
 allowing tests to run while the database is still being set up.
 """
 
-pytest_plugins = ["app.tests.postgres_fixtures"]
+# pytest_plugins = ["app.tests.postgres_fixtures"]
 
 import os  # noqa: E402
-
+from typing import Any
 from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E402
+from app.api.auth import get_current_user, oauth2_scheme
+from app.Models.auth_model import UserTest
+from fastapi.security import HTTPAuthorizationCredentials
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
@@ -17,6 +20,14 @@ import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
+
+fake_user = UserTest(
+    sub="123456",
+    username="testuser",
+    password="TestPass123",
+    email="test@example.com",
+    groups=["Admin", "User"],
+)
 
 
 @pytest.fixture(scope="function")
@@ -26,7 +37,16 @@ def client():
 
     Scope: function (new instance for each test)
     """
-    return TestClient(app)
+    print("Using overridden client")
+
+    app.dependency_overrides[get_current_user] = lambda: fake_user
+    app.dependency_overrides[oauth2_scheme] = lambda: HTTPAuthorizationCredentials(
+        scheme="Bearer", credentials="fake-access-token"
+    )
+
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -45,7 +65,7 @@ def test_user_data():
 
 
 @pytest.fixture
-def test_user_response():
+def test_user_response() -> dict[str, Any]:
     """
     Provide sample user response data (as returned from the API).
 
@@ -62,7 +82,7 @@ def test_user_response():
 
 
 @pytest.fixture
-def test_match_data():
+def test_match_data() -> dict[str, Any]:
     """
     Provide sample match data for testing match-related endpoints.
 
@@ -77,7 +97,7 @@ def test_match_data():
 
 
 @pytest.fixture
-def test_match_response():
+def test_match_response() -> dict[str, Any]:
     """
     Provide sample match response data (as returned from the API).
 

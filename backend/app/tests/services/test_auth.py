@@ -9,6 +9,7 @@ Also includes integration tests for authentication endpoints.
 """
 
 import pytest
+from typing import Any
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
@@ -21,18 +22,44 @@ from app.services.auth_service import (
     revoke_refresh_token,
     get_secret_hash,
     log_registration,
-    _handle_cognito_error,
+    handle_cognito_error,
 )
 from app.tests.constants import TEST_USER_PASSWORD
 
 
-def _register_payload(email: str):
+def register_payload(email: str):
     """Helper function to create registration payload."""
     return {
         "email": email,
         "display_name": "Test Player",
         "password": TEST_USER_PASSWORD,
     }
+
+
+# =====================================================
+# Helpers for Unit Testing
+# =====================================================
+
+
+# function to be used in unit testing as this gets repeated at multiple places and it led to continous error for the same part
+# hence I created this helper to replace those places
+def make_client_error(
+    code: str,
+    msg: str,
+    operation: str,
+    http_status: int = 400,
+) -> ClientError:
+    error_response: Any = {
+        "Error": {"Code": code, "Message": msg},
+        "RespondMetaData": {
+            "RequestID": "test-access-token",
+            "HTTPStatusCode": http_status,
+            "HTTPHeaders": {},
+            "RetryAttempts": 0,
+        },
+    }
+
+    return ClientError(error_response, operation)
 
 
 # =====================================================
@@ -74,7 +101,7 @@ class TestLogRegistration:
     """
 
     @patch("builtins.open", create=True)
-    def test_log_registration_writes_to_file(self, mock_open):
+    def test_log_registration_writes_to_file(self, mock_open: Any):
         """Test that log_registration writes user info to file."""
         mock_file = MagicMock()
         mock_open.return_value.__enter__.return_value = mock_file
@@ -91,7 +118,7 @@ class TestLogRegistration:
         assert "REGISTERED" in written_content
 
     @patch("builtins.open", create=True)
-    def test_log_registration_format(self, mock_open):
+    def test_log_registration_format(self, mock_open: Any):
         """Test that log_registration uses correct format."""
         mock_file = MagicMock()
         mock_open.return_value.__enter__.return_value = mock_file
@@ -113,44 +140,42 @@ class TestHandleCognitoError:
 
     def test_handle_cognito_error_not_auth_exception(self):
         """Test that NotAuthorizedException returns 401."""
-        error_response = {
-            "Error": {"Code": "NotAuthorizedException", "Message": "User not found"}
-        }
-        client_error = ClientError(error_response, "sign_up")
+        client_error = client_error = make_client_error(
+            "NotAuthorizedException", "User not Found", "sign_up", 401
+        )
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
-            _handle_cognito_error(client_error)
+            handle_cognito_error(client_error)
 
         assert exc_info.value.status_code == 401
 
     def test_handle_cognito_error_too_many_requests(self):
         """Test that TooManyRequestsException returns 429."""
-        error_response = {
-            "Error": {"Code": "TooManyRequestsException", "Message": "Rate limited"}
-        }
-        client_error = ClientError(error_response, "sign_up")
+        client_error = make_client_error(
+            "TooManyRequestsException", "Rate Limited", "sign_up", 429
+        )
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
-            _handle_cognito_error(client_error)
+            handle_cognito_error(client_error)
 
         assert exc_info.value.status_code == 429
 
     def test_handle_cognito_error_default_status_code(self):
         """Test that unknown errors return 400."""
-        error_response = {
-            "Error": {"Code": "SomeUnknownError", "Message": "Something went wrong"}
-        }
-        client_error = ClientError(error_response, "sign_up")
+        client_error = make_client_error(
+            "SomeUnknownError", "Something went wrong", "sign_up", 400
+        )
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
-            _handle_cognito_error(client_error)
+            handle_cognito_error(client_error)
 
         assert exc_info.value.status_code == 400
 
 
+@pytest.mark.anyio
 class TestRegisterUser:
     """Test suite for user registration.
 
@@ -160,7 +185,9 @@ class TestRegisterUser:
 
     @patch("app.services.auth_service.client")
     @patch("app.services.auth_service.log_registration")
-    async def test_register_user_success(self, mock_log, mock_client):
+    async def test_register_user_success(
+        self, _mock_log: Any, mock_client: MagicMock
+    ) -> Any:
         """Test successful user registration.
 
         Real register_user() executes with mocked Cognito client.
@@ -177,21 +204,16 @@ class TestRegisterUser:
         mock_client.sign_up.assert_called_once()
 
     @patch("app.services.auth_service.client")
-    async def test_register_user_cognito_error(self, mock_client):
+    async def test_register_user_cognito_error(self, mock_client: MagicMock):
         """Test registration failure with Cognito error.
 
         Real register_user() executes and handles errors.
         """
-        error_response = {
-            "Error": {
-                "Code": "UsernameExistsException",
-                "Message": "User already exists",
-            }
-        }
-
         # Mock the client to raise error
         mock_client.sign_up = MagicMock(
-            side_effect=ClientError(error_response, "sign_up")
+            side_effect=make_client_error(
+                "UsernameExistsException", "User already Exists", "sign_up", 400
+            )
         )
 
         # Real function executes and handles error
@@ -201,6 +223,7 @@ class TestRegisterUser:
         assert exc_info.value.status_code == 400
 
 
+@pytest.mark.anyio
 class TestLoginUser:
     """Test suite for user login.
 
@@ -209,7 +232,7 @@ class TestLoginUser:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_login_user_success(self, mock_to_thread):
+    async def test_login_user_success(self, mock_to_thread: MagicMock):
         """Test successful user login.
 
         Real login_user() executes.
@@ -222,7 +245,7 @@ class TestLoginUser:
             }
         }
 
-        def mock_to_thread_impl(func, *args, **kwargs):
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
             return mock_response
 
         mock_to_thread.side_effect = mock_to_thread_impl
@@ -230,24 +253,23 @@ class TestLoginUser:
         # Real function executes
         result = await login_user("testuser", "TestPass123!")
 
-        assert "AccessToken" in result
-        assert result["AccessToken"] == "access_token_123"
+        assert "access_token" in result
+        assert result["access_token"] == "access_token_123"
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_login_user_invalid_credentials(self, mock_to_thread):
+    async def test_login_user_invalid_credentials(self, mock_to_thread: MagicMock):
         """Test login failure with invalid credentials.
 
         Real login_user() executes and handles error.
         """
-        error_response = {
-            "Error": {
-                "Code": "NotAuthorizedException",
-                "Message": "Incorrect username or password",
-            }
-        }
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            raise ClientError(error_response, "initiate_auth")
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            raise make_client_error(
+                "NotAuthorizedException",
+                "Incorrect username or password",
+                "initiate_auth",
+                401,
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -258,6 +280,7 @@ class TestLoginUser:
         assert exc_info.value.status_code == 401
 
 
+@pytest.mark.anyio
 class TestConfirmUser:
     """Test suite for user confirmation.
 
@@ -266,14 +289,14 @@ class TestConfirmUser:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_confirm_user_success(self, mock_to_thread):
+    async def test_confirm_user_success(self, mock_to_thread: MagicMock):
         """Test successful user confirmation.
 
         Real confirm_user() executes.
         """
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            return {}
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            return {""}
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -283,20 +306,18 @@ class TestConfirmUser:
         assert result == {"status": "success"}
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_confirm_user_invalid_code(self, mock_to_thread):
+    async def test_confirm_user_invalid_code(self, mock_to_thread: MagicMock):
         """Test confirmation failure with invalid code.
 
         Real confirm_user() executes and handles error.
         """
-        error_response = {
-            "Error": {
-                "Code": "InvalidParameterException",
-                "Message": "Invalid verification code",
-            }
-        }
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            raise ClientError(error_response, "confirm_sign_up")
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            raise make_client_error(
+                "InvalidParamaterException",
+                "Invalid verification code",
+                "confirm_sign_up",
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -305,6 +326,7 @@ class TestConfirmUser:
             await confirm_user("testuser", "000000")
 
 
+@pytest.mark.anyio
 class TestLogoutUser:
     """Test suite for user logout.
 
@@ -313,14 +335,14 @@ class TestLogoutUser:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_logout_user_success(self, mock_to_thread):
+    async def test_logout_user_success(self, mock_to_thread: MagicMock):
         """Test successful user logout.
 
         Real logout_user() executes.
         """
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            return {}
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            return {""}
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -331,20 +353,16 @@ class TestLogoutUser:
         assert "Logged out" in result["message"]
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_logout_user_invalid_token(self, mock_to_thread):
+    async def test_logout_user_invalid_token(self, mock_to_thread: MagicMock):
         """Test logout failure with invalid token.
 
         Real logout_user() executes and handles error.
         """
-        error_response = {
-            "Error": {
-                "Code": "NotAuthorizedException",
-                "Message": "Invalid access token",
-            }
-        }
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            raise ClientError(error_response, "global_sign_out")
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            raise make_client_error(
+                "NotAuthorizedException", "Invalid Access Token", "global_sign_out"
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -355,6 +373,7 @@ class TestLogoutUser:
         assert exc_info.value.status_code == 401
 
 
+@pytest.mark.anyio
 class TestRevokeRefreshToken:
     """Test suite for refresh token revocation.
 
@@ -363,14 +382,14 @@ class TestRevokeRefreshToken:
     """
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_revoke_refresh_token_success(self, mock_to_thread):
+    async def test_revoke_refresh_token_success(self, mock_to_thread: MagicMock):
         """Test successful refresh token revocation.
 
         Real revoke_refresh_token() executes.
         """
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            return {}
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            return {""}
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -381,20 +400,16 @@ class TestRevokeRefreshToken:
         assert "revoked" in result["message"]
 
     @patch("app.services.auth_service.asyncio.to_thread")
-    async def test_revoke_refresh_token_invalid_token(self, mock_to_thread):
+    async def test_revoke_refresh_token_invalid_token(self, mock_to_thread: MagicMock):
         """Test revocation failure with invalid token.
 
         Real revoke_refresh_token() executes and handles error.
         """
-        error_response = {
-            "Error": {
-                "Code": "InvalidParameterException",
-                "Message": "Invalid refresh token",
-            }
-        }
 
-        def mock_to_thread_impl(func, *args, **kwargs):
-            raise ClientError(error_response, "revoke_token")
+        def mock_to_thread_impl(_func: Any, *_args: Any, **_kwargs: Any):
+            raise make_client_error(
+                "InvalidParamaterException", "Invalid refresh token", "revoke_token"
+            )
 
         mock_to_thread.side_effect = mock_to_thread_impl
 
@@ -414,7 +429,7 @@ class TestAuthEndpoints:
     Tests the actual HTTP endpoints with mocked Cognito backend.
     """
 
-    # @requires_postgres
+    # @pytets.mark.requires_postgres
     # def test_register_login_and_me(self, db_client: TestClient):
     #     """Test registration and login flow."""
     #     email = "auth_test@vantagepoint.dev"
@@ -430,7 +445,7 @@ class TestAuthEndpoints:
     #     )
     #     assert login.status_code == 200
 
-    # @requires_postgres
+    # @pytest.mark.requires_postgres
     # def test_login_wrong_password(self, db_client: TestClient):
     #     """Test login with incorrect password."""
     #     email = "wrong_pass@vantagepoint.dev"

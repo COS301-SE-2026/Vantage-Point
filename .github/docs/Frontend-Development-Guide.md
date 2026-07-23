@@ -142,7 +142,7 @@ console.warn('Warning:', message)
 git checkout -b frontend/feature-name
 
 # 2. Make changes and test locally
-npm run format && npm run lint && npm run test
+npm run format:check && npm run lint && npm run test
 
 # 3. Commit with descriptive message
 git add .
