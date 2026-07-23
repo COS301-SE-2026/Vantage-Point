@@ -6,7 +6,9 @@ import LinkRiotPage from "./pages/LinkRiotPage";
 import LoadingPage from "./pages/LoadingPage";
 import LoginPage from "./pages/LoginPage";
 import MatchDetailView from "./pages/MatchDetailView";
+import MatchReplayView from "./pages/MatchReplayView";
 import MatchesListView from "./pages/MatchesListView";
+import MetricsView from "./pages/MetricsView";
 import ProfileView from "./pages/ProfileView";
 import RegisterPage from "./pages/RegisterPage";
 
@@ -54,6 +56,10 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="matches" replace /> },
           { path: "matches", Component: MatchesListView },
           { path: "matches/:matchId", Component: MatchDetailView },
+          { path: "replay", Component: MatchReplayView },
+          { path: "replay/:matchId", Component: MatchReplayView },
+          { path: "metrics", Component: MetricsView },
+          { path: "metrics/:matchId", Component: MetricsView },
           { path: "profile", Component: ProfileView },
         ],
       },

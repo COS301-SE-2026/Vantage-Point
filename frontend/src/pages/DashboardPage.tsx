@@ -14,7 +14,10 @@ import { useAuth } from "../context/AuthContext";
 import type { PlayerProfile } from "../types/profile";
 
 function sectionFromPathname(pathname: string): DashboardSection {
-  return pathname.includes("/dashboard/profile") ? "profile" : "matches";
+  if (pathname.includes("/dashboard/profile")) return "profile";
+  if (pathname.includes("/dashboard/replay")) return "replay";
+  if (pathname.includes("/dashboard/metrics")) return "metrics";
+  return "matches";
 }
 
 export default function DashboardPage() {
@@ -93,6 +96,8 @@ export default function DashboardPage() {
           onSidebarToggle={() => setSidebarOpen((open) => !open)}
           activeSection={activeSection}
           onMatchesClick={() => navigate("/dashboard/matches")}
+          onReplayClick={() => navigate("/dashboard/replay")}
+          onMetricsClick={() => navigate("/dashboard/metrics")}
           onProfileClick={() => navigate("/dashboard/profile")}
           onLogout={handleLogout}
           accountInitials={accountInitials}
