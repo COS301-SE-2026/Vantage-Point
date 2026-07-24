@@ -254,6 +254,9 @@ def format_api_data_knn(obj_data):
     # run thru format function
     x_data_rows, y_data_rows = format_data_multivar(data, 2, 4, 3)
 
+    scaler = StandardScaler()
+    x_data_rows = scaler.fit_transform(x_data_rows)  # pyright: ignore[reportArgumentType]
+
     # x is target, y is given
     return x_data_rows, y_data_rows
 
