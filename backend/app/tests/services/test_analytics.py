@@ -25,3 +25,16 @@ def make_damage_stats(**overrides: Any):
     }
     base.update(overrides)
     return base
+
+def make_participant_frame(participant_id: str="1", **overrides: Any) -> Any:
+    base: Any = {
+        "championStates": make_champion_stats(),
+        "damageStats": make_damage_stats(),
+        "currentGold": 500, "goldPerSecond": 2, "jungleMinionsKilled": 3,
+        "level": 5, "minionsKilled": 40, "timeSpentControlled": 0,
+        "totalGold": 3000, "xp": 4000,
+        "position": {"x": 100, "y": 200}
+    }
+    base.update(overrides)
+    return base
+
