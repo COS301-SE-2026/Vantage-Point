@@ -194,3 +194,6 @@ class ProfileServiceTest:
         with pytest.raises(HTTPException) as exc:
             await ProfileService.update_email(session, "new@test.com", "valid-token")
         assert exc.value.status_code == 400
+
+
+    
