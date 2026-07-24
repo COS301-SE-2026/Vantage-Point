@@ -15,3 +15,13 @@ def make_champion_stats(**overrides: Any):
     }
     base.update(overrides)
     return base
+
+def make_damage_stats(**overrides: Any):
+    base = {
+        "magicDamageDone": 100, "magicDamageDoneToChampions": 50, "magicDamageTaken": 20,
+        "physicalDamageDone": 200, "physicalDamageDoneToChampions": 80, "physicalDamageTaken": 40,
+        "totalDamageDone": 300, "totalDamageDoneToChampions": 130 ,"totalDamageTaken": 60,
+        "trueDamageDone": 0, "trueDamageDoneToChampions": 0, "trueDamageTaken": 0
+    }
+    base.update(overrides)
+    return base
