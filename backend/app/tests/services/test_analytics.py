@@ -38,11 +38,29 @@ def make_participant_frame(participant_id: str="1", **overrides: Any) -> Any:
     base.update(overrides)
     return base
 
-def make_frame(timestamp: int=60000, participants_ids=None, events=None):
+def make_frame(timestamp: int=60000, participants_ids: Any=None, events: Any=None):
     participants_ids = participants_ids or [str(i) for i in range(1, 11)]
     response: Any = {
         "timestamp": timestamp,
         "participantFrames": {pid: make_participant_frame(pid) for pid in participants_ids},
         "events": events or []
+    }
+    return response
+
+def make_timeline(num_frames: int=2, participants: Any= None, events_per_frame: Any=None):
+    participants = participants or [
+        {"puuid": f"puuid-{i}", "participantId": i} for i in range(1, 11)
+    ]
+    frames = [
+        make_frame(60000 * (i+1), (events_per_frame or [[]] * num_frames)[i])
+        for i in range(num_frames)
+    ]
+
+    response: Any = {
+        "info": {
+            "frames": frames,
+            "participants": participants,
+            "frameInterval": 60000
+        }
     }
     return response
