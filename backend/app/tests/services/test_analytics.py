@@ -38,3 +38,11 @@ def make_participant_frame(participant_id: str="1", **overrides: Any) -> Any:
     base.update(overrides)
     return base
 
+def make_frame(timestamp: int=60000, participants_ids=None, events=None):
+    participants_ids = participants_ids or [str(i) for i in range(1, 11)]
+    response: Any = {
+        "timestamp": timestamp,
+        "participantFrames": {pid: make_participant_frame(pid) for pid in participants_ids},
+        "events": events or []
+    }
+    return response
