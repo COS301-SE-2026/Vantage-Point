@@ -210,4 +210,4 @@ class ProfileService:
             raise
 
     # update pswd and confirm update
-    #build player
+    # build player

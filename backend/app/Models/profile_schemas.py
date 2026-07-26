@@ -20,6 +20,7 @@ class UserProfile(BaseModel):
     updated_at: datetime | None = None
     scheduled_deletion: datetime | None = None
 
+
 class LiveAdvancedMetrics(BaseModel):
     games_analyzed: int
     avg_kda: str
