@@ -30,8 +30,17 @@ mock_user2 = UserTest(
 class TestAdminRouter():
 
     @staticmethod
-    async def test_get_users(client: TestClient):
+    @patch.object(admin_service, "get_users")
+    async def test_get_users(mock_get_users: Any, client: TestClient):
         mock_users = [
             mock_user1,
-
+            mock_user2
         ]
+        mock_get_users.return_value = mock_users
+        response: Any = client.get("/admin/users?limit=10")
+
+        assert response.status_code == 200
+        assert len(response.username) == 2
+        assert response[0].username == "user1"
+        mock_get_users.assert_called_once_with(10)
+
