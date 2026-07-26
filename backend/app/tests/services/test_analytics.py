@@ -132,4 +132,10 @@ class TestAnalytics():
         assert stats.totalDamageDone == [300, 300]
         assert stats.magicDamageDoneToChampions == [50, 50]
 
-    
+    @staticmethod
+    def test_get_participants_stats():
+        frames = [make_frame()]
+        stats = LiveAnalyticsService.get_participants_data(frames, "1")
+        assert stats.participantId == "1"
+        assert stats.currentGold == [500]
+        assert stats.level == [5]  
