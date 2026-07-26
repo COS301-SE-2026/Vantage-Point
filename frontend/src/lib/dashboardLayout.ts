@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
 
 export const DASHBOARD_FRAME_W = 1512;
-const DASHBOARD_SIDEBAR_LEFT = 28;
-/** Matches Figma node 14:665 (Rectangle 5) width */
+/** Figma 13:1171 (Rectangle 5) — panel spans x 34…214, content starts at 248. */
+const DASHBOARD_SIDEBAR_LEFT = 34;
 const DASHBOARD_SIDEBAR_WIDTH = 180;
-const DASHBOARD_CONTENT_GAP = 40;
+const DASHBOARD_CONTENT_GAP = 34;
 
 export const DASHBOARD_CONTENT_LEFT_OPEN =
   DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_CONTENT_GAP;

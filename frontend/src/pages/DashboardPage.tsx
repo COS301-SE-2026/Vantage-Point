@@ -8,6 +8,14 @@ import {
 import DashboardShell, {
   type DashboardSection,
 } from "../components/DashboardShell";
+import ProfileHeaderEditor from "../components/ProfileHeaderEditor";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchPlayerProfile } from "../api/profile";
 import { useAuth } from "../context/AuthContext";
@@ -27,6 +35,7 @@ export default function DashboardPage() {
   const { user, logout, refreshUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profile, setProfile] = useState<PlayerProfile | undefined>(undefined);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   const loadProfile = useCallback(async () => {
     if (!user) {
@@ -76,6 +85,7 @@ export default function DashboardPage() {
 
   const accountAvatarUrl = profile?.avatar_url ?? user?.avatar_url ?? null;
   const accountInitials = profile?.avatar_initials ?? "VP";
+  const isProfileSection = activeSection === "profile";
 
   const handleLogout = () => {
     logout();
@@ -89,7 +99,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-auto bg-white">
+    <div className="vp-scrollbar min-h-screen w-full overflow-x-auto bg-white">
       <div className="relative mx-auto w-full min-w-0 max-w-[var(--vp-layout-max)]">
         <DashboardShell
           sidebarOpen={sidebarOpen}
@@ -102,10 +112,36 @@ export default function DashboardPage() {
           onLogout={handleLogout}
           accountInitials={accountInitials}
           accountAvatarUrl={accountAvatarUrl}
+          accountName={isProfileSection ? profile?.display_name : undefined}
+          accountTag={isProfileSection ? profile?.riot_id_tag : undefined}
+          onEditProfileClick={
+            profile ? () => setEditProfileOpen(true) : undefined
+          }
         >
           <Outlet context={outletContext} />
         </DashboardShell>
       </div>
+
+      {profile ? (
+        <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[560px]">
+            <DialogHeader>
+              <DialogTitle className="font-['Inter',sans-serif]">
+                Edit profile
+              </DialogTitle>
+              <DialogDescription className="font-['Inter',sans-serif]">
+                Update your display name, Riot ID and profile photo.
+              </DialogDescription>
+            </DialogHeader>
+            <ProfileHeaderEditor
+              profile={profile}
+              onSaved={refreshProfile}
+              forceEditing
+              onClose={() => setEditProfileOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </div>
   );
 }

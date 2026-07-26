@@ -2,18 +2,35 @@ import type { CSSProperties, ReactNode } from "react";
 import UserAccountMenu from "./UserAccountMenu";
 import { getDashboardContentBackdropStyle } from "../lib/dashboardLayout";
 import svgPaths from "./dashboard-shell-svg";
-import imgLogo from "../assets/images/dashboard/dashboard-logo-mark.png";
+import imgLogo from "../assets/images/logos/logo-mark.webp";
 
-/** Figma 14:665 — left nav parent panel */
-const DASHBOARD_SIDEBAR_LEFT = 28;
+/** Figma 13:1171 — left nav parent panel, x 34…214 / y 93…643. */
+const DASHBOARD_SIDEBAR_LEFT = 34;
 const DASHBOARD_SIDEBAR_WIDTH = 180;
-const DASHBOARD_SIDEBAR_TOP = 94;
+const DASHBOARD_SIDEBAR_TOP = 93;
 const DASHBOARD_NAV_INSET = 10;
-const DASHBOARD_TOGGLE_OFFSET = -10;
-const DASHBOARD_SIDEBAR_HEIGHT = 560;
+const DASHBOARD_SIDEBAR_HEIGHT = 550;
 const DASHBOARD_NAV_WIDTH = DASHBOARD_SIDEBAR_WIDTH - DASHBOARD_NAV_INSET * 2;
+
+/** Figma 13:1177–13:1180 — 35px rows at y 125 / 178 / 231, log out at 595. */
+const DASHBOARD_NAV_PADDING_TOP = 32;
+const DASHBOARD_NAV_GAP = 18;
+const DASHBOARD_NAV_PADDING_BOTTOM = 13;
+
+/** Figma 13:1172 — 14px glyph inside the panel, 7.5px in from its right edge. */
+const DASHBOARD_TOGGLE_ICON = 14;
+const DASHBOARD_TOGGLE_HIT = 24;
+const DASHBOARD_TOGGLE_CENTER_Y = 14;
+const DASHBOARD_TOGGLE_RIGHT_INSET = 7.5;
+const DASHBOARD_TOGGLE_TOP =
+  DASHBOARD_SIDEBAR_TOP + DASHBOARD_TOGGLE_CENTER_Y - DASHBOARD_TOGGLE_HIT / 2;
 const DASHBOARD_TOGGLE_LEFT_OPEN =
-  DASHBOARD_SIDEBAR_LEFT + DASHBOARD_SIDEBAR_WIDTH + DASHBOARD_TOGGLE_OFFSET;
+  DASHBOARD_SIDEBAR_LEFT +
+  DASHBOARD_SIDEBAR_WIDTH -
+  DASHBOARD_TOGGLE_RIGHT_INSET -
+  DASHBOARD_TOGGLE_ICON / 2 -
+  DASHBOARD_TOGGLE_HIT / 2;
+const DASHBOARD_TOGGLE_LEFT_CLOSED = DASHBOARD_SIDEBAR_LEFT;
 
 export type DashboardSection = "matches" | "replay" | "metrics" | "profile";
 
@@ -29,23 +46,27 @@ interface DashboardShellProps {
   readonly onProfileClick?: () => void;
   readonly accountInitials?: string;
   readonly accountAvatarUrl?: string | null;
+  /** Figma 14:464 — shown beside the 88px avatar on the Profile Page only. */
+  readonly accountName?: string;
+  readonly accountTag?: string;
+  readonly onEditProfileClick?: () => void;
 }
 
+/** Figma 54:320 — mark at (24,32) 68px wide, wordmark at (94,42) 15px caps. */
 function Logo() {
   return (
     <div
-      className="absolute left-[18px] top-[18px] z-20 flex items-center gap-[10px]"
-      data-name="logo"
+      className="pointer-events-none absolute left-0 top-0 z-20 h-[93px] w-[214px]"
+      data-name="Logo"
+      data-node-id="54:320"
     >
-      <div className="h-[42px] w-[56px]">
-        <img
-          alt="Vantage Point logo"
-          className="h-full w-full object-contain"
-          src={imgLogo}
-        />
-      </div>
-      <p className="font-['League_Spartan',sans-serif] text-[31px] font-semibold leading-none tracking-[0.01em] text-[#1e1e1e]">
-        VANTAGE POINT
+      <img
+        alt="Vantage Point logo"
+        className="absolute left-[25px] top-[32px] h-auto w-[68px] object-contain"
+        src={imgLogo}
+      />
+      <p className="absolute left-[94px] top-[42px] h-[20px] font-['League_Spartan',sans-serif] text-[15px] font-bold uppercase leading-[20px] tracking-[0.6px] whitespace-nowrap text-[#1e1e1e]">
+        Vantage Point
       </p>
     </div>
   );
@@ -53,7 +74,7 @@ function Logo() {
 
 function NavItemLabel({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <span className="absolute left-[14px] top-[7px] font-['Inter:Regular',sans-serif] text-[20px] font-normal leading-[1.05] text-[#1e1e1e]">
+    <span className="font-['Beaufort_for_LOL',serif] text-[14px] font-normal leading-[20px] text-[#1e1e1e]">
       {children}
     </span>
   );
@@ -71,7 +92,11 @@ export default function DashboardShell({
   onProfileClick,
   accountInitials = "UN",
   accountAvatarUrl = null,
+  accountName,
+  accountTag,
+  onEditProfileClick,
 }: Readonly<DashboardShellProps>) {
+  const showAccountHeading = Boolean(accountName);
   const panelVars = {
     "--transform-inner-width": "1200",
     "--transform-inner-height": "19",
@@ -91,14 +116,39 @@ export default function DashboardShell({
         />
       </div>
 
-      <div className="absolute right-6 top-[29px] z-20">
-        <UserAccountMenu
-          onProfileClick={onProfileClick}
-          onLogout={onLogout}
-          initials={accountInitials}
-          avatarUrl={accountAvatarUrl}
-        />
-      </div>
+      {showAccountHeading ? (
+        /* Figma 14:440 (141×60 heading) butted against the 88px avatar at 13:1166. */
+        <div className="absolute right-[15px] top-[31px] z-20 flex items-center">
+          <div className="w-[141px] px-[15px]" data-node-id="14:464">
+            <p className="h-[29px] truncate font-['Beaufort_for_LOL',serif] text-[24px] font-medium leading-[29px] text-[#1e1e1e]">
+              {accountName}
+            </p>
+            {accountTag ? (
+              <p className="mt-[2px] h-[22px] truncate font-['Inter',sans-serif] text-[16px] leading-[22px] text-[#b7b7b7]">
+                {accountTag}
+              </p>
+            ) : null}
+          </div>
+          <UserAccountMenu
+            onProfileClick={onProfileClick}
+            onEditProfileClick={onEditProfileClick}
+            onLogout={onLogout}
+            initials={accountInitials}
+            avatarUrl={accountAvatarUrl}
+            size={88}
+          />
+        </div>
+      ) : (
+        <div className="absolute right-6 top-[29px] z-20">
+          <UserAccountMenu
+            onProfileClick={onProfileClick}
+            onEditProfileClick={onEditProfileClick}
+            onLogout={onLogout}
+            initials={accountInitials}
+            avatarUrl={accountAvatarUrl}
+          />
+        </div>
+      )}
 
       {sidebarOpen ? (
         <nav
@@ -113,11 +163,17 @@ export default function DashboardShell({
             height: DASHBOARD_SIDEBAR_HEIGHT,
           }}
         >
-          <div className="flex flex-col gap-[13px] px-[10px] pt-[30px]">
+          <div
+            className="flex flex-col px-[10px]"
+            style={{
+              gap: DASHBOARD_NAV_GAP,
+              paddingTop: DASHBOARD_NAV_PADDING_TOP,
+            }}
+          >
             <button
               type="button"
               onClick={onMatchesClick}
-              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               aria-label="Matches"
               aria-current={activeSection === "matches" ? "page" : undefined}
@@ -127,7 +183,7 @@ export default function DashboardShell({
             <button
               type="button"
               onClick={onReplayClick}
-              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               data-name="Match Replay"
               aria-label="Match Replay"
@@ -138,7 +194,7 @@ export default function DashboardShell({
             <button
               type="button"
               onClick={onMetricsClick}
-              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               data-name="Metrics"
               aria-label="Metrics"
@@ -147,11 +203,14 @@ export default function DashboardShell({
               <NavItemLabel>Metrics</NavItemLabel>
             </button>
           </div>
-          <div className="mt-auto px-[10px] pb-[20px]">
+          <div
+            className="mt-auto px-[10px]"
+            style={{ paddingBottom: DASHBOARD_NAV_PADDING_BOTTOM }}
+          >
             <button
               type="button"
               onClick={onLogout}
-              className="relative h-[35px] cursor-pointer rounded-[10px] border-0 bg-[#dadada] p-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               aria-label="Log out"
             >
@@ -169,10 +228,14 @@ export default function DashboardShell({
         aria-label={
           sidebarOpen ? "Collapse navigation panel" : "Expand navigation panel"
         }
-        className="absolute z-30 flex size-[24px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-[#e8e8e8]"
+        className="absolute z-30 flex cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-[#e8e8e8]"
         style={{
-          top: DASHBOARD_SIDEBAR_TOP,
-          left: sidebarOpen ? DASHBOARD_TOGGLE_LEFT_OPEN : 44,
+          top: DASHBOARD_TOGGLE_TOP,
+          left: sidebarOpen
+            ? DASHBOARD_TOGGLE_LEFT_OPEN
+            : DASHBOARD_TOGGLE_LEFT_CLOSED,
+          width: DASHBOARD_TOGGLE_HIT,
+          height: DASHBOARD_TOGGLE_HIT,
           ...panelVars,
         }}
       >
@@ -180,10 +243,10 @@ export default function DashboardShell({
           className={`flex-none transition-transform duration-300 ease-out ${sidebarOpen ? "rotate-90" : "-rotate-90"}`}
         >
           <div
-            className="relative size-[24px] overflow-clip"
+            className="relative size-[14px] overflow-clip"
             data-name="Icon / panel-top-open"
           >
-            <div className="absolute inset-[9.38%]" data-name="Vector">
+            <div className="absolute inset-0" data-name="Vector">
               <svg
                 className="absolute inset-0 block size-full"
                 fill="none"
