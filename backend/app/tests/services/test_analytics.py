@@ -124,3 +124,12 @@ class TestAnalytics():
         assert stats.armor == [20, 20]
         assert stats.attackDamage == [60, 60]
         assert len(stats.abilityPower) == 2
+
+    @staticmethod
+    def test_get_damage_stats():
+        frames = [make_frame(), make_frame()]
+        stats = LiveAnalyticsService.get_damage_stats(frames, "1")
+        assert stats.totalDamageDone == [300, 300]
+        assert stats.magicDamageDoneToChampions == [50, 50]
+
+    
