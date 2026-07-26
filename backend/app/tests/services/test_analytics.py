@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, patch
 
 # from fastapi import HTTPException
 from app.services.analytics import LiveAnalyticsService
-from app.services.riot_service import RiotService
 from typing import Any
 
 
@@ -213,9 +212,10 @@ class TestAnalytics:
 
     @staticmethod
     @patch("app.services.analytics.riot_service")
-    async def test_map_replay_fecthes_no_provided_data(mock_riot_services: RiotService):
+    async def test_map_replay_fecthes_no_provided_data(mock_riot_services: Any):
         timeline: Any = make_timeline(1)
-        mock_riot_services.get_match_timeline = AsyncMock(return_value=timeline)
+        mock_service: Any = mock_riot_services.return_value
+        mock_service.get_match_timeline = AsyncMock(return_value=timeline)
         result = await LiveAnalyticsService.map_replay("match-1")
         mock_riot_services.get_match_timeline.assert_called_once_with("match-1")
         assert result.frame_interval == 60000
