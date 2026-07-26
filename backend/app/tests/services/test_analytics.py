@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, patch
-from fastapi import HTTPException
+# from fastapi import HTTPException
 from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import RiotService
 from typing import Any
@@ -159,6 +159,3 @@ class TestAnalytics():
         result = await LiveAnalyticsService.map_replay("match-1")
         mock_riot_services.get_match_timeline.assert_called_once_with("match-1")
         assert result.frame_interval == 60000
-
-    @staticmethod
-    @patch("app.services.analytics")
