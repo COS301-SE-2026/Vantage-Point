@@ -21,7 +21,7 @@ export default function MatchesListToolbar({
 }: Readonly<MatchesListToolbarProps>) {
   return (
     <div
-      className="mb-5 flex w-full max-w-[820px] min-w-0 items-center gap-2"
+      className="mb-5 flex w-full max-w-[820px] min-w-0 items-center justify-end gap-2"
       role="toolbar"
       aria-label="Match list controls"
     >

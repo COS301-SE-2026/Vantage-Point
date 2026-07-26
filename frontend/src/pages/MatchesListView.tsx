@@ -42,10 +42,10 @@ const MATCH_ROW_GRID =
   "grid h-[30px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 px-3";
 
 const STAT_LABEL_CLASS =
-  "font-['Inter:Regular',sans-serif] text-[10px] font-medium uppercase tracking-[0.275px] text-[#757575]";
+  "font-['Beaufort_for_LOL',serif] text-[10px] font-medium uppercase tracking-[0.275px] text-[#757575]";
 
 const STAT_VALUE_CLASS =
-  "font-['Inter:Regular',sans-serif] text-[12px] text-[#1e1e1e] tabular-nums";
+  "font-['Beaufort_for_LOL',serif] text-[12px] text-[#1e1e1e] tabular-nums";
 
 function matchRowAriaLabel(item: DashboardMatchListItem): string {
   return `View match as ${item.champion_name}, ${item.outcome}, role ${item.roleLabel}, KDA ${item.kdaLabel}, ${item.cs} creep score, ${item.duration_minutes} minutes`;
@@ -62,9 +62,7 @@ function MatchStatCell({
 }>) {
   const alignment = align === "end" ? "text-right" : "text-left";
   return (
-    <div className={`block min-w-0 ${alignment} ${className}`}>
-      {children}
-    </div>
+    <div className={`block min-w-0 ${alignment} ${className}`}>{children}</div>
   );
 }
 
@@ -107,13 +105,13 @@ function MatchHistoryListRow({
     >
       <MatchStatCell>
         <span
-          className={`font-['Inter:Semi_Bold',sans-serif] text-[13px] font-semibold ${outcomeClass(item.outcome)}`}
+          className={`font-['Beaufort_for_LOL',serif] text-[13px] font-bold ${outcomeClass(item.outcome)}`}
         >
           {item.outcome}
         </span>
       </MatchStatCell>
       <MatchStatCell>
-        <span className="truncate font-['Inter:Regular',sans-serif] text-[12px] text-[#1e1e1e]">
+        <span className="truncate font-['Beaufort_for_LOL',serif] text-[12px] font-medium text-[#1e1e1e]">
           {item.champion_name}
         </span>
       </MatchStatCell>
@@ -123,7 +121,7 @@ function MatchHistoryListRow({
         </span>
       </MatchStatCell>
       <MatchStatCell>
-        <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#1e1e1e] tabular-nums">
+        <span className="font-['Beaufort_for_LOL',serif] text-[12px] font-bold text-[#1e1e1e] tabular-nums">
           {item.kdaLabel}
         </span>
       </MatchStatCell>
@@ -150,8 +148,11 @@ function MatchHistoryDaySection({
   onOpenMatch: (matchId: string) => void;
 }>) {
   return (
-    <section className="flex flex-col gap-1.5" aria-label={`Matches on ${dayRow.dateLabel}`}>
-      <h2 className="font-['Inter:Regular',sans-serif] text-[28px] font-normal leading-[1] text-[#1e1e1e]">
+    <section
+      className="flex flex-col gap-1.5"
+      aria-label={`Matches on ${dayRow.dateLabel}`}
+    >
+      <h2 className="font-['Beaufort_for_LOL',serif] text-[14px] font-medium leading-[22.4px] text-[#1e1e1e]">
         {dayRow.dateLabel}
       </h2>
       <div role="table" className="flex flex-col gap-2">
@@ -240,7 +241,7 @@ export default function MatchesListView(
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="matches-list-view"
     >
-      <div className="relative h-full overflow-auto px-0 pb-8 pt-6">
+      <div className="vp-scrollbar relative h-full overflow-auto px-0 pb-8 pt-6">
         {!loading && !error ? (
           <div className="mx-auto w-full max-w-[820px]">
             <MatchesListToolbar

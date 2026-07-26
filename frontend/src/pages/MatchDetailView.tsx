@@ -26,7 +26,7 @@ interface MatchDetailViewProps {
 }
 
 const SCOREBOARD_WIDTH = "w-full max-w-[554px]";
-const FONT = "font-['Inter',sans-serif]";
+const FONT = "font-['Beaufort_for_LOL',serif]";
 
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -170,7 +170,7 @@ function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
           <div className="min-w-0">
             <p
               className={`${FONT} truncate text-[14px] leading-[20px] text-[#1e1e1e] ${
-                isViewer ? "font-semibold" : "font-medium"
+                isViewer ? "font-bold" : "font-medium"
               }`}
             >
               {player.riot_id ?? `${player.champion_name}#Player`}
@@ -187,22 +187,22 @@ function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
         {player.kills}/{player.deaths}/{player.assists}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
       >
         {player.cs}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
       >
         {formatGold(player.gold_earned)}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
       >
         {formatGold(player.damage_to_champions)}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
       >
         {player.vision_score}
       </td>
@@ -340,7 +340,9 @@ function BansSection({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
 
   return (
     <section className={`${SCOREBOARD_WIDTH} flex flex-col gap-2`}>
-      <h2 className={`${FONT} text-[15px] font-medium leading-[16px] text-[#1e1e1e]`}>
+      <h2
+        className={`${FONT} text-[15px] font-medium leading-[16px] text-[#1e1e1e]`}
+      >
         Bans
       </h2>
       <div className="flex flex-wrap gap-[4px]">
@@ -403,7 +405,7 @@ function MatchInsightsPanel({
       aria-label="AI coaching comments"
     >
       <div
-        className="flex min-h-0 flex-1 flex-col gap-[12px] overflow-y-auto px-[15px] py-[12px]"
+        className="vp-scrollbar flex min-h-0 flex-1 flex-col gap-[12px] overflow-y-auto px-[15px] py-[12px]"
         data-name="AI Coaching comments"
       >
         {cards.map((card) => (
@@ -416,18 +418,16 @@ function MatchInsightsPanel({
                 : "h-[45px] px-3 py-2"
             }`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <h3
-                className={`${FONT} text-[16px] font-semibold leading-[1.2] text-[#1e1e1e]`}
-              >
-                {card.title}
-              </h3>
-              <ChevronDown
-                className="mt-0.5 size-[18px] shrink-0 text-[#525252]"
-                strokeWidth={2}
-                aria-hidden
-              />
-            </div>
+            <h3
+              className={`${FONT} px-5 text-center text-[16px] font-bold leading-[1.2] text-[#1e1e1e]`}
+            >
+              {card.title}
+            </h3>
+            <ChevronDown
+              className="absolute right-3 top-2 size-[18px] shrink-0 text-[#525252]"
+              strokeWidth={2}
+              aria-hidden
+            />
             {card.expanded ? (
               <p
                 className={`${FONT} mt-2 text-[13px] leading-[1.35] text-[#525252]`}
@@ -525,14 +525,18 @@ export default function MatchDetailView({
       data-name="match-detail-view"
     >
       <div className="relative flex h-full flex-col items-stretch gap-[14px] overflow-hidden px-4 py-4 sm:px-6 xl:flex-row xl:px-8">
-        <div className="min-w-0 flex-1 overflow-y-auto pr-1">
+        <div className="vp-scrollbar min-w-0 flex-1 overflow-y-auto pr-1">
           <button
             type="button"
             onClick={onBack}
             aria-label="Back to matches"
             className="mb-4 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] transition-opacity hover:opacity-80"
           >
-            <ArrowLeft className="size-4 shrink-0" strokeWidth={2} aria-hidden />
+            <ArrowLeft
+              className="size-4 shrink-0"
+              strokeWidth={2}
+              aria-hidden
+            />
             <span className={`${FONT} text-[13px] font-normal text-[#676767]`}>
               Back to matches
             </span>

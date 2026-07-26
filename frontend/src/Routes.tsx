@@ -10,12 +10,13 @@ import MatchReplayView from "./pages/MatchReplayView";
 import MatchesListView from "./pages/MatchesListView";
 import MetricsView from "./pages/MetricsView";
 import ProfileView from "./pages/ProfileView";
+import LandingPage from "./pages/LandingPage";
 import RegisterPage from "./pages/RegisterPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    Component: LandingPage,
   },
   {
     path: "/login",
