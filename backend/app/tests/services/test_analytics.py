@@ -118,4 +118,9 @@ class TestAnalytics():
         assert LiveAnalyticsService.find_participant_id(participants, "zzz") is None
 
     @staticmethod
-    
+    def test_get_champion_stats():
+        frames = [make_frame, make_frame]
+        stats = LiveAnalyticsService.get_champion_stats(frames, "1")
+        assert stats.armor == [20, 20]
+        assert stats.attackDamage == [60, 60]
+        assert len(stats.abilityPower) == 2
