@@ -75,3 +75,31 @@ def make_match_particpants(puuid: str="puuid-1", particpant_id:int=1, **override
     base.update(overrides)
     return base
 
+def make_match_detail(particpants=None, teams=None, **overrides):
+    particpants = particpants or [make_match_particpants]
+    teams = teams or [
+        {
+            "teamdId": 100, "win": True, "bans": [{"championId": 99, "pickTurn": 1}],
+            "objectives": {
+                "baron": {"first": True, "kills": 1},
+                "champion": {"first": True, "kills": 20},
+                "dragon": {"first": False, "kills": 2},
+                "horde": {"first": False, "kills": 0},
+                "inhibitor": {"first": True, "kills": 1},
+                "riftHerald": {"first": False, "kills": 1},
+                "tower": {"first": True, "kills": 5},
+            },            
+        }
+    ]
+    info: Any = {
+        "endOfGameResult": "GameComplete",
+        "gameDuration": 1800, 
+        "gameMode": "Classic",
+        "gameName": "Ranked",
+        "mapId": 11, 
+        "platformId": "NA1",
+        "particpants": "participants",
+        "teams": teams
+    }
+    info.update(overrides)
+    return {"info": info}
