@@ -1,21 +1,44 @@
-import { useState } from "react";
 import { useOutletContext } from "react-router";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
-import { getAchievementIcon } from "../lib/achievementIcons";
+import { localChampionIcon } from "../assets/images/champions/icons";
 import { championIconUrl } from "../lib/ddragon";
-import type { PlayerProfile } from "../types/profile";
+import type { PlayerProfile, RecentChampion } from "../types/profile";
 import {
   DASHBOARD_CONTENT_HEIGHT,
   getDashboardContentStyle,
 } from "../lib/dashboardLayout";
 import FeaturedGameCard from "../components/FeaturedGameCard";
-import ProfileHeaderEditor from "../components/ProfileHeaderEditor";
 import ProfileRadarChart from "../components/ProfileRadarChart";
-import { useAuth } from "../context/AuthContext";
 
 interface ProfileViewProps {
   readonly profile?: PlayerProfile;
   readonly sidebarOpen?: boolean;
+}
+
+/** Section heading — Figma 14:475 / 14:591 (Beaufort Bold, 0.35 tracking, caps). */
+const SECTION_HEADING_CLASS =
+  "font-['Beaufort_for_LOL',serif] font-bold uppercase tracking-[0.35px] text-[#1e1e1e]";
+
+/** Champion tile — Figma 14:593: 88×88, r12, #404040, count badge bottom-right. */
+function ChampionTile({ champion }: Readonly<{ champion: RecentChampion }>) {
+  const localIcon = localChampionIcon(champion.champion_name);
+
+  return (
+    <div
+      className="relative size-[88px] shrink-0 overflow-hidden rounded-[12px] bg-[#404040] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]"
+      title={`${champion.champion_name} · ${champion.games_played} games`}
+      data-name={`Image (${champion.champion_name})`}
+    >
+      <img
+        src={localIcon ?? championIconUrl(champion.champion_name)}
+        alt={champion.champion_name}
+        className="size-full object-cover"
+      />
+      <span className="absolute bottom-[4px] right-[4px] h-[19px] w-[17.717px] rounded-[4px] bg-[rgba(0,0,0,0.7)] pl-[6px] pt-[0.5px] font-['Arimo','Arial',sans-serif] text-[10px] leading-[15px] text-white">
+        {champion.games_played}
+      </span>
+    </div>
+  );
 }
 
 export default function ProfileView({
@@ -23,26 +46,15 @@ export default function ProfileView({
   sidebarOpen: sidebarOpenProp,
 }: Readonly<ProfileViewProps> = {}) {
   const outlet = useOutletContext<DashboardOutletContext | undefined>();
-  const { refreshUser } = useAuth();
   const profile = profileProp ?? outlet?.profile;
   const sidebarOpen = sidebarOpenProp ?? outlet?.sidebarOpen ?? true;
-  const refreshProfile = outlet?.refreshProfile;
-  const [cardExpanded, setCardExpanded] = useState(true);
-
-  const handleProfileSaved = async () => {
-    if (refreshProfile) {
-      await refreshProfile();
-    } else {
-      await refreshUser();
-    }
-  };
 
   const contentStyle = getDashboardContentStyle(sidebarOpen);
 
   if (!profile) {
     return (
       <div
-        className="absolute top-[var(--vp-dashboard-header)] min-w-0 px-10 py-8 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] transition-[left,width] duration-300 ease-out"
+        className="absolute top-[var(--vp-dashboard-header)] min-w-0 px-10 py-8 font-['Inter',sans-serif] text-[16px] text-[#757575] transition-[left,width] duration-300 ease-out"
         style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
         data-name="profile-view"
       >
@@ -58,105 +70,65 @@ export default function ProfileView({
       className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="profile-view"
+      data-node-id="14:648"
     >
-      <div className="relative h-full overflow-auto px-10 py-8">
-        <ProfileHeaderEditor profile={profile} onSaved={handleProfileSaved} />
+      {/* Content column starts at Figma x=248 / y=125, i.e. flush left, 31px below the header. */}
+      <div className="vp-scrollbar relative h-full overflow-auto px-0 pb-8 pt-[31px]">
+        <div
+          className="relative w-[806px] max-w-full"
+          data-name="Paragraph"
+          data-node-id="14:474"
+        >
+          {/* Radar + featured card row — Figma 14:474, 348px tall (heading top → radar bottom). */}
+          <div className="relative h-[348px]">
+            <p
+              className={`absolute left-0 top-[-2.5px] h-[24px] text-[16px] leading-[24px] whitespace-nowrap ${SECTION_HEADING_CLASS}`}
+              data-node-id="14:475"
+            >
+              Last {profile.matches_sampled} matches
+            </p>
 
-        <div className="mt-14">
-          <p className="mb-6 font-['Inter:Semi_Bold',sans-serif] text-[16px] font-semibold text-[#525252]">
-            Last {profile.matches_sampled} matches
-          </p>
-
-          <div className="grid min-w-0 grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(305px,520px)]">
-            <section aria-label="Performance radar" className="min-w-0">
+            <section
+              aria-label="Performance radar"
+              className="absolute left-0 top-[28px] h-[320px] w-[360px]"
+              data-name="Surface"
+              data-node-id="14:140"
+            >
               <ProfileRadarChart metrics={profile.radar_metrics} />
-              <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1">
-                {profile.radar_metrics.map((m) => (
-                  <li
-                    key={m.key}
-                    className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575]"
-                  >
-                    <span className="text-[#1e1e1e]">{m.label}</span>:{" "}
-                    {m.rawLabel}
-                  </li>
-                ))}
-              </ul>
             </section>
 
             {featured ? (
               <section
                 aria-label="Featured game"
-                className="flex min-h-[314px] min-w-0 flex-col items-stretch lg:items-end"
+                className="absolute left-[360px] top-[24px]"
               >
-                <div className="w-full min-w-0 max-w-full transition-[width] duration-300 ease-out">
-                  <FeaturedGameCard
-                    slide={featured}
-                    expanded={cardExpanded}
-                    onToggle={() => setCardExpanded((open) => !open)}
-                  />
-                </div>
+                <FeaturedGameCard slide={featured} />
               </section>
             ) : null}
           </div>
+
+          <section
+            className="mt-[32px]"
+            aria-label="Most played champions"
+            data-name="Section - Recent champions"
+            data-node-id="14:589"
+          >
+            <h2
+              className={`h-[21px] text-[14px] leading-[21px] whitespace-nowrap ${SECTION_HEADING_CLASS}`}
+              data-node-id="14:591"
+            >
+              Most played champions
+            </h2>
+            <div
+              className="mt-[16px] flex w-[505px] max-w-full flex-wrap gap-[16px]"
+              data-node-id="14:592"
+            >
+              {profile.recent_champions.map((champion) => (
+                <ChampionTile key={champion.champion_id} champion={champion} />
+              ))}
+            </div>
+          </section>
         </div>
-
-        <section className="mt-12" aria-label="Recent champions">
-          <h2 className="mb-4 font-['Inter:Semi_Bold',sans-serif] text-[14px] font-semibold uppercase tracking-wide text-[#757575]">
-            Last played champions
-          </h2>
-          <div className="flex flex-wrap gap-4">
-            {profile.recent_champions.map((champ) => (
-              <div
-                key={champ.champion_id}
-                className="group relative size-[88px] overflow-hidden rounded-[12px] bg-[#404040] shadow-sm"
-                title={`${champ.champion_name} · ${champ.games_played} games`}
-              >
-                <img
-                  src={championIconUrl(champ.champion_name)}
-                  alt={champ.champion_name}
-                  className="size-full object-cover"
-                />
-                <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 font-['Inter:Regular',sans-serif] text-[10px] text-white">
-                  {champ.games_played}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-12" aria-label="Achievements">
-          <h2 className="mb-4 font-['Inter:Semi_Bold',sans-serif] text-[14px] font-semibold uppercase tracking-wide text-[#757575]">
-            Achievements
-          </h2>
-          <div className="flex flex-wrap gap-5">
-            {profile.achievements.map((a) => {
-              const Icon = getAchievementIcon(a.id);
-              return (
-                <div
-                  key={a.id}
-                  className="flex flex-col items-center gap-2"
-                  title={`${a.description} (${a.source_field})`}
-                >
-                  <div className="relative flex size-[72px] items-center justify-center rounded-full bg-black">
-                    {Icon ? (
-                      <Icon
-                        className="size-8 text-white"
-                        strokeWidth={2}
-                        aria-hidden
-                      />
-                    ) : null}
-                    <span className="absolute bottom-0 right-0 flex min-w-[22px] translate-x-1 translate-y-1 items-center justify-center rounded-full bg-[#404040] px-1.5 py-0.5 font-['Inter:Semi_Bold',sans-serif] text-[11px] font-semibold leading-none text-white ring-2 ring-white">
-                      {a.count > 99 ? "99+" : a.count}
-                    </span>
-                  </div>
-                  <span className="max-w-[80px] text-center font-['Inter:Regular',sans-serif] text-[12px] text-[#525252]">
-                    {a.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
       </div>
     </div>
   );

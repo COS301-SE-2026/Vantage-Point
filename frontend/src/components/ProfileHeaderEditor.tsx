@@ -15,13 +15,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 interface ProfileHeaderEditorProps {
   readonly profile: PlayerProfile;
   readonly onSaved: () => Promise<void>;
+  /** Skip the read-only header and open straight into the form (dialog use). */
+  readonly forceEditing?: boolean;
+  /** Called after a successful save or a cancel while `forceEditing`. */
+  readonly onClose?: () => void;
 }
 
 export default function ProfileHeaderEditor({
   profile,
   onSaved,
+  forceEditing = false,
+  onClose,
 }: Readonly<ProfileHeaderEditorProps>) {
   const [editing, setEditing] = useState(false);
+  const isEditing = forceEditing || editing;
   const [displayName, setDisplayName] = useState(profile.display_name);
   const [riotId, setRiotId] = useState(
     profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag,
@@ -36,7 +43,7 @@ export default function ProfileHeaderEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!editing) {
+    if (!isEditing) {
       setDisplayName(profile.display_name);
       setRiotId(
         profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag,
@@ -45,7 +52,7 @@ export default function ProfileHeaderEditor({
       setPendingFile(null);
       setRemoveAvatar(false);
     }
-  }, [profile, editing]);
+  }, [profile, isEditing]);
 
   const resetForm = () => {
     setDisplayName(profile.display_name);
@@ -59,6 +66,7 @@ export default function ProfileHeaderEditor({
   const handleCancel = () => {
     resetForm();
     setEditing(false);
+    onClose?.();
   };
 
   const handleFileChange = (file: File | undefined) => {
@@ -102,6 +110,7 @@ export default function ProfileHeaderEditor({
       setEditing(false);
       setPendingFile(null);
       setRemoveAvatar(false);
+      onClose?.();
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -117,7 +126,7 @@ export default function ProfileHeaderEditor({
 
   const viewAvatarSrc = resolveAvatarUrl(profile.avatar_url);
 
-  if (!editing) {
+  if (!isEditing) {
     return (
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-6">
