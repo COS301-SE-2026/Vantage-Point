@@ -102,12 +102,12 @@ def make_timeline(
     return response
 
 
-def make_match_particpants(
-    puuid: str = "puuid-1", particpant_id: int = 1, **overrides: Any
+def make_match_participants(
+    puuid: str = "puuid-1", participant_id: int = 1, **overrides: Any
 ):
     base: Any = {
         "puuid": puuid,
-        "particpantId": particpant_id,
+        "participantId": participant_id,
         "teamId": 100,
         "championId": 1,
         "championName": "Ahri",
@@ -126,11 +126,11 @@ def make_match_particpants(
     return base
 
 
-def make_match_detail(particpants: Any = None, teams: Any = None, **overrides: Any):
-    particpants = particpants or [make_match_particpants()]
+def make_match_detail(participants: Any = None, teams: Any = None, **overrides: Any):
+    participants = participants or [make_match_participants()]
     teams = teams or [
         {
-            "teamdId": 100,
+            "teamId": 100,
             "win": True,
             "bans": [{"championId": 99, "pickTurn": 1}],
             "objectives": {
@@ -151,7 +151,7 @@ def make_match_detail(particpants: Any = None, teams: Any = None, **overrides: A
         "gameName": "Ranked",
         "mapId": 11,
         "platformId": "NA1",
-        "particpants": "participants",
+        "participants": "participants",
         "teams": teams,
     }
     info.update(overrides)
@@ -162,18 +162,18 @@ def make_match_detail(particpants: Any = None, teams: Any = None, **overrides: A
 class TestAnalytics:
 
     @staticmethod
-    def test_find_particpant_id_found():
+    def test_find_participant_id_found():
         participants: Any = [
             {"puuid": "a", "participantId": 1},
-            {"puuid": "b", "particpantId": 2},
+            {"puuid": "b", "participantId": 2},
         ]
         assert LiveAnalyticsService.find_participant_id(participants, "b") == "2"
 
     @staticmethod
-    def test_find_particpant_id_not_found():
+    def test_find_participant_id_not_found():
         participants: Any = [
             {"puuid": "a", "participantId": 1},
-            {"puuid": "b", "particpantId": 2},
+            {"puuid": "b", "participantId": 2},
         ]
         assert LiveAnalyticsService.find_participant_id(participants, "zzz") is None
 
@@ -212,10 +212,9 @@ class TestAnalytics:
 
     @staticmethod
     @patch("app.services.analytics.riot_service")
-    async def test_map_replay_fecthes_no_provided_data(mock_riot_services: Any):
+    async def test_map_replay_fecthes_no_provided_data(mock_riot_service: Any):
         timeline: Any = make_timeline(1)
-        mock_service: Any = mock_riot_services.return_value
-        mock_service.get_match_timeline = AsyncMock(return_value=timeline)
+        mock_riot_service.get_match_timeline = AsyncMock(return_value=timeline)
         result = await LiveAnalyticsService.map_replay("match-1")
-        mock_riot_services.get_match_timeline.assert_called_once_with("match-1")
+        mock_riot_service.get_match_timeline.assert_called_once_with("match-1")
         assert result.frame_interval == 60000
