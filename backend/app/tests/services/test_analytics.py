@@ -64,3 +64,14 @@ def make_timeline(num_frames: int=2, participants: Any= None, events_per_frame: 
         }
     }
     return response
+
+def make_match_particpants(puuid: str="puuid-1", particpant_id:int=1, **overrides: Any):
+    base: Any = {
+        "puuid": puuid, "particpantId": particpant_id, "teamId":100,
+        "championId": 1, "championName": "Ahri", "kills": 5, "deaths": 2, "assits": 5,
+        "champExperience": 1000, "champLevel": 10, "teamPosition": "MIDDLE", "lane": "MIDDLE",
+        "role": "SOLO", "goldEarned": 10000, "challenges": {"kda": 5.0}
+    }
+    base.update(overrides)
+    return base
+
