@@ -139,3 +139,13 @@ class TestAnalytics():
         assert stats.participantId == "1"
         assert stats.currentGold == [500]
         assert stats.level == [5]  
+
+    @staticmethod
+    async def test_map_replay_uses_provided_data():
+        timeline = make_timeline()
+        result = await LiveAnalyticsService.map_replay("match-1", timeline)
+
+        assert result.frame_interval == 60000
+        assert len(result.timestamp) == 2
+        assert result.puuid == [f"puuid-{i}" for i in range(1, 11)]
+        assert len(result.position_x["1"]) == 2
