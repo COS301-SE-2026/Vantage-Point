@@ -29,9 +29,15 @@ async def get_jwks() -> dict[str, Any]:
         response = await client.get(jwks_url)
         response.raise_for_status()
 
-    jwks: dict[str, Any] = response.json()
-    jwks_cache = jwks
+    try:
+        jwks: dict[str, Any] = response.json()
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Invalid JWKS response from Cognito",
+        ) from exc
 
+    jwks_cache = jwks
     return jwks
 
 
@@ -77,26 +83,45 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
-    global jwks_cache
-    issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
+    issuer = (
+        f"https://cognito-idp.{settings.aws_region}.amazonaws.com/"
+        f"{settings.cognito_user_pool_id}"
+    )
 
     try:
         jwks = await get_jwks()
         public_key = get_public_key(token, jwks)
 
-        # 2. Decode and verify the token
+        # Decode and verify the token
         payload = jwt.decode(
             token,
             public_key,
             algorithms=["RS256"],
-            audience=settings.cognito_client_id,
             issuer=issuer,
+            options={"verify_aud": False},
         )
 
-        user_id = payload.get("sub")
-        if user_id is None:
+        # Verify token_use and client_id
+        token_use = payload.get("token_use")
+        if token_use != "access":
             raise HTTPException(
-                status_code=401,
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token_use",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        client_id = payload.get("client_id") or payload.get("aud")
+        if client_id != settings.cognito_client_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token client mismatch",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token missing subject",
                 headers={"WWW-Authenticate": "Bearer"},
             )
