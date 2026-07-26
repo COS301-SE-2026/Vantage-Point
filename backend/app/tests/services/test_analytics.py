@@ -29,10 +29,10 @@ def make_damage_stats(**overrides: Any):
 
 def make_participant_frame(participant_id: str="1", **overrides: Any) -> Any:
     base: Any = {
-        "championStates": make_champion_stats(),
+        "championStats": make_champion_stats(),
         "damageStats": make_damage_stats(),
         "currentGold": 500, "goldPerSecond": 2, "jungleMinionsKilled": 3,
-        "level": 5, "minionsKilled": 40, "timeSpentControlled": 0,
+        "level": 5, "minionsKilled": 40, "timeEnemySpentControlled": 0,
         "totalGold": 3000, "xp": 4000,
         "position": {"x": 100, "y": 200}
     }
@@ -77,7 +77,7 @@ def make_match_particpants(puuid: str="puuid-1", particpant_id:int=1, **override
     return base
 
 def make_match_detail(particpants: Any=None, teams: Any=None, **overrides: Any):
-    particpants = particpants or [make_match_particpants]
+    particpants = particpants or [make_match_particpants()]
     teams = teams or [
         {
             "teamdId": 100, "win": True, "bans": [{"championId": 99, "pickTurn": 1}],
@@ -110,17 +110,17 @@ class TestAnalytics():
 
     @staticmethod
     def test_find_particpant_id_found():
-        participants: Any = [{"puuid": "a", "particpantId": 1}, {"puuid": "b", "particpantId": 2}]
+        participants: Any = [{"puuid": "a", "participantId": 1}, {"puuid": "b", "particpantId": 2}]
         assert LiveAnalyticsService.find_participant_id(participants, "b") == "2"
 
     @staticmethod
     def test_find_particpant_id_not_found():
-        participants: Any = [{"puuid": "a", "particpantId": 1},  {"puuid": "b", "particpantId": 2}]
+        participants: Any = [{"puuid": "a", "participantId": 1},  {"puuid": "b", "particpantId": 2}]
         assert LiveAnalyticsService.find_participant_id(participants, "zzz") is None
 
     @staticmethod
     def test_get_champion_stats():
-        frames = [make_frame, make_frame]
+        frames = [make_frame(), make_frame()]
         stats = LiveAnalyticsService.get_champion_stats(frames, "1")
         assert stats.armor == [20, 20]
         assert stats.attackDamage == [60, 60]
@@ -144,7 +144,7 @@ class TestAnalytics():
     @staticmethod
     async def test_map_replay_uses_provided_data():
         timeline = make_timeline()
-        result = await LiveAnalyticsService.map_replay("match-1", timeline)
+        result = await LiveAnalyticsService.map_replay("match-1", data=timeline)
 
         assert result.frame_interval == 60000
         assert len(result.timestamp) == 2
@@ -155,7 +155,10 @@ class TestAnalytics():
     @patch("app.services.analytics.riot_service")
     async def test_map_replay_fecthes_no_provided_data(mock_riot_services: RiotService):
         timeline: Any = make_timeline(1)
-        mock_riot_services.get_match_timeline = AsyncMock(timeline)
+        mock_riot_services.get_match_timeline = AsyncMock(return_value=timeline)
         result = await LiveAnalyticsService.map_replay("match-1")
         mock_riot_services.get_match_timeline.assert_called_once_with("match-1")
         assert result.frame_interval == 60000
+
+    @staticmethod
+    @patch("app.services.analytics")
