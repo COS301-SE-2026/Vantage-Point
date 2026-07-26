@@ -10,10 +10,28 @@ from typing import Any
 app.include_router(router)
 
 
-mock_user = UserTest(
-    sub="test-sub-123",
+mock_user1 = UserTest(
+    sub="sub1",
     password="Test@123",
-    username="admin_user",
-    email="admin@test.com",
-    groups=["Admin"],
+    username="user1",
+    email="user1@test.com",
+    groups=["Users","Admin"],
 )
+
+mock_user2 = UserTest(
+    sub="sub2",
+    password="Test@123",
+    username="user2",
+    email="user2@test.com",
+    groups=["Users", "Admin"],
+)
+
+@pytest.mark.asyncio
+class TestAdminRouter():
+
+    @staticmethod
+    async def test_get_users(client: TestClient):
+        mock_users = [
+            mock_user1,
+
+        ]
