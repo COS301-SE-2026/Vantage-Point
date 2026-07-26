@@ -1,4 +1,4 @@
-from pytest
+import pytest
 from unittest.mock import AsyncMock, patch
 from fastapi import HTTPException
 from app.services.analytics import LiveAnalyticsService
@@ -75,7 +75,7 @@ def make_match_particpants(puuid: str="puuid-1", particpant_id:int=1, **override
     base.update(overrides)
     return base
 
-def make_match_detail(particpants=None, teams=None, **overrides):
+def make_match_detail(particpants: Any=None, teams: Any=None, **overrides: Any):
     particpants = particpants or [make_match_particpants]
     teams = teams or [
         {
@@ -103,3 +103,19 @@ def make_match_detail(particpants=None, teams=None, **overrides):
     }
     info.update(overrides)
     return {"info": info}
+
+@pytest.mark.anyio
+class TestAnalytics():
+
+    @staticmethod
+    def test_find_particpant_id_found():
+        participants: Any = [{"puuid": "a", "particpantId": 1}, {"puuid": "b", "particpantId": 2}]
+        assert LiveAnalyticsService.find_participant_id(participants, "b") == "2"
+
+    @staticmethod
+    def test_find_particpant_id_not_found():
+        participants: Any = [{"puuid": "a", "particpantId": 1},  {"puuid": "b", "particpantId": 2}]
+        assert LiveAnalyticsService.find_participant_id(participants, "zzz") is None
+
+    @staticmethod
+    
