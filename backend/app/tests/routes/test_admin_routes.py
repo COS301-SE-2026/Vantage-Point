@@ -6,7 +6,7 @@ import pytest
 from app.Models.admin_model import Response, UserResponse, CreateGroupResponse
 from app.Models.auth_model import User
 from app.services.admin_service import admin_service
-from app.api.router.admin_routes import get_users, get_user, add_user_to_group
+from app.api.router.admin_routes import get_users, get_user, add_user_to_group, remove_user_from_group
 
 mock_date = datetime(2026,1,1,tzinfo=timezone.utc)
 mock_admin = User(
@@ -102,4 +102,16 @@ class TestAdminRouter():
         response = await add_user_to_group(mock_admin, username="user1")
         assert response == mock_response
         mock_add_user_to_group.assert_called_once_with("user1", "Users")
-        
+
+    
+    @staticmethod
+    @patch.object(admin_service, "remove_user_from_group")
+    async def test_remove_user_from_group(mock_remove_user_from_group: Any) -> None:
+        mock_remove_user_from_group.return_value = mock_response
+
+        response = await remove_user_from_group(mock_admin, "user1", "Admin")
+
+        assert response == mock_response
+        mock_remove_user_from_group.assert_called_once_with("user1", "Admin")
+
+    
