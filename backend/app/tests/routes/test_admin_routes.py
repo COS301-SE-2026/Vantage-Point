@@ -132,4 +132,11 @@ class TestAdminRouter():
         assert response == mock_response
         mock_enable_user.assert_called_once_with("user1")
 
-    
+    @staticmethod
+    @patch.object(admin_service, "disable_user")
+    async def test_enable_user(mock_disable_user: Any) -> None:
+        mock_disable_user.return_value = mock_response
+
+        response = await disbale_user(mock_admin, "user1")
+        assert response == mock_response
+        mock_disable_user.assert_called_once_with("user1")
