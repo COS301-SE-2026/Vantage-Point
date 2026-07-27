@@ -182,6 +182,37 @@ async def swagger_login(request: Request) -> dict[str, str]:
     }
 
 
+# =====================================================
+# Profile Routes
+# =====================================================
+
+
+@router.get(
+    "/profile",
+    tags=["Profile"],
+    summary="Get current user profile",
+    description="Retrieves the authenticated user's profile and gameplay summary.",
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
+async def get_profile(
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ProfileResponse:
+    profile = await ProfileService.get_or_create_profile(session, current_user)
+    total_matches, summary = await ProfileService.build_player_summary(
+        session, current_user
+    )
+
+    return ProfileResponse(
+        cognito_sub=profile.cognito_sub,
+        display_name=profile.display_name,
+        total_matches=total_matches,
+        player_summary=summary,
+    )
+
+
 @router.post(
     "/profile",
     tags=["Profile"],
