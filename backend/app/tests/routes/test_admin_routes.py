@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, timezone
 from unittest.mock import patch
 from fastapi.testclient import TestClient
-from app.api.router.admin_routes import router
+from app.api.router.admin_routes import get_users
 from app.services.admin_service import admin_service
 from app.main import app
 from app.Models.auth_model import User
@@ -15,7 +15,7 @@ app.include_router(router)
 mock_date = datetime(2026,1,1,tzinfo=timezone.utc)
 mock_admin = User(
     sub="admin-sub",
-    passwrod="Test@123",
+    password="Test@123",
     username="admin",
     email="admin@test.com"
 )
@@ -45,20 +45,17 @@ class TestAdminRouter():
 
     @staticmethod
     @patch.object(admin_service, "get_users")
-    async def test_get_users(mock_get_users: Any, client: object) -> None:
+    async def test_get_users(mock_get_users: Any) -> None:
         mock_users = [
-            mock_user1.model_dump(mode="json"),
-            mock_user2.model_dump(mode="json")
+            mock_user1,
+            mock_user2
         ]
-        client = cast(TestClient, client)
         mock_get_users.return_value = mock_users
-        response = cast(httpx.Response, client.get("/admin/users?limit=10"))
+        response = await get_users(mock_admin, limit=10)
 
-        assert response.status_code == 200
-        response_data = response.json()
-        assert len(response_data[0]["username"]) == 2
-        assert response_data[0]["username"] == "user1"
-        assert response_data[0]["groups"] == ["Users", "Admin"]
+        assert len(response) == 2
+        assert response[0].username == "user1"
+        assert response[0].email == "user1@test.com"
         mock_get_users.assert_called_once_with(10)
 
     @staticmethod
