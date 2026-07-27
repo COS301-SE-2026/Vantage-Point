@@ -5,14 +5,14 @@ This setup uses simple mocks instead of database connections,
 allowing tests to run while the database is still being set up.
 """
 
-# pytest_plugins = ["app.tests.postgres_fixtures"]
-
 import os  # noqa: E402
 from typing import Any
 from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E402
 from app.api.auth import get_current_user, oauth2_scheme
 from app.Models.auth_model import UserTest
 from fastapi.security import HTTPAuthorizationCredentials
+
+pytest_plugins = ["app.tests.postgres_fixtures"]
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
