@@ -1,16 +1,12 @@
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import patch
-from fastapi.testclient import TestClient
-from app.api.router.admin_routes import get_users, get_user
-from app.services.admin_service import admin_service
-from app.main import app
-from app.Models.auth_model import User
-from app.Models.admin_model import UserResponse
-from typing import Any, cast, reveal_type
-import httpx
+from typing import Any
+from unittest.mock import AsyncMock, patch
+import pytest
 
-app.include_router(router)
+from app.Models.admin_model import Response, UserResponse, CreateGroupResponse
+from app.Models.auth_model import User
+from app.services.admin_service import admin_service
+from app.api.router.admin_routes import get_users, get_user, add_user_to_group
 
 mock_date = datetime(2026,1,1,tzinfo=timezone.utc)
 mock_admin = User(
@@ -40,6 +36,15 @@ mock_user2 = UserResponse(
     user_status="CONFIRMED"
 )
 
+mock_response = Response(success=True, message="Success")
+mock_group_response = CreateGroupResponse(
+    group_name="SuperAdmin",
+    user_pool_id="pool-123",
+    descriptipn="PowerUsers",
+    precedence=30,
+    last_modified_date=mock_date,
+    creation_date=mock_date
+)
 @pytest.mark.asyncio
 class TestAdminRouter():
 
