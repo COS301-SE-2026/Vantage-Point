@@ -19,6 +19,17 @@ export { default as iconHelpCircle } from "./icon-help-circle.svg";
 /** Change Map — Settings (46:474), 16.27×16.27 leaf in a 16×16 box. */
 export { default as iconSettings } from "./icon-settings.svg";
 
+/**
+ * Dark-page counterparts of the tool icons — same geometry, "Supp text dark"
+ * (#929292) instead of the near-black light stroke, per the dark exports of
+ * 55:805 / 55:815 / 55:810 / 55:818. Without these the glyphs vanish into the
+ * #2c2c2c buttons.
+ */
+export { default as iconCollapseDark } from "./icon-collapse-dark.svg";
+export { default as iconPersonDark } from "./icon-person-dark.svg";
+export { default as iconHelpCircleDark } from "./icon-help-circle-dark.svg";
+export { default as iconSettingsDark } from "./icon-settings-dark.svg";
+
 /** Map transport controls — Figma "Map" (55:314), drawn white over the minimap. */
 /** Pause (26:1655), 13.6×17.6 leaf in a 24×24 box. */
 export { default as iconPause } from "./icon-pause.svg";
@@ -32,3 +43,5 @@ export { default as iconZoomOut } from "./icon-zoom-out.svg";
 /** AI Coaching comments — Figma 55:346. */
 /** Material arrow_drop_down (55:351), 12.5×6.25 leaf in a 30×30 box. */
 export { default as iconArrowDropDown } from "./icon-arrow-drop-down.svg";
+/** The same leaf filled "Text dark" (#ffffff) for the dark card — Figma 55:657. */
+export { default as iconArrowDropDownDark } from "./icon-arrow-drop-down-dark.svg";

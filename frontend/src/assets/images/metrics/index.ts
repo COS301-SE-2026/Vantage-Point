@@ -22,6 +22,16 @@ export { default as iconPause } from "./icon-pause.svg";
 /** Rewind (32:956) — 26.6×19.1 leaf in a 30×30 box. */
 export { default as iconRewind } from "./icon-rewind.svg";
 
+/**
+ * Figma never drew this page's content on the dark background, so these are the
+ * same three leaves stroked white — matching the replay map's transport glyphs
+ * (26:1655), which stay white in both themes. The #1e1e1e originals are all but
+ * invisible on the dark transport cell.
+ */
+export { default as iconPlayWhite } from "./icon-play-white.svg";
+export { default as iconPauseWhite } from "./icon-pause-white.svg";
+export { default as iconRewindWhite } from "./icon-rewind-white.svg";
+
 /** Fallback item art when Data Dragon has no icon for a slot. */
 export { default as bootsItemIcon } from "./boots-item.png";
 

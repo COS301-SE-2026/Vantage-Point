@@ -13,3 +13,12 @@ export { default as iconEfficiencyScore } from "./icon-efficiency-score.svg";
 export { default as iconTimeSpent } from "./icon-time-spent.svg";
 export { default as iconWinRate } from "./icon-win-rate.svg";
 export { default as iconKda } from "./icon-kda.svg";
+/**
+ * The same four icons as exported from the dark page (Figma 14:738 / 14:747 /
+ * 14:758 / 14:772) — identical geometry, white strokes, since the #1e1e1e
+ * originals disappear against the #3a3939 card.
+ */
+export { default as iconEfficiencyScoreWhite } from "./icon-efficiency-score-white.svg";
+export { default as iconTimeSpentWhite } from "./icon-time-spent-white.svg";
+export { default as iconWinRateWhite } from "./icon-win-rate-white.svg";
+export { default as iconKdaWhite } from "./icon-kda-white.svg";
