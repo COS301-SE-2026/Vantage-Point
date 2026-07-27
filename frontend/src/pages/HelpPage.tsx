@@ -1,249 +1,170 @@
-import { useNavigate, useOutletContext } from "react-router";
+import { useState } from "react";
+import { useOutletContext } from "react-router";
+import { Filter, ArrowUpDown, Search, ChevronDown } from "lucide-react";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../components/ui/accordion";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Input } from "../components/ui/input";
 import {
   DASHBOARD_CONTENT_HEIGHT,
   getDashboardContentStyle,
 } from "../lib/dashboardLayout";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 
-const quickLinks = [
-  {
-    title: "Matches",
-    description: "Review recent matches, filters, and match detail views.",
-    action: "Open matches",
-    path: "/dashboard/matches",
-  },
-  {
-    title: "Profile",
-    description: "Update your Riot-linked profile and dashboard identity.",
-    action: "Edit profile",
-    path: "/dashboard/profile",
-  },
-  {
-    title: "Support",
-    description: "Send a message if something looks broken or unclear.",
-    action: "Email support",
-    path: "mailto:support@vantagepoint.app",
-    external: true,
-  },
-] as const;
+interface HelpArticle {
+  id: string;
+  title: string;
+  lastUpdated: string;
+  tags: string[];
+  content: string;
+}
 
-const faqs = [
+const helpArticles: HelpArticle[] = [
   {
-    question: "Where do I change my Riot profile?",
-    answer:
-      "Go to Profile from the dashboard. The profile editor updates your linked account, avatar, and public profile data.",
+    id: "item-1",
+    title: "The feedback I received was unhelpful",
+    lastUpdated: "2026/05/05",
+    tags: ["AI", "INFO"],
+    content:
+      "If you receive unhelpful AI feedback, you can flag the analysis from your match summary view or contact support to help improve model accuracy.",
   },
   {
-    question: "Why are my matches not loading?",
-    answer:
-      "Check that your Riot account is linked and that the dashboard finished syncing. If the issue persists, refresh the page and try again.",
+    id: "item-2",
+    title: "The feedback I received was unhelpful",
+    lastUpdated: "2026/05/05",
+    tags: ["AI", "INFO"],
+    content:
+      "If you receive unhelpful AI feedback, you can flag the analysis from your match summary view or contact support to help improve model accuracy.",
   },
   {
-    question: "Can I return to the old match view?",
-    answer:
-      "Yes. Use the dashboard matches page for the list view and the match detail page for a single match breakdown.",
+    id: "item-3",
+    title: "The feedback I received was unhelpful",
+    lastUpdated: "2026/05/05",
+    tags: ["AI", "INFO"],
+    content:
+      "If you receive unhelpful AI feedback, you can flag the analysis from your match summary view or contact support to help improve model accuracy.",
   },
   {
-    question: "Who do I contact for support?",
-    answer:
-      "Use the email support button below. Include the page you were on and the action that failed.",
-  },
-] as const;
-
-const helpTopics = [
-  {
-    label: "Getting started",
-    title: "Link your Riot account",
-    description:
-      "Make sure your Riot ID is connected before you expect match data or profile details to appear.",
+    id: "item-4",
+    title: "The feedback I received was unhelpful",
+    lastUpdated: "2026/05/05",
+    tags: ["AI", "INFO"],
+    content:
+      "If you receive unhelpful AI feedback, you can flag the analysis from your match summary view or contact support to help improve model accuracy.",
   },
   {
-    label: "Navigation",
-    title: "Move between views",
-    description:
-      "Matches and profile stay inside the same dashboard shell, so context remains consistent while you browse.",
+    id: "item-5",
+    title: "The feedback I received was unhelpful",
+    lastUpdated: "2026/05/05",
+    tags: ["AI", "INFO"],
+    content:
+      "If you receive unhelpful AI feedback, you can flag the analysis from your match summary view or contact support to help improve model accuracy.",
   },
-  {
-    label: "Troubleshooting",
-    title: "Fix stale data",
-    description:
-      "If values look outdated, refresh the profile and reload the page before reporting the issue.",
-  },
-] as const;
+];
 
 export default function HelpPage() {
-  const navigate = useNavigate();
   const outlet = useOutletContext<DashboardOutletContext | undefined>();
+  const isInsideDashboard = Boolean(outlet);
   const sidebarOpen = outlet?.sidebarOpen ?? true;
-  const contentStyle = getDashboardContentStyle(sidebarOpen);
+  const contentStyle = isInsideDashboard ? getDashboardContentStyle(sidebarOpen) : {};
 
-  const openLink = (path: string) => {
-    if (path.startsWith("mailto:")) {
-      window.location.href = path;
-      return;
-    }
-    navigate(path);
-  };
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredArticles = helpArticles.filter((article) =>
+    article.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div
-      className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
-      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
+      className={
+        isInsideDashboard
+          ? "absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out bg-white"
+          : "min-h-screen w-full bg-white py-6"
+      }
+      style={isInsideDashboard ? { ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT } : {}}
       data-name="help-page"
     >
-      <div className="h-full overflow-auto px-10 py-8">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-          <header className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <Badge variant="secondary">Help center</Badge>
-              <Badge variant="outline">Dashboard</Badge>
+      <div className="h-full overflow-y-auto px-8 py-6">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+          {/* Controls Header: Filter, Sort, Search */}
+          <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors"
+              aria-label="Filter"
+            >
+              <Filter className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors"
+              aria-label="Sort"
+            >
+              <ArrowUpDown className="h-5 w-5" />
+            </button>
+            <div className="relative w-full max-w-xs">
+              <Input
+                type="text"
+                placeholder="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-9 rounded-full border-zinc-300 bg-white placeholder:text-zinc-400 focus-visible:ring-zinc-400"
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <h1 className="font-['Inter:Semi_Bold',sans-serif] text-3xl font-semibold text-[#1e1e1e]">
-                Need help with Vantage Point?
-              </h1>
-              <p className="max-w-2xl text-sm leading-6 text-[#525252]">
-                Find quick answers, jump back to the dashboard, or contact support
-                without leaving the app layout.
-              </p>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]">
-              <Input aria-label="Search help topics" placeholder="Search help topics" />
-              <Button type="button" onClick={() => navigate("/dashboard/matches")}>
-                View matches
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/dashboard/profile")}
+          {/* Accordion Articles List */}
+          <Accordion type="single" collapsible className="flex flex-col gap-4">
+            {filteredArticles.map((article, index) => (
+              <AccordionItem
+                key={`${article.id}-${index}`}
+                value={`${article.id}-${index}`}
+                className="rounded-2xl border border-zinc-200 bg-white px-6 py-4 shadow-sm transition-all hover:border-zinc-300 [&[data-state=open]]:shadow-md"
               >
-                Edit profile
-              </Button>
-            </div>
-          </header>
-
-          <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Quick actions</CardTitle>
-                <CardDescription>
-                  Common places to go when you need to check something quickly.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4">
-                {quickLinks.map((link) => (
-                  <div
-                    key={link.title}
-                    className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4"
-                  >
-                    <div className="space-y-1">
-                      <h3 className="text-sm font-semibold text-[#1e1e1e]">
-                        {link.title}
+                <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180">
+                  <div className="flex w-full flex-col gap-4 text-left">
+                    {/* Top Row: Title & Last Updated */}
+                    <div className="flex items-center justify-between gap-4">
+                      <h3 className="text-base font-semibold text-zinc-900">
+                        {article.title}
                       </h3>
-                      <p className="text-sm leading-6 text-[#525252]">
-                        {link.description}
-                      </p>
+                      <span className="text-xs font-semibold text-zinc-500 whitespace-nowrap">
+                        Last Updated: <span className="text-zinc-900">{article.lastUpdated}</span>
+                      </span>
                     </div>
-                    <Button
-                      type="button"
-                      variant={link.external ? "outline" : "default"}
-                      onClick={() => openLink(link.path)}
-                      className="w-fit"
-                    >
-                      {link.action}
-                    </Button>
+
+                    {/* Bottom Row: Tags & Chevron Icon */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                          TAGS
+                        </span>
+                        {article.tags.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="rounded-full bg-zinc-100 px-3 py-0.5 text-xs font-bold text-zinc-800 hover:bg-zinc-200"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <ChevronDown className="chevron h-5 w-5 text-zinc-600 transition-transform duration-200" />
+                    </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                </AccordionTrigger>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">FAQs</CardTitle>
-                <CardDescription>
-                  Answers to the most common dashboard questions.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Accordion type="single" collapsible className="w-full">
-                  {faqs.map((faq) => (
-                    <AccordionItem key={faq.question} value={faq.question}>
-                      <AccordionTrigger>{faq.question}</AccordionTrigger>
-                      <AccordionContent className="text-sm leading-6 text-[#525252]">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </CardContent>
-            </Card>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-3">
-            {helpTopics.map((topic) => (
-              <Card key={topic.title}>
-                <CardHeader>
-                  <Badge variant="secondary" className="w-fit">
-                    {topic.label}
-                  </Badge>
-                  <CardTitle className="text-lg">{topic.title}</CardTitle>
-                  <CardDescription>{topic.description}</CardDescription>
-                </CardHeader>
-              </Card>
+                <AccordionContent className="pt-4 text-sm leading-relaxed text-zinc-600 border-t border-zinc-100 mt-4">
+                  {article.content}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </section>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Contact support</CardTitle>
-              <CardDescription>
-                If the built-in help does not solve it, send a support message with
-                the page name and what failed.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                onClick={() =>
-                  (window.location.href = "mailto:support@vantagepoint.app")
-                }
-              >
-                Email support
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/dashboard/matches")}
-              >
-                Back to matches
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => navigate("/dashboard/profile")}
-              >
-                Open profile
-              </Button>
-            </CardContent>
-          </Card>
+          </Accordion>
         </div>
       </div>
     </div>
