@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import imgBackground from "../../../assets/images/landing/landing-wallpaper.jpg";
+import imgBackgroundDark from "../../../assets/images/landing/landing-wallpaper-dark.jpg";
 import imgLogoMark from "../../../assets/images/logos/logo-mark-white.webp";
 
 const MARQUEE_ITEMS = [
@@ -45,14 +46,25 @@ function Logo() {
   );
 }
 
+/**
+ * Figma 7:10 (light) and 12:104 (dark) are identical apart from the hero splash,
+ * so the theme swap is just the art. <picture> resolves it from the device theme
+ * in CSS — no JS, no first-paint flash, and only the matching file is fetched.
+ */
 function BackgroundLayer() {
   return (
     <div className="absolute inset-0" aria-hidden>
-      <img
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-        src={imgBackground}
-      />
+      <picture>
+        <source
+          srcSet={imgBackgroundDark}
+          media="(prefers-color-scheme: dark)"
+        />
+        <img
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+          src={imgBackground}
+        />
+      </picture>
     </div>
   );
 }
