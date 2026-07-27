@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
+from collections.abc import Generator
 
 fake_user = UserTest(
     sub="123456",
@@ -32,7 +33,7 @@ fake_user = UserTest(
 
 
 @pytest.fixture(scope="function")
-def client():
+def client() -> Generator[TestClient, None, None]:
     """
     Provide a FastAPI TestClient for testing endpoints.
 
