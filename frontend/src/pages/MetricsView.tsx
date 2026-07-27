@@ -22,9 +22,6 @@ import type {
   TeamDetail,
 } from "../types/match";
 
-/** Figma "MapAnalysisView" 32:961 — 835 wide: 785 content, 10 gutter, 40 toolbar. */
-const CONTENT_WIDTH = 785;
-
 function formatClock(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -166,14 +163,14 @@ export default function MetricsView() {
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="metrics-view"
     >
-      <div className="vp-scrollbar h-full overflow-auto px-4 py-3 sm:px-6">
+      <div className="vp-scrollbar h-full overflow-auto px-4 py-2 sm:px-6">
         {loading ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575]">
+          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
             Loading metrics…
           </p>
         ) : null}
         {error ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#c44a4a]">
+          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#c44a4a] device-dark:text-[#e03b3b]">
             {error}
           </p>
         ) : null}
@@ -182,13 +179,10 @@ export default function MetricsView() {
           <div
             data-name="MapAnalysisView"
             data-node-id="32:961"
-            className="flex w-[835px] items-start gap-[10px]"
+            className="mx-auto flex w-full max-w-[var(--vp-content-max)] items-start gap-[8px]"
           >
-            <div
-              className="flex flex-col gap-[18px]"
-              style={{ width: CONTENT_WIDTH }}
-            >
-              <div className="flex items-start gap-[36px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-[12px]">
+              <div className="flex items-start gap-[24px]">
                 <img
                   src={mapMini}
                   alt="Match minimap"

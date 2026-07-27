@@ -22,7 +22,7 @@ export default function AiCoachingBar({ tips }: Readonly<AiCoachingBarProps>) {
     <aside
       data-name="AI Coaching bar"
       data-node-id="32:690"
-      className="flex h-[180px] w-[569px] shrink-0 items-start gap-[38px] overflow-x-auto rounded-[5px] bg-[#f0f0f0] px-[22px] pt-[12.6px] shadow-[inset_0_0_0_1px_#dadada]"
+      className="flex h-[180px] min-w-0 flex-1 items-start justify-between gap-[24px] overflow-x-auto rounded-[5px] bg-[#f0f0f0] device-dark:bg-[#3a3939] px-[22px] pt-[12.6px] shadow-[inset_0_0_0_1px_#dadada] device-dark:shadow-[inset_0_0_0_1px_#2c2c2c]"
       aria-label="AI coaching recommendations"
     >
       {tips.map((tip) => (

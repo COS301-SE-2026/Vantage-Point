@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { iconArrowDropDown } from "../assets/images/match-replay";
+import {
+  iconArrowDropDown,
+  iconArrowDropDownDark,
+} from "../assets/images/match-replay";
+import ThemedIcon from "./ThemedIcon";
 
 /**
  * Figma "AI Reccomendation" — 55:348 on the replay panel (200×109) and 32:458 on
@@ -11,8 +15,9 @@ import { iconArrowDropDown } from "../assets/images/match-replay";
 interface AiRecommendationCardProps {
   readonly heading: string;
   readonly body: string;
-  /** Card box in px — Figma gives 200×109 (replay) and 150×157.5 (analysis). */
-  readonly width: number;
+  /** Card box — Figma gives 200×109 (replay) and 150×157.5 (analysis); the
+   *  replay panel is fluid now, so it passes a percentage instead. */
+  readonly width: number | string;
   readonly height: number;
   /** Subheading block height is bodyLines × 18. */
   readonly bodyLines: number;
@@ -46,7 +51,7 @@ export default function AiRecommendationCard({
   return (
     <article
       data-name="AI Reccomendation"
-      className="relative shrink-0 rounded-[15px] bg-[#dadada]"
+      className="relative shrink-0 rounded-[15px] bg-[#dadada] device-dark:bg-[#2a2a2a]"
       style={{ width, height: open ? height : collapsedHeight }}
     >
       <div
@@ -58,14 +63,14 @@ export default function AiRecommendationCard({
         }}
       >
         <h3
-          className="text-center font-['Beaufort_for_LOL',serif] text-[16px] font-bold text-[#1d1b20]"
+          className="text-center font-['Beaufort_for_LOL',serif] text-[16px] font-bold text-[#1d1b20] device-dark:text-white"
           style={{ lineHeight: `${HEADING_HEIGHT}px` }}
         >
           {heading}
         </h3>
         {open ? (
           <p
-            className="overflow-hidden font-['Beaufort_for_LOL',serif] text-[14px] text-[#757575]"
+            className="overflow-hidden font-['Beaufort_for_LOL',serif] text-[14px] text-[#757575] device-dark:text-white"
             style={{ height: bodyHeight, lineHeight: `${BODY_LINE_HEIGHT}px` }}
           >
             {body}
@@ -79,12 +84,12 @@ export default function AiRecommendationCard({
         aria-expanded={open}
         aria-label={`${open ? "Collapse" : "Expand"} ${heading}`}
         data-name="arrow_drop_down"
-        className="absolute flex cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 transition-colors hover:bg-[#cfcfcf]"
+        className="absolute flex cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 transition-colors hover:bg-[#cfcfcf] device-dark:hover:bg-[#404040]"
         style={{ width: arrowBox, height: arrowBox, top: arrowTop, right: 1 }}
       >
-        <img
-          src={iconArrowDropDown}
-          alt=""
+        <ThemedIcon
+          light={iconArrowDropDown}
+          dark={iconArrowDropDownDark}
           width={ARROW_LEAF_WIDTH_AT_30 * arrowScale}
           height={ARROW_LEAF_HEIGHT_AT_30 * arrowScale}
           className={open ? "" : "rotate-180"}

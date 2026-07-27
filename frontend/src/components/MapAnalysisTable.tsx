@@ -2,17 +2,22 @@ import type { ReactNode } from "react";
 import {
   bootsItemIcon,
   iconPause,
+  iconPauseWhite,
   iconPlay,
+  iconPlayWhite,
   iconRewind,
+  iconRewindWhite,
 } from "../assets/images/metrics";
 import { itemIconUrl } from "../lib/ddragon";
+import ThemedIcon from "./ThemedIcon";
 
 /**
- * A cell pair inside one 153px column — Figma "ParticipantRow" 32:669:
- * a 102px label cell ruled on its left edge, then a 51px value cell.
+ * A cell pair inside one column — Figma "ParticipantRow" 32:669: a 102px label
+ * cell ruled on its left edge, then a 51px value cell. Kept as a 2:1 flex ratio
+ * so the five columns share whatever width the region gives them.
  */
-const LABEL_CELL_WIDTH = 102;
-const VALUE_CELL_WIDTH = 51;
+const LABEL_CELL_FLEX = "flex-[2_1_0%]";
+const VALUE_CELL_FLEX = "flex-[1_1_0%]";
 
 /** Rendered when the backend has no field behind a designed row. */
 export const NO_VALUE = "—";
@@ -48,14 +53,13 @@ const HEADINGS = [
 ] as const;
 
 const CELL_TEXT =
-  "font-['Beaufort_for_LOL',serif] text-[16px] leading-[1.4] text-[#1e1e1e]";
+  "font-['Beaufort_for_LOL',serif] text-[16px] leading-[1.4] text-[#1e1e1e] device-dark:text-white";
 
 function LabelCell({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div
       data-name="Table Cell"
-      className="flex h-full shrink-0 items-center border-l border-solid border-[#f0f0f0] pl-[6px] pr-[5px]"
-      style={{ width: LABEL_CELL_WIDTH }}
+      className={`flex h-full min-w-0 items-center border-l border-solid border-[#f0f0f0] device-dark:border-[#3a3939] pl-[6px] pr-[5px] ${LABEL_CELL_FLEX}`}
     >
       <span className={CELL_TEXT}>{children}</span>
     </div>
@@ -66,8 +70,7 @@ function ValueCell({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div
       data-name="Table Cell"
-      className="flex h-full shrink-0 items-center justify-center"
-      style={{ width: VALUE_CELL_WIDTH }}
+      className={`flex h-full min-w-[51px] items-center justify-center ${VALUE_CELL_FLEX}`}
     >
       <span className={`${CELL_TEXT} tabular-nums`}>{children}</span>
     </div>
@@ -79,8 +82,7 @@ function ItemCell({ itemId }: Readonly<{ itemId: number }>) {
   return (
     <div
       data-name="ItemImage"
-      className="flex h-full shrink-0 items-center justify-center"
-      style={{ width: VALUE_CELL_WIDTH }}
+      className={`flex h-full min-w-[51px] items-center justify-center ${VALUE_CELL_FLEX}`}
     >
       <div className="size-[45px] overflow-hidden rounded-[10px] border border-solid border-[#0056b9]">
         <img
@@ -113,7 +115,7 @@ function TransportCell({
     <div
       data-name="Table Cell"
       data-node-id="32:822"
-      className="flex h-[54px] w-[153px] shrink-0 items-center justify-center gap-[8px] border-l border-solid border-[#f0f0f0] bg-[#b7b7b7] pl-[6px] pr-[5px]"
+      className="flex h-[54px] min-w-[153px] flex-[3_1_0%] items-center justify-center gap-[8px] border-l border-solid border-[#f0f0f0] device-dark:border-[#3a3939] bg-[#b7b7b7] device-dark:bg-[#404040] pl-[6px] pr-[5px]"
     >
       <button
         type="button"
@@ -121,14 +123,14 @@ function TransportCell({
         aria-label={playing ? "Pause replay" : "Play replay"}
         className="flex size-[30px] cursor-pointer items-center justify-center border-0 bg-transparent p-0"
       >
-        <img
-          src={playing ? iconPause : iconPlay}
-          alt=""
+        <ThemedIcon
+          light={playing ? iconPause : iconPlay}
+          dark={playing ? iconPauseWhite : iconPlayWhite}
           width={19.1}
           height={24.1}
         />
       </button>
-      <span className="font-['Beaufort_for_LOL',serif] text-[24px] leading-[1.4] tabular-nums text-[#1e1e1e]">
+      <span className="font-['Beaufort_for_LOL',serif] text-[24px] leading-[1.4] tabular-nums text-[#1e1e1e] device-dark:text-white">
         {clock}
       </span>
       <button
@@ -137,7 +139,12 @@ function TransportCell({
         aria-label="Rewind replay"
         className="flex size-[30px] cursor-pointer items-center justify-center border-0 bg-transparent p-0"
       >
-        <img src={iconRewind} alt="" width={26.6} height={19.1} />
+        <ThemedIcon
+          light={iconRewind}
+          dark={iconRewindWhite}
+          width={26.6}
+          height={19.1}
+        />
       </button>
     </div>
   );
@@ -158,18 +165,18 @@ export default function MapAnalysisTable({
     <section
       data-name="MapReplayStats"
       data-node-id="32:426"
-      className="h-[345px] w-[785px] shrink-0 rounded-[5px] bg-[#f0f0f0] p-[10px]"
+      className="h-[345px] w-full min-w-0 rounded-[5px] bg-[#f0f0f0] device-dark:bg-[#3a3939] p-[10px]"
     >
       <div
         data-name="Table Body"
         data-node-id="32:512"
-        className="flex h-[325px] w-[765px] flex-col gap-[2px]"
+        className="flex h-[325px] w-full flex-col gap-[2px]"
         role="table"
       >
         <div
           data-name="HeaderRow"
           data-node-id="32:693"
-          className="flex h-[30px] shrink-0 border-b border-solid border-[#dadada]"
+          className="flex h-[30px] shrink-0 border-b border-solid border-[#dadada] device-dark:border-[#2c2c2c]"
           role="row"
         >
           {HEADINGS.map((heading) => (
@@ -177,9 +184,9 @@ export default function MapAnalysisTable({
               key={heading}
               data-name="Table Cell"
               role="columnheader"
-              className="flex h-full w-[153px] shrink-0 items-center px-[10px]"
+              className="flex h-full min-w-0 flex-[3_1_0%] items-center px-[10px]"
             >
-              <span className="whitespace-nowrap font-['Beaufort_for_LOL',serif] text-[16px] font-medium leading-[1.4] text-[#1e1e1e]">
+              <span className="whitespace-nowrap font-['Beaufort_for_LOL',serif] text-[16px] font-medium leading-[1.4] text-[#1e1e1e] device-dark:text-white">
                 {heading}
               </span>
             </div>
@@ -193,7 +200,7 @@ export default function MapAnalysisTable({
               key={row.id}
               data-name="ParticipantRow"
               role="row"
-              className="flex h-[55px] shrink-0 rounded-[5px] border-b border-solid border-[#dadada] bg-[#ddd]"
+              className="flex h-[55px] shrink-0 rounded-[5px] border-b border-solid border-[#dadada] device-dark:border-[#2c2c2c] bg-[#ddd] device-dark:bg-[#2a2a2a]"
             >
               <LabelCell>{row.teamLabel}</LabelCell>
               <ValueCell>{row.teamValue}</ValueCell>
