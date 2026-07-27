@@ -80,3 +80,4 @@ backend/uploads/
 test*.csv
 output.txt
 events.txt
+backend/logs/fastapi_logs

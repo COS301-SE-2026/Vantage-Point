@@ -9,6 +9,7 @@ import MatchDetailView from "./pages/MatchDetailView";
 import MatchesListView from "./pages/MatchesListView";
 import ProfileView from "./pages/ProfileView";
 import RegisterPage from "./pages/RegisterPage";
+import AdminRegisterPage from "./pages/Admin";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     Component: RegisterPage,
+  },
+  {
+    path: "/admin/register",
+    Component: AdminRegisterPage,
   },
   {
     path: "/link-riot-id",
