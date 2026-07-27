@@ -47,17 +47,17 @@ export default function MatchesListToolbar({
             onChange={(event) => onSearchQueryChange(event.target.value)}
             placeholder="search"
             aria-label="Search matches"
-            className="m-0 min-w-0 flex-1 border-0 bg-transparent p-0 font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-none text-[#1e1e1e] caret-[#1e1e1e] outline-none placeholder:font-['Inter:Regular',sans-serif] placeholder:text-[#b7b7b7] placeholder:font-normal"
+            className="m-0 min-w-0 flex-1 border-0 bg-transparent p-0 font-['Inter:Regular',sans-serif] text-[16px] font-normal leading-none text-[#1e1e1e] device-dark:text-white caret-[#1e1e1e] device-dark:caret-white outline-none placeholder:font-['Inter:Regular',sans-serif] placeholder:text-[#b7b7b7] device-dark:placeholder:text-[#929292] placeholder:font-normal"
           />
           <Search
-            className="size-4 shrink-0 text-[#1e1e1e]"
+            className="size-4 shrink-0 text-[#1e1e1e] device-dark:text-white"
             strokeWidth={1.6}
             aria-hidden
           />
         </label>
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9]"
+          className="pointer-events-none absolute inset-[-0.5px] rounded-[9999.5px] border border-solid border-[#d9d9d9] device-dark:border-[#3a3939]"
         />
       </div>
     </div>

@@ -25,7 +25,7 @@ interface MatchDetailViewProps {
   readonly viewerPuuid?: string;
 }
 
-const SCOREBOARD_WIDTH = "w-full max-w-[554px]";
+const SCOREBOARD_WIDTH = "w-full min-w-0";
 const FONT = "font-['Beaufort_for_LOL',serif]";
 
 function formatDuration(seconds: number): string {
@@ -57,10 +57,10 @@ function viewerParticipant(
 function LoadingSkeleton() {
   return (
     <div className="animate-pulse flex flex-col gap-3">
-      <div className="h-[73px] w-full max-w-[554px] rounded bg-[#e3e3e3]" />
-      <div className="h-[332px] w-full max-w-[554px] rounded-[8px] bg-[#ececec]" />
-      <div className="h-[118px] w-full max-w-[554px] rounded-[4px] bg-[#ececec]" />
-      <div className="h-[332px] w-full max-w-[554px] rounded-[8px] bg-[#ececec]" />
+      <div className="h-[73px] w-full rounded bg-[#e3e3e3] device-dark:bg-[#2a2a2a]" />
+      <div className="h-[332px] w-full rounded-[8px] bg-[#ececec] device-dark:bg-[#2a2a2a]" />
+      <div className="h-[118px] w-full rounded-[4px] bg-[#ececec] device-dark:bg-[#2a2a2a]" />
+      <div className="h-[332px] w-full rounded-[8px] bg-[#ececec] device-dark:bg-[#2a2a2a]" />
     </div>
   );
 }
@@ -79,14 +79,17 @@ function formatGold(n: number): string {
   return `${(n / 1000).toFixed(1)}k`;
 }
 
+/** Figma 22:209 / 22:482 — the dark badges thin the tint and warm the label. */
 function scoreTagClass(win: boolean): string {
   return win
-    ? "bg-[rgba(34,197,94,0.45)] text-[#1e7e34]"
-    : "bg-[rgba(255,112,114,0.47)] text-[#c44a4a]";
+    ? "bg-[rgba(34,197,94,0.45)] text-[#1e7e34] device-dark:bg-[rgba(34,197,94,0.32)] device-dark:text-[#18c840]"
+    : "bg-[rgba(255,112,114,0.47)] text-[#c44a4a] device-dark:bg-[rgba(244,67,70,0.28)] device-dark:text-[#c73737]";
 }
 
 function teamHeadingClass(teamId: number): string {
-  return teamId === 100 ? "text-[#07f]" : "text-[#c44a4a]";
+  return teamId === 100
+    ? "text-[#07f]"
+    : "text-[#c44a4a] device-dark:text-[#e03b3b]";
 }
 
 function buildItemSlots(player: ParticipantDetail): (number | null)[] {
@@ -120,7 +123,7 @@ function BuildIcons({ player }: Readonly<{ player: ParticipantDetail }>) {
         ) : (
           <span
             key={`spell-empty-${player.puuid}-${idx}`}
-            className="absolute top-[2px] size-5 rounded-[4px] bg-[#dadada]"
+            className="absolute top-[2px] size-5 rounded-[4px] bg-[#dadada] device-dark:bg-[#2a2a2a]"
             style={{ left }}
           />
         );
@@ -142,7 +145,7 @@ function BuildIcons({ player }: Readonly<{ player: ParticipantDetail }>) {
         ) : (
           <span
             key={`item-empty-${player.puuid}-${idx}`}
-            className="absolute size-6 rounded-[4px] border border-solid border-[#dadada] bg-[#dadada]"
+            className="absolute size-6 rounded-[4px] border border-solid border-[#dadada] device-dark:border-[#2c2c2c] bg-[#dadada] device-dark:bg-[#2a2a2a]"
             style={{ left, top }}
           />
         );
@@ -155,9 +158,12 @@ function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
   const isViewer = player.is_viewer;
 
   return (
+    /* Figma 22:502 — dark rows sit straight on the page, only the viewer is tinted. */
     <tr
-      className={`h-[55px] border-b border-[#dadada] ${
-        isViewer ? "bg-[#dfe9ff] border-l-2 border-l-[#07f]" : "bg-white"
+      className={`h-[55px] border-b border-[#dadada] device-dark:border-[#2c2c2c] ${
+        isViewer
+          ? "bg-[#dfe9ff] device-dark:bg-[rgba(115,149,229,0.56)] border-l-2 border-l-[#07f]"
+          : "bg-white device-dark:bg-transparent"
       }`}
     >
       <td className="px-2 py-0">
@@ -169,40 +175,42 @@ function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
           />
           <div className="min-w-0">
             <p
-              className={`${FONT} truncate text-[14px] leading-[20px] text-[#1e1e1e] ${
+              className={`${FONT} truncate text-[14px] leading-[20px] text-[#1e1e1e] device-dark:text-white ${
                 isViewer ? "font-bold" : "font-medium"
               }`}
             >
               {player.riot_id ?? `${player.champion_name}#Player`}
             </p>
-            <p className={`${FONT} text-[12px] leading-[16px] text-[#676767]`}>
+            <p
+              className={`${FONT} text-[12px] leading-[16px] text-[#676767] device-dark:text-[#929292]`}
+            >
               {roleLabel(player.position)}
             </p>
           </div>
         </div>
       </td>
       <td
-        className={`${FONT} text-center text-[12px] leading-[55px] text-[#1e1e1e]`}
+        className={`${FONT} text-center text-[12px] leading-[55px] text-[#1e1e1e] device-dark:text-white`}
       >
         {player.kills}/{player.deaths}/{player.assists}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
         {player.cs}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
         {formatGold(player.gold_earned)}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
         {formatGold(player.damage_to_champions)}
       </td>
       <td
-        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767]`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
         {player.vision_score}
       </td>
@@ -233,51 +241,51 @@ function TeamScoreboard({
           {team.win ? "Victory" : "Defeat"}
         </span>
       </div>
-      <div className="overflow-x-auto rounded-[4px] border border-[#dadada] bg-white">
-        <table className="w-[554px] table-fixed text-left">
+      <div className="overflow-x-auto rounded-[4px] border border-[#dadada] device-dark:border-[#2c2c2c] bg-white device-dark:bg-[#181818]">
+        <table className="w-full min-w-[554px] table-fixed text-left">
           <colgroup>
-            <col className="w-[198px]" />
+            <col />
             <col className="w-[52px]" />
             <col className="w-[30px]" />
             <col className="w-[43px]" />
             <col className="w-[43px]" />
             <col className="w-[30px]" />
-            <col />
+            <col className="w-[150px]" />
           </colgroup>
           <thead>
-            <tr className="h-[32.5px] border-b border-[#dadada] bg-[#f0f0f0]">
+            <tr className="h-[32.5px] border-b border-[#dadada] device-dark:border-[#2c2c2c] bg-[#f0f0f0] device-dark:bg-[#3a3939]">
               <th
-                className={`${FONT} pl-2 text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} pl-2 text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 Player
               </th>
               <th
-                className={`${FONT} text-center text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} text-center text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 KDA
               </th>
               <th
-                className={`${FONT} text-right text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 CS
               </th>
               <th
-                className={`${FONT} text-right text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 Gold
               </th>
               <th
-                className={`${FONT} text-right text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 DMG
               </th>
               <th
-                className={`${FONT} text-right text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 Vis
               </th>
               <th
-                className={`${FONT} pr-3 text-right text-[11px] font-medium text-[#676767]`}
+                className={`${FONT} pr-3 text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
               >
                 Build
               </th>
@@ -308,10 +316,10 @@ function ObjectivesCard({ team }: Readonly<{ team: TeamDetail }>) {
 
   return (
     <section
-      className={`${SCOREBOARD_WIDTH} rounded-[4px] border border-solid border-[#dadada] bg-[#f0f0f0] px-[13px] pb-px pt-[13px]`}
+      className={`${SCOREBOARD_WIDTH} rounded-[4px] border border-solid border-[#dadada] device-dark:border-[#2c2c2c] bg-[#f0f0f0] device-dark:bg-[#2a2a2a] px-[13px] pb-px pt-[13px]`}
     >
       <h2
-        className={`${FONT} mb-2 text-[15px] font-medium leading-[16px] text-[#1e1e1e]`}
+        className={`${FONT} mb-2 text-[15px] font-medium leading-[16px] text-[#1e1e1e] device-dark:text-white`}
       >
         Objectives Completed
       </h2>
@@ -319,12 +327,12 @@ function ObjectivesCard({ team }: Readonly<{ team: TeamDetail }>) {
         {rows.map((row) => (
           <li key={row.label} className="flex h-5 items-center justify-between">
             <span
-              className={`${FONT} text-[14px] leading-[20px] text-[#676767]`}
+              className={`${FONT} text-[14px] leading-[20px] text-[#676767] device-dark:text-[#929292]`}
             >
               {row.label}
             </span>
             <span
-              className={`${FONT} text-[14px] leading-[20px] tabular-nums text-[#1e1e1e]`}
+              className={`${FONT} text-[14px] leading-[20px] tabular-nums text-[#1e1e1e] device-dark:text-white`}
             >
               {row.value}
             </span>
@@ -341,7 +349,7 @@ function BansSection({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
   return (
     <section className={`${SCOREBOARD_WIDTH} flex flex-col gap-2`}>
       <h2
-        className={`${FONT} text-[15px] font-medium leading-[16px] text-[#1e1e1e]`}
+        className={`${FONT} text-[15px] font-medium leading-[16px] text-[#1e1e1e] device-dark:text-white`}
       >
         Bans
       </h2>
@@ -350,7 +358,7 @@ function BansSection({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
           <span
             key={`${ban.champion_id}-${idx}`}
             title={ban.champion_name}
-            className={`${FONT} inline-flex h-6 items-center rounded-[4px] bg-[#f0f0f0] px-2 text-[12px] leading-[16px] text-[#1e1e1e]`}
+            className={`${FONT} inline-flex h-6 items-center rounded-[4px] bg-[#f0f0f0] device-dark:bg-[#2c2c2c] px-2 text-[12px] leading-[16px] text-[#1e1e1e] device-dark:text-white`}
           >
             #{ban.champion_id}
           </span>
@@ -400,7 +408,7 @@ function MatchInsightsPanel({
   return (
     // Figma 17:171 — parent panel for AI coaching cards
     <aside
-      className="flex h-full min-h-[320px] w-[230px] shrink-0 flex-col self-stretch overflow-hidden rounded-[15px] bg-[#f0f0f0]"
+      className="flex h-full min-h-[320px] w-[230px] shrink-0 flex-col self-stretch overflow-hidden rounded-[15px] bg-[#f0f0f0] device-dark:bg-[#3a3939]"
       data-name="Rectangle 5"
       aria-label="AI coaching comments"
     >
@@ -412,25 +420,25 @@ function MatchInsightsPanel({
           <section
             key={card.title}
             data-name="AI Reccomendation"
-            className={`relative w-full rounded-[15px] bg-[#dadada] ${
+            className={`relative w-full rounded-[15px] bg-[#dadada] device-dark:bg-[#2a2a2a] ${
               card.expanded
                 ? "min-h-[109px] px-3 pb-3 pt-2"
                 : "h-[45px] px-3 py-2"
             }`}
           >
             <h3
-              className={`${FONT} px-5 text-center text-[16px] font-bold leading-[1.2] text-[#1e1e1e]`}
+              className={`${FONT} px-5 text-center text-[16px] font-bold leading-[1.2] text-[#1e1e1e] device-dark:text-white`}
             >
               {card.title}
             </h3>
             <ChevronDown
-              className="absolute right-3 top-2 size-[18px] shrink-0 text-[#525252]"
+              className="absolute right-3 top-2 size-[18px] shrink-0 text-[#525252] device-dark:text-white"
               strokeWidth={2}
               aria-hidden
             />
             {card.expanded ? (
               <p
-                className={`${FONT} mt-2 text-[13px] leading-[1.35] text-[#525252]`}
+                className={`${FONT} mt-2 text-[13px] leading-[1.35] text-[#525252] device-dark:text-white`}
               >
                 {card.body}
               </p>
@@ -443,7 +451,9 @@ function MatchInsightsPanel({
 }
 
 function matchHeaderResultClass(win: boolean): string {
-  return win ? "text-[#1e7e34]" : "text-[#c44a4a]";
+  return win
+    ? "text-[#1e7e34] device-dark:text-[#18c840]"
+    : "text-[#c44a4a] device-dark:text-[#e03b3b]";
 }
 
 export default function MatchDetailView({
@@ -524,20 +534,22 @@ export default function MatchDetailView({
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="match-detail-view"
     >
-      <div className="relative flex h-full flex-col items-stretch gap-[14px] overflow-hidden px-4 py-4 sm:px-6 xl:flex-row xl:px-8">
+      <div className="relative mx-auto flex h-full w-full max-w-[var(--vp-content-max)] flex-col items-stretch gap-[10px] overflow-hidden px-4 py-2 sm:px-6 xl:flex-row xl:px-8">
         <div className="vp-scrollbar min-w-0 flex-1 overflow-y-auto pr-1">
           <button
             type="button"
             onClick={onBack}
             aria-label="Back to matches"
-            className="mb-4 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] transition-opacity hover:opacity-80"
+            className="mb-4 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] device-dark:text-[#929292] transition-opacity hover:opacity-80"
           >
             <ArrowLeft
               className="size-4 shrink-0"
               strokeWidth={2}
               aria-hidden
             />
-            <span className={`${FONT} text-[13px] font-normal text-[#676767]`}>
+            <span
+              className={`${FONT} text-[13px] font-normal text-[#676767] device-dark:text-[#929292]`}
+            >
               Back to matches
             </span>
           </button>
@@ -545,19 +557,21 @@ export default function MatchDetailView({
           {loading && <LoadingSkeleton />}
           {error && !loading && (
             <div>
-              <h1 className={`${FONT} text-xl font-semibold text-[#c44a4a]`}>
+              <h1
+                className={`${FONT} text-xl font-semibold text-[#c44a4a] device-dark:text-[#e03b3b]`}
+              >
                 {error}
               </h1>
-              <p className="mt-2 text-sm text-[#757575]">
+              <p className="mt-2 text-sm text-[#757575] device-dark:text-[#929292]">
                 Try again later or pick another match from your matches.
               </p>
             </div>
           )}
 
           {match && !loading && (
-            <div className="flex flex-col gap-[9px]">
+            <div className="flex flex-col gap-[6px]">
               {viewer ? (
-                <header className="mb-1 w-full max-w-[554px] border-b border-[#eee] pb-1">
+                <header className="mb-1 w-full border-b border-[#eee] device-dark:border-[#2c2c2c] pb-1">
                   <div className="flex h-[52px] items-start gap-[12px]">
                     <img
                       src={championIconUrl(viewer.champion_name)}
@@ -572,7 +586,7 @@ export default function MatchDetailView({
                       </h1>
                       <p
                         id="match-detail-desc"
-                        className={`${FONT} text-[15px] leading-[20px] text-[#757575]`}
+                        className={`${FONT} text-[15px] leading-[20px] text-[#757575] device-dark:text-[#929292]`}
                       >
                         {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
                         {viewer.assists} KDA
@@ -580,7 +594,7 @@ export default function MatchDetailView({
                     </div>
                   </div>
                   <p
-                    className={`${FONT} mt-px flex flex-wrap gap-x-[12px] gap-y-1 text-[12px] leading-[20px] text-[#757575]`}
+                    className={`${FONT} mt-px flex flex-wrap gap-x-[12px] gap-y-1 text-[12px] leading-[20px] text-[#757575] device-dark:text-[#929292]`}
                   >
                     <span>{formatDuration(match.game_duration)}</span>
                     <span aria-hidden>·</span>
@@ -594,7 +608,9 @@ export default function MatchDetailView({
                   </p>
                 </header>
               ) : (
-                <h1 className={`${FONT} text-xl font-semibold text-[#1e1e1e]`}>
+                <h1
+                  className={`${FONT} text-xl font-semibold text-[#1e1e1e] device-dark:text-white`}
+                >
                   Match details
                 </h1>
               )}
