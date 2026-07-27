@@ -114,4 +114,13 @@ class TestAdminRouter():
         assert response == mock_response
         mock_remove_user_from_group.assert_called_once_with("user1", "Admin")
 
+    @staticmethod
+    @patch.object(admin_service, "remove_user_from_group")
+    async def test_remove_user_from_group_default_group(mock_remove_user_from_group: Any) -> None:
+        mock_remove_user_from_group.return_value = mock_response
+
+        response = await remove_user_from_group(mock_admin, "user1")
+        assert response == mock_response
+        mock_remove_user_from_group.assert_called_once_with("user1", "Users")
+
     
