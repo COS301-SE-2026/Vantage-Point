@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, timezone
 from unittest.mock import patch
 from fastapi.testclient import TestClient
-from app.api.router.admin_routes import get_users
+from app.api.router.admin_routes import get_users, get_user
 from app.services.admin_service import admin_service
 from app.main import app
 from app.Models.auth_model import User
@@ -67,3 +67,13 @@ class TestAdminRouter():
 
         assert response == mock_users
         mock_get_users.assert_called_once_with(10)
+
+    @staticmethod
+    @patch.object(admin_service, "get_user")
+    async def test_get_user(mock_get_user: Any) -> None:
+        mock_get_user.return_value = mock_user1
+        response = await get_user(mock_admin, username=mock_user1.username)
+
+        assert response == mock_user1
+        assert response.username == mock_user1.username
+        assert response.email == mock_user1.email
