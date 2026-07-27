@@ -22,6 +22,7 @@ starlette
 psycopg2-binary
 asyncpg
 numpy
+mypy_boto3_cognito_idp
 
 #logging
 loguru==0.7.3
