@@ -99,7 +99,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="vp-scrollbar min-h-screen w-full overflow-x-auto bg-white">
+    <div className="vp-scrollbar min-h-screen w-full overflow-x-auto bg-white device-dark:bg-[#181818]">
       <div className="relative mx-auto w-full min-w-0 max-w-[var(--vp-layout-max)]">
         <DashboardShell
           sidebarOpen={sidebarOpen}

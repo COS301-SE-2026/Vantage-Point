@@ -24,6 +24,15 @@ export function getDashboardContentStyle(sidebarOpen: boolean): CSSProperties {
   return { left: 0, width: "100%" };
 }
 
+/**
+ * Collapsing the sidebar hands the content region the full frame width. Views
+ * built around a fixed-width column centre it in that space so it doesn't snap
+ * to the far-left edge; fluid views keep filling the region instead.
+ */
+export function getDashboardColumnAlignClass(sidebarOpen: boolean): string {
+  return sidebarOpen ? "" : "mx-auto";
+}
+
 export function getDashboardContentBackdropStyle(
   sidebarOpen: boolean,
 ): CSSProperties {

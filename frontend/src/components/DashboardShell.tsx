@@ -3,11 +3,16 @@ import UserAccountMenu from "./UserAccountMenu";
 import { getDashboardContentBackdropStyle } from "../lib/dashboardLayout";
 import svgPaths from "./dashboard-shell-svg";
 import imgLogo from "../assets/images/logos/logo-mark.webp";
+import imgLogoWhite from "../assets/images/logos/logo-mark-white.webp";
 
-/** Figma 13:1171 — left nav parent panel, x 34…214 / y 93…643. */
+/**
+ * Figma 13:1171 — left nav parent panel, x 34…214 / y 93…643. The panel is
+ * pulled up to 72 with the header band so the content does not start a fifth of
+ * the way down the screen; the x offsets stay on the Figma grid.
+ */
 const DASHBOARD_SIDEBAR_LEFT = 34;
 const DASHBOARD_SIDEBAR_WIDTH = 180;
-const DASHBOARD_SIDEBAR_TOP = 93;
+const DASHBOARD_SIDEBAR_TOP = 72;
 const DASHBOARD_NAV_INSET = 10;
 const DASHBOARD_SIDEBAR_HEIGHT = 550;
 const DASHBOARD_NAV_WIDTH = DASHBOARD_SIDEBAR_WIDTH - DASHBOARD_NAV_INSET * 2;
@@ -52,20 +57,28 @@ interface DashboardShellProps {
   readonly onEditProfileClick?: () => void;
 }
 
-/** Figma 54:320 — mark at (24,32) 68px wide, wordmark at (94,42) 15px caps. */
+/**
+ * Figma 54:320 — mark at (24,32) 68px wide, wordmark at (94,42) 15px caps.
+ * Both are re-centred in the 72px band: the mark renders 38px tall at w=68,
+ * so it sits at (72-38)/2, and the 20px wordmark at (72-20)/2.
+ */
 function Logo() {
   return (
     <div
-      className="pointer-events-none absolute left-0 top-0 z-20 h-[93px] w-[214px]"
+      className="pointer-events-none absolute left-0 top-0 z-20 h-[72px] w-[214px]"
       data-name="Logo"
       data-node-id="54:320"
     >
-      <img
-        alt="Vantage Point logo"
-        className="absolute left-[25px] top-[32px] h-auto w-[68px] object-contain"
-        src={imgLogo}
-      />
-      <p className="absolute left-[94px] top-[42px] h-[20px] font-['League_Spartan',sans-serif] text-[15px] font-bold uppercase leading-[20px] tracking-[0.6px] whitespace-nowrap text-[#1e1e1e]">
+      {/* Figma 13:1199 — the mark is a solid silhouette, so dark needs the white cut. */}
+      <picture>
+        <source srcSet={imgLogoWhite} media="(prefers-color-scheme: dark)" />
+        <img
+          alt="Vantage Point logo"
+          className="absolute left-[25px] top-[17px] h-auto w-[68px] object-contain"
+          src={imgLogo}
+        />
+      </picture>
+      <p className="absolute left-[94px] top-[26px] h-[20px] font-['League_Spartan',sans-serif] text-[15px] font-bold uppercase leading-[20px] tracking-[0.6px] whitespace-nowrap text-[#1e1e1e] device-dark:text-white">
         Vantage Point
       </p>
     </div>
@@ -74,7 +87,7 @@ function Logo() {
 
 function NavItemLabel({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <span className="font-['Beaufort_for_LOL',serif] text-[14px] font-normal leading-[20px] text-[#1e1e1e]">
+    <span className="font-['Beaufort_for_LOL',serif] text-[14px] font-normal leading-[20px] text-[#1e1e1e] device-dark:text-white">
       {children}
     </span>
   );
@@ -101,30 +114,37 @@ export default function DashboardShell({
     "--transform-inner-width": "1200",
     "--transform-inner-height": "19",
   } as CSSProperties;
+  /** The 88px account avatar needs a taller band than the default 72. */
+  const headerVars = showAccountHeading
+    ? ({ "--vp-dashboard-header": "108px" } as CSSProperties)
+    : undefined;
 
   return (
-    <div className="relative min-h-screen w-full min-w-0 bg-white">
+    <div
+      className="relative min-h-screen w-full min-w-0 bg-white device-dark:bg-[#181818]"
+      style={headerVars}
+    >
       {/* Page canvas — white so #f0f0f0 panels are visible */}
       <div
-        className="absolute left-0 top-0 min-h-screen w-full min-w-0 overflow-clip bg-white"
+        className="absolute left-0 top-0 min-h-screen w-full min-w-0 overflow-clip bg-white device-dark:bg-[#181818]"
         data-name="Frame"
       >
         <Logo />
         <div
-          className="absolute bg-white transition-[left,width] duration-300 ease-out"
+          className="absolute bg-white device-dark:bg-[#181818] transition-[left,width] duration-300 ease-out"
           style={getDashboardContentBackdropStyle(sidebarOpen)}
         />
       </div>
 
       {showAccountHeading ? (
         /* Figma 14:440 (141×60 heading) butted against the 88px avatar at 13:1166. */
-        <div className="absolute right-[15px] top-[31px] z-20 flex items-center">
+        <div className="absolute right-[15px] top-[16px] z-20 flex items-center">
           <div className="w-[141px] px-[15px]" data-node-id="14:464">
-            <p className="h-[29px] truncate font-['Beaufort_for_LOL',serif] text-[24px] font-medium leading-[29px] text-[#1e1e1e]">
+            <p className="h-[29px] truncate font-['Beaufort_for_LOL',serif] text-[24px] font-medium leading-[29px] text-[#1e1e1e] device-dark:text-white">
               {accountName}
             </p>
             {accountTag ? (
-              <p className="mt-[2px] h-[22px] truncate font-['Inter',sans-serif] text-[16px] leading-[22px] text-[#b7b7b7]">
+              <p className="mt-[2px] h-[22px] truncate font-['Inter',sans-serif] text-[16px] leading-[22px] text-[#b7b7b7] device-dark:text-[#929292]">
                 {accountTag}
               </p>
             ) : null}
@@ -139,7 +159,7 @@ export default function DashboardShell({
           />
         </div>
       ) : (
-        <div className="absolute right-6 top-[29px] z-20">
+        <div className="absolute right-6 top-[12px] z-20">
           <UserAccountMenu
             onProfileClick={onProfileClick}
             onEditProfileClick={onEditProfileClick}
@@ -155,7 +175,7 @@ export default function DashboardShell({
           id="dashboard-sidebar"
           data-name="Rectangle 5"
           aria-label="Dashboard navigation"
-          className="absolute z-10 flex flex-col rounded-[15px] bg-[#f0f0f0]"
+          className="absolute z-10 flex flex-col rounded-[15px] bg-[#f0f0f0] device-dark:bg-[#3a3939]"
           style={{
             left: DASHBOARD_SIDEBAR_LEFT,
             top: DASHBOARD_SIDEBAR_TOP,
@@ -173,7 +193,7 @@ export default function DashboardShell({
             <button
               type="button"
               onClick={onMatchesClick}
-              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] device-dark:bg-[#2a2a2a] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               aria-label="Matches"
               aria-current={activeSection === "matches" ? "page" : undefined}
@@ -183,7 +203,7 @@ export default function DashboardShell({
             <button
               type="button"
               onClick={onReplayClick}
-              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] device-dark:bg-[#2a2a2a] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               data-name="Match Replay"
               aria-label="Match Replay"
@@ -194,7 +214,7 @@ export default function DashboardShell({
             <button
               type="button"
               onClick={onMetricsClick}
-              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] device-dark:bg-[#2a2a2a] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               data-name="Metrics"
               aria-label="Metrics"
@@ -210,7 +230,7 @@ export default function DashboardShell({
             <button
               type="button"
               onClick={onLogout}
-              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] device-dark:bg-[#2a2a2a] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
               style={{ width: DASHBOARD_NAV_WIDTH }}
               aria-label="Log out"
             >
@@ -228,7 +248,7 @@ export default function DashboardShell({
         aria-label={
           sidebarOpen ? "Collapse navigation panel" : "Expand navigation panel"
         }
-        className="absolute z-30 flex cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-[left,transform] duration-300 ease-out hover:bg-[#e8e8e8]"
+        className="absolute z-30 flex cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#525252] transition-[left,transform] duration-300 ease-out hover:bg-[#e8e8e8] device-dark:text-[#e5e5e5] device-dark:hover:bg-[#4a4949]"
         style={{
           top: DASHBOARD_TOGGLE_TOP,
           left: sidebarOpen
@@ -254,9 +274,9 @@ export default function DashboardShell({
                 viewBox="0 0 19.5 19.5"
               >
                 <g id="Vector">
-                  <path d={svgPaths.p1616c880} fill="var(--fill-0, #525252)" />
-                  <path d={svgPaths.p184c1a00} fill="var(--fill-0, #525252)" />
-                  <path d={svgPaths.p8beb600} fill="var(--fill-0, #525252)" />
+                  <path d={svgPaths.p1616c880} fill="currentColor" />
+                  <path d={svgPaths.p184c1a00} fill="currentColor" />
+                  <path d={svgPaths.p8beb600} fill="currentColor" />
                 </g>
               </svg>
             </div>
