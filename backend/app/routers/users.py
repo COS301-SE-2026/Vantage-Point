@@ -21,7 +21,7 @@ from app.services.user_accounts import (
     riot_id_tag,
 )
 
-router = APIRouter(prefix="/api/v1/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 def _user_me_response(user: Users, account) -> UserMeResponse:
