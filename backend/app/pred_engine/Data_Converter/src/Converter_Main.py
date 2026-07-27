@@ -1,9 +1,5 @@
-from sklearn.model_selection import train_test_split  # type: ignore
-from sklearn.preprocessing import StandardScaler  # type: ignore
-import csv
-import sys
-
-sys.path.insert(1, "/workspaces/backend/app")
+# import sys
+# sys.path.insert(1, "/workspaces/backend/app")
 from Models.riot_schemas import (
     MapSuggestData,
     ChampionData,
@@ -11,6 +7,9 @@ from Models.riot_schemas import (
     SkillData,
     RoleData,
 )
+from sklearn.model_selection import train_test_split  # type: ignore
+from sklearn.preprocessing import StandardScaler  # type: ignore
+import csv
 
 file_error_text = "Training file not found"
 type_err = "Input data is the wrong type"
@@ -135,7 +134,6 @@ def format_data_multivar(data, pos, role, lane):
         elif r == -1:
             r = 0
 
-
         row = convert_to_int(row, lane, role, pos)
 
         # if skill data (-1, -1, -1)
@@ -159,6 +157,7 @@ def format_data_multivar(data, pos, role, lane):
         prev_row = row
 
     return data_arr, y
+
 
 # -----------------------------------------------------------------------------------#
 
@@ -233,14 +232,14 @@ def convert_to_rows(data):
     ):
         data_arr = data.convert_to_arr()
     elif isinstance(data, list):
-        if (not isinstance(data[0], list)): #check if 1D array
+        if not isinstance(data[0], list):  # check if 1D array
             data_arr.append(data)
         else:
             data_arr = data
-    else: 
+    else:
         print(type_err)
-    
-    return data_arr    
+
+    return data_arr
 
 
 def format_api_data_knn(obj_data):
@@ -255,7 +254,9 @@ def format_api_data_knn(obj_data):
     x_data_rows, y_data_rows = format_data_multivar(data, 2, 4, 3)
 
     scaler = StandardScaler()
-    x_data_rows = scaler.fit_transform(x_data_rows)  # pyright: ignore[reportArgumentType]
+    x_data_rows = scaler.fit_transform(
+        x_data_rows
+    )  # pyright: ignore[reportArgumentType]
 
     # x is target, y is given
     return x_data_rows, y_data_rows
@@ -282,6 +283,3 @@ def format_api_data_rf(obj_data, category):
 
     # X is given, y is target
     return x_data_rows, y_data_rows
-
-
-

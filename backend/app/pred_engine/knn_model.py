@@ -125,10 +125,8 @@ def get_knn(file_name):
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=69420)
     bagging_model.fit(x_train, y_train)
-    #test_preds_grid = bagging_model.predict(x_test)
-    #test_r2 = r2_score(y_test, test_preds_grid)
-    #print(test_r2)
+    # test_preds_grid = bagging_model.predict(x_test)
+    # test_r2 = r2_score(y_test, test_preds_grid)
+    # print(test_r2)
 
     return bagging_model
-
-

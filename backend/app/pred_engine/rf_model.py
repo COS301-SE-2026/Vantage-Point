@@ -97,7 +97,9 @@ def test_and_eval(file_name, run_cat):
         print(file_error_text)
         exit()
 
-    x_train, x_test, y_train, y_test = converter.get_train_test_data_rf(file_name, run_cat)
+    x_train, x_test, y_train, y_test = converter.get_train_test_data_rf(
+        file_name, run_cat
+    )
 
     # nullcheck data
     if len(x_train) == 0 or len(x_test) == 0 or len(y_train) == 0 or len(y_test) == 0:
