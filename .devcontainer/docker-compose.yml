@@ -3,6 +3,11 @@ services:
   # The Python/FastAPI environment
   app:
     image: mcr.microsoft.com/devcontainers/python:3.12
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    env_file:
+      - .env
     volumes:
       - ..:/workspaces:cached
       - pip-cache:/home/vscode/.cache/pip        
@@ -11,9 +16,6 @@ services:
       # persists npm download cache
     # Keeps the container running so you can code inside it
     command: sleep infinity
-    environment:
-      # This points Python to the 'db' service below
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "5173:5173" # Vite (frontend)
       - "8000:8000" # FastAPI (backend)
