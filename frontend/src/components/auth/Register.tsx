@@ -32,12 +32,13 @@ function SignInLink() {
       className="flex items-center justify-center w-full"
       data-name="Login option"
     >
-      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] text-[16px] leading-[1.4] text-center">
+      {/* Figma 13:490 — "Supp text dark" #929292, the action itself white on dark. */}
+      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
         {`Already have an account? `}
         <button
           type="button"
           onClick={() => navigate("/login")}
-          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] cursor-pointer hover:underline"
+          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] device-dark:text-white cursor-pointer hover:underline"
         >
           Login
         </button>

@@ -2,15 +2,23 @@ import { useState, useEffect, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
 import imgLogoMark from "../../assets/images/logos/logo-mark.webp";
+import imgLogoMarkWhite from "../../assets/images/logos/logo-mark-white.webp";
 import imgGoogle from "../../assets/images/providers/google.webp";
 import imgAppleInc from "../../assets/images/providers/apple.webp";
+import imgAppleIncWhite from "../../assets/images/providers/apple-white.webp";
 import imgRiotGames from "../../assets/images/providers/riot-games.webp";
 
 const backgroundImages = authBackgroundImages;
 const SLIDE_DOT_INDICES = authSlideIndices;
 
+/**
+ * Figma 12:60 / 12:62. Dark values come from node 12:44: the field is a filled
+ * #575757 pill (no contrasting border) with #929292 placeholder text. The
+ * autofill inset shadow has to be re-stated per theme, otherwise Chrome paints
+ * an opaque white field over the dark panel.
+ */
 export const authInputClassName =
-  "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
+  "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent device-dark:bg-[#575757] device-dark:text-white device-dark:placeholder:text-[#929292] device-dark:border-[#575757] device-dark:focus:border-[#929292] device-dark:caret-white device-dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff] device-dark:[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(87,87,87)] device-dark:[&:-webkit-autofill]:caret-white";
 
 function Logo() {
   return (
@@ -18,14 +26,21 @@ function Logo() {
       className="relative z-20 flex w-full shrink-0 flex-col items-center gap-[clamp(6px,1.2vh,14px)]"
       data-name="logo"
     >
-      <p className="text-center font-['League_Spartan',sans-serif] text-[clamp(20px,2.6vw,36px)] font-bold uppercase leading-none tracking-[0.02em] whitespace-nowrap text-black">
+      <p className="text-center font-['League_Spartan',sans-serif] text-[clamp(20px,2.6vw,36px)] font-bold uppercase leading-none tracking-[0.02em] whitespace-nowrap text-black device-dark:text-[#f9f9f9]">
         Vantage Point
       </p>
-      <img
-        alt="Vantage Point Logo"
-        className="pointer-events-none h-auto w-[clamp(96px,13vw,176px)] object-contain"
-        src={imgLogoMark}
-      />
+      {/* The mark is a solid silhouette, so the dark panel needs the white cut. */}
+      <picture>
+        <source
+          srcSet={imgLogoMarkWhite}
+          media="(prefers-color-scheme: dark)"
+        />
+        <img
+          alt="Vantage Point Logo"
+          className="pointer-events-none h-auto w-[clamp(96px,13vw,176px)] object-contain"
+          src={imgLogoMark}
+        />
+      </picture>
     </div>
   );
 }
@@ -34,9 +49,13 @@ function SocialLoginButtons({
   onSocialClick,
   verb,
 }: Readonly<{ onSocialClick?: () => void; verb: string }>) {
+  /**
+   * Figma 12:57–12:59. Google and Riot are full-colour marks that read on either
+   * panel; the Apple mark is a solid silhouette and needs the white cut on dark.
+   */
   const providers = [
     { id: "google", src: imgGoogle, name: "Google" },
-    { id: "apple", src: imgAppleInc, name: "Apple" },
+    { id: "apple", src: imgAppleInc, darkSrc: imgAppleIncWhite, name: "Apple" },
     { id: "riot", src: imgRiotGames, name: "Riot Games" },
   ];
 
@@ -53,11 +72,19 @@ function SocialLoginButtons({
           className="h-[clamp(30px,3.2vw,44px)] w-[clamp(28px,3vw,41px)] hover:opacity-80 transition-opacity cursor-pointer border-0 bg-transparent p-0"
           data-name={provider.name}
         >
-          <img
-            alt={`${verb} with ${provider.name}`}
-            className="w-full h-full object-contain pointer-events-none"
-            src={provider.src}
-          />
+          <picture>
+            {provider.darkSrc ? (
+              <source
+                srcSet={provider.darkSrc}
+                media="(prefers-color-scheme: dark)"
+              />
+            ) : null}
+            <img
+              alt={`${verb} with ${provider.name}`}
+              className="w-full h-full object-contain pointer-events-none"
+              src={provider.src}
+            />
+          </picture>
         </button>
       ))}
     </div>
@@ -115,7 +142,7 @@ export function AuthInputField({
       className="content-stretch flex flex-col gap-[8px] items-stretch"
       data-name="Input Field"
     >
-      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] text-[16px]">
+      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.4] text-[#1e1e1e] device-dark:text-white text-[16px]">
         {label}
       </p>
       <div className="relative flex items-center">
@@ -150,7 +177,7 @@ export function PasswordVisibilityToggle({
       onClick={() => setShowPassword(!showPassword)}
       aria-label={`${showPassword ? "Hide" : "Show"} ${fieldLabel}`}
       aria-pressed={showPassword}
-      className="absolute right-[14px] flex cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-[#757575] transition-colors hover:text-[#1e1e1e]"
+      className="absolute right-[14px] flex cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-[#757575] transition-colors hover:text-[#1e1e1e] device-dark:text-[#c9c9c9] device-dark:hover:text-white"
     >
       <Icon className="size-[18px]" strokeWidth={1.75} aria-hidden />
     </button>
@@ -186,8 +213,9 @@ export default function AuthScreen({
 
   return (
     <div
-      className="relative size-full bg-white overflow-clip"
+      className="relative size-full bg-white device-dark:bg-[#181818] overflow-clip"
       data-name="auth-screen"
+      data-node-id="12:49"
     >
       {/* Right side champion splash (70% of the width) */}
       <div className="absolute h-full left-[30%] top-0 right-0 z-0">
@@ -224,8 +252,9 @@ export default function AuthScreen({
 
       {/* Left form panel (30% of the width) */}
       <div
-        className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center justify-between gap-[clamp(16px,3vh,32px)] overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(24px,5vh,48px)] bg-white"
+        className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center justify-between gap-[clamp(16px,3vh,32px)] overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(24px,5vh,48px)] bg-white device-dark:bg-[#181818]"
         data-name="left-panel"
+        data-node-id="12:52"
       >
         <div className="flex w-full max-w-[min(378px,100%)] shrink-0 flex-col items-center">
           <Logo />
