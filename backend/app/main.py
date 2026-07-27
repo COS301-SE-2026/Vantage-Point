@@ -78,7 +78,7 @@ app.add_middleware(
 
 app.add_middleware(ProcessTimeMiddleware)
 
-app.include_router(router, prefix="/api")
+app.include_router(router, prefix="/api/v1")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
