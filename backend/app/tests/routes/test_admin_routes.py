@@ -60,10 +60,10 @@ class TestAdminRouter():
 
     @staticmethod
     @patch.object(admin_service, "get_users")
-    async def test_get_users_default_limit(mock_get_users: Any, client: TestClient):
+    async def test_get_users_default_limit(mock_get_users: Any):
         mock_users = [mock_user1, mock_user2]
         mock_get_users.return_value = mock_users
-        response = client.get("/admin/users")
+        response = await get_users(mock_admin)
 
-        assert response.status_code == 200
+        assert response == mock_users
         mock_get_users.assert_called_once_with(10)
