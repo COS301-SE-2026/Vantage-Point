@@ -5,6 +5,7 @@ import { championIconUrl } from "../lib/ddragon";
 import type { PlayerProfile, RecentChampion } from "../types/profile";
 import {
   DASHBOARD_CONTENT_HEIGHT,
+  getDashboardColumnAlignClass,
   getDashboardContentStyle,
 } from "../lib/dashboardLayout";
 import FeaturedGameCard from "../components/FeaturedGameCard";
@@ -17,7 +18,7 @@ interface ProfileViewProps {
 
 /** Section heading — Figma 14:475 / 14:591 (Beaufort Bold, 0.35 tracking, caps). */
 const SECTION_HEADING_CLASS =
-  "font-['Beaufort_for_LOL',serif] font-bold uppercase tracking-[0.35px] text-[#1e1e1e]";
+  "font-['Beaufort_for_LOL',serif] font-bold uppercase tracking-[0.35px] text-[#1e1e1e] device-dark:text-white";
 
 /** Champion tile — Figma 14:593: 88×88, r12, #404040, count badge bottom-right. */
 function ChampionTile({ champion }: Readonly<{ champion: RecentChampion }>) {
@@ -54,7 +55,7 @@ export default function ProfileView({
   if (!profile) {
     return (
       <div
-        className="absolute top-[var(--vp-dashboard-header)] min-w-0 px-10 py-8 font-['Inter',sans-serif] text-[16px] text-[#757575] transition-[left,width] duration-300 ease-out"
+        className="absolute top-[var(--vp-dashboard-header)] min-w-0 px-6 py-4 font-['Inter',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292] transition-[left,width] duration-300 ease-out"
         style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
         data-name="profile-view"
       >
@@ -73,42 +74,44 @@ export default function ProfileView({
       data-node-id="14:648"
     >
       {/* Content column starts at Figma x=248 / y=125, i.e. flush left, 31px below the header. */}
-      <div className="vp-scrollbar relative h-full overflow-auto px-0 pb-8 pt-[31px]">
+      <div className="vp-scrollbar relative h-full overflow-auto px-0 pb-5 pt-4">
         <div
-          className="relative w-[806px] max-w-full"
+          className={`relative w-full max-w-[var(--vp-content-max)] ${getDashboardColumnAlignClass(sidebarOpen)}`}
           data-name="Paragraph"
           data-node-id="14:474"
         >
-          {/* Radar + featured card row — Figma 14:474, 348px tall (heading top → radar bottom). */}
-          <div className="relative h-[348px]">
+          {/* Radar + featured card row — Figma 14:474; the card takes the slack. */}
+          <div className="flex flex-col gap-[4px]">
             <p
-              className={`absolute left-0 top-[-2.5px] h-[24px] text-[16px] leading-[24px] whitespace-nowrap ${SECTION_HEADING_CLASS}`}
+              className={`h-[24px] text-[16px] leading-[24px] whitespace-nowrap ${SECTION_HEADING_CLASS}`}
               data-node-id="14:475"
             >
               Last {profile.matches_sampled} matches
             </p>
 
-            <section
-              aria-label="Performance radar"
-              className="absolute left-0 top-[28px] h-[320px] w-[360px]"
-              data-name="Surface"
-              data-node-id="14:140"
-            >
-              <ProfileRadarChart metrics={profile.radar_metrics} />
-            </section>
-
-            {featured ? (
+            <div className="flex items-start gap-[24px]">
               <section
-                aria-label="Featured game"
-                className="absolute left-[360px] top-[24px]"
+                aria-label="Performance radar"
+                className="h-[320px] w-[360px] shrink-0"
+                data-name="Surface"
+                data-node-id="14:140"
               >
-                <FeaturedGameCard slide={featured} />
+                <ProfileRadarChart metrics={profile.radar_metrics} />
               </section>
-            ) : null}
+
+              {featured ? (
+                <section
+                  aria-label="Featured game"
+                  className="min-w-0 flex-1 pt-[4px]"
+                >
+                  <FeaturedGameCard slide={featured} />
+                </section>
+              ) : null}
+            </div>
           </div>
 
           <section
-            className="mt-[32px]"
+            className="mt-[22px]"
             aria-label="Most played champions"
             data-name="Section - Recent champions"
             data-node-id="14:589"
@@ -120,7 +123,7 @@ export default function ProfileView({
               Most played champions
             </h2>
             <div
-              className="mt-[16px] flex w-[505px] max-w-full flex-wrap gap-[16px]"
+              className="mt-[12px] flex w-[505px] max-w-full flex-wrap gap-[12px]"
               data-node-id="14:592"
             >
               {profile.recent_champions.map((champion) => (

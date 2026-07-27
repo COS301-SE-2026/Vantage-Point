@@ -12,9 +12,9 @@ interface ProfileRadarChartProps {
  * i.e. radius 111.6px against recharts' 160px half-height (111.6 / 160).
  */
 const RADAR_OUTER_RADIUS = "69.75%";
-const RADAR_GRID_STROKE = "#d4d4d4";
+const RADAR_GRID_STROKE = "var(--vp-chart-grid)";
 const RADAR_SERIES_COLOR = "#22c55e";
-const RADAR_LABEL_COLOR = "#525252";
+const RADAR_LABEL_COLOR = "var(--vp-chart-label)";
 
 /** Drop of the bottom label so its text box, not its cap line, meets the tick. */
 const BOTTOM_LABEL_OFFSET = 8;
