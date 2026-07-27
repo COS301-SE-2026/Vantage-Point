@@ -1,3 +1,4 @@
+import traceback
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
@@ -113,9 +114,16 @@ async def validation_exception_handler(
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    print("Unhandled Exception Traceback:")
+    traceback.print_exception(type(exc), exc, exc.__traceback__)
+
+    origin = request.headers.get("origin", "*")
+    headers = {"Access-Control-Allow-Origin": origin} if origin in origins or origin == "*" else {}
+
     return JSONResponse(
         status_code=500,
-        content=error_response(500, "Unexpected server error"),
+        content=error_response(500, f"Unexpected server error: {str(exc)}"),
+        headers=headers,
     )
 
 
