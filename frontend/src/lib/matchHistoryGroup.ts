@@ -21,7 +21,10 @@ const ROLE_LABELS: Record<string, string> = {
   UTILITY: "SUP",
 };
 
-function formatRoleLabel(position: string): string {
+function formatRoleLabel(position?: string): string {
+  if (!position) {
+    return "UNKNOWN";
+  }
   return ROLE_LABELS[position] ?? position.slice(0, 3).toUpperCase();
 }
 
@@ -37,8 +40,16 @@ export function toDashboardListItem(
   };
 }
 
-function formatDayLabel(playedOn: string): string {
+function formatDayLabel(playedOn?: string): string {
+  if (!playedOn) {
+    return "Unknown Date";
+  }
+  
   const [year, month, day] = playedOn.split("-").map(Number);
+  if (!year || !month || !day) {
+    return playedOn; // Return raw string if formatting fails
+  }
+
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "long",
