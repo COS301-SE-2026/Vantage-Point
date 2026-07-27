@@ -82,3 +82,14 @@ class TestAdminRouter():
         assert response == mock_user1
         assert response.username == mock_user1.username
         assert response.email == mock_user1.email
+        mock_get_user.assert_called_once_with("user1")
+
+    @staticmethod
+    @patch.object(admin_service, "add_user_to_group")
+    async def test_add_user_to_group(mock_add_user_to_group: Any) -> None:
+        mock_add_user_to_group.return_value = mock_response
+
+        response = await add_user_to_group(mock_admin, username="user1", group="SuperAdmin")
+
+        assert response == mock_response
+        mock_add_user_to_group.assert_called_once_with("user1", "SuperAdmin")
