@@ -15,8 +15,6 @@ interface MatchReplayControlsProps {
   readonly onZoomOut: () => void;
 }
 
-/** Figma 26:1626 — Material linear determinate, 378×12 box with a 4px indicator. */
-const TRACK_WIDTH = 378;
 /** Material leaves a 4px gap between the active indicator and the track. */
 const INDICATOR_GAP = 4;
 
@@ -28,12 +26,12 @@ function ProgressIndicator({
 
   return (
     <div
-      className="relative h-[12px]"
-      style={{ width: TRACK_WIDTH }}
+      className="relative h-[12px] min-w-0 flex-1"
       data-name="Linear-determinate progress indicator"
       data-node-id="26:1626"
     >
       <div className="absolute inset-x-0 top-[4px] h-[4px]">
+        {/* Drawn over the minimap, so Figma keeps the same track in both themes. */}
         <div
           className="absolute inset-y-0 right-0 rounded-full bg-[#dddddd]"
           style={{ left: `calc(${percent}% + ${INDICATOR_GAP}px)` }}
@@ -59,7 +57,9 @@ function ProgressIndicator({
 
 /**
  * Figma "Map" 55:314 — transport row drawn over the minimap: pause at x8/y483,
- * the progress bar at x40/y489 and the zoom cluster at x424/y483.
+ * the progress bar at x40/y489 and the zoom cluster at x424/y483. Those offsets
+ * assume the 516px square, so the row is anchored to the map's bottom edge
+ * instead and keeps the same insets at any map size.
  */
 export default function MatchReplayControls({
   playing,
@@ -71,13 +71,13 @@ export default function MatchReplayControls({
   onZoomOut,
 }: Readonly<MatchReplayControlsProps>) {
   return (
-    <>
+    <div className="absolute inset-x-[8px] bottom-[9px] flex items-center gap-[16px]">
       <button
         type="button"
         onClick={onTogglePlaying}
         aria-label={playing ? "Pause replay" : "Play replay"}
         data-node-id="26:1655"
-        className="absolute left-[8px] top-[483px] flex size-[24px] cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0"
+        className="flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0"
       >
         <img
           src={playing ? iconPause : iconPlay}
@@ -87,14 +87,12 @@ export default function MatchReplayControls({
         />
       </button>
 
-      <div className="absolute left-[40px] top-[489px]">
-        <ProgressIndicator progress={progress} onScrub={onScrub} />
-      </div>
+      <ProgressIndicator progress={progress} onScrub={onScrub} />
 
       <div
         data-name="Zoom controls"
         data-node-id="26:1335"
-        className="absolute left-[424px] top-[483px] h-[24px] w-[85px]"
+        className="relative h-[24px] w-[85px] shrink-0"
       >
         <button
           type="button"
@@ -116,6 +114,6 @@ export default function MatchReplayControls({
           <img src={iconZoomOut} alt="" width={20.5} height={20.5} />
         </button>
       </div>
-    </>
+    </div>
   );
 }

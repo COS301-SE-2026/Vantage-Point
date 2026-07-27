@@ -18,8 +18,12 @@ import { buildReplayCoachingNotes } from "../lib/replayCoaching";
 import { mapDefault } from "../assets/images/match-replay";
 import type { MatchDetail, ParticipantDetail } from "../types/match";
 
-/** Figma "Map view" 26:1008 — 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel. */
-const MAP_SIZE = 516;
+/**
+ * Figma "Map view" 26:1008 — 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel.
+ * The map now takes the slack in the region instead, capped so its square still
+ * fits the viewport height; 516 stays the floor.
+ */
+const MAP_MIN_SIZE = 516;
 
 function allParticipants(match: MatchDetail): ParticipantDetail[] {
   return match.teams.flatMap((team) => [...team.participants]);
@@ -76,7 +80,9 @@ export default function MatchReplayView() {
     load()
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Could not load replay");
+          setError(
+            err instanceof Error ? err.message : "Could not load replay",
+          );
           setMatch(null);
         }
       })
@@ -89,10 +95,7 @@ export default function MatchReplayView() {
     };
   }, [matchIdParam, navigate]);
 
-  const players = useMemo(
-    () => (match ? allParticipants(match) : []),
-    [match],
-  );
+  const players = useMemo(() => (match ? allParticipants(match) : []), [match]);
 
   const viewer = players.find((p) => p.is_viewer);
 
@@ -140,14 +143,14 @@ export default function MatchReplayView() {
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="match-replay-view"
     >
-      <div className="h-full overflow-auto px-4 py-3 sm:px-6">
+      <div className="vp-scrollbar h-full overflow-auto px-4 py-2 sm:px-6">
         {loading ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575]">
+          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
             Loading match replay…
           </p>
         ) : null}
         {error ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#c44a4a]">
+          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#c44a4a] device-dark:text-[#e03b3b]">
             {error}
           </p>
         ) : null}
@@ -157,7 +160,7 @@ export default function MatchReplayView() {
           <div
             data-name="Map view"
             data-node-id="26:1008"
-            className="flex w-[820px] flex-col gap-[11px]"
+            className="mx-auto flex w-full max-w-[var(--vp-content-max)] flex-col gap-[8px]"
           >
             <MatchReplayMenuRow match={match} viewer={viewer} />
 
@@ -176,8 +179,11 @@ export default function MatchReplayView() {
               <div
                 data-name="Map"
                 data-node-id="55:314"
-                className="relative ml-[10px] shrink-0 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
-                style={{ width: MAP_SIZE, height: MAP_SIZE }}
+                className="relative ml-[10px] aspect-square min-w-0 flex-1 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
+                style={{
+                  minWidth: MAP_MIN_SIZE,
+                  maxWidth: "calc(100vh - 210px)",
+                }}
               >
                 <img
                   src={mapDefault}
@@ -207,7 +213,7 @@ export default function MatchReplayView() {
                 />
               </div>
 
-              <div className="ml-[24px]">
+              <div className="ml-[24px] flex min-w-[230px] max-w-[320px] flex-1 self-stretch">
                 <AiCoachingComments notes={coachingNotes} />
               </div>
             </div>
@@ -215,7 +221,7 @@ export default function MatchReplayView() {
         ) : null}
 
         {!loading && !error && match && !viewer ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575]">
+          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
             Match loaded, but no viewer participant was found.
           </p>
         ) : null}
