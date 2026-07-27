@@ -254,6 +254,94 @@ async def update_profile(
     )
 
 
+@router.delete(
+    "/profile",
+    tags=["Profile"],
+    summary="Schedule account deletion",
+    description="Marks the authenticated account for deletion 30 days from now.",
+    response_model=MessageResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
+async def delete_account(
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
+    deletion_date = await ProfileService.schedule_account_deletion(
+        session, current_user
+    )
+
+    print(f"--- Notification email sent to user {current_user} ---")
+    print("Subject: Account marked for deletion")
+    print(f"Your account will be removed on {deletion_date.strftime('%Y-%m-%d')}.")
+
+    return {
+        "message": "Account marked for deletion. You have 30 days to undo this action."
+    }
+
+
+@router.post(
+    "/profile/undo-delete",
+    tags=["Profile"],
+    summary="Undo scheduled account deletion",
+    description="Cancels a pending account deletion for the authenticated user.",
+    response_model=MessageResponse,
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Account is not marked for deletion",
+        },
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+    },
+)
+async def undo_delete(
+    current_user: Annotated[str, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
+    if await ProfileService.undo_account_deletion(session, current_user):
+        return {"message": "Account deletion cancelled successfully."}
+    raise HTTPException(
+        status_code=400,
+        detail={"error_code": 4002, "message": "Account is not marked for deletion."},
+    )
+
+
+class UpdateAPIKeyRequest(BaseModel):
+    riot_api_key: str = Field(..., description="Riot Games developer API key")
+
+
+@router.put(
+    "/profile/riot-key",
+    tags=["Profile"],
+    summary="Update Riot API key",
+    description="Mock endpoint that validates updating the Riot API key for the current session.",
+    response_model=RiotKeyUpdateResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Invalid or expired token"},
+        500: {"model": ErrorResponse, "description": "Failed to update API key"},
+    },
+)
+async def update_riot_api_key(
+    request: UpdateAPIKeyRequest,
+    current_user: Annotated[str, Depends(get_current_user)],
+):
+    mock_success = True
+
+    if not mock_success:
+        raise HTTPException(status_code=500, detail="Failed to update API key")
+
+    print("--- [MOCK] API Key Updated ---")
+    print(f"User: {current_user}")
+    print(f"New Key: {request.riot_api_key[:10]}...")
+
+    return {
+        "message": "Riot API Key updated successfully for this session.",
+        "user": current_user,
+        "status": "mock_verified",
+    }
+
+
 # =====================================================
 # Matches & Riot Routes
 # =====================================================
