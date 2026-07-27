@@ -27,6 +27,8 @@ services:
     restart: always
     depends_on:
       - postgres-db
+    ports:
+      - "8000:8000"
     networks:
       - app-network
 
