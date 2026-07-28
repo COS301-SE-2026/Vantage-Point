@@ -21,7 +21,6 @@ const NAV_ITEMS = [
 ] as const;
 
 
-// NOTE : Since I am importing the USerAccountMenu, the profileavatar should be imported
 function accountInitials(name: string | undefined): string {
   if (!name) return "UN";
   const parts = name.trim().split(/\s+/);

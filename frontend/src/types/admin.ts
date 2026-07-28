@@ -33,7 +33,8 @@ export interface AdminUserFilters {
 }
 
 export interface UpdateUserPayload {
-  readonly role?: Exclude<AppRole, "Super Admin">; // Admins may only assign "Player" 
+    // backend enforce that admin can only choose player so no ned to exclude super admin here
+  readonly role?: AppRole;
   readonly status?: UserStatus;
 }
 
