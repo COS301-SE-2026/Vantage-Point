@@ -641,17 +641,20 @@ class TestAdminDelete:
     @staticmethod
     @patch("app.services.admin_service.client.admin_delete_user")
     async def test_delete_user_success(
-        mock_admin_delete_user: MagicMock, mock_db_session: AsyncMock
+        mock_admin_delete_user: MagicMock, mock_db_session: MagicMock
     ):
         mock_admin_delete_user.return_value = {}
+
+        # Convert async methods to AsyncMock so they can be awaited
+        mock_db_session.execute = AsyncMock()
+        mock_db_session.delete = AsyncMock()
+        mock_db_session.commit = AsyncMock()
 
         mock_user = MagicMock()
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_user
 
         mock_db_session.execute.return_value = mock_result
-        mock_db_session.commit.return_value = None
-        mock_db_session.delete.return_value = None
 
         response = await admin_service.delete_user(mock_db_session, "shaun", "12345")
 
