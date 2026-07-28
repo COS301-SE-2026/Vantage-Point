@@ -18,7 +18,7 @@ export type LoginFormProps = Readonly<{
 
 interface LoginProps {
   form: LoginFormProps;
-  backgroundImage?: string; // Optional: overrides the automatic slide rotation
+  backgroundImage?: string; // Optional: If passed, overrides the automatic slide rotation loop
 }
 
 function RegistrationLink() {
@@ -28,7 +28,6 @@ function RegistrationLink() {
       className="flex items-center justify-center w-full"
       data-name="Sign up option"
     >
-      {/* Figma 12:64 — "Supp text dark" #929292, the action itself white on dark. */}
       <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
         {`Don't have an account? `}
         <button

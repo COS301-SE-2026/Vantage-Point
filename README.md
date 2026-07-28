@@ -1,6 +1,12 @@
 # Vantage Point
 
 > **Spatial Intelligence Platform for Competitive Gamers**
+<div align="center">
+    <img src=".github/images/logo.png" alt="Savanna Sentinel" width="420"/>
+<br/><br/>
+<img src=".github/images/EPIUSE.svg" alt="EPI-USE" width="110"/>
+<br/><br/>
+</div>
 
 Transform your gameplay through advanced positioning analysis. Move beyond K/D ratios and discover the data-driven insights that separate top-tier players from the rest.
 

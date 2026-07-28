@@ -4,8 +4,6 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.passwords import hash_password
-from app.tests.constants import TEST_USER_PASSWORD
 from app.database.models import (
     Champions,
     GameAccounts,
@@ -50,11 +48,12 @@ async def seed_test_user_with_matches(session: AsyncSession) -> tuple[str, str]:
 
     session.add(
         Users(
-            id=user_id,
+            cognito_sub=user_id,
             email=email,
-            password_hash=hash_password(TEST_USER_PASSWORD),
             display_name="MatchTest",
             created_at=datetime.now(timezone.utc).replace(tzinfo=None),
+            updated_at=datetime.now(timezone.utc).replace(tzinfo=None),
+            linked_puuids_cache="[]",
         )
     )
     session.add(
