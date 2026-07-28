@@ -184,8 +184,7 @@ class RiotService:
         # Validate format to prevent path traversal / unexpected strings
         if not MATCH_ID_PATTERN.match(match_id):
             raise HTTPException(
-                status_code=400,
-                detail="Invalid match ID format provided."
+                status_code=400, detail="Invalid match ID format provided."
             )
 
         server_region = match_id.split("_")[0].lower()
