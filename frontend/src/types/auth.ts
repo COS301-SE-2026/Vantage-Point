@@ -5,7 +5,7 @@ export interface TokenResponse {
 }
 
 export interface UserMe {
-  readonly id: string;
+  readonly cognito_sub: string;
   readonly email: string;
   readonly display_name: string;
   readonly avatar_url: string | null;
