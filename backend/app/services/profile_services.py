@@ -7,7 +7,6 @@ import traceback
 from typing import Any
 from app.database.models import Users
 from app.Models.profile_schemas import UserProfile
-
 import boto3
 from botocore.exceptions import ClientError
 import asyncio
@@ -211,3 +210,4 @@ class ProfileService:
             raise
 
     # update pswd and confirm update
+    # build player

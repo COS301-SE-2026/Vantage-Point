@@ -26,3 +26,6 @@ mypy_boto3_cognito_idp
 
 #logging
 loguru==0.7.3
+
+#mypy type checking
+mypy-boto3-cognito-idp
