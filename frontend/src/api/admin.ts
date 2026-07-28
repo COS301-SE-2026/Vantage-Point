@@ -1,8 +1,10 @@
-import { apiFetch } from "./client";
+import { apiFetch, apiFetchFormData } from "./client";
 import type {
   AdminUser,
   AdminUserFilters,
   AdminUserListResponse,
+  ChampionAsset,
+  MapAsset,
   PlatformSettings,
   RegisterUserPayload,
   UpdateUserPayload,
@@ -68,5 +70,38 @@ export async function setRegistrationsOpen(
 
 
 // Map & Champion Assests Functional Requirements
-
+export async function listMapAssets(): Promise<MapAsset[]> {
+  return apiFetch<MapAsset[]>("/api/v1/admin/assets/maps");
+}
+ 
+export async function uploadMapAsset(
+  mapId: string,
+  displayName: string,
+  file: File,
+): Promise<MapAsset> {
+  const formData = new FormData();
+  formData.append("map_id", mapId);
+  formData.append("display_name", displayName);
+  formData.append("file", file);
+  return apiFetchFormData<MapAsset>("/api/v1/admin/assets/maps", formData);
+}
+ 
+export async function listChampionAssets(): Promise<ChampionAsset[]> {
+  return apiFetch<ChampionAsset[]>("/api/v1/admin/assets/champions");
+}
+ 
+export async function uploadChampionAsset(
+  championId: string,
+  displayName: string,
+  file: File,
+): Promise<ChampionAsset> {
+  const formData = new FormData();
+  formData.append("champion_id", championId);
+  formData.append("display_name", displayName);
+  formData.append("file", file);
+  return apiFetchFormData<ChampionAsset>(
+    "/api/v1/admin/assets/champions",
+    formData,
+  );
+}
 

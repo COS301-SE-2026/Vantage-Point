@@ -46,3 +46,24 @@ export interface RegisterUserPayload {
 export interface PlatformSettings {
   readonly registrations_open: boolean;
 }
+
+
+// Match Data / Data Ingestion Functional Requirements
+
+
+// Dashboard / System Metrics Functional Requirements
+
+
+// Map & Champion Assests Functional Requirements
+export interface MapAsset {
+  readonly map_id: string;
+  readonly display_name: string;
+  readonly image_url: string;
+}
+ 
+export interface ChampionAsset {
+  readonly champion_id: string;
+  readonly display_name: string;
+  readonly image_url: string;
+}
+ 
