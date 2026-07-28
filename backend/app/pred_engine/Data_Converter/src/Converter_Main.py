@@ -1,5 +1,3 @@
-# import sys
-# sys.path.insert(1, "/workspaces/backend/app")
 from Models.riot_schemas import (
     MapSuggestData,
     ChampionData,
@@ -113,10 +111,7 @@ def format_data_univar(data, pos, role, lane):
 
 def remove_dup(row, prev_row, r):
     # if feature values are identical, take new row
-    if r != 0 and row[1:] == prev_row[1:]:
-        return True
-    else:
-        return False
+    return r != 0 and row[1:] == prev_row[1:]
 
 
 def format_data_multivar(data, pos, role, lane):
