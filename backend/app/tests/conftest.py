@@ -22,6 +22,9 @@ from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
 
+os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
+pytest_plugins = ["app.tests.postgres_fixtures"]
+
 fake_user = UserTest(
     sub="123456",
     username="testuser",

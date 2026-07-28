@@ -54,6 +54,62 @@ class MapSuggestData(BaseModel):
     power: list[int]
     powerMax: list[int]
 
+    def convert_to_arr(self):
+        # returns a 2D array of object contents
+        out_arr = []
+        p_x, p_y, pp_x, pp_y = 0, 0, 0, 0
+        for i in range(0, len(self.position_x)):
+            row = [
+                self.position_x[i],
+                self.position_y[i],
+                self.team_position,
+                self.lane,
+                self.role,
+                self.timestamp[i],
+                p_x,
+                p_y,
+                pp_x,
+                pp_y,
+                self.champExperience,
+                self.champLevel,
+                self.championId,
+                self.gameDuration,
+                self.deaths,
+                self.itemsPurchased,
+                self.killingSprees,
+                self.kills,
+                self.visionScore,
+                self.jungleMinionsKilled[i],
+                self.level[i],
+                self.minionsKilled[i],
+                self.timeEnemySpentControlled[i],
+                self.xp[i],
+                self.totalDamageDone[i],
+                self.totalDamageDoneToChampions[i],
+                self.totalDamageTaken[i],
+                self.abilityHaste[i],
+                self.abilityPower[i],
+                self.armor[i],
+                self.attackDamage[i],
+                self.attackSpeed[i],
+                self.ccReduction[i],
+                self.cooldownReduction[i],
+                self.health[i],
+                self.health_max[i],
+                self.health_regen[i],
+                self.lifesteal[i],
+                self.movementSpeed[i],
+                self.power[i],
+                self.powerMax[i],
+            ]
+            pp_x = p_x
+            pp_y = p_y
+            p_x = self.position_x[i]
+            p_y = self.position_y[i]
+
+            out_arr.append(row)
+        return out_arr
+
 
 class MatchData(BaseModel):
     end_of_game_result: str
@@ -185,7 +241,6 @@ class ChampionData(BaseModel):
     totalHeal: int
     totalHealsOnTeammates: int
     visionScore: int
-
     currentGold: list[int]
     goldPerSecond: list[int]
     level: list[int]
@@ -222,6 +277,68 @@ class ChampionData(BaseModel):
     trueDamageDone: list[int]
     trueDamageDoneToChampions: list[int]
     trueDamageTaken: list[int]
+
+    def convert_to_arr(self):
+        # returns a 2D array of object contents
+        # take only the last frame
+        out_arr = []
+        row = [
+            self.championId,
+            self.teamPosition,
+            self.role,
+            self.lane,
+            self.damageDealtToBuildings,
+            self.damageDealtToObjectives,
+            self.damageDealtToTurrets,
+            self.damageSelfMitigated,
+            self.deaths,
+            self.inhibitorTakedowns,
+            self.inhibitorsLost,
+            self.itemsPurchased,
+            self.killingSprees,
+            self.kills,
+            self.totalHeal,
+            self.totalHealsOnTeammates,
+            self.visionScore,
+            self.currentGold[-1],
+            self.goldPerSecond[-1],
+            self.level[-1],
+            self.minionsKilled[-1],
+            self.timeEnemySpentControlled[-1],
+            self.totalGold[-1],
+            self.xp[-1],
+            self.magicDamageDone[-1],
+            self.magicDamageDoneToChampions[-1],
+            self.magicDamageTaken[-1],
+            self.physicalDamageDone[-1],
+            self.physicalDamageDoneToChampions[-1],
+            self.physicalDamageTaken[-1],
+            self.abilityPower[-1],
+            self.armor[-1],
+            self.armorPenPercent[-1],
+            self.attackDamage[-1],
+            self.attackSpeed[-1],
+            self.ccReduction[-1],
+            self.health[-1],
+            self.healthMax[-1],
+            self.healthRegen[-1],
+            self.lifesteal[-1],
+            self.magicPen[-1],
+            self.magicPenPercent[-1],
+            self.magicResist[-1],
+            self.movementSpeed[-1],
+            self.omniVamp[-1],
+            self.power[-1],
+            self.powerMax[-1],
+            self.totalDamageDone[-1],
+            self.totalDamageDoneToChampions[-1],
+            self.totalDamageTaken[-1],
+            self.trueDamageDone[-1],
+            self.trueDamageDoneToChampions[-1],
+            self.trueDamageTaken[-1],
+        ]
+        out_arr.append(row)
+        return out_arr
 
 
 class ItemData(BaseModel):
@@ -269,6 +386,57 @@ class ItemData(BaseModel):
     power: list[int]
     powerMax: list[int]
 
+    def convert_to_arr(self):
+        out_arr = []
+        for i in range(0, len(self.itemId)):
+            row = [
+                self.itemId[i],
+                self.timestamp[i],
+                self.lane,
+                self.champExperience,
+                self.champLevel,
+                self.championId,
+                self.currentGold[i],
+                self.level[i],
+                self.minionsKilled[i],
+                self.timeEnemySpentControlled[i],
+                self.totalGold[i],
+                self.position_x[i],
+                self.position_y[i],
+                self.xp[i],
+                self.magicDamageDone[i],
+                self.magicDamageDoneToChampions[i],
+                self.magicDamageTaken[i],
+                self.physicalDamageDone[i],
+                self.physicalDamageDoneToChampions[i],
+                self.physicalDamageTaken[i],
+                self.totalDamageDone[i],
+                self.totalDamageDoneToChampions[i],
+                self.totalDamageTaken[i],
+                self.trueDamageDone[i],
+                self.trueDamageDoneToChampions[i],
+                self.trueDamageTaken[i],
+                self.abilityPower[i],
+                self.armor[i],
+                self.armorPenPercent[i],
+                self.attackDamage[i],
+                self.attackSpeed[i],
+                self.ccReduction[i],
+                self.health[i],
+                self.healthMax[i],
+                self.healthRegen[i],
+                self.lifesteal[i],
+                self.magicPen[i],
+                self.magicPenPercent[i],
+                self.magicResist[i],
+                self.movementSpeed[i],
+                self.omnivamp[i],
+                self.power[i],
+                self.powerMax[i],
+            ]
+            out_arr.append(row)
+        return out_arr
+
 
 class SkillData(BaseModel):
     skillslot: list[int]
@@ -299,6 +467,41 @@ class SkillData(BaseModel):
     power: list[int]
     powerMax: list[int]
 
+    def convert_to_arr(self):
+        out_arr = []
+        for i in range(0, len(self.skillslot)):
+            row = [
+                self.skillslot[i],
+                self.levelUpType[i],
+                self.timestamp[i],
+                self.championId,
+                self.damageSelfMitigated,
+                self.deaths,
+                self.kills,
+                self.totalHeal,
+                self.level[i],
+                self.timeEnemySpentControlled[i],
+                self.totalGold[i],
+                self.xp[i],
+                self.position_x[i],
+                self.position_y[i],
+                self.magicDamageDone[i],
+                self.physicalDamageDone[i],
+                self.totalDamageDone[i],
+                self.totalDamageDoneToChampions[i],
+                self.totalDamageTaken[i],
+                self.armor[i],
+                self.attackDamage[i],
+                self.attackSpeed[i],
+                self.health[i],
+                self.healthMax[i],
+                self.movementSpeed[i],
+                self.power[i],
+                self.powerMax[i],
+            ]
+            out_arr.append(row)
+        return out_arr
+
 
 class RoleData(BaseModel):
     teamPosition: str
@@ -325,6 +528,37 @@ class RoleData(BaseModel):
     end_healthMax: int
     end_healthRegen: float
     end_armor: int
+
+    def convert_to_arr(self):
+        out_arr = []
+        row = [
+            self.teamPosition,
+            self.lane,
+            self.championId,
+            self.kills,
+            self.physicalDamageDealt,
+            self.totalDamageDealt,
+            self.magicDamageDealt,
+            self.totalHeal,
+            self.totalEnemyJungleMinionsKilled,
+            self.totalHealsOnTeammates,
+            self.totalUnitsHealed,
+            self.wardsKilled,
+            self.wardsPlaced,
+            self.detectorWardsPlaced,
+            self.start_movementSpeed,
+            self.start_health,
+            self.start_healthMax,
+            self.start_healthRegen,
+            self.start_armor,
+            self.end_movementSpeed,
+            self.end_health,
+            self.end_healthMax,
+            self.end_healthRegen,
+            self.end_armor,
+        ]
+        out_arr.append(row)
+        return out_arr
 
 
 class ChampionStats(BaseModel):
