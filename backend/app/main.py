@@ -17,9 +17,6 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-load_dotenv()
-
-from app.api.middleware import ProcessTimeMiddleware
 from app.api.routes import router
 from app.routers.users import router as users_router
 from app.routers.matches import router as matches_router
@@ -39,6 +36,8 @@ from loguru import logger
 import sys
 import logging
 from starlette.middleware.base import RequestResponseEndpoint
+
+load_dotenv()
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
