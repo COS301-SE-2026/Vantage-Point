@@ -641,7 +641,7 @@ class TestAdminDelete:
     @staticmethod
     @patch("app.services.admin_service.client.admin_delete_user")
     async def test_delete_user_success(
-        mock_admin_delete_user: MagicMock, mock_session: AsyncMock
+        mock_admin_delete_user: MagicMock, mock_db_session: AsyncMock
     ):
         mock_admin_delete_user.return_value = {}
 
@@ -649,11 +649,11 @@ class TestAdminDelete:
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_user
 
-        mock_session.execute.return_value = mock_result
-        mock_session.commit.return_value = None
-        mock_session.delete.return_value = None
+        mock_db_session.execute.return_value = mock_result
+        mock_db_session.commit.return_value = None
+        mock_db_session.delete.return_value = None
 
-        response = await admin_service.delete_user(mock_session, "shaun", "12345")
+        response = await admin_service.delete_user(mock_db_session, "shaun", "12345")
 
         assert response.success is True
         assert response.message == "Deleted shaun permanently"
@@ -662,9 +662,9 @@ class TestAdminDelete:
             UserPoolId=settings.cognito_user_pool_id, Username="shaun"
         )
 
-        mock_session.execute.assert_awaited_once()
-        mock_session.delete.assert_awaited_once_with(mock_user)
-        mock_session.commit.assert_awaited_once()
+        mock_db_session.execute.assert_awaited_once()
+        mock_db_session.delete.assert_awaited_once_with(mock_user)
+        mock_db_session.commit.assert_awaited_once()
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_delete_user")
