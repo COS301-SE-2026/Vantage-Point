@@ -6,8 +6,6 @@ import { ChevronLeft } from "lucide-react";
 import UserAccountMenu from "../../components/UserAccountMenu";
 import { useAuth } from "../../context/AuthContext";
 import imgLogo from "../../assets/images/logos/logo.webp";
-import { resolveAvatarUrl } from "@/lib/avatarUrl";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
  
 interface AdminShellProps {
   readonly children: ReactNode;
@@ -23,46 +21,22 @@ const NAV_ITEMS = [
 ] as const;
 
 
-// NOTE : Direct copy from frontend\src\components\UserAccountMenu.tsx
-function ProfileAvatar({
-  initials,
-  avatarUrl,
-}: Readonly<{ initials: string; avatarUrl?: string | null }>) {
-  const src = resolveAvatarUrl(avatarUrl ?? undefined);
-
-  if (src) {
-    return (
-      <Avatar className="size-[48px]">
-        <AvatarImage src={src} alt="" className="object-cover" />
-        <AvatarFallback className="bg-[#d9d9d9] font-['Sora:Regular',sans-serif] text-[14px] text-[#0a0a0a]">
-          {initials}
-        </AvatarFallback>
-      </Avatar>
-    );
-  }
-
+// NOTE : Since I am importing the USerAccountMenu, the profileavatar should be imported
+function accountInitials(name: string | undefined): string {
+  if (!name) return "UN";
+  const parts = name.trim().split(/\s+/);
   return (
-    <div className="relative size-[48px] shrink-0">
-      <svg
-        className="absolute block inset-0 size-full"
-        fill="none"
-        preserveAspectRatio="none"
-        viewBox="0 0 48 48"
-        aria-hidden
-      >
-        <circle cx="24" cy="24" fill="#D9D9D9" r="24" />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-['Sora:Regular',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a]">
-        {initials}
-      </span>
-    </div>
+    parts
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("") || "UN"
   );
 }
 
 
 export default function AdminShell({ children }: Readonly<AdminShellProps>) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
  
   const handleLogout = () => {
@@ -70,7 +44,7 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
     navigate("/login", { replace: true });
   };
  
-  return (
+ return (
     <div className="min-h-screen w-full bg-white">
       <div className="flex items-center justify-between px-6 pt-6">
         <div className="flex items-center gap-2">
@@ -85,6 +59,53 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
           initials={accountInitials(user?.display_name)}
           avatarUrl={user?.avatar_url}
         />
+      </div>
+ 
+      <div className="flex gap-6 p-6">
+        <aside
+          className={`flex flex-col rounded-[15px] bg-[rgba(117,117,117,0.12)] p-5 transition-[width] duration-200 ${
+            sidebarOpen ? "w-64" : "w-16 px-2"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((open) => !open)}
+            aria-label={sidebarOpen ? "Collapse navigation" : "Expand navigation"}
+            className="mb-4 flex self-end rounded border border-[#c7c8c9] p-1"
+          >
+            <ChevronLeft
+              className={`size-3 transition-transform ${sidebarOpen ? "" : "rotate-180"}`}
+            />
+          </button>
+ 
+          <nav className="flex flex-1 flex-col gap-2">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `rounded-[10px] bg-white px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
+                    isActive ? "font-bold text-[#1e1e1e]" : "text-[#1e1e1e] hover:opacity-80"
+                  } ${sidebarOpen ? "" : "hidden"}`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+ 
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={`mt-auto rounded-[10px] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] text-[#1e1e1e] hover:opacity-80 ${
+              sidebarOpen ? "" : "hidden"
+            }`}
+          >
+            Log out
+          </button>
+        </aside>
+ 
+        <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
   );
