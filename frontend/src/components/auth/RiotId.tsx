@@ -1,4 +1,8 @@
-import AuthScreen, { AuthInputField } from "./AuthScreen";
+import AuthScreen, {
+  AuthFormError,
+  AuthInputField,
+  AuthSubmitButton,
+} from "./AuthScreen";
 
 export type RiotIdFormProps = Readonly<{
   riotId: string;
@@ -26,14 +30,7 @@ export default function RiotId({
         }}
         className="flex w-full flex-col gap-6"
       >
-        {form.error && (
-          <p
-            className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center"
-            role="alert"
-          >
-            {form.error}
-          </p>
-        )}
+        <AuthFormError message={form.error} />
 
         <AuthInputField
           label="Riot ID"
@@ -43,17 +40,11 @@ export default function RiotId({
           onChange={form.onRiotIdChange}
         />
 
-        <button
-          type="submit"
-          disabled={form.loading}
-          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
-            <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
-              {form.loading ? "Linking…" : "Submit"}
-            </p>
-          </div>
-        </button>
+        <AuthSubmitButton
+          label="Submit"
+          loadingLabel="Linking…"
+          loading={form.loading}
+        />
       </form>
     </AuthScreen>
   );

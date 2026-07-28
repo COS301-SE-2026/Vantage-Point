@@ -37,6 +37,10 @@ from app.services.riot_service import riot_service, filter_match_for_players
 oauth2_scheme = HTTPBearer()
 settings = get_settings()
 
+# Deliberately identical for every login failure mode so the response cannot be
+# used to tell "no such user" apart from "wrong password".
+INVALID_CREDENTIALS_DETAIL = "Invalid username or password"
+
 router = APIRouter()
 
 
@@ -64,7 +68,11 @@ async def register(user: UserRegister):
     summary="Log in a user",
     description="Authenticates a user with Cognito and returns the token payload from AWS.",
     responses={
-        401: {"model": ErrorResponse, "description": "Invalid username or password"},
+        401: {"model": ErrorResponse, "description": INVALID_CREDENTIALS_DETAIL},
+        500: {
+            "model": ErrorResponse,
+            "description": "Local dev login fallback is not configured",
+        },
     },
 )
 async def login(
@@ -79,7 +87,7 @@ async def login(
     if cognito_configured:
         result = await auth_service.login_user(user.username, user.password)
         if "error" in result:
-            raise HTTPException(status_code=401, detail="Invalid username or password")
+            raise HTTPException(status_code=401, detail=INVALID_CREDENTIALS_DETAIL)
         return {
             "access_token": result["AccessToken"],
             "refresh_token": result["RefreshToken"],
@@ -94,12 +102,12 @@ async def login(
         )
 
     if user.password != seed_password:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail=INVALID_CREDENTIALS_DETAIL)
 
     result = await session.execute(select(Users).where(Users.email == user.username))
     matched_user = result.scalar_one_or_none()
     if not matched_user:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail=INVALID_CREDENTIALS_DETAIL)
 
     return {
         "access_token": create_access_token(matched_user.cognito_sub),
@@ -391,7 +399,7 @@ async def get_live_player_metrics(
     include_in_schema=False,
     responses={
         400: {"description": "Username and password are required"},
-        401: {"description": "Invalid username or password"},
+        401: {"description": INVALID_CREDENTIALS_DETAIL},
     },
 )
 async def swagger_login(request: Request) -> dict[str, str]:
@@ -413,7 +421,7 @@ async def swagger_login(request: Request) -> dict[str, str]:
     if "error" in result:
         raise HTTPException(
             status_code=401,
-            detail="Invalid username or password",
+            detail=INVALID_CREDENTIALS_DETAIL,
         )
 
     return {

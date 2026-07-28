@@ -51,8 +51,9 @@ fi
 
 # seed.py load_dotenv()s these itself; we only peek so we can warn early.
 env_value() {
+  local key="$1"
   [[ -f ".env" ]] || return 0
-  sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" .env | tail -n 1
+  sed -n "s/^[[:space:]]*${key}[[:space:]]*=[[:space:]]*//p" .env | tail -n 1
 }
 
 DB_TARGET="${DATABASE_URL:-$(env_value DATABASE_URL)}"

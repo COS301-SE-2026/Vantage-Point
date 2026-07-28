@@ -10,8 +10,6 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-load_dotenv()
-
 from app.api.middleware import ProcessTimeMiddleware
 from app.api.routes import router
 from app.routers.users import router as users_router
@@ -20,6 +18,10 @@ from app.database.models import GameAccounts
 from app.database.session import async_session_maker, init_db
 from app.schemas.generic_schemas import get_error_reason
 from app.services.riot_api import get_puuid_by_riot_id
+
+# Each module that reads the environment (database.session, services.riot_api,
+# config.Settings) loads .env itself, so this is only a top-level safety net.
+load_dotenv()
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later

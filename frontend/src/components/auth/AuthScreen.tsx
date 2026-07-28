@@ -1,4 +1,5 @@
 import { useState, useEffect, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
 import imgLogoMark from "../../assets/images/logos/logo-mark.webp";
@@ -11,14 +12,19 @@ import imgRiotGames from "../../assets/images/providers/riot-games.webp";
 const backgroundImages = authBackgroundImages;
 const SLIDE_DOT_INDICES = authSlideIndices;
 
+/** Figma 12:60 / 12:62 — the light-panel field. */
+const inputFieldLightClasses =
+  "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
+
 /**
- * Figma 12:60 / 12:62. Dark values come from node 12:44: the field is a filled
- * #575757 pill (no contrasting border) with #929292 placeholder text. The
- * autofill inset shadow has to be re-stated per theme, otherwise Chrome paints
- * an opaque white field over the dark panel.
+ * Node 12:44: a filled #575757 pill (no contrasting border) with #929292
+ * placeholder text. The autofill inset shadow has to be re-stated per theme,
+ * otherwise Chrome paints an opaque white field over the dark panel.
  */
-export const authInputClassName =
-  "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent device-dark:bg-[#575757] device-dark:text-white device-dark:placeholder:text-[#929292] device-dark:border-[#575757] device-dark:focus:border-[#929292] device-dark:caret-white device-dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff] device-dark:[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(87,87,87)] device-dark:[&:-webkit-autofill]:caret-white";
+const inputFieldDarkClasses =
+  "device-dark:bg-[#575757] device-dark:text-white device-dark:placeholder:text-[#929292] device-dark:border-[#575757] device-dark:focus:border-[#929292] device-dark:caret-white device-dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff] device-dark:[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(87,87,87)] device-dark:[&:-webkit-autofill]:caret-white";
+
+const inputFieldClassName = `${inputFieldLightClasses} ${inputFieldDarkClasses}`;
 
 function Logo() {
   return (
@@ -153,7 +159,7 @@ export function AuthInputField({
           placeholder={placeholder}
           autoComplete={autoComplete}
           aria-label={label}
-          className={`${authInputClassName}${trailing ? " pr-[46px]" : ""}`}
+          className={`${inputFieldClassName}${trailing ? " pr-[46px]" : ""}`}
         />
         {trailing}
       </div>
@@ -181,6 +187,77 @@ export function PasswordVisibilityToggle({
     >
       <Icon className="size-[18px]" strokeWidth={1.75} aria-hidden />
     </button>
+  );
+}
+
+/** Submission failure banner, shared by every auth form. */
+export function AuthFormError({
+  message,
+}: Readonly<{ message?: string | null }>) {
+  if (!message) return null;
+  return (
+    <p
+      className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center"
+      role="alert"
+    >
+      {message}
+    </p>
+  );
+}
+
+/** The dark pill submit button at the foot of every auth form. */
+export function AuthSubmitButton({
+  label,
+  loadingLabel,
+  loading,
+}: Readonly<{ label: string; loadingLabel: string; loading?: boolean }>) {
+  return (
+    <button
+      type="submit"
+      disabled={loading}
+      className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
+        <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
+          {loading ? loadingLabel : label}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+/**
+ * Figma 12:64 / 13:490 — the "go to the other auth screen" line. Supporting copy
+ * is "Supp text dark" #929292, the action itself white on dark.
+ */
+export function AuthSwitchPrompt({
+  prompt,
+  actionLabel,
+  to,
+  dataName,
+}: Readonly<{
+  prompt: string;
+  actionLabel: string;
+  to: string;
+  dataName: string;
+}>) {
+  const navigate = useNavigate();
+  return (
+    <div
+      className="flex items-center justify-center w-full"
+      data-name={dataName}
+    >
+      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
+        {prompt}
+        <button
+          type="button"
+          onClick={() => navigate(to)}
+          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] device-dark:text-white cursor-pointer hover:underline"
+        >
+          {actionLabel}
+        </button>
+      </p>
+    </div>
   );
 }
 

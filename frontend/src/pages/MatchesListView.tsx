@@ -68,28 +68,24 @@ function MatchStatCell({
   );
 }
 
+/**
+ * Visual column captions only. Each row below is a button whose aria-label
+ * already names every value (see matchRowAriaLabel), so repeating the captions
+ * to assistive tech would just double up the announcement.
+ */
 function MatchHistoryListHeader() {
   return (
-    <div className="grid h-[20px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 border-b border-[#eee] device-dark:border-[#929292] px-3">
-      <span role="columnheader" className={STAT_LABEL_CLASS}>
-        Result
-      </span>
-      <span role="columnheader" className={STAT_LABEL_CLASS}>
-        Champion
-      </span>
-      <span role="columnheader" className={STAT_LABEL_CLASS}>
-        Role
-      </span>
-      <span role="columnheader" className={STAT_LABEL_CLASS}>
-        KDA
-      </span>
-      <span role="columnheader" className={STAT_LABEL_CLASS}>
-        CS
-      </span>
-      <span role="columnheader" className={`${STAT_LABEL_CLASS} text-right`}>
-        Duration
-      </span>
-      <span role="columnheader" aria-hidden />
+    <div
+      className="grid h-[20px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 border-b border-[#eee] device-dark:border-[#929292] px-3"
+      aria-hidden
+    >
+      <span className={STAT_LABEL_CLASS}>Result</span>
+      <span className={STAT_LABEL_CLASS}>Champion</span>
+      <span className={STAT_LABEL_CLASS}>Role</span>
+      <span className={STAT_LABEL_CLASS}>KDA</span>
+      <span className={STAT_LABEL_CLASS}>CS</span>
+      <span className={`${STAT_LABEL_CLASS} text-right`}>Duration</span>
+      <span />
     </div>
   );
 }
@@ -157,9 +153,9 @@ function MatchHistoryDaySection({
       <h2 className="font-['Beaufort_for_LOL',serif] text-[14px] font-medium leading-[22.4px] text-[#1e1e1e] device-dark:text-white">
         {dayRow.dateLabel}
       </h2>
-      <div role="table" className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <MatchHistoryListHeader />
-        <ul className="flex flex-col gap-2" role="rowgroup">
+        <ul className="flex flex-col gap-2">
           {dayRow.matches.map((item) => (
             <li key={item.matchId}>
               <MatchHistoryListRow item={item} onOpenMatch={onOpenMatch} />

@@ -31,6 +31,14 @@ export function buildMapAnalysisRows(
   const objectiveValue = (count: number | undefined): string =>
     count === undefined ? NO_VALUE : String(count);
 
+  // The Herald reads as taken/not-taken in the design rather than as a count.
+  let riftHeraldValue: string;
+  if (objectives === undefined) {
+    riftHeraldValue = NO_VALUE;
+  } else {
+    riftHeraldValue = objectives.rift_herald > 0 ? "Killed" : "0";
+  }
+
   return [
     {
       id: "health",
@@ -99,12 +107,7 @@ export function buildMapAnalysisRows(
       itemLabel: "Item_5",
       itemId: itemAt(viewer, 4),
       objectiveLabel: "Rift Herald",
-      objectiveValue:
-        objectives === undefined
-          ? NO_VALUE
-          : objectives.rift_herald > 0
-            ? "Killed"
-            : "0",
+      objectiveValue: riftHeraldValue,
     },
   ];
 }

@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import AuthScreen, {
+  AuthFormError,
   AuthInputField,
+  AuthSubmitButton,
+  AuthSwitchPrompt,
   PasswordVisibilityToggle,
 } from "./AuthScreen";
 
@@ -21,28 +23,6 @@ interface LoginProps {
   backgroundImage?: string; // Optional: overrides the automatic slide rotation
 }
 
-function RegistrationLink() {
-  const navigate = useNavigate();
-  return (
-    <div
-      className="flex items-center justify-center w-full"
-      data-name="Sign up option"
-    >
-      {/* Figma 12:64 — "Supp text dark" #929292, the action itself white on dark. */}
-      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
-        {`Don't have an account? `}
-        <button
-          type="button"
-          onClick={() => navigate("/register")}
-          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] device-dark:text-white cursor-pointer hover:underline"
-        >
-          Sign Up
-        </button>
-      </p>
-    </div>
-  );
-}
-
 export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -59,14 +39,7 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
         }}
         className="flex w-full flex-col gap-6"
       >
-        {form.error && (
-          <p
-            className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center"
-            role="alert"
-          >
-            {form.error}
-          </p>
-        )}
+        <AuthFormError message={form.error} />
 
         <AuthInputField
           label="Email"
@@ -93,19 +66,18 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
           }
         />
 
-        <button
-          type="submit"
-          disabled={form.loading}
-          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full cursor-pointer hover:bg-[#3c3c3c] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <div className="content-stretch flex gap-[8px] items-center justify-center p-[12px] size-full">
-            <p className="font-['Inter:Regular',sans-serif] font-normal leading-none not-italic text-[#f5f5f5] text-[16px] whitespace-nowrap">
-              {form.loading ? "Signing in…" : "Sign In"}
-            </p>
-          </div>
-        </button>
+        <AuthSubmitButton
+          label="Sign In"
+          loadingLabel="Signing in…"
+          loading={form.loading}
+        />
 
-        <RegistrationLink />
+        <AuthSwitchPrompt
+          prompt={`Don't have an account? `}
+          actionLabel="Sign Up"
+          to="/register"
+          dataName="Sign up option"
+        />
       </form>
     </AuthScreen>
   );
