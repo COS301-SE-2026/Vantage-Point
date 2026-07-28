@@ -142,6 +142,8 @@ export default function AdminUserManagement() {
               src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/22d05d19-b2f8-468a-962d-edcf1b217ec3"
               alt="logo"
               className="w-full h-full object-cover"
+              width="110px"
+              height="70px"
             />
           </div>
           <span className="text-sm lg:text-base font-[League] text-[#1e1e1e]">
