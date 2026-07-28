@@ -5,7 +5,7 @@ from typing import Annotated
 from app.api.auth import require_group
 from app.Models.profile_schemas import User
 from app.database.session import get_session
-from app.Models.match import MatchDetailResponse, MatchHistorySummaryResponse
+from app.schemas.match import MatchDetailResponse, MatchHistorySummaryResponse
 from app.services.match_detail import get_match_detail, user_has_match_access
 from app.services.match_history import list_match_history
 from app.services.user_accounts import get_linked_puuids, get_primary_linked_puuid
