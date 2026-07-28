@@ -17,7 +17,6 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-from app.api.routes import router
 from app.routers.users import router as users_router
 from app.routers.matches import router as matches_router
 from app.api.router import (
@@ -161,7 +160,6 @@ app.add_middleware(
 )
 
 
-app.include_router(router, prefix="/api")
 app.include_router(users_router)
 app.include_router(matches_router)
 # app.include_router(router, prefix="/api")
