@@ -1,21 +1,38 @@
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+import asyncio
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Dict
+from urllib.parse import urlparse
+from types import FrameType
+from typing import Annotated
 
+from fastapi import Depends, FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
-from app.api.middleware import ProcessTimeMiddleware
-from app.api.routes import router
+from app.api.router import (
+    admin_routes,
+    profile_routes,
+    auth_routes,
+    analytics_router,
+    riot_api_routes,
+)
+from app.services.routers import matches, users
 from app.database.models import GameAccounts
-from app.database.session import async_session_maker, init_db
-from app.schemas.generic_schemas import get_error_reason
+from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
+
+from loguru import logger
+import sys
+import logging
+from starlette.middleware.base import RequestResponseEndpoint
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
@@ -28,17 +45,88 @@ load_dotenv()
 # DATABASE & APP SETUP
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
-# from slowapi import _rate_limit_exceeded_handler
-# from slowapi.errors import RateLimitExceeded
-# from slowapi.middleware import SlowAPIMiddleware
 
-# limiter = Limiter(key_func=get_remote_address)
+logger.remove(0)
+logger.add(
+    sys.stdout,
+    enqueue=True,
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+)
+
+logger.add(
+    "logs/fastapi_logs",
+    level="ERROR",
+    rotation="100 MB",
+    retention="30 days",
+    compression="zip",
+    enqueue=True,
+    backtrace=True,
+    diagnose=True,
+)
+
+
+def get_error_reason(status_code: int) -> str:
+    reasons = {
+        400: "Bad request",
+        401: "Unauthorized",
+        403: "Forbidden",
+        404: "Not found",
+        405: "Method not allowed",
+        409: "Conflict",
+        422: "Unprocessable Entity",
+        429: "Too many Requests",
+        500: "Internal server error",
+        502: "Bad gateway",
+        503: "Service unavailable",
+        504: "Gateway timeout",
+    }
+    return reasons.get(status_code, "Unknown Error")
+
+
+class InterceptHandler(logging.Handler):
+    def emit(self, record: logging.LogRecord):
+        level: str | int
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        frame: FrameType | None = logging.currentframe()
+        depth = 2
+        while frame and frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
+
+
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+for name in ("uvicorn", "uvicorn.access", "uvicorn.error", "fastapi"):
+    logging.getLogger(name).handlers = [InterceptHandler()]
+    logging.getLogger(name).propagate = False
+
+
+def should_skip_startup_db_init() -> bool:
+    if os.getenv("PYTEST_VERSION") or os.getenv("PYTEST_CURRENT_TEST"):
+        return True
+
+    database_host = urlparse(DATABASE_URL or "").hostname
+    return database_host == "db" and not Path("/.dockerenv").exists()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if should_skip_startup_db_init():
+        print("Database initialization skipped: database host is unavailable here")
+        yield
+        return
+
     try:
-        await init_db()
+        await asyncio.wait_for(init_db(), timeout=5)
+    except TimeoutError:
+        print("Database initialization skipped: connection timed out")
     except Exception as exc:
         print(f"Database initialization skipped: {exc}")
     yield
@@ -69,9 +157,15 @@ app.add_middleware(
     expose_headers=["X-Process-Time"],
 )
 
-app.add_middleware(ProcessTimeMiddleware)
 
-app.include_router(router, prefix="/api")
+# app.include_router(router, prefix="/api")
+app.include_router(auth_routes.router)
+app.include_router(profile_routes.router)
+app.include_router(admin_routes.router)
+app.include_router(analytics_router.router)
+app.include_router(riot_api_routes.router)
+app.include_router(matches.router)
+app.include_router(users.router)
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
@@ -154,43 +248,56 @@ async def health() -> HealthResponse:
     description="Accepts any JSON object and echoes it back for quick API testing.",
     response_model=TestResponse,
 )
-async def test_endpoint(data: Dict[str, Any]) -> Dict[str, Any]:
+async def test_endpoint(data: Dict[str, Any]):
     print(f"Test endpoint called with data: {data}")
-    return {"received": data, "message": "Test successful"}
+    return TestResponse(received=data, message="Test successful")
 
 
 # below is not really so self explanatory so i just added comments to the code to explain the steps.
 # let me know if you want me to add more comments or if you have any questions about the code!
 # Neo
 @app.post("/summoners/register")
-async def register_summoner(game_name: str, tag_line: str):
+async def register_summoner(
+    game_name: str,
+    tag_line: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
     puuid = await get_puuid_by_riot_id(game_name, tag_line)
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 
     # 2. Save to Database; should only do so if this player is not in the DB already
-    async with async_session_maker() as session:
-        statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
-        result = await session.execute(statement)
-        existing_account = result.scalar_one_or_none()
+    statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
+    result = await session.execute(statement)
+    existing_account = result.scalar_one_or_none()
 
-        # adding this check just to be safe and security even if no exist is already below it
-        if existing_account:
-            return {"message": "Summoner already in database."}
+    # adding this check just to be safe and security even if no exist is already below it
+    if existing_account:
+        return {"message": "Summoner already in database."}
 
-        new_account = GameAccounts(
-            puuid=puuid,
-            game="league_of_legends",
-            game_name=game_name,
-            tag_line=tag_line,
-            summoner_level=0,
-            account_level=0,
-        )
-        session.add(new_account)
-        await session.commit()
+    new_account = GameAccounts(
+        puuid=puuid,
+        game="league_of_legends",
+        game_name=game_name,
+        tag_line=tag_line,
+        account_level=1,
+    )
+    session.add(new_account)
+    await session.commit()
 
     return {
         "message": f"Successfully registered {game_name}#{tag_line}",
         "puuid": puuid,
     }
+
+
+@app.middleware("http")
+async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logger.bind(url=str(request.url), method=request.method).exception(
+            f"Bug detected in {request.method}{request.url.path}"
+        )
+        raise e
