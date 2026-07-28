@@ -1,9 +1,11 @@
 import os
+import re
 import httpx
 from dotenv import load_dotenv
 from app.config import get_settings
 from fastapi import HTTPException, Depends
 from typing import Any, Annotated
+from urllib.parse import quote
 
 load_dotenv()
 
@@ -176,9 +178,22 @@ class RiotService:
         """
         Going to be used when we need to get timeline data. Then will be filtered at perspective endpoints
         """
+        # Riot Match IDs follow the format: {PLATFORM_ID}_{GAME_ID} (e.g., "EUW1_1234567890" or "KR_987654321")
+        MATCH_ID_PATTERN = re.compile(r"^[a-zA-Z0-9]+_\d+$")
+
+        # Validate format to prevent path traversal / unexpected strings
+        if not MATCH_ID_PATTERN.match(match_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid match ID format provided."
+            )
+
         server_region = match_id.split("_")[0].lower()
         macro_region = self._get_macro_region(server_region)
-        url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
+
+        # Safely encode the path parameter
+        safe_match_id = quote(match_id, safe="")
+        url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
