@@ -211,6 +211,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     # require db
+    #is hard delete
     @staticmethod
     async def delete_user(session: AsyncSession, username: str, sub: str) -> Response:
         try:
@@ -386,3 +387,7 @@ class admin_service:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
+
+    #be used to soft delete so it will be 24 hours before can delete. Why we have this as a normal admin suprises me
+    @staticmethod
+    async def soft_delete_user(session: AsyncSession, username: str, sub: str) -> Response:

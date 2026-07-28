@@ -3,10 +3,10 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 import pytest
 
-from app.Models.admin_model import Response, UserResponse, CreateGroupResponse
+from app.Models.admin_model import Response, UserResponse,CreateGroupResponse
 from app.Models.auth_model import User
 from app.services.admin_service import admin_service
-from app.api.router.admin_routes import get_users, get_user, add_user_to_group, remove_user_from_group, enable_user, disbale_user, set_password
+from app.api.router.admin_routes import get_users,create_user, delete_user, get_user, add_user_to_group, remove_user_from_group, enable_user, disbale_user, set_password
 
 mock_date = datetime(2026,1,1,tzinfo=timezone.utc)
 mock_admin = User(
@@ -150,4 +150,6 @@ class TestAdminRouter():
         assert response == mock_response
         mock_set_password.assert_called_once_with("user1", "NewPass@123")
 
-    
+    @staticmethod
+    @patch.object(admin_service, "set_password")
+    async def test_create_user
