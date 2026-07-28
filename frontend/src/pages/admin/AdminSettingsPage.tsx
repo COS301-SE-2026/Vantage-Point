@@ -67,8 +67,8 @@ export default function AdminSettingsPage() {
             }`}
           >
             <span
-              className={`absolute top-0.5 size-5 rounded-full bg-white transition-transform ${
-                registrationsOpen ? "translate-x-5" : "translate-x-0.5"
+              className={`absolute right-5 top-0.5 size-5 rounded-full bg-white transition-transform ${
+                registrationsOpen ? "translate-x-0" : "translate-x-4.5"
               }`}
             />
           </button>
