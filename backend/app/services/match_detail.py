@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
 from app.database.models import Champions, Matches, Participants
-from app.Models.match import (
+from app.schemas.match import (
     ChampionBanResponse,
     MatchDetailResponse,
     ObjectivesSummaryResponse,

@@ -12,7 +12,12 @@ from app.api.auth import get_current_user, oauth2_scheme
 from app.Models.auth_model import UserTest
 from fastapi.security import HTTPAuthorizationCredentials
 
+pytest_plugins = ["app.tests.postgres_fixtures"]
+
+os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
+
 import pytest  # noqa: E402
+from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from unittest.mock import MagicMock, AsyncMock  # noqa: E402
 from app.main import app  # noqa: E402
@@ -146,3 +151,11 @@ def mock_logger():
         MagicMock: Mock logger object
     """
     return MagicMock()
+
+
+@pytest.fixture
+def mock_session():
+    """
+    Provide an AsyncMock database session for testing async service operations.
+    """
+    return AsyncMock(spec=AsyncSession)
