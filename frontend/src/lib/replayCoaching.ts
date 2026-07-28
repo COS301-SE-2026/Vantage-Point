@@ -110,9 +110,10 @@ export function buildReplayCoachingNotes(
   match: MatchDetail,
   viewer: ParticipantDetail,
 ): readonly ReplayCoachingNote[] {
-  return [championChoiceNote(match, viewer), playerRoleNote(match, viewer)].filter(
-    (note): note is ReplayCoachingNote => note !== null,
-  );
+  return [
+    championChoiceNote(match, viewer),
+    playerRoleNote(match, viewer),
+  ].filter((note): note is ReplayCoachingNote => note !== null);
 }
 
 /**
