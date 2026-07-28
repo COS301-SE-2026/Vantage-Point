@@ -2,19 +2,116 @@
 import { useState } from "react";
 
 const users = [
-  { name: "John", email: "john.smith@gmail.com", username: "jonny77", status: "Active", role: "Admin", joined: "March 12, 2023", lastActive: "1 minute ago", statusColor: "bg-green-600" },
-  { name: "Daniel", email: "dwarren3@gmail.com", username: "dwarren3", status: "Banned", role: "Player", joined: "January 8, 2024", lastActive: "4 days ago", statusColor: "bg-red-600" },
-  { name: "Chloe", email: "chloehhye@gmail.com", username: "chloehh", status: "Pending", role: "Admin", joined: "October 5, 2021", lastActive: "10 days ago", statusColor: "bg-[#021247]" },
-  { name: "Marcus", email: "reeds777@gmail.com", username: "reeds7", status: "Suspended", role: "Player", joined: "February 19, 2023", lastActive: "3 months ago", statusColor: "bg-orange-500" },
-  { name: "Isabelle", email: "belleclark@gmail.com", username: "bellecl", status: "Active", role: "Super Admin", joined: "August 30, 2022", lastActive: "1 week ago", statusColor: "bg-green-600" },
-  { name: "Lucas", email: "lucamich@gmail.com", username: "lucamich", status: "Active", role: "Player", joined: "April 23, 2024", lastActive: "4 hours ago", statusColor: "bg-green-600" },
-  { name: "Mark", email: "markwill32@gmail.com", username: "markwill32", status: "Banned", role: "Player", joined: "November 14, 2020", lastActive: "2 months ago", statusColor: "bg-red-600" },
-  { name: "Nicholas", email: "nicolass009@gmail.com", username: "nicolass009", status: "Suspended", role: "Admin", joined: "July 6, 2023", lastActive: "3 hours ago", statusColor: "bg-orange-500" },
-  { name: "Mia", email: "mianaddiin@gmail.com", username: "mianaddiin", status: "Inactive", role: "Admin", joined: "December 31, 2021", lastActive: "4 months ago", statusColor: "bg-gray-400" },
-  { name: "Noemi", email: "noemivill99@gmail.com", username: "noemi", status: "Active", role: "Player", joined: "August 10, 2024", lastActive: "15 minutes ago", statusColor: "bg-green-600" },
+  {
+    name: "John",
+    email: "john.smith@gmail.com",
+    username: "jonny77",
+    status: "Active",
+    role: "Admin",
+    joined: "March 12, 2023",
+    lastActive: "1 minute ago",
+    statusColor: "bg-green-600",
+  },
+  {
+    name: "Daniel",
+    email: "dwarren3@gmail.com",
+    username: "dwarren3",
+    status: "Banned",
+    role: "Player",
+    joined: "January 8, 2024",
+    lastActive: "4 days ago",
+    statusColor: "bg-red-600",
+  },
+  {
+    name: "Chloe",
+    email: "chloehhye@gmail.com",
+    username: "chloehh",
+    status: "Pending",
+    role: "Admin",
+    joined: "October 5, 2021",
+    lastActive: "10 days ago",
+    statusColor: "bg-[#021247]",
+  },
+  {
+    name: "Marcus",
+    email: "reeds777@gmail.com",
+    username: "reeds7",
+    status: "Suspended",
+    role: "Player",
+    joined: "February 19, 2023",
+    lastActive: "3 months ago",
+    statusColor: "bg-orange-500",
+  },
+  {
+    name: "Isabelle",
+    email: "belleclark@gmail.com",
+    username: "bellecl",
+    status: "Active",
+    role: "Super Admin",
+    joined: "August 30, 2022",
+    lastActive: "1 week ago",
+    statusColor: "bg-green-600",
+  },
+  {
+    name: "Lucas",
+    email: "lucamich@gmail.com",
+    username: "lucamich",
+    status: "Active",
+    role: "Player",
+    joined: "April 23, 2024",
+    lastActive: "4 hours ago",
+    statusColor: "bg-green-600",
+  },
+  {
+    name: "Mark",
+    email: "markwill32@gmail.com",
+    username: "markwill32",
+    status: "Banned",
+    role: "Player",
+    joined: "November 14, 2020",
+    lastActive: "2 months ago",
+    statusColor: "bg-red-600",
+  },
+  {
+    name: "Nicholas",
+    email: "nicolass009@gmail.com",
+    username: "nicolass009",
+    status: "Suspended",
+    role: "Admin",
+    joined: "July 6, 2023",
+    lastActive: "3 hours ago",
+    statusColor: "bg-orange-500",
+  },
+  {
+    name: "Mia",
+    email: "mianaddiin@gmail.com",
+    username: "mianaddiin",
+    status: "Inactive",
+    role: "Admin",
+    joined: "December 31, 2021",
+    lastActive: "4 months ago",
+    statusColor: "bg-gray-400",
+  },
+  {
+    name: "Noemi",
+    email: "noemivill99@gmail.com",
+    username: "noemi",
+    status: "Active",
+    role: "Player",
+    joined: "August 10, 2024",
+    lastActive: "15 minutes ago",
+    statusColor: "bg-green-600",
+  },
 ];
 
-const navItems = ["Dashboard", "Users", "Match Data", "Map Assets", "Champion Assets", "Settings"];
+const navItems = [
+  "Dashboard",
+  "Users",
+  "Match Data",
+  "Map Assets",
+  "Champion Assets",
+  "Settings",
+];
 
 export default function AdminUserManagement() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -86,8 +183,18 @@ export default function AdminUserManagement() {
               className="lg:hidden p-2 rounded-lg bg-white shadow"
               onClick={() => setSidebarOpen(true)}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
             <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full overflow-hidden border-2 border-gray-200">
@@ -111,9 +218,11 @@ export default function AdminUserManagement() {
               >
                 <img
                   src={`https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/${
-                    filter === "Role" ? "1e7a89de-fca9-475a-a483-24eec2bed827"
-                    : filter === "Status" ? "0f74ec55-159b-42d6-8f97-4b1c3ac27fab"
-                    : "26d5e09e-d26e-4cf6-a578-bb51fe0d354f"
+                    filter === "Role"
+                      ? "1e7a89de-fca9-475a-a483-24eec2bed827"
+                      : filter === "Status"
+                        ? "0f74ec55-159b-42d6-8f97-4b1c3ac27fab"
+                        : "26d5e09e-d26e-4cf6-a578-bb51fe0d354f"
                   }.png`}
                   alt=""
                   className="w-3 h-3"
@@ -150,12 +259,27 @@ export default function AdminUserManagement() {
           <table className="w-full min-w-[800px] text-xs">
             <thead>
               <tr className="border-b border-[#d9ebfe]">
-                {["name", "Email", "Username", "Status", "Role", "Joined Date", "Last Active", "Actions"].map((col) => (
-                  <th key={col} className="px-3 py-2 text-[8.696px] font-medium text-[#757575] uppercase text-left">
+                {[
+                  "name",
+                  "Email",
+                  "Username",
+                  "Status",
+                  "Role",
+                  "Joined Date",
+                  "Last Active",
+                  "Actions",
+                ].map((col) => (
+                  <th
+                    key={col}
+                    className="px-3 py-2 text-[8.696px] font-medium text-[#757575] uppercase text-left"
+                  >
                     <div className="flex items-center gap-1">
                       {col}
                       <svg className="w-2 h-2" viewBox="0 0 7.454 9.938">
-                        <path d="M3.727 0L7.454 3.727H0ZM3.727 9.938L0 6.211h7.454Z" fill="rgba(217,235,254,1)" />
+                        <path
+                          d="M3.727 0L7.454 3.727H0ZM3.727 9.938L0 6.211h7.454Z"
+                          fill="rgba(217,235,254,1)"
+                        />
                       </svg>
                     </div>
                   </th>
@@ -164,7 +288,10 @@ export default function AdminUserManagement() {
             </thead>
             <tbody>
               {users.map((user, i) => (
-                <tr key={i} className="border-b border-gray-200 hover:bg-gray-50">
+                <tr
+                  key={i}
+                  className="border-b border-gray-200 hover:bg-gray-50"
+                >
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
@@ -174,22 +301,39 @@ export default function AdminUserManagement() {
                           className="w-full h-full"
                         />
                       </div>
-                      <div className="w-5 h-5 rounded-full bg-cover bg-center" style={{ backgroundImage: "url('https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/6bcd52f3-47c1-4d95-821b-0660d361d27d')" }} />
+                      <div
+                        className="w-5 h-5 rounded-full bg-cover bg-center"
+                        style={{
+                          backgroundImage:
+                            "url('https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/6bcd52f3-47c1-4d95-821b-0660d361d27d')",
+                        }}
+                      />
                       <span className="text-[#3b5571]">{user.name}</span>
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">{user.email}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{user.username}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571]">
+                    {user.username}
+                  </td>
                   <td className="px-3 py-2.5">
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-white text-[8.696px] ${user.statusColor}`}>
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-white text-[8.696px] ${user.statusColor}`}
+                    >
                       {user.status}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">{user.role}</td>
                   <td className="px-3 py-2.5 text-[#3b5571]">{user.joined}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{user.lastActive}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571]">
+                    {user.lastActive}
+                  </td>
                   <td className="px-3 py-2.5">
-                    <div className="w-16 h-6 bg-cover bg-center" style={{ backgroundImage: `url('https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/${i === 0 ? 'fa39442d-da76-41a6-b8dc-16653117a6b3' : i === 1 ? '7ad05634-5890-4e77-8c68-fdfa9794bee9' : '004cc74e-8d86-4ee8-a924-b92c813e3255'}.png')` }} />
+                    <div
+                      className="w-16 h-6 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url('https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/${i === 0 ? "fa39442d-da76-41a6-b8dc-16653117a6b3" : i === 1 ? "7ad05634-5890-4e77-8c68-fdfa9794bee9" : "004cc74e-8d86-4ee8-a924-b92c813e3255"}.png')`,
+                      }}
+                    />
                   </td>
                 </tr>
               ))}
@@ -211,16 +355,26 @@ export default function AdminUserManagement() {
           </div>
           <div className="flex items-center gap-1">
             <button className="p-1 rounded-full hover:bg-gray-100">
-              <img src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/64a08ce2-b4c5-4093-b6a1-0bf536a9a5e9.png" alt="" className="w-4 h-4" />
+              <img
+                src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/64a08ce2-b4c5-4093-b6a1-0bf536a9a5e9.png"
+                alt=""
+                className="w-4 h-4"
+              />
             </button>
             <button className="p-1 rounded-full hover:bg-gray-100">
-              <img src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/12353f19-6ec1-441b-8988-0cb6e068ca20.png" alt="" className="w-4 h-4" />
+              <img
+                src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/12353f19-6ec1-441b-8988-0cb6e068ca20.png"
+                alt=""
+                className="w-4 h-4"
+              />
             </button>
             {[1, 2, 3].map((page) => (
               <button
                 key={page}
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold ${
-                  page === 1 ? "bg-[#2e4258] text-white" : "bg-white text-[#2e4258] border border-[#f1f1f1]"
+                  page === 1
+                    ? "bg-[#2e4258] text-white"
+                    : "bg-white text-[#2e4258] border border-[#f1f1f1]"
                 }`}
               >
                 {page}
@@ -231,10 +385,18 @@ export default function AdminUserManagement() {
               10
             </button>
             <button className="p-1 rounded-full hover:bg-gray-100">
-              <img src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/7f9ee780-16bd-4f1b-8972-f8bed03c640b.png" alt="" className="w-4 h-4" />
+              <img
+                src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/7f9ee780-16bd-4f1b-8972-f8bed03c640b.png"
+                alt=""
+                className="w-4 h-4"
+              />
             </button>
             <button className="p-1 rounded-full hover:bg-gray-100">
-              <img src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/cdeb32ab-a319-44fd-93f2-b52a74d74673.png" alt="" className="w-4 h-4" />
+              <img
+                src="https://pub-e9f6f8fe38ed4236ada6962783ff638d.r2.dev/actions/cdeb32ab-a319-44fd-93f2-b52a74d74673.png"
+                alt=""
+                className="w-4 h-4"
+              />
             </button>
           </div>
         </div>

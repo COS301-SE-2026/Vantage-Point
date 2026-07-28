@@ -32,14 +32,18 @@ export default function AdminDashboardPage() {
         setTraffic(t);
         setErrors(e);
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Failed to load dashboard.");
+        setError(
+          err instanceof ApiError ? err.message : "Failed to load dashboard.",
+        );
       }
     })();
   }, []);
 
   const toggleReviewed = async (entry: ErrorLogEntry) => {
     const next = !entry.reviewed;
-    setErrors((prev) => prev.map((e) => (e.id === entry.id ? { ...e, reviewed: next } : e)));
+    setErrors((prev) =>
+      prev.map((e) => (e.id === entry.id ? { ...e, reviewed: next } : e)),
+    );
     try {
       await markErrorReviewed(entry.id, next);
     } catch {
@@ -64,7 +68,11 @@ export default function AdminDashboardPage() {
                   tick={{ fontSize: 11 }}
                   tickFormatter={(v: number) => `${v}x`}
                 />
-                <Bar dataKey="relative_load" fill="#bfe3fb" radius={[2, 2, 0, 0]} />
+                <Bar
+                  dataKey="relative_load"
+                  fill="#bfe3fb"
+                  radius={[2, 2, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -75,10 +83,15 @@ export default function AdminDashboardPage() {
           <dl className="space-y-1 text-[#3b5571]">
             <Row label="Active Users" value={metrics?.active_users} />
             <Row label="Inactive Users" value={metrics?.inactive_users} />
-            <Row label="Matches (last 5 months)" value={metrics?.matches_last_5_months} />
+            <Row
+              label="Matches (last 5 months)"
+              value={metrics?.matches_last_5_months}
+            />
             <Row label="Matches (all time)" value={metrics?.matches_all_time} />
           </dl>
-          <h3 className="mb-2 mt-4 font-semibold text-[#1e1e1e]">Storage Used</h3>
+          <h3 className="mb-2 mt-4 font-semibold text-[#1e1e1e]">
+            Storage Used
+          </h3>
           <dl className="space-y-1 text-[#3b5571]">
             <Row label="Matches" value={metrics?.storage_matches_mb} />
             <Row label="User Profiles" value={metrics?.storage_profiles_mb} />
@@ -91,20 +104,25 @@ export default function AdminDashboardPage() {
         <table className="w-full min-w-[600px] text-xs">
           <thead>
             <tr className="border-b border-[#d9ebfe]">
-              {["Error Code", "Error Message", "Date", "Reviewed"].map((col) => (
-                <th
-                  key={col}
-                  className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
-                >
-                  {col}
-                </th>
-              ))}
+              {["Error Code", "Error Message", "Date", "Reviewed"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                  >
+                    {col}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
             {errors.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={4}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   No errors logged.
                 </td>
               </tr>
@@ -112,7 +130,9 @@ export default function AdminDashboardPage() {
             {errors.map((e) => (
               <tr key={e.id} className="border-b border-gray-100">
                 <td className="px-3 py-2.5 text-[#3b5571]">#{e.error_code}</td>
-                <td className="px-3 py-2.5 text-[#3b5571]">{e.error_message}</td>
+                <td className="px-3 py-2.5 text-[#3b5571]">
+                  {e.error_message}
+                </td>
                 <td className="px-3 py-2.5 text-[#3b5571]">
                   {new Date(e.occurred_at).toLocaleString(undefined, {
                     year: "numeric",
@@ -139,7 +159,10 @@ export default function AdminDashboardPage() {
   );
 }
 
-function Row({ label, value }: Readonly<{ label: string; value: number | undefined }>) {
+function Row({
+  label,
+  value,
+}: Readonly<{ label: string; value: number | undefined }>) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>

@@ -29,7 +29,13 @@ const STATUS_COLORS: Record<UserStatus, string> = {
 };
 
 const ROLES: AppRole[] = ["Player", "Admin", "Super Admin"];
-const STATUSES: UserStatus[] = ["Active", "Banned", "Pending", "Suspended", "Inactive"];
+const STATUSES: UserStatus[] = [
+  "Active",
+  "Banned",
+  "Pending",
+  "Suspended",
+  "Inactive",
+];
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -50,23 +56,23 @@ function formatDate(iso: string): string {
 }
 
 export default function AdminUsersPage() {
-    const { user } = useAuth();
-    const isSuperAdmin = user?.role === "Super Admin";
-    const assignableRoles: AppRole[] = isSuperAdmin ? ROLES : ["Player"];
-    const [users, setUsers] = useState<AdminUser[]>([]);
-    const [total, setTotal] = useState(0);
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [roleFilter, setRoleFilter] = useState<AppRole | "">("");
-    const [statusFilter, setStatusFilter] = useState<UserStatus | "">("");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [editDraft, setEditDraft] = useState<{ role: AppRole; status: UserStatus } | null>(
-    null,
-  );
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === "Super Admin";
+  const assignableRoles: AppRole[] = isSuperAdmin ? ROLES : ["Player"];
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [roleFilter, setRoleFilter] = useState<AppRole | "">("");
+  const [statusFilter, setStatusFilter] = useState<UserStatus | "">("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<{
+    role: AppRole;
+    status: UserStatus;
+  } | null>(null);
   const [registerOpen, setRegisterOpen] = useState(false);
-
 
   useEffect(() => {
     let cancelled = false;
@@ -86,8 +92,10 @@ export default function AdminUsersPage() {
           setTotal(res.total);
         }
       } catch (err) {
-        if(!cancelled){
-          setError(err instanceof ApiError ? err.message : "Failed to load users.");
+        if (!cancelled) {
+          setError(
+            err instanceof ApiError ? err.message : "Failed to load users.",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -213,14 +221,20 @@ export default function AdminUsersPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={8}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   Loading users…
                 </td>
               </tr>
             ) : null}
             {!loading && users.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={8}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   No users found.
                 </td>
               </tr>
@@ -228,12 +242,19 @@ export default function AdminUsersPage() {
             {users.map((u) => {
               const isEditing = editingId === u.id;
               return (
-                <tr key={u.id} className="border-b border-gray-200 hover:bg-gray-50">
+                <tr
+                  key={u.id}
+                  className="border-b border-gray-200 hover:bg-gray-50"
+                >
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2">
                       <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-gray-200">
                         {u.avatar_url ? (
-                          <img src={u.avatar_url} alt="" className="h-full w-full object-cover" />
+                          <img
+                            src={u.avatar_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
                         ) : null}
                       </div>
                       <span className="text-[#3b5571]">{u.name}</span>
@@ -247,7 +268,9 @@ export default function AdminUsersPage() {
                         value={editDraft.status}
                         onChange={(e) =>
                           setEditDraft((d) =>
-                            d ? { ...d, status: e.target.value as UserStatus } : d,
+                            d
+                              ? { ...d, status: e.target.value as UserStatus }
+                              : d,
                           )
                         }
                         className="rounded border border-gray-300 px-1 py-0.5 text-[10px]"
@@ -271,7 +294,9 @@ export default function AdminUsersPage() {
                       <select
                         value={editDraft.role}
                         onChange={(e) =>
-                          setEditDraft((d) => (d ? { ...d, role: e.target.value as AppRole } : d))
+                          setEditDraft((d) =>
+                            d ? { ...d, role: e.target.value as AppRole } : d,
+                          )
                         }
                         className="rounded border border-gray-300 px-1 py-0.5 text-[10px]"
                       >
@@ -285,8 +310,12 @@ export default function AdminUsersPage() {
                       u.role
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{formatDate(u.joined_at)}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{timeAgo(u.last_active_at)}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571]">
+                    {formatDate(u.joined_at)}
+                  </td>
+                  <td className="px-3 py-2.5 text-[#3b5571]">
+                    {timeAgo(u.last_active_at)}
+                  </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2">
                       {isEditing ? (
@@ -310,16 +339,16 @@ export default function AdminUsersPage() {
                         </>
                       ) : (
                         <>
-                            {isSuperAdmin || u.role === "Player" ? (
-                              <button
+                          {isSuperAdmin || u.role === "Player" ? (
+                            <button
                               type="button"
                               onClick={() => startEdit(u)}
                               aria-label="Edit user"
                               className="text-[#2e4258] hover:text-black"
-                              >
-                            <Pencil className="size-4" />
-                              </button>
-                            ) : null}
+                            >
+                              <Pencil className="size-4" />
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             onClick={() => void handleDelete(u.id)}

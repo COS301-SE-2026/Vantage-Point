@@ -1,19 +1,19 @@
 import { apiFetch, apiFetchFormData } from "./client";
 import type {
-    AdminMatchSession,
-    AdminMatchSessionListResponse,
-    AdminUser,
-    AdminUserFilters,
-    AdminUserListResponse,
-    ChampionAsset,
-    DashboardMetrics,
-    ErrorLogEntry,
-    MapAsset,
-    MatchSessionFilters,
-    PlatformSettings,
-    RegisterUserPayload,
-    SiteTrafficPoint,
-    UpdateUserPayload,
+  AdminMatchSession,
+  AdminMatchSessionListResponse,
+  AdminUser,
+  AdminUserFilters,
+  AdminUserListResponse,
+  ChampionAsset,
+  DashboardMetrics,
+  ErrorLogEntry,
+  MapAsset,
+  MatchSessionFilters,
+  PlatformSettings,
+  RegisterUserPayload,
+  SiteTrafficPoint,
+  UpdateUserPayload,
 } from "../types/admin";
 
 // MOCK DATA - STUB for Local UI testing only,
@@ -88,7 +88,7 @@ const MOCK_USERS: AdminUser[] = [
     avatar_url: null,
   },
 ];
- 
+
 const MOCK_SESSIONS: AdminMatchSession[] = [
   {
     id: "s1",
@@ -107,9 +107,9 @@ const MOCK_SESSIONS: AdminMatchSession[] = [
     deletion_status: "flagged",
   },
 ];
- 
+
 const MOCK_SETTINGS: PlatformSettings = { registrations_open: true };
- 
+
 const MOCK_METRICS: DashboardMetrics = {
   active_users: 500,
   inactive_users: 500,
@@ -119,7 +119,7 @@ const MOCK_METRICS: DashboardMetrics = {
   storage_profiles_mb: 500,
   storage_other_mb: 500,
 };
- 
+
 const MOCK_TRAFFIC: SiteTrafficPoint[] = [
   { month: "February 2026", relative_load: 2 },
   { month: "March 2026", relative_load: 4 },
@@ -128,7 +128,7 @@ const MOCK_TRAFFIC: SiteTrafficPoint[] = [
   { month: "June 2026", relative_load: 4 },
   { month: "July 2026", relative_load: 1 },
 ];
- 
+
 const MOCK_ERRORS: ErrorLogEntry[] = [
   {
     id: "e1",
@@ -145,11 +145,11 @@ const MOCK_ERRORS: ErrorLogEntry[] = [
     reviewed: false,
   },
 ];
- 
+
 const MOCK_MAP_ASSETS: MapAsset[] = [
   { map_id: "summoners_rift", display_name: "Summoner's Rift", image_url: "" },
 ];
- 
+
 const MOCK_CHAMPION_ASSETS: ChampionAsset[] = [
   { champion_id: "ahri", display_name: "Ahri", image_url: "" },
 ];
@@ -159,9 +159,13 @@ const MOCK_CHAMPION_ASSETS: ChampionAsset[] = [
 export async function listUsers(
   filters: AdminUserFilters = {},
 ): Promise<AdminUserListResponse> {
-
-    if (USE_MOCKS) {
-    return { items: MOCK_USERS, total: MOCK_USERS.length, page: 1, page_size: 10 };
+  if (USE_MOCKS) {
+    return {
+      items: MOCK_USERS,
+      total: MOCK_USERS.length,
+      page: 1,
+      page_size: 10,
+    };
   }
 
   const params = new URLSearchParams();
@@ -173,13 +177,12 @@ export async function listUsers(
   params.set("page_size", String(filters.pageSize ?? 10));
   return apiFetch<AdminUserListResponse>(`/api/v1/admin/users?${params}`);
 }
- 
+
 export async function updateUser(
   userId: string,
   payload: UpdateUserPayload,
 ): Promise<AdminUser> {
-
-    if (USE_MOCKS) {
+  if (USE_MOCKS) {
     const existing = MOCK_USERS.find((u) => u.id === userId) ?? MOCK_USERS[0];
     return { ...existing, ...payload };
   }
@@ -189,10 +192,9 @@ export async function updateUser(
     body: JSON.stringify(payload),
   });
 }
- 
-export async function deleteUser(userId: string): Promise<void> {
 
-    if (USE_MOCKS) {
+export async function deleteUser(userId: string): Promise<void> {
+  if (USE_MOCKS) {
     console.log("[mock] deleteUser", userId);
     return;
   }
@@ -201,12 +203,11 @@ export async function deleteUser(userId: string): Promise<void> {
     method: "DELETE",
   });
 }
- 
+
 export async function registerUserManually(
   payload: RegisterUserPayload,
 ): Promise<AdminUser> {
-
-    if (USE_MOCKS) {
+  if (USE_MOCKS) {
     return {
       id: crypto.randomUUID(),
       name: payload.display_name,
@@ -220,27 +221,24 @@ export async function registerUserManually(
     };
   }
 
-
   return apiFetch<AdminUser>("/api/v1/admin/users", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
- 
-export async function getPlatformSettings(): Promise<PlatformSettings> {
 
-    if (USE_MOCKS) {
+export async function getPlatformSettings(): Promise<PlatformSettings> {
+  if (USE_MOCKS) {
     return MOCK_SETTINGS;
   }
 
   return apiFetch<PlatformSettings>("/api/v1/admin/settings");
 }
- 
+
 export async function setRegistrationsOpen(
   open: boolean,
 ): Promise<PlatformSettings> {
-
-    if (USE_MOCKS) {
+  if (USE_MOCKS) {
     console.log("[mock] setRegistrationsOpen", open);
     return { registrations_open: open };
   }
@@ -251,15 +249,13 @@ export async function setRegistrationsOpen(
   });
 }
 
-
 // Match Data/ Data Ingestion (Matches view) Functional Requirements
 
 export async function listMatchSessions(
   filters: MatchSessionFilters = {},
 ): Promise<AdminMatchSessionListResponse> {
-
-    if (USE_MOCKS) {
-    return { items: MOCK_SESSIONS, total: MOCK_SESSIONS.length  };
+  if (USE_MOCKS) {
+    return { items: MOCK_SESSIONS, total: MOCK_SESSIONS.length };
   }
 
   const params = new URLSearchParams();
@@ -271,13 +267,13 @@ export async function listMatchSessions(
     `/api/v1/admin/sessions?${params}`,
   );
 }
- 
+
 export async function flagSessionForDeletion(
   sessionId: string,
 ): Promise<AdminMatchSession> {
-
-    if (USE_MOCKS) {
-    const existing = MOCK_SESSIONS.find((s) => s.id === sessionId) ?? MOCK_SESSIONS[0];
+  if (USE_MOCKS) {
+    const existing =
+      MOCK_SESSIONS.find((s) => s.id === sessionId) ?? MOCK_SESSIONS[0];
     return { ...existing, deletion_status: "flagged" };
   }
 
@@ -286,13 +282,13 @@ export async function flagSessionForDeletion(
     { method: "POST" },
   );
 }
- 
+
 export async function unflagSessionForDeletion(
   sessionId: string,
 ): Promise<AdminMatchSession> {
-
   if (USE_MOCKS) {
-    const existing = MOCK_SESSIONS.find((s) => s.id === sessionId) ?? MOCK_SESSIONS[0];
+    const existing =
+      MOCK_SESSIONS.find((s) => s.id === sessionId) ?? MOCK_SESSIONS[0];
     return { ...existing, deletion_status: "active" };
   }
 
@@ -301,11 +297,10 @@ export async function unflagSessionForDeletion(
     { method: "POST" },
   );
 }
- 
+
 /** Super Admin only — bypasses the 24h queue (FR-A13). */
 export async function hardDeleteSession(sessionId: string): Promise<void> {
-
-    if (USE_MOCKS) {
+  if (USE_MOCKS) {
     console.log("[mock] hardDeleteSession", sessionId);
     return;
   }
@@ -315,36 +310,32 @@ export async function hardDeleteSession(sessionId: string): Promise<void> {
   });
 }
 
-
 // Dashboard / System Metrics Functional Requirements
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-
-    if (USE_MOCKS) return MOCK_METRICS;
+  if (USE_MOCKS) return MOCK_METRICS;
 
   return apiFetch<DashboardMetrics>("/api/v1/admin/dashboard/metrics");
 }
- 
-export async function getSiteTraffic(): Promise<SiteTrafficPoint[]> {
 
-    if (USE_MOCKS) return MOCK_TRAFFIC;
+export async function getSiteTraffic(): Promise<SiteTrafficPoint[]> {
+  if (USE_MOCKS) return MOCK_TRAFFIC;
 
   return apiFetch<SiteTrafficPoint[]>("/api/v1/admin/dashboard/traffic");
 }
- 
-export async function getErrorLog(): Promise<ErrorLogEntry[]> {
 
-    if (USE_MOCKS) return MOCK_ERRORS;
+export async function getErrorLog(): Promise<ErrorLogEntry[]> {
+  if (USE_MOCKS) return MOCK_ERRORS;
 
   return apiFetch<ErrorLogEntry[]>("/api/v1/admin/dashboard/errors");
 }
- 
+
 export async function markErrorReviewed(
   errorId: string,
   reviewed: boolean,
 ): Promise<ErrorLogEntry> {
-
-    if (USE_MOCKS) {
-    const existing = MOCK_ERRORS.find((e) => e.id === errorId) ?? MOCK_ERRORS[0];
+  if (USE_MOCKS) {
+    const existing =
+      MOCK_ERRORS.find((e) => e.id === errorId) ?? MOCK_ERRORS[0];
     return { ...existing, reviewed };
   }
 
@@ -354,26 +345,27 @@ export async function markErrorReviewed(
   });
 }
 
-
 // Map & Champion Assests Functional Requirements
 
 export async function listMapAssets(): Promise<MapAsset[]> {
-
-    if (USE_MOCKS) return MOCK_MAP_ASSETS;
+  if (USE_MOCKS) return MOCK_MAP_ASSETS;
 
   return apiFetch<MapAsset[]>("/api/v1/admin/assets/maps");
 }
- 
+
 export async function uploadMapAsset(
   mapId: string,
   displayName: string,
   file: File,
 ): Promise<MapAsset> {
-
-    if (USE_MOCKS) {
+  if (USE_MOCKS) {
     console.log("[mock] uploadMapAsset", mapId, displayName, file.name);
-    return { map_id: mapId, display_name: displayName, image_url: URL.createObjectURL(file) };
-    }
+    return {
+      map_id: mapId,
+      display_name: displayName,
+      image_url: URL.createObjectURL(file),
+    };
+  }
 
   const formData = new FormData();
   formData.append("map_id", mapId);
@@ -381,22 +373,30 @@ export async function uploadMapAsset(
   formData.append("file", file);
   return apiFetchFormData<MapAsset>("/api/v1/admin/assets/maps", formData);
 }
- 
+
 export async function listChampionAssets(): Promise<ChampionAsset[]> {
   if (USE_MOCKS) return MOCK_CHAMPION_ASSETS;
 
   return apiFetch<ChampionAsset[]>("/api/v1/admin/assets/champions");
 }
- 
+
 export async function uploadChampionAsset(
   championId: string,
   displayName: string,
   file: File,
 ): Promise<ChampionAsset> {
-    
   if (USE_MOCKS) {
-    console.log("[mock] uploadChampionAsset", championId, displayName, file.name);
-    return { champion_id: championId, display_name: displayName, image_url: URL.createObjectURL(file) };
+    console.log(
+      "[mock] uploadChampionAsset",
+      championId,
+      displayName,
+      file.name,
+    );
+    return {
+      champion_id: championId,
+      display_name: displayName,
+      image_url: URL.createObjectURL(file),
+    };
   }
 
   const formData = new FormData();
@@ -408,4 +408,3 @@ export async function uploadChampionAsset(
     formData,
   );
 }
-

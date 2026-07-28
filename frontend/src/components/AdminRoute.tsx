@@ -14,7 +14,7 @@ export default function AdminRoute({
   if (import.meta.env.DEV) {
     return <Outlet />;
   }
- 
+
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-white">
@@ -24,18 +24,18 @@ export default function AdminRoute({
       </div>
     );
   }
- 
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
- 
+
   const role = user.role;
   const isAdmin = role === "Admin" || role === "Super Admin";
   const isSuperAdmin = role === "Super Admin";
- 
+
   if (!isAdmin || (requireSuperAdmin && !isSuperAdmin)) {
     return <Navigate to="/dashboard" replace />;
   }
- 
+
   return <Outlet />;
 }

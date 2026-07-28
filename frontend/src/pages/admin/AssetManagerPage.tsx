@@ -65,8 +65,8 @@ export default function AssetManagerPage({
         {title}
       </h1>
       <p className="mb-4 text-xs text-[#757575]">
-        No Figma frame exists for this section yet — styled to match Users/Dashboard in
-        the meantime.
+        No Figma frame exists for this section yet — styled to match
+        Users/Dashboard in the meantime.
       </p>
 
       {error ? <p className="mb-2 text-sm text-red-600">{error}</p> : null}
@@ -122,7 +122,9 @@ export default function AssetManagerPage({
                 alt={a.displayName}
                 className="mx-auto h-16 w-16 rounded-lg border border-gray-200 object-cover"
               />
-              <p className="mt-1 truncate text-[10px] text-[#757575]">{a.displayName}</p>
+              <p className="mt-1 truncate text-[10px] text-[#757575]">
+                {a.displayName}
+              </p>
             </div>
           ))}
         </div>

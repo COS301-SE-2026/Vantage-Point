@@ -33,7 +33,9 @@ export default function AdminMatchesPage() {
       });
       setSessions(res.items);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load sessions.");
+      setError(
+        err instanceof ApiError ? err.message : "Failed to load sessions.",
+      );
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,9 @@ export default function AdminMatchesPage() {
         session.deletion_status === "flagged"
           ? await unflagSessionForDeletion(session.id)
           : await flagSessionForDeletion(session.id);
-      setSessions((prev) => prev.map((s) => (s.id === session.id ? updated : s)));
+      setSessions((prev) =>
+        prev.map((s) => (s.id === session.id ? updated : s)),
+      );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Action failed.");
     } finally {
@@ -59,7 +63,10 @@ export default function AdminMatchesPage() {
   };
 
   const handleHardDelete = async (sessionId: string) => {
-    if (!window.confirm("Permanently delete this session and all its data now?")) return;
+    if (
+      !window.confirm("Permanently delete this session and all its data now?")
+    )
+      return;
     setBusyId(sessionId);
     try {
       await hardDeleteSession(sessionId);
@@ -77,8 +84,8 @@ export default function AdminMatchesPage() {
         Match Data
       </h1>
       <p className="mb-4 text-xs text-[#757575]">
-        No Figma frame exists for this section yet ("Data Ingestion" was still a blank
-        shell) — styled to match Users/Dashboard in the meantime.
+        No Figma frame exists for this section yet ("Data Ingestion" was still a
+        blank shell) — styled to match Users/Dashboard in the meantime.
       </p>
 
       <div className="mb-3 flex flex-wrap items-end gap-3 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2">
@@ -124,27 +131,35 @@ export default function AdminMatchesPage() {
         <table className="w-full min-w-[700px] text-xs">
           <thead>
             <tr className="border-b border-[#d9ebfe]">
-              {["Match", "Map", "Players", "Played", "Status", "Actions"].map((col) => (
-                <th
-                  key={col}
-                  className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
-                >
-                  {col}
-                </th>
-              ))}
+              {["Match", "Map", "Players", "Played", "Status", "Actions"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                  >
+                    {col}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={6}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   Loading sessions…
                 </td>
               </tr>
             ) : null}
             {!loading && sessions.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={6}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   No match sessions found.
                 </td>
               </tr>
@@ -154,9 +169,13 @@ export default function AdminMatchesPage() {
               const isFlagged = s.deletion_status === "flagged";
               return (
                 <tr key={s.id} className="border-b border-gray-100">
-                  <td className="px-3 py-2.5 font-mono text-[#3b5571]">{s.match_id}</td>
+                  <td className="px-3 py-2.5 font-mono text-[#3b5571]">
+                    {s.match_id}
+                  </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">{s.map_name}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{s.player_count}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571]">
+                    {s.player_count}
+                  </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">
                     {new Date(s.played_at).toLocaleDateString()}
                   </td>

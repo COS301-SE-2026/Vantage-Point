@@ -14,7 +14,9 @@ export default function AdminSettingsPage() {
         const s = await getPlatformSettings();
         setRegistrationsOpenState(s.registrations_open);
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Failed to load settings.");
+        setError(
+          err instanceof ApiError ? err.message : "Failed to load settings.",
+        );
       } finally {
         setLoading(false);
       }
@@ -37,8 +39,8 @@ export default function AdminSettingsPage() {
         Settings
       </h1>
       <p className="mb-4 text-xs text-[#757575]">
-        No Figma frame exists for this section yet — styled to match Users/Dashboard in
-        the meantime.
+        No Figma frame exists for this section yet — styled to match
+        Users/Dashboard in the meantime.
       </p>
 
       {error ? <p className="mb-2 text-sm text-red-600">{error}</p> : null}
@@ -46,9 +48,12 @@ export default function AdminSettingsPage() {
       <div className="max-w-md rounded-2xl bg-[#f0f0f0] p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-[#1e1e1e]">Allow new registrations</p>
+            <p className="text-sm font-medium text-[#1e1e1e]">
+              Allow new registrations
+            </p>
             <p className="text-xs text-[#757575]">
-              When off, the public signup flow is disabled platform-wide (FR-A8).
+              When off, the public signup flow is disabled platform-wide
+              (FR-A8).
             </p>
           </div>
           <button

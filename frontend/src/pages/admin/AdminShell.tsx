@@ -6,7 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import UserAccountMenu from "../../components/UserAccountMenu";
 import { useAuth } from "../../context/AuthContext";
 import imgLogo from "../../assets/images/logos/logo.webp";
- 
+
 interface AdminShellProps {
   readonly children: ReactNode;
 }
@@ -20,7 +20,6 @@ const NAV_ITEMS = [
   { label: "Settings", to: "/admin/settings" },
 ] as const;
 
-
 function accountInitials(name: string | undefined): string {
   if (!name) return "UN";
   const parts = name.trim().split(/\s+/);
@@ -32,18 +31,17 @@ function accountInitials(name: string | undefined): string {
   );
 }
 
-
 export default function AdminShell({ children }: Readonly<AdminShellProps>) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
- 
+
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
   };
- 
- return (
+
+  return (
     <div className="min-h-screen w-full bg-white">
       <div className="flex items-center justify-between px-6 pt-6">
         <div className="flex items-center gap-2">
@@ -59,7 +57,7 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
           avatarUrl={user?.avatar_url}
         />
       </div>
- 
+
       <div className="flex gap-6 p-6">
         <aside
           className={`flex flex-col rounded-[15px] bg-[rgba(117,117,117,0.12)] p-5 transition-[width] duration-200 ${
@@ -69,14 +67,16 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
           <button
             type="button"
             onClick={() => setSidebarOpen((open) => !open)}
-            aria-label={sidebarOpen ? "Collapse navigation" : "Expand navigation"}
+            aria-label={
+              sidebarOpen ? "Collapse navigation" : "Expand navigation"
+            }
             className="mb-4 flex self-end rounded border border-[#c7c8c9] p-1"
           >
             <ChevronLeft
               className={`size-3 transition-transform ${sidebarOpen ? "" : "rotate-180"}`}
             />
           </button>
- 
+
           <nav className="flex flex-1 flex-col gap-2">
             {NAV_ITEMS.map((item) => (
               <NavLink
@@ -84,7 +84,9 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
                 to={item.to}
                 className={({ isActive }) =>
                   `rounded-[10px] bg-white px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
-                    isActive ? "font-bold text-[#1e1e1e]" : "text-[#1e1e1e] hover:opacity-80"
+                    isActive
+                      ? "font-bold text-[#1e1e1e]"
+                      : "text-[#1e1e1e] hover:opacity-80"
                   } ${sidebarOpen ? "" : "hidden"}`
                 }
               >
@@ -92,7 +94,7 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
               </NavLink>
             ))}
           </nav>
- 
+
           <button
             type="button"
             onClick={handleLogout}
@@ -103,7 +105,7 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
             Log out
           </button>
         </aside>
- 
+
         <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
