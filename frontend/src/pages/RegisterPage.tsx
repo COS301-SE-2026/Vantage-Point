@@ -51,12 +51,10 @@ export default function RegisterPage() {
     } catch (err) {
       console.error("Registration failed:", err);
 
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : "Registration failed. Please try again.";
+      let message = "Registration failed. Please try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
 
       setError(message);
     } finally {
