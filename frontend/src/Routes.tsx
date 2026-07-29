@@ -12,6 +12,7 @@ import MetricsView from "./pages/MetricsView";
 import ProfileView from "./pages/ProfileView";
 import LandingPage from "./pages/LandingPage";
 import RegisterPage from "./pages/RegisterPage";
+import StyleGuidePage from "./pages/StyleGuidePage";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     Component: RegisterPage,
+  },
+  {
+    path: "/style-guide",
+    Component: StyleGuidePage,
   },
   {
     path: "/link-riot-id",
