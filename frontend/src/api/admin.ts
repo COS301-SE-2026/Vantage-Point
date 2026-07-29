@@ -5,6 +5,7 @@ import type {
   AdminUser,
   AdminUserFilters,
   AdminUserListResponse,
+  AppRole,
   ChampionAsset,
   DashboardMetrics,
   ErrorLogEntry,
@@ -13,82 +14,67 @@ import type {
   PlatformSettings,
   RegisterUserPayload,
   SiteTrafficPoint,
-  UpdateUserPayload,
 } from "../types/admin";
+// separated below import just so its easier to remember it is not like the others which are interfaces, it is a function.
+import { deriveUserStatus } from "../types/admin";
 
 // MOCK DATA - STUB for Local UI testing only,
 // delete this  block and eveer "if (USE_MOCKS) { ... } block once backend admin routes exist"
-const USE_MOCKS = import.meta.env.DEV; // STUB — flip off once backend admin routes exist
-
+const USE_MOCKS = import.meta.env.DEV;
+ 
 const MOCK_USERS: AdminUser[] = [
   {
-    id: "1",
-    name: "John Smith",
-    email: "john.smith@example.com",
     username: "jonny77",
-    status: "Active",
+    email: "john.smith@example.com",
+    sub: "sub-1",
+    user_created_date: "2023-03-12T00:00:00Z",
+    user_last_modified_date: new Date(Date.now() - 60_000).toISOString(),
+    enabled: true,
+    user_status: "CONFIRMED",
     role: "Admin",
-    joined_at: "2023-03-12T00:00:00Z",
-    last_active_at: new Date(Date.now() - 60_000).toISOString(),
-    avatar_url: null,
   },
   {
-    id: "2",
-    name: "Daniel Warren",
-    email: "dwarren3@example.com",
     username: "dwarren3",
-    status: "Banned",
+    email: "dwarren3@example.com",
+    sub: "sub-2",
+    user_created_date: "2024-01-08T00:00:00Z",
+    user_last_modified_date: new Date(Date.now() - 4 * 86_400_000).toISOString(),
+    enabled: false,
+    user_status: "CONFIRMED",
     role: "Player",
-    joined_at: "2024-01-08T00:00:00Z",
-    last_active_at: new Date(Date.now() - 4 * 86_400_000).toISOString(),
-    avatar_url: null,
   },
   {
-    id: "3",
-    name: "Chloe Hye",
-    email: "chloehye@example.com",
     username: "chloehh",
-    status: "Pending",
+    email: "chloehye@example.com",
+    sub: "sub-3",
+    user_created_date: "2021-10-05T00:00:00Z",
+    user_last_modified_date: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+    enabled: true,
+    user_status: "FORCE_CHANGE_PASSWORD",
     role: "Admin",
-    joined_at: "2021-10-05T00:00:00Z",
-    last_active_at: new Date(Date.now() - 10 * 86_400_000).toISOString(),
-    avatar_url: null,
   },
   {
-    id: "4",
-    name: "Isabelle Clark",
-    email: "belleclark@example.com",
     username: "bellecl",
-    status: "Active",
+    email: "belleclark@example.com",
+    sub: "sub-4",
+    user_created_date: "2022-08-30T00:00:00Z",
+    user_last_modified_date: new Date(Date.now() - 7 * 86_400_000).toISOString(),
+    enabled: true,
+    user_status: "CONFIRMED",
     role: "Super Admin",
-    joined_at: "2022-08-30T00:00:00Z",
-    last_active_at: new Date(Date.now() - 7 * 86_400_000).toISOString(),
-    avatar_url: null,
   },
   {
-    id: "5",
-    name: "Marcus Reeds",
-    email: "reeds777@example.com",
     username: "reeds7",
-    status: "Suspended",
+    email: "reeds777@example.com",
+    sub: "sub-5",
+    user_created_date: "2023-02-19T00:00:00Z",
+    user_last_modified_date: new Date(Date.now() - 90 * 86_400_000).toISOString(),
+    enabled: false,
+    user_status: "CONFIRMED",
     role: "Player",
-    joined_at: "2023-02-19T00:00:00Z",
-    last_active_at: new Date(Date.now() - 90 * 86_400_000).toISOString(),
-    avatar_url: null,
-  },
-  {
-    id: "6",
-    name: "Mia Naddlin",
-    email: "mianaddlin@example.com",
-    username: "mianaddlin",
-    status: "Inactive",
-    role: "Admin",
-    joined_at: "2021-12-31T00:00:00Z",
-    last_active_at: new Date(Date.now() - 120 * 86_400_000).toISOString(),
-    avatar_url: null,
   },
 ];
-
+ 
 const MOCK_SESSIONS: AdminMatchSession[] = [
   {
     id: "s1",
@@ -107,9 +93,9 @@ const MOCK_SESSIONS: AdminMatchSession[] = [
     deletion_status: "flagged",
   },
 ];
-
+ 
 const MOCK_SETTINGS: PlatformSettings = { registrations_open: true };
-
+ 
 const MOCK_METRICS: DashboardMetrics = {
   active_users: 500,
   inactive_users: 500,
@@ -119,7 +105,7 @@ const MOCK_METRICS: DashboardMetrics = {
   storage_profiles_mb: 500,
   storage_other_mb: 500,
 };
-
+ 
 const MOCK_TRAFFIC: SiteTrafficPoint[] = [
   { month: "February 2026", relative_load: 2 },
   { month: "March 2026", relative_load: 4 },
@@ -128,7 +114,7 @@ const MOCK_TRAFFIC: SiteTrafficPoint[] = [
   { month: "June 2026", relative_load: 4 },
   { month: "July 2026", relative_load: 1 },
 ];
-
+ 
 const MOCK_ERRORS: ErrorLogEntry[] = [
   {
     id: "e1",
@@ -145,105 +131,139 @@ const MOCK_ERRORS: ErrorLogEntry[] = [
     reviewed: false,
   },
 ];
-
+ 
 const MOCK_MAP_ASSETS: MapAsset[] = [
   { map_id: "summoners_rift", display_name: "Summoner's Rift", image_url: "" },
 ];
-
+ 
 const MOCK_CHAMPION_ASSETS: ChampionAsset[] = [
   { champion_id: "ahri", display_name: "Ahri", image_url: "" },
 ];
+ 
+// In-memory tracking of roles assigned this session, since the backend has
+// no way to report existing group membership yet (see chat notes).
+const assignedRoles = new Map<string, AppRole>();
+
 
 // USERS Functional Requirements
 
-export async function listUsers(
-  filters: AdminUserFilters = {},
-): Promise<AdminUserListResponse> {
+export async function listUsers(filters: AdminUserFilters = {}): Promise<AdminUserListResponse> {
+  let items: AdminUser[];
   if (USE_MOCKS) {
-    return {
-      items: MOCK_USERS,
-      total: MOCK_USERS.length,
-      page: 1,
-      page_size: 10,
-    };
+    items = MOCK_USERS;
+  } else {
+    // Real endpoint returns a bare array with no pagination or query params.
+    const raw = await apiFetch<Omit<AdminUser, "role">[]>("/admin/users");
+    items = raw.map((u) => ({ ...u, role: assignedRoles.get(u.username) ?? null }));
   }
-
-  const params = new URLSearchParams();
-  if (filters.role) params.set("role", filters.role);
-  if (filters.status) params.set("status", filters.status);
-  if (filters.startDate) params.set("start_date", filters.startDate);
-  if (filters.endDate) params.set("end_date", filters.endDate);
-  params.set("page", String(filters.page ?? 1));
-  params.set("page_size", String(filters.pageSize ?? 10));
-  return apiFetch<AdminUserListResponse>(`/api/v1/admin/users?${params}`);
+ 
+  return {
+    items: items.filter((u) => {
+      if (filters.status && deriveUserStatus(u) !== filters.status) return false;
+      if (filters.role && u.role !== filters.role) return false;
+      return true;
+    }),
+  };
 }
 
-export async function updateUser(
-  userId: string,
-  payload: UpdateUserPayload,
-): Promise<AdminUser> {
+export async function getUser(username: string): Promise<AdminUser> {
   if (USE_MOCKS) {
-    const existing = MOCK_USERS.find((u) => u.id === userId) ?? MOCK_USERS[0];
-    return { ...existing, ...payload };
+    return MOCK_USERS.find((u) => u.username === username) ?? MOCK_USERS[0];
   }
-
-  return apiFetch<AdminUser>(`/api/v1/admin/users/${userId}`, {
-    method: "PATCH",
-    body: JSON.stringify(payload),
-  });
+  const raw = await apiFetch<Omit<AdminUser, "role">>(`/admin/users/${username}`);
+  return { ...raw, role: assignedRoles.get(username) ?? null };
 }
 
-export async function deleteUser(userId: string): Promise<void> {
+export async function addUserToGroup(username: string, group: AppRole): Promise<void> {
   if (USE_MOCKS) {
-    console.log("[mock] deleteUser", userId);
+    console.log("[mock] addUserToGroup", username, group);
+    assignedRoles.set(username, group);
     return;
   }
+  await apiFetch<{ success: string; message: string }>("/admin/add_user_to_group", {
+    method: "POST",
+    body: JSON.stringify({ username, group }),
+  });
+  assignedRoles.set(username, group);
+}
 
-  return apiFetch<void>(`/api/v1/admin/users/${userId}`, {
-    method: "DELETE",
+export async function removeUserFromGroup(username: string, group: AppRole): Promise<void> {
+  if (USE_MOCKS) {
+    console.log("[mock] removeUserFromGroup", username, group);
+    assignedRoles.delete(username);
+    return;
+  }
+  await apiFetch<{ success: string; message: string }>("/admin/remove_user_from_group", {
+    method: "POST",
+    body: JSON.stringify({ username, group }),
+  });
+  assignedRoles.delete(username);
+}
+
+export async function enableUser(username: string): Promise<void> {
+  if (USE_MOCKS) {
+    console.log("[mock] enableUser", username);
+    return;
+  }
+  await apiFetch<{ success: string; message: string }>("/admin/enable_user", {
+    method: "POST",
+    body: JSON.stringify({ username }),
   });
 }
 
-export async function registerUserManually(
-  payload: RegisterUserPayload,
-): Promise<AdminUser> {
+export async function disableUser(username: string): Promise<void> {
+  if (USE_MOCKS) {
+    console.log("[mock] disableUser", username);
+    return;
+  }
+  await apiFetch<{ success: string; message: string }>("/admin/disable_user", {
+    method: "POST",
+    body: JSON.stringify({ username }),
+  });
+}
+
+export async function deleteUser(username: string): Promise<void> {
+  if (USE_MOCKS) {
+    console.log("[mock] deleteUser", username);
+    return;
+  }
+  await apiFetch<void>("/admin/delete_user", {
+    method: "POST",
+    body: JSON.stringify({ username }),
+  });
+}
+
+export async function registerUserManually(payload: RegisterUserPayload): Promise<AdminUser> {
   if (USE_MOCKS) {
     return {
-      id: crypto.randomUUID(),
-      name: payload.display_name,
-      email: payload.email,
       username: payload.email.split("@")[0],
-      status: "Active",
+      email: payload.email,
+      sub: crypto.randomUUID(),
+      user_created_date: new Date().toISOString(),
+      user_last_modified_date: new Date().toISOString(),
+      enabled: true,
+      user_status: "FORCE_CHANGE_PASSWORD",
       role: "Player",
-      joined_at: new Date().toISOString(),
-      last_active_at: new Date().toISOString(),
-      avatar_url: null,
     };
   }
-
-  return apiFetch<AdminUser>("/api/v1/admin/users", {
+  const raw = await apiFetch<Omit<AdminUser, "role">>("/admin/create_user", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+  return { ...raw, role: null };
 }
 
 export async function getPlatformSettings(): Promise<PlatformSettings> {
-  if (USE_MOCKS) {
-    return MOCK_SETTINGS;
-  }
-
-  return apiFetch<PlatformSettings>("/api/v1/admin/settings");
+  if (USE_MOCKS) return MOCK_SETTINGS;
+  return apiFetch<PlatformSettings>("/admin/settings");
 }
 
-export async function setRegistrationsOpen(
-  open: boolean,
-): Promise<PlatformSettings> {
+export async function setRegistrationsOpen(open: boolean): Promise<PlatformSettings> {
   if (USE_MOCKS) {
     console.log("[mock] setRegistrationsOpen", open);
     return { registrations_open: open };
   }
-
-  return apiFetch<PlatformSettings>("/api/v1/admin/settings", {
+  return apiFetch<PlatformSettings>("/admin/settings", {
     method: "PATCH",
     body: JSON.stringify({ registrations_open: open }),
   });
