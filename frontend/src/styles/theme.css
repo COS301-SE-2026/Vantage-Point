@@ -343,12 +343,39 @@
     animation: vantage-progress 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
+  @keyframes sg-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .sg-fade-in {
+    animation: sg-fade-in 0.55s ease-out both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .animate-vantage-pulse,
     .animate-vantage-breathe,
     .animate-vantage-dot-fill,
     .animate-vantage-progress,
-    .animate-scroll {
-      animation: none;
+    .animate-scroll,
+    .sg-fade-in {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    .animate-vantage-breathe {
+      transform: none;
+    }
+
+    .animate-vantage-pulse {
+      color: #0f172a;
+      opacity: 1;
     }
   }
 }
