@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const me = await login({ email: email.trim(), password });
+      const me = await login({ username: email.trim(), password });
       if (me.has_linked_riot) {
         navigate("/loading", { replace: true });
       } else {
@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-white overflow-hidden">
+    <div className="w-screen h-screen bg-white device-dark:bg-[#181818] overflow-hidden">
       <LoginComponent form={formProps} />
     </div>
   );

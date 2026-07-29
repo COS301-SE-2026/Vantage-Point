@@ -75,7 +75,7 @@ describe("AuthContext", () => {
         <div>
           <button
             onClick={() =>
-              login({ email: "test@example.com", password: "PassCode" })
+              login({ username: "test@example.com", password: "PassCode" })
             }
           >
             Log In
@@ -98,7 +98,7 @@ describe("AuthContext", () => {
 
     await waitFor(() => {
       expect(authApi.loginUser).toHaveBeenCalledWith({
-        email: "test@example.com",
+        username: "test@example.com",
         password: "PassCode",
       });
     });
@@ -115,7 +115,7 @@ describe("AuthContext", () => {
       const { user, login, logout } = useAuth();
       return (
         <div>
-          <button onClick={() => login({ email: "x", password: "x" })}>
+          <button onClick={() => login({ username: "x", password: "x" })}>
             Log In
           </button>
           <button onClick={() => logout()}>Log Out</button>
@@ -201,7 +201,7 @@ describe("LoginPage", () => {
 
     await waitFor(() => {
       expect(authApi.loginUser).toHaveBeenCalledWith({
-        email: "test@example.com",
+        username: "test@example.com",
         password: "password123",
       });
     });

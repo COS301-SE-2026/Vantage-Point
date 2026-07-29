@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchMatchDetail } from "../api/match";
@@ -25,6 +25,9 @@ interface MatchDetailViewProps {
   readonly viewerPuuid?: string;
 }
 
+const SCOREBOARD_WIDTH = "w-full min-w-0";
+const FONT = "font-['Beaufort_for_LOL',serif]";
+
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -36,11 +39,6 @@ function formatGameDate(epochMs: number): string {
     dateStyle: "medium",
     timeStyle: "short",
   });
-}
-
-function formatNumber(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
 }
 
 function viewerParticipant(
@@ -58,127 +56,167 @@ function viewerParticipant(
 
 function LoadingSkeleton() {
   return (
-    <div className="flex flex-col gap-4 animate-pulse">
-      <div className="h-8 w-48 rounded bg-[#e8e8e8]" />
-      <div className="h-4 w-full rounded bg-[#f0f0f0]" />
-      <div className="grid grid-cols-2 gap-4">
-        <div className="h-64 rounded bg-[#f0f0f0]" />
-        <div className="h-64 rounded bg-[#f0f0f0]" />
-      </div>
+    <div className="animate-pulse flex flex-col gap-3">
+      <div className="h-[73px] w-full rounded bg-[#e3e3e3] device-dark:bg-[#2a2a2a]" />
+      <div className="h-[332px] w-full rounded-[8px] bg-[#ececec] device-dark:bg-[#2a2a2a]" />
+      <div className="h-[118px] w-full rounded-[4px] bg-[#ececec] device-dark:bg-[#2a2a2a]" />
+      <div className="h-[332px] w-full rounded-[8px] bg-[#ececec] device-dark:bg-[#2a2a2a]" />
+    </div>
+  );
+}
+
+function roleLabel(position: string): string {
+  const normalized = position.trim().toUpperCase();
+  if (!normalized) return "UNKNOWN";
+  if (normalized === "SUPPORT" || normalized === "UTILITY") return "UTILITY";
+  if (normalized === "BOTTOM" || normalized === "BOT") return "BOTTOM";
+  if (normalized === "MIDDLE" || normalized === "MID") return "MIDDLE";
+  if (normalized === "JUNGLE" || normalized === "JGL") return "JUNGLE";
+  return normalized;
+}
+
+function formatGold(n: number): string {
+  return `${(n / 1000).toFixed(1)}k`;
+}
+
+/** Figma 22:209 / 22:482 — the dark badges thin the tint and warm the label. */
+function scoreTagClass(win: boolean): string {
+  return win
+    ? "bg-[rgba(34,197,94,0.45)] text-[#1e7e34] device-dark:bg-[rgba(34,197,94,0.32)] device-dark:text-[#18c840]"
+    : "bg-[rgba(255,112,114,0.47)] text-[#c44a4a] device-dark:bg-[rgba(244,67,70,0.28)] device-dark:text-[#c73737]";
+}
+
+function teamHeadingClass(teamId: number): string {
+  return teamId === 100
+    ? "text-[#07f]"
+    : "text-[#c44a4a] device-dark:text-[#e03b3b]";
+}
+
+function buildItemSlots(player: ParticipantDetail): (number | null)[] {
+  const slots = player.items.slice(0, 7);
+  while (slots.length < 7) {
+    slots.push(null);
+  }
+  return slots;
+}
+
+function BuildIcons({ player }: Readonly<{ player: ParticipantDetail }>) {
+  const itemSlots = buildItemSlots(player);
+  const spellSlots: (number | null)[] = [
+    player.summoner_spells[0] ?? null,
+    player.summoner_spells[1] ?? null,
+  ];
+
+  return (
+    <div className="relative h-[50px] w-[140px]">
+      {spellSlots.map((spellId, idx) => {
+        const url = spellId ? summonerSpellIconUrl(spellId) : null;
+        const left = 20 + idx * 22;
+        return url ? (
+          <img
+            key={`spell-${player.puuid}-${idx}`}
+            src={url}
+            alt=""
+            className="absolute top-[2px] size-5 rounded-[4px] object-cover"
+            style={{ left }}
+          />
+        ) : (
+          <span
+            key={`spell-empty-${player.puuid}-${idx}`}
+            className="absolute top-[2px] size-5 rounded-[4px] bg-[#dadada] device-dark:bg-[#2a2a2a]"
+            style={{ left }}
+          />
+        );
+      })}
+      {itemSlots.map((itemId, idx) => {
+        const url = itemId ? itemIconUrl(itemId) : null;
+        const topRow = idx < 3;
+        const col = topRow ? idx : idx - 3;
+        const left = topRow ? 64 + col * 26 : 38 + col * 26;
+        const top = topRow ? 0 : 26;
+        return url ? (
+          <img
+            key={`item-${player.puuid}-${idx}`}
+            src={url}
+            alt=""
+            className="absolute size-6 rounded-[4px] object-cover"
+            style={{ left, top }}
+          />
+        ) : (
+          <span
+            key={`item-empty-${player.puuid}-${idx}`}
+            className="absolute size-6 rounded-[4px] border border-solid border-[#dadada] device-dark:border-[#2c2c2c] bg-[#dadada] device-dark:bg-[#2a2a2a]"
+            style={{ left, top }}
+          />
+        );
+      })}
     </div>
   );
 }
 
 function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
   const isViewer = player.is_viewer;
-  const rowBg = isViewer ? "bg-[#dce8fc]" : "";
-  const cellBase = `py-2 ${rowBg}`;
 
   return (
+    /* Figma 22:502 — dark rows sit straight on the page, only the viewer is tinted. */
     <tr
-      className={
-        isViewer ? "shadow-[inset_0_0_0_1px_#9bb8e8]" : "border-b border-[#eee]"
-      }
+      className={`h-[55px] border-b border-[#dadada] device-dark:border-[#2c2c2c] ${
+        isViewer
+          ? "bg-[#dfe9ff] device-dark:bg-[rgba(115,149,229,0.56)] border-l-2 border-l-[#07f]"
+          : "bg-white device-dark:bg-transparent"
+      }`}
     >
-      <td
-        className={`${cellBase} pr-2 ${
-          isViewer ? "border-l-4 border-l-[#2f6fd4] pl-2" : "pl-2"
-        }`}
-      >
-        <div className="flex items-center gap-2 min-w-0">
+      <td className="px-2 py-0">
+        <div className="flex h-[55px] items-center gap-2">
           <img
             src={championIconUrl(player.champion_name)}
             alt=""
-            className={`rounded shrink-0 ${isViewer ? "size-9 ring-2 ring-[#4a7fd4]/40" : "size-8"}`}
+            className="size-8 rounded-[4px] object-cover"
           />
           <div className="min-w-0">
             <p
-              className={`text-sm truncate ${
-                isViewer
-                  ? "font-semibold text-[#1a3d6e]"
-                  : "font-medium text-[#1e1e1e]"
+              className={`${FONT} truncate text-[14px] leading-[20px] text-[#1e1e1e] device-dark:text-white ${
+                isViewer ? "font-bold" : "font-medium"
               }`}
             >
-              {player.riot_id ?? player.champion_name}
+              {player.riot_id ?? `${player.champion_name}#Player`}
             </p>
-            <p className="text-xs text-[#757575]">{player.position}</p>
+            <p
+              className={`${FONT} text-[12px] leading-[16px] text-[#676767] device-dark:text-[#929292]`}
+            >
+              {roleLabel(player.position)}
+            </p>
           </div>
         </div>
       </td>
       <td
-        className={`${cellBase} text-sm text-center tabular-nums ${
-          isViewer ? "font-semibold text-[#1a3d6e]" : ""
-        }`}
+        className={`${FONT} text-center text-[12px] leading-[55px] text-[#1e1e1e] device-dark:text-white`}
       >
         {player.kills}/{player.deaths}/{player.assists}
       </td>
       <td
-        className={`${cellBase} text-sm text-right tabular-nums ${
-          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
-        }`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
         {player.cs}
       </td>
       <td
-        className={`${cellBase} text-sm text-right tabular-nums hidden sm:table-cell ${
-          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
-        }`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
-        {formatNumber(player.gold_earned)}
+        {formatGold(player.gold_earned)}
       </td>
       <td
-        className={`${cellBase} text-sm text-right tabular-nums hidden md:table-cell ${
-          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
-        }`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
-        {formatNumber(player.damage_to_champions)}
+        {formatGold(player.damage_to_champions)}
       </td>
       <td
-        className={`${cellBase} text-sm text-right tabular-nums hidden lg:table-cell ${
-          isViewer ? "font-medium text-[#2a4a6e]" : "text-[#757575]"
-        }`}
+        className={`${FONT} text-right text-[12px] font-medium leading-[55px] text-[#676767] device-dark:text-[#929292]`}
       >
         {player.vision_score}
       </td>
-      <td className={`${cellBase} pl-2 pr-2`}>
-        <div className="flex items-center gap-0.5 justify-end flex-wrap max-w-[140px]">
-          {player.summoner_spells.map((spellId) => {
-            const url = summonerSpellIconUrl(spellId);
-            return url ? (
-              <img
-                key={`spell-${spellId}`}
-                src={url}
-                alt=""
-                className="size-5 rounded"
-              />
-            ) : (
-              <span
-                key={`spell-${spellId}`}
-                className="size-5 rounded bg-[#eee] text-[8px] flex items-center justify-center"
-              >
-                {spellId}
-              </span>
-            );
-          })}
-          {player.items.map((itemId, i) => {
-            const url = itemIconUrl(itemId);
-            if (!url) {
-              return (
-                <span
-                  key={`item-empty-${i}`}
-                  className="size-6 rounded bg-[#f0f0f0] border border-[#ddd]"
-                />
-              );
-            }
-            return (
-              <img
-                key={`item-${itemId}-${i}`}
-                src={url}
-                alt=""
-                className="size-6 rounded"
-              />
-            );
-          })}
+      <td className="py-0 pr-2">
+        <div className="flex h-[55px] items-center justify-end">
+          <BuildIcons player={player} />
         </div>
       </td>
     </tr>
@@ -189,39 +227,68 @@ function TeamScoreboard({
   team,
   sideLabel,
 }: Readonly<{ team: TeamDetail; sideLabel: string }>) {
-  const sideColor = team.team_id === 100 ? "text-[#4a7fd4]" : "text-[#c44a4a]";
-
   return (
-    <div className="flex flex-col gap-2 min-w-0">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className={`text-sm font-semibold ${sideColor}`}>{sideLabel}</h3>
+    <section className={`${SCOREBOARD_WIDTH} min-w-0`}>
+      <div className="mb-[7px] flex h-[17px] items-center justify-between">
+        <h3
+          className={`${FONT} text-[13px] font-bold leading-[20px] ${teamHeadingClass(team.team_id)}`}
+        >
+          {sideLabel}
+        </h3>
         <span
-          className={`text-xs font-medium px-2 py-0.5 rounded ${
-            team.win
-              ? "bg-[#e6f4ea] text-[#1e7e34]"
-              : "bg-[#fce8e8] text-[#c44a4a]"
-          }`}
+          className={`${FONT} rounded-[4px] px-[6px] py-[2px] text-[13px] leading-[16px] ${scoreTagClass(team.win)}`}
         >
           {team.win ? "Victory" : "Defeat"}
         </span>
       </div>
-      <div className="overflow-x-auto rounded border border-[#d9d9d9]">
-        <table className="w-full text-left min-w-[480px]">
+      <div className="overflow-x-auto rounded-[4px] border border-[#dadada] device-dark:border-[#2c2c2c] bg-white device-dark:bg-[#181818]">
+        <table className="w-full min-w-[554px] table-fixed text-left">
+          <colgroup>
+            <col />
+            <col className="w-[52px]" />
+            <col className="w-[30px]" />
+            <col className="w-[43px]" />
+            <col className="w-[43px]" />
+            <col className="w-[30px]" />
+            <col className="w-[150px]" />
+          </colgroup>
           <thead>
-            <tr className="text-xs text-[#757575] border-b border-[#eee] bg-[#fafafa]">
-              <th className="py-2 pl-2 font-medium">Player</th>
-              <th className="py-2 font-medium text-center">KDA</th>
-              <th className="py-2 font-medium text-right">CS</th>
-              <th className="py-2 font-medium text-right hidden sm:table-cell">
+            <tr className="h-[32.5px] border-b border-[#dadada] device-dark:border-[#2c2c2c] bg-[#f0f0f0] device-dark:bg-[#3a3939]">
+              <th
+                className={`${FONT} pl-2 text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
+                Player
+              </th>
+              <th
+                className={`${FONT} text-center text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
+                KDA
+              </th>
+              <th
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
+                CS
+              </th>
+              <th
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
                 Gold
               </th>
-              <th className="py-2 font-medium text-right hidden md:table-cell">
+              <th
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
                 DMG
               </th>
-              <th className="py-2 font-medium text-right hidden lg:table-cell">
+              <th
+                className={`${FONT} text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
                 Vis
               </th>
-              <th className="py-2 pr-2 font-medium text-right">Build</th>
+              <th
+                className={`${FONT} pr-3 text-right text-[11px] font-medium text-[#676767] device-dark:text-white`}
+              >
+                Build
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -231,68 +298,162 @@ function TeamScoreboard({
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   );
 }
 
-function ObjectivesRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
-  const labels: { key: keyof TeamDetail["objectives"]; label: string }[] = [
-    { key: "dragon", label: "Dragons" },
-    { key: "baron", label: "Baron" },
-    { key: "rift_herald", label: "Herald" },
-    { key: "tower", label: "Towers" },
-    { key: "inhibitor", label: "Inhibitors" },
+function ObjectivesCard({ team }: Readonly<{ team: TeamDetail }>) {
+  const rows: ReadonlyArray<{
+    label: string;
+    value: number;
+  }> = [
+    { label: "Dragons", value: team.objectives.dragon },
+    { label: "Baron", value: team.objectives.baron },
+    { label: "Herald", value: team.objectives.rift_herald },
+    { label: "Towers", value: team.objectives.tower },
+    { label: "Inhibitors", value: team.objectives.inhibitor },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {teams.map((team) => (
-        <div
-          key={team.team_id}
-          className="rounded border border-[#d9d9d9] p-3 bg-[#fafafa]"
-        >
-          <p className="text-xs font-semibold text-[#757575] mb-2">
-            {team.team_id === 100 ? "Blue" : "Red"} objectives
-          </p>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-[#1e1e1e]">
-            {labels.map(({ key, label }) => (
-              <li key={key} className="flex justify-between">
-                <span className="text-[#757575]">{label}</span>
-                <span className="tabular-nums font-medium">
-                  {team.objectives[key]}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
+    <section
+      className={`${SCOREBOARD_WIDTH} rounded-[4px] border border-solid border-[#dadada] device-dark:border-[#2c2c2c] bg-[#f0f0f0] device-dark:bg-[#2a2a2a] px-[13px] pb-px pt-[13px]`}
+    >
+      <h2
+        className={`${FONT} mb-2 text-[15px] font-medium leading-[16px] text-[#1e1e1e] device-dark:text-white`}
+      >
+        Objectives Completed
+      </h2>
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-[4px]">
+        {rows.map((row) => (
+          <li key={row.label} className="flex h-5 items-center justify-between">
+            <span
+              className={`${FONT} text-[14px] leading-[20px] text-[#676767] device-dark:text-[#929292]`}
+            >
+              {row.label}
+            </span>
+            <span
+              className={`${FONT} text-[14px] leading-[20px] tabular-nums text-[#1e1e1e] device-dark:text-white`}
+            >
+              {row.value}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
-function BansRow({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
+function BansSection({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
+  const bans = teams.flatMap((team) => team.bans);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {teams.map((team) => (
-        <div key={team.team_id}>
-          <p className="text-xs font-semibold text-[#757575] mb-2">
-            {team.team_id === 100 ? "Blue" : "Red"} bans
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {team.bans.map((ban) => (
-              <img
-                key={ban.champion_id}
-                src={championIconUrl(ban.champion_name)}
-                alt={ban.champion_name}
-                title={ban.champion_name}
-                className="size-8 rounded shrink-0 grayscale opacity-70"
-              />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+    <section className={`${SCOREBOARD_WIDTH} flex flex-col gap-2`}>
+      <h2
+        className={`${FONT} text-[15px] font-medium leading-[16px] text-[#1e1e1e] device-dark:text-white`}
+      >
+        Bans
+      </h2>
+      <div className="flex flex-wrap gap-[4px]">
+        {bans.map((ban, idx) => (
+          <span
+            key={`${ban.champion_id}-${idx}`}
+            title={ban.champion_name}
+            className={`${FONT} inline-flex h-6 items-center rounded-[4px] bg-[#f0f0f0] device-dark:bg-[#2c2c2c] px-2 text-[12px] leading-[16px] text-[#1e1e1e] device-dark:text-white`}
+          >
+            #{ban.champion_id}
+          </span>
+        ))}
+      </div>
+    </section>
   );
+}
+
+function viewerDisplayName(viewer: ParticipantDetail): string {
+  return viewer.riot_id ?? `Summoner#${viewer.champion_name}`;
+}
+
+function MatchInsightsPanel({
+  viewer,
+  teammateHint,
+}: Readonly<{
+  viewer?: ParticipantDetail;
+  teammateHint?: string;
+}>) {
+  if (!viewer) return null;
+
+  const playerName = viewerDisplayName(viewer);
+  const cards = [
+    {
+      title: "Champion choices",
+      body: `${playerName}'s playstyle is better suited to play ${viewer.champion_name}`,
+      expanded: true,
+    },
+    {
+      title: "Player Roles",
+      body:
+        teammateHint ??
+        "A teammate was playing more like a Support than a Jungler",
+      expanded: true,
+    },
+    {
+      title: "General Tip",
+      body:
+        viewer.deaths > viewer.kills
+          ? "Try to reduce isolated deaths before key objective spawns."
+          : "Keep timing recalls around objective windows to convert leads.",
+      expanded: true,
+    },
+  ] as const;
+
+  return (
+    // Figma 17:171 — parent panel for AI coaching cards
+    <aside
+      className="flex h-full min-h-[320px] w-[230px] shrink-0 flex-col self-stretch overflow-hidden rounded-[15px] bg-[#f0f0f0] device-dark:bg-[#3a3939]"
+      data-name="Rectangle 5"
+      aria-label="AI coaching comments"
+    >
+      <div
+        className="vp-scrollbar flex min-h-0 flex-1 flex-col gap-[12px] overflow-y-auto px-[15px] py-[12px]"
+        data-name="AI Coaching comments"
+      >
+        {cards.map((card) => (
+          <section
+            key={card.title}
+            data-name="AI Reccomendation"
+            className={`relative w-full rounded-[15px] bg-[#dadada] device-dark:bg-[#2a2a2a] ${
+              card.expanded
+                ? "min-h-[109px] px-3 pb-3 pt-2"
+                : "h-[45px] px-3 py-2"
+            }`}
+          >
+            <h3
+              className={`${FONT} px-5 text-center text-[16px] font-bold leading-[1.2] text-[#1e1e1e] device-dark:text-white`}
+            >
+              {card.title}
+            </h3>
+            <ChevronDown
+              className="absolute right-3 top-2 size-[18px] shrink-0 text-[#525252] device-dark:text-white"
+              strokeWidth={2}
+              aria-hidden
+            />
+            {card.expanded ? (
+              <p
+                className={`${FONT} mt-2 text-[13px] leading-[1.35] text-[#525252] device-dark:text-white`}
+              >
+                {card.body}
+              </p>
+            ) : null}
+          </section>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+function matchHeaderResultClass(win: boolean): string {
+  return win
+    ? "text-[#1e7e34] device-dark:text-[#18c840]"
+    : "text-[#c44a4a] device-dark:text-[#e03b3b]";
 }
 
 export default function MatchDetailView({
@@ -351,105 +512,131 @@ export default function MatchDetailView({
 
   const viewer = match ? viewerParticipant(match, viewerPuuid) : undefined;
   const resultLabel = viewer ? (viewer.win ? "Victory" : "Defeat") : null;
-  const resultClass = viewer?.win ? "text-[#1e7e34]" : "text-[#c44a4a]";
-
   const blueTeam = match?.teams.find((t) => t.team_id === 100);
   const redTeam = match?.teams.find((t) => t.team_id === 200);
 
+  const teammateHint = (() => {
+    if (!match || !viewer) return undefined;
+    const viewerTeam = match.teams.find((t) =>
+      t.participants.some((p) => p.puuid === viewer.puuid),
+    );
+    const mate = viewerTeam?.participants.find(
+      (p) => p.puuid !== viewer.puuid && roleLabel(p.position) === "UTILITY",
+    );
+    if (!mate) return undefined;
+    const name = mate.riot_id ?? mate.champion_name;
+    return `${name} was playing more like a Support than a Jungler`;
+  })();
+
   return (
     <div
-      className="absolute top-[var(--vp-dashboard-header)] min-w-0 font-['Inter',sans-serif] transition-[left,width] duration-300 ease-out"
+      className={`absolute top-[var(--vp-dashboard-header)] min-w-0 ${FONT} transition-[left,width] duration-300 ease-out`}
       style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
       data-name="match-detail-view"
     >
-      <div className="relative h-full overflow-auto px-10 py-6">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="Back to matches"
-          className="mb-6 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] transition-opacity hover:opacity-80"
-        >
-          <ArrowLeft className="size-5 shrink-0" strokeWidth={2} aria-hidden />
-          <span className="font-['Inter:Regular',sans-serif] text-[14px] font-normal text-[#1e1e1e]">
-            Back to matches
-          </span>
-        </button>
+      <div className="relative mx-auto flex h-full w-full max-w-[var(--vp-content-max)] flex-col items-stretch gap-[10px] overflow-hidden px-4 py-2 sm:px-6 xl:flex-row xl:px-8">
+        <div className="vp-scrollbar min-w-0 flex-1 overflow-y-auto pr-1">
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back to matches"
+            className="mb-4 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[#525252] device-dark:text-[#929292] transition-opacity hover:opacity-80"
+          >
+            <ArrowLeft
+              className="size-4 shrink-0"
+              strokeWidth={2}
+              aria-hidden
+            />
+            <span
+              className={`${FONT} text-[13px] font-normal text-[#676767] device-dark:text-[#929292]`}
+            >
+              Back to matches
+            </span>
+          </button>
 
-        <header className="mb-6 border-b border-[#eee] pb-4">
-          {loading && (
-            <h1 className="text-[#1e1e1e] text-xl font-semibold">
-              Loading match…
-            </h1>
-          )}
-          {error && (
-            <h1 className="text-[#c44a4a] text-xl font-semibold">{error}</h1>
-          )}
-          {match && viewer && (
-            <>
-              <div className="flex flex-wrap items-center gap-3">
-                <img
-                  src={championIconUrl(viewer.champion_name)}
-                  alt=""
-                  className="size-12 rounded"
-                />
-                <div>
-                  <h1 className={`text-2xl font-semibold ${resultClass}`}>
-                    {resultLabel}
-                  </h1>
-                  <p id="match-detail-desc" className="text-[#757575] text-sm">
-                    {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
-                    {viewer.assists} KDA
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-[#757575] mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                <span>{formatDuration(match.game_duration)}</span>
-                <span>·</span>
-                <span>{match.queue_label}</span>
-                <span>·</span>
-                <span>{match.map_label}</span>
-                <span>·</span>
-                <span>v{match.game_version}</span>
-                <span>·</span>
-                <span>{formatGameDate(match.game_creation)}</span>
-              </p>
-            </>
-          )}
-          {match && !viewer && (
-            <h1 className="text-[#1e1e1e] text-xl font-semibold">
-              Match details
-            </h1>
-          )}
-        </header>
-
-        <div className="flex flex-col gap-6">
           {loading && <LoadingSkeleton />}
           {error && !loading && (
-            <p className="text-sm text-[#757575]">
-              Try again later or pick another match from your matches.
-            </p>
+            <div>
+              <h1
+                className={`${FONT} text-xl font-semibold text-[#c44a4a] device-dark:text-[#e03b3b]`}
+              >
+                {error}
+              </h1>
+              <p className="mt-2 text-sm text-[#757575] device-dark:text-[#929292]">
+                Try again later or pick another match from your matches.
+              </p>
+            </div>
           )}
-          {match && blueTeam && redTeam && !loading && (
-            <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <TeamScoreboard team={blueTeam} sideLabel="Blue Team" />
-                <TeamScoreboard team={redTeam} sideLabel="Red Team" />
-              </div>
-              <section>
-                <h2 className="text-sm font-semibold text-[#1e1e1e] mb-3">
-                  Objectives
-                </h2>
-                <ObjectivesRow teams={match.teams} />
-              </section>
-              <section>
-                <h2 className="text-sm font-semibold text-[#1e1e1e] mb-3">
-                  Bans
-                </h2>
-                <BansRow teams={match.teams} />
-              </section>
-            </>
+
+          {match && !loading && (
+            <div className="flex flex-col gap-[6px]">
+              {viewer ? (
+                <header className="mb-1 w-full border-b border-[#eee] device-dark:border-[#2c2c2c] pb-1">
+                  <div className="flex h-[52px] items-start gap-[12px]">
+                    <img
+                      src={championIconUrl(viewer.champion_name)}
+                      alt=""
+                      className="mt-[2px] size-12 rounded-[4px] object-cover"
+                    />
+                    <div className="min-w-0">
+                      <h1
+                        className={`${FONT} text-[20px] font-bold leading-[32px] ${matchHeaderResultClass(viewer.win)}`}
+                      >
+                        {resultLabel}
+                      </h1>
+                      <p
+                        id="match-detail-desc"
+                        className={`${FONT} text-[15px] leading-[20px] text-[#757575] device-dark:text-[#929292]`}
+                      >
+                        {viewer.champion_name} · {viewer.kills}/{viewer.deaths}/
+                        {viewer.assists} KDA
+                      </p>
+                    </div>
+                  </div>
+                  <p
+                    className={`${FONT} mt-px flex flex-wrap gap-x-[12px] gap-y-1 text-[12px] leading-[20px] text-[#757575] device-dark:text-[#929292]`}
+                  >
+                    <span>{formatDuration(match.game_duration)}</span>
+                    <span aria-hidden>·</span>
+                    <span>{match.queue_label}</span>
+                    <span aria-hidden>·</span>
+                    <span>{match.map_label}</span>
+                    <span aria-hidden>·</span>
+                    <span>v{match.game_version}</span>
+                    <span aria-hidden>·</span>
+                    <span>{formatGameDate(match.game_creation)}</span>
+                  </p>
+                </header>
+              ) : (
+                <h1
+                  className={`${FONT} text-xl font-semibold text-[#1e1e1e] device-dark:text-white`}
+                >
+                  Match details
+                </h1>
+              )}
+
+              {blueTeam ? (
+                <>
+                  <TeamScoreboard team={blueTeam} sideLabel="Blue Team" />
+                  <ObjectivesCard team={blueTeam} />
+                </>
+              ) : null}
+
+              {redTeam ? (
+                <>
+                  <TeamScoreboard team={redTeam} sideLabel="Red Team" />
+                  <ObjectivesCard team={redTeam} />
+                </>
+              ) : null}
+
+              <BansSection teams={match.teams} />
+            </div>
           )}
         </div>
+
+        {match && !loading ? (
+          <MatchInsightsPanel viewer={viewer} teammateHint={teammateHint} />
+        ) : null}
       </div>
     </div>
   );

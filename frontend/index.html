@@ -20,6 +20,27 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Mirrors the device theme onto <html> so the token-driven `dark:` variant
+      (shadcn popovers, dialogs) matches the `device-dark:` surfaces. Inline and
+      before the bundle so the class is set on first paint — a listener added
+      after hydration would flash a light popover shell.
+    -->
+    <script>
+      (function () {
+        var query = window.matchMedia("(prefers-color-scheme: dark)");
+        function apply(matches) {
+          document.documentElement.classList.toggle("dark", matches);
+          document.documentElement.style.colorScheme = matches
+            ? "dark"
+            : "light";
+        }
+        apply(query.matches);
+        query.addEventListener("change", function (e) {
+          apply(e.matches);
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
