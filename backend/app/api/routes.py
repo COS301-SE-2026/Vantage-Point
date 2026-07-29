@@ -93,7 +93,6 @@ async def register(user: RegisterRequest) -> dict[str, str]:
     tags=["Authentication"],
     summary="Log in a user",
     description="Authenticates a user by email alias and returns Cognito tokens.",
-    response_model=dict[str, str],
     responses={
         401: {"model": ErrorResponse, "description": "Invalid credentials"},
     },
@@ -484,7 +483,6 @@ async def get_filtered_match(
     tags=["Live Metrics"],
     summary="Get live performance metrics",
     description="Calculates live performance indexes across recent matches.",
-    response_model=LiveAdvancedMetrics,
     responses={
         401: {"model": ErrorResponse, "description": "Invalid or expired token"},
     },
