@@ -26,7 +26,7 @@ const STATUS_COLORS: Record<UserStatus, string> = {
   Pending: "bg-[#021247]",
   Disabled: "bg-red-600",
 };
- 
+
 const ROLES: AppRole[] = ["Player", "Admin", "Super Admin"];
 const STATUSES: UserStatus[] = ["Active", "Pending", "Disabled"];
 
@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
   const { user } = useAuth();
   const isSuperAdmin = user?.role === "Super Admin";
   const assignableRoles: AppRole[] = isSuperAdmin ? ROLES : ["Player"];
- 
+
   const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -75,7 +75,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [busyUsername, setBusyUsername] = useState<string | null>(null);
   const [registerOpen, setRegisterOpen] = useState(false);
- 
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -92,7 +92,9 @@ export default function AdminUsersPage() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Failed to load users.");
+          setError(
+            err instanceof ApiError ? err.message : "Failed to load users.",
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -102,14 +104,14 @@ export default function AdminUsersPage() {
       cancelled = true;
     };
   }, [roleFilter, statusFilter]);
- 
+
   const total = allUsers.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const pageUsers = useMemo(
     () => allUsers.slice((page - 1) * pageSize, page * pageSize),
     [allUsers, page, pageSize],
   );
- 
+
   const handleToggleEnabled = async (u: AdminUser) => {
     setBusyUsername(u.username);
     try {
@@ -119,7 +121,9 @@ export default function AdminUsersPage() {
         await enableUser(u.username);
       }
       setAllUsers((prev) =>
-        prev.map((x) => (x.username === u.username ? { ...x, enabled: !x.enabled } : x)),
+        prev.map((x) =>
+          x.username === u.username ? { ...x, enabled: !x.enabled } : x,
+        ),
       );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Action failed.");
@@ -127,19 +131,23 @@ export default function AdminUsersPage() {
       setBusyUsername(null);
     }
   };
- 
+
   const handleAssignRole = async (username: string, role: AppRole) => {
     setBusyUsername(username);
     try {
       await addUserToGroup(username, role);
-      setAllUsers((prev) => prev.map((u) => (u.username === username ? { ...u, role } : u)));
+      setAllUsers((prev) =>
+        prev.map((u) => (u.username === username ? { ...u, role } : u)),
+      );
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Role assignment failed.");
+      setError(
+        err instanceof ApiError ? err.message : "Role assignment failed.",
+      );
     } finally {
       setBusyUsername(null);
     }
   };
- 
+
   const handleDelete = async (username: string) => {
     if (!window.confirm("Remove this user? This cannot be undone.")) return;
     setBusyUsername(username);
@@ -152,7 +160,7 @@ export default function AdminUsersPage() {
       setBusyUsername(null);
     }
   };
- 
+
   const handleExport = () => {
     const rows = [
       ["Username", "Email", "Status", "Role", "Created", "Last Modified"],
@@ -167,13 +175,13 @@ export default function AdminUsersPage() {
     ];
     downloadCsv(`users-${new Date().toISOString().slice(0, 10)}.csv`, rows);
   };
- 
+
   return (
     <AdminShell>
       <h1 className="mb-4 font-['League',sans-serif] text-2xl font-bold uppercase text-black">
         User Management
       </h1>
- 
+
       <div className="flex flex-wrap items-center gap-2 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2">
         <div className="flex flex-wrap gap-2">
           <select
@@ -219,40 +227,52 @@ export default function AdminUsersPage() {
           </button>
         </div>
       </div>
- 
+
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
       <p className="mt-2 text-[11px] text-[#757575]">
-        Role shows "Unknown" until assigned this session — the backend doesn't expose
-        existing group membership yet.
+        Role shows "Unknown" until assigned this session — the backend doesn't
+        expose existing group membership yet.
       </p>
- 
+
       <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm">
         <table className="w-full min-w-[800px] text-xs">
           <thead>
             <tr className="border-b border-[#d9ebfe]">
-              {["Username", "Email", "Status", "Role", "Joined", "Last Modified", "Actions"].map(
-                (col) => (
-                  <th
-                    key={col}
-                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
-                  >
-                    {col}
-                  </th>
-                ),
-              )}
+              {[
+                "Username",
+                "Email",
+                "Status",
+                "Role",
+                "Joined",
+                "Last Modified",
+                "Actions",
+              ].map((col) => (
+                <th
+                  key={col}
+                  className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                >
+                  {col}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={7}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   Loading users…
                 </td>
               </tr>
             ) : null}
             {!loading && pageUsers.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-center text-[#757575]">
+                <td
+                  colSpan={7}
+                  className="px-3 py-6 text-center text-[#757575]"
+                >
                   No users found.
                 </td>
               </tr>
@@ -260,9 +280,13 @@ export default function AdminUsersPage() {
             {pageUsers.map((u) => {
               const isBusy = busyUsername === u.username;
               const status = deriveUserStatus(u);
-              const canEditRole = isSuperAdmin || u.role === "Player" || u.role === null;
+              const canEditRole =
+                isSuperAdmin || u.role === "Player" || u.role === null;
               return (
-                <tr key={u.username} className="border-b border-gray-200 hover:bg-gray-50">
+                <tr
+                  key={u.username}
+                  className="border-b border-gray-200 hover:bg-gray-50"
+                >
                   <td className="px-3 py-2.5 text-[#3b5571]">{u.username}</td>
                   <td className="px-3 py-2.5 text-[#3b5571]">{u.email}</td>
                   <td className="px-3 py-2.5">
@@ -278,7 +302,10 @@ export default function AdminUsersPage() {
                         value={u.role ?? ""}
                         disabled={isBusy}
                         onChange={(e) =>
-                          void handleAssignRole(u.username, e.target.value as AppRole)
+                          void handleAssignRole(
+                            u.username,
+                            e.target.value as AppRole,
+                          )
                         }
                         className="rounded border border-gray-300 px-1 py-0.5 text-[10px]"
                       >
@@ -328,7 +355,7 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
- 
+
       <div className="mt-3 flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
         <div className="flex items-center gap-2">
           <span className="font-medium text-[#2e4258]">Rows per page</span>
@@ -386,7 +413,7 @@ export default function AdminUsersPage() {
           </button>
         </div>
       </div>
- 
+
       {registerOpen ? (
         <RegisterUserModal
           onClose={() => setRegisterOpen(false)}
@@ -412,7 +439,7 @@ function RegisterUserModal({
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
- 
+
   const handleSubmit = async () => {
     setSubmitting(true);
     setError(null);
@@ -429,7 +456,7 @@ function RegisterUserModal({
       setSubmitting(false);
     }
   };
- 
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">

@@ -24,10 +24,12 @@ export interface AdminUser {
   readonly role: AppRole; // derived from Cognito group membership
 }
 
-export function deriveUserStatus(u: Pick<AdminUser, "enabled" | "user_status">): UserStatus {
+export function deriveUserStatus(
+  u: Pick<AdminUser, "enabled" | "user_status">,
+): UserStatus {
   if (!u.enabled) return "Disabled";
   return u.user_status === "CONFIRMED" ? "Active" : "Pending";
-} 
+}
 // I am basing this on the fact that the only way to get a user into the "CONFIRMED" state is to have them complete the registration flow, which is what we want to consider "Active".
 // Also just on what Shaun described on discord.
 
@@ -40,7 +42,7 @@ export interface AdminUserFilters {
   readonly status?: UserStatus;
 }
 
-// removed UpdateUserPayload based on backend capabilites
+// removed UpdateUserPayload based on backend capabilities
 
 export interface RegisterUserPayload {
   readonly email: string;
@@ -100,7 +102,7 @@ export interface ErrorLogEntry {
   readonly reviewed: boolean;
 }
 
-// Map & Champion Assests Functional Requirements
+// Map & Champion Assets Functional Requirements
 export interface MapAsset {
   readonly map_id: string;
   readonly display_name: string;
