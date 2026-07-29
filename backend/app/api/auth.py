@@ -137,7 +137,7 @@ async def get_current_user(
         ) from exc
 
 
-role_levels = {"User": 10, "Admin": 20}
+role_levels = {"User": 10, "Admin": 20, "SuperAdmin": 30}
 
 
 # idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
