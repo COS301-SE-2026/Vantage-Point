@@ -213,3 +213,12 @@ class ErrorLog(SQLModel, Table=True):
     reviewed: bool = Field(default=False, index=True)
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None
+
+
+class MapReplayTable(SQLModel, Table=True):
+    puuid: list[str]
+    participant_id: list[int]
+    frame_interval: int
+    position_x: list[int]
+    position_y: list[int]
+    

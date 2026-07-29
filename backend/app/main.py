@@ -23,6 +23,7 @@ from app.api.router import (
     auth_routes,
     analytics_router,
     riot_api_routes,
+    error_log_router,
 )
 from app.services.routers import matches, users
 from app.database.models import GameAccounts
@@ -169,6 +170,7 @@ app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
 app.include_router(users.router)
+app.include_router(error_log_router.router)
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:

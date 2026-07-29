@@ -49,7 +49,9 @@ class ErrorClass:
             raise HTTPException(status_code=500, detail=internal_server_error)
 
     @staticmethod
-    async def toggle_reviewd(error_id: int, session: AsyncSession, cognito_sub: str) -> ToggleReview:
+    async def toggle_reviewd(
+        error_id: int, session: AsyncSession, cognito_sub: str
+    ) -> ToggleReview:
         try:
             statement: Any = select(ErrorLog).where(ErrorLog.id == error_id)
             result: Any = await session.execute(statement)

@@ -16,6 +16,8 @@ from app.Models.riot_schemas import (
 )
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
+from app.database.models import MapReplayTable
+from sqlalchemy.ext.asyncio import AsyncSession
 
 internal_server_error: str = "Internal server error"
 player_not_found: str = "PLayer not found in match"
@@ -388,7 +390,7 @@ class LiveAnalyticsService:
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
     @staticmethod
     async def map_replay(
-        match_id: str, puuid: str | None = None, data: MapReplay | None = None
+        match_id: str, session: AsyncSession, puuid: str | None = None, data: MapReplay | None = None
     ) -> MapReplay:
         if data is None:
             _data: Any = await riot_service.get_match_timeline(match_id)
@@ -408,7 +410,7 @@ class LiveAnalyticsService:
                 frame["participantFrames"][str(i)]["position"]["y"] for frame in frames
             ]
 
-        return MapReplay(
+        response = MapReplay(
             puuid=[p["puuid"] for p in _data["info"]["participants"]],
             participant_id=[
                 p["participantId"] for p in _data["info"]["participants"]
@@ -418,13 +420,25 @@ class LiveAnalyticsService:
             position_x=x_values,
             position_y=y_values,
         )
+        table_data = MapReplayTable(
+            puuid=response.puuid,
+            participant_id=response.participant_id,
+            frame_interval=response.frame_interval,
+            position_x=response.position_x,
+            position_y=response.position_y
+        )
+
+        await session.commit()
+        await session.refresh(table_data)
+
+        return response
 
     @staticmethod
-    async def map_suggest_data(match_id: str, puuid: str) -> MapSuggestData:
+    async def map_suggest_data(match_id: str, puuid: str, session:AsyncSession) -> MapSuggestData:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
+        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id, session)
 
         paritcipants: Any = match["info"]["participants"]
         player = next((p for p in paritcipants if p["puuid"] == puuid))
