@@ -1,8 +1,5 @@
-import os
 import asyncio
-import traceback
-from fastapi import FastAPI, Request, Depends
-from fastapi.exceptions import RequestValidationError
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict
@@ -10,6 +7,8 @@ from urllib.parse import urlparse
 from types import FrameType
 from typing import Annotated
 
+from fastapi import Depends, FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -18,6 +17,14 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 
+from app.api.router import (
+    admin_routes,
+    profile_routes,
+    auth_routes,
+    analytics_router,
+    riot_api_routes,
+)
+from app.services.routers import matches, users
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
@@ -141,16 +148,9 @@ app = FastAPI(
 # app.add_middleware(SlowAPIMiddleware)
 # CORS for frontend
 # 3000 = React default, 5173 = Vite default.
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    # allow_origin_regex=".*",
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -158,7 +158,14 @@ app.add_middleware(
 )
 
 
-app.include_router(router, prefix="/api/v1")
+# app.include_router(router, prefix="/api")
+app.include_router(auth_routes.router)
+app.include_router(profile_routes.router)
+app.include_router(admin_routes.router)
+app.include_router(analytics_router.router)
+app.include_router(riot_api_routes.router)
+app.include_router(matches.router)
+app.include_router(users.router)
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
@@ -193,20 +200,9 @@ async def validation_exception_handler(
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    print("Unhandled Exception Traceback:")
-    traceback.print_exception(type(exc), exc, exc.__traceback__)
-
-    origin = request.headers.get("origin", "*")
-    headers = (
-        {"Access-Control-Allow-Origin": origin}
-        if origin in origins or origin == "*"
-        else {}
-    )
-
     return JSONResponse(
         status_code=500,
-        content=error_response(500, f"Unexpected server error: {str(exc)}"),
-        headers=headers,
+        content=error_response(500, "Unexpected server error"),
     )
 
 
