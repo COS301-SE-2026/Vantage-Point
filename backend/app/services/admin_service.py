@@ -96,6 +96,9 @@ class admin_service:
     @staticmethod
     async def add_user_to_group(username: str, group: str = "Users") -> Response:
         try:
+            if group == "Admin" or group == "SuperAdmin":
+                raise HTTPException(status_code=403, detail="You do not have the correct permission")
+            
             await asyncio.to_thread(
                 client.admin_add_user_to_group,
                 UserPoolId=settings.cognito_user_pool_id,
@@ -111,6 +114,35 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail="User not found.")
+            if error_code == "ResourceNotFoundException":
+                raise HTTPException(
+                    status_code=400, detail="The specified group was not found."
+                )
+            raise HTTPException(status_code=400, detail=error_code)
+
+    #allow to add to any group except superadmin, where the previous one limits to anything but admin and superadmin
+    #only person with access to aws can add to superadmin.
+    @staticmethod
+    async def add_user_to_admin_group(username: str, group: str = "Admin") -> Response:
+        try:
+            if group == "SuperAdmin":
+                raise HTTPException(status_code=403, detail="You do not have the correct permission")
+                        
+            await asyncio.to_thread(
+                client.admin_add_user_to_group,
+                UserPoolId=settings.cognito_user_pool_id,
+                Username=username,
+                GroupName=group,
+            )
+
+            response = Response(success=True, message=f"Added {username} to {group}")
+
+            return response
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "ResourceNotFoundException":
                 raise HTTPException(
                     status_code=400, detail="The specified group was not found."
