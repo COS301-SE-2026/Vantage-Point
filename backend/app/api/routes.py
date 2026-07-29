@@ -54,7 +54,6 @@ class UserConfirm(BaseModel):
     tags=["Authentication"],
     summary="Register a new user",
     description="Creates a new Cognito user account with internal UUID, email, and password.",
-    response_model=dict[str, str],
     responses={
         400: {"model": ErrorResponse, "description": "Registration failed"},
     },
