@@ -65,14 +65,16 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
 
   const register = useCallback(
     async (payload: RegisterPayload): Promise<void> => {
-    await registerUser(payload);
-    try {
-      const me = await getMe();
-      setUser(me);
-    } catch {
-      setUser(null);
-    }
-  }, []);
+      await registerUser(payload);
+      try {
+        const me = await getMe();
+        setUser(me);
+      } catch {
+        setUser(null);
+      }
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     clearStoredTokens();

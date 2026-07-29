@@ -44,7 +44,7 @@ function formatDayLabel(playedOn?: string): string {
   if (!playedOn) {
     return "Unknown Date";
   }
-  
+
   const [year, month, day] = playedOn.split("-").map(Number);
   if (!year || !month || !day) {
     return playedOn; // Return raw string if formatting fails

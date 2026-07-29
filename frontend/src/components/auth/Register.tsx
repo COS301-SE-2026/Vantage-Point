@@ -153,7 +153,10 @@ function Field({
   );
 }
 
-export default function Register({ form, backgroundImage }: Readonly<RegisterProps>) {
+export default function Register({
+  form,
+  backgroundImage,
+}: Readonly<RegisterProps>) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -171,7 +174,10 @@ export default function Register({ form, backgroundImage }: Readonly<RegisterPro
     if (typeof form?.onSubmit === "function") {
       form.onSubmit();
     } else {
-      console.warn("Register form `onSubmit` function was not passed or is invalid.", form);
+      console.warn(
+        "Register form `onSubmit` function was not passed or is invalid.",
+        form,
+      );
     }
   };
 
@@ -181,7 +187,10 @@ export default function Register({ form, backgroundImage }: Readonly<RegisterPro
       <div className="w-[463px] h-full bg-white z-20 shadow-2xl flex flex-col justify-between items-center py-10 px-8 border-r border-neutral-100 shrink-0">
         <Logo />
 
-        <form className="w-full flex flex-col gap-5 mt-4" onSubmit={handleSubmit}>
+        <form
+          className="w-full flex flex-col gap-5 mt-4"
+          onSubmit={handleSubmit}
+        >
           <Field
             label="Email Address"
             value={form?.email ?? ""}
@@ -261,7 +270,10 @@ export default function Register({ form, backgroundImage }: Readonly<RegisterPro
 
         <p className="text-sm text-neutral-500">
           Already have an account?{" "}
-          <Link to="/login" className="text-black font-semibold hover:underline">
+          <Link
+            to="/login"
+            className="text-black font-semibold hover:underline"
+          >
             Sign In
           </Link>
         </p>

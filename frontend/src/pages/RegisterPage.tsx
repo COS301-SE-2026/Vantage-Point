@@ -55,8 +55,8 @@ export default function RegisterPage() {
         err instanceof ApiError
           ? err.message
           : err instanceof Error
-          ? err.message
-          : "Registration failed. Please try again.";
+            ? err.message
+            : "Registration failed. Please try again.";
 
       setError(message);
     } finally {

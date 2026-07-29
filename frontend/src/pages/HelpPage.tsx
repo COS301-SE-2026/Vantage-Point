@@ -70,12 +70,14 @@ export default function HelpPage() {
   const outlet = useOutletContext<DashboardOutletContext | undefined>();
   const isInsideDashboard = Boolean(outlet);
   const sidebarOpen = outlet?.sidebarOpen ?? true;
-  const contentStyle = isInsideDashboard ? getDashboardContentStyle(sidebarOpen) : {};
+  const contentStyle = isInsideDashboard
+    ? getDashboardContentStyle(sidebarOpen)
+    : {};
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredArticles = helpArticles.filter((article) =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase())
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -85,7 +87,11 @@ export default function HelpPage() {
           ? "absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out bg-white"
           : "min-h-screen w-full bg-white py-6"
       }
-      style={isInsideDashboard ? { ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT } : {}}
+      style={
+        isInsideDashboard
+          ? { ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }
+          : {}
+      }
       data-name="help-page"
     >
       <div className="h-full overflow-y-auto px-8 py-6">
@@ -134,7 +140,10 @@ export default function HelpPage() {
                         {article.title}
                       </h3>
                       <span className="text-xs font-semibold text-zinc-500 whitespace-nowrap">
-                        Last Updated: <span className="text-zinc-900">{article.lastUpdated}</span>
+                        Last Updated:{" "}
+                        <span className="text-zinc-900">
+                          {article.lastUpdated}
+                        </span>
                       </span>
                     </div>
 
