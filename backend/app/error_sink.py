@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from fastapi import HTTPException
 from app.config import get_settings
 from typing import Any
-from app.schemas.logs import ErrorLog
+from app.database.models import ErrorLog
 settings = get_settings()
 
 if settings.database_url is None:
@@ -33,7 +33,7 @@ def db_error_sink(message: Any) -> None:
 
     session: Session = SyncSessionLocal()
     try:
-        error_log: ErrorLog = ErrorLog(
+        error_log = ErrorLog(
             error_code=extra.get("error_code", _Default_Codes.get(severity, "#000")),
             service=extra.get("service", record["name"]),
             endpoint=extra.get("endpoint"),
