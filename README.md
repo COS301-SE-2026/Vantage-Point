@@ -158,12 +158,11 @@ To ensure a stable and collaborative development workflow, the following strateg
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| **Backend Tests** | Push/PR to main, dev | Unit tests, linting, coverage |
-| **Frontend Tests** | Push/PR to main, dev | Unit tests, linting, build |
-| **Integration Tests** | Push/PR to main, dev | Full stack E2E tests |
-| **Security Checks** | Weekly + on demand | Dependency & vulnerability scan |
-| **Code Quality** | Push/PR to main, dev | Coverage reports & analysis |
-| **Deploy** | Push to main | Deploy to production |
+| **Backend Tests & Quality** | Push/PR to all branches | Unit tests, coverage, build |
+| **Frontend Tests & Quality** | Push/PR to all branches | Unit tests, linting, coverage, build |
+| **Security Checks** | Weekly + on demand(PR) | Dependency & vulnerability scan |
+| **Deploy Staging** | Push to staging | Local deployment test |
+| **Deploy Production** | Push to main | Full deployment on AWS server |
 
 ## Documentation
 
