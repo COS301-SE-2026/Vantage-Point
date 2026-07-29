@@ -38,6 +38,10 @@
     }
   },
 
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ],
+
   // 8000 = FastAPI Backend , 5173 = Vite frontend dev server, 5432 = Postgres (for DBeaver or the VS Code extension on the host)
   // @NeoMachabaUP : we are using 3000 for the frontend, but we can change this if we want to use 5173 instead. I just wanted to avoid confusion with the default Vite port.
   "forwardPorts": [8000, 3000, 5432, 5173],

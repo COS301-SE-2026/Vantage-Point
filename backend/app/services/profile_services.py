@@ -1,224 +1,244 @@
-from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, status
-from sqlalchemy import Integer, cast, func, select
+import asyncio
+from datetime import datetime, timedelta
+import traceback
+from typing import Any
+
+import boto3
+from botocore.exceptions import ClientError
+from fastapi import HTTPException
+from loguru import logger
+from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col
+from sqlmodel import select
 
-from app.database.models import Champions, Participants, Users, GameAccounts
-from app.schemas.profile_schemas import (
-    PlayerSummary,
-    ProfileCreateRequest,
-    ProfileUpdateRequest,
-)
+from app.config import get_settings
+from app.database.models import Users
+from app.Models.profile_schemas import UserProfile
 
+settings = get_settings()
+client: CognitoIdentityProviderClient = boto3.client(  # type: ignore
+    "cognito-idp", region_name=settings.aws_region
+)  # pyright: ignore[reportUnknownMemberType]
 
-def utc_now_naive() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+access_token_empty: str = "Access Token is empty."
 
 
 class ProfileService:
-    @staticmethod
-    async def get_or_create_profile(session: AsyncSession, user_id: str) -> Users:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
-        result = await session.execute(statement)
-        user = result.scalar_one_or_none()
-
-        if user:
-            return user
-
-        user = Users(
-            cognito_sub=user_id,
-            email=f"{user_id[:8]}@placeholder.invalid",
-        )
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-
-        return user
 
     @staticmethod
-    async def build_player_summary(
-        session: AsyncSession, current_user: str
-    ) -> tuple[int, PlayerSummary]:
-        total_matches_stmt = select(
-            func.count(func.distinct(col(Participants.match_id)))
-        ).where(col(Participants.puuid) == current_user)
-        total_matches_result = await session.execute(total_matches_stmt)
-        total_matches = int(total_matches_result.scalar_one() or 0)
+    async def get_or_create_profile(session: AsyncSession, access_token: str) -> Users:
+        try:
+            if access_token == "":
+                raise HTTPException(status_code=400, detail=access_token_empty)
 
-        most_played_stmt = (
-            select(col(Champions.name), func.count())
-            .join(
-                Participants,
-                col(Participants.champion_id) == col(Champions.champion_id),
+            response = await asyncio.to_thread(
+                client.get_user, AccessToken=access_token
             )
-            .where(col(Participants.puuid) == current_user)
-            .group_by(col(Champions.name))
-            .order_by(func.count().desc())
-            .limit(1)
-        )
-        most_played_result = await session.execute(most_played_stmt)
-        most_played_row = most_played_result.one_or_none()
-
-        stats_stmt = select(
-            func.coalesce(func.sum(col(Participants.kills)), 0).label("kills"),
-            func.coalesce(func.sum(col(Participants.deaths)), 0).label("deaths"),
-            func.coalesce(func.sum(col(Participants.assists)), 0).label("assists"),
-            func.coalesce(func.sum(cast(col(Participants.win), Integer)), 0).label(
-                "wins"
-            ),
-            func.count(col(Participants.match_id)).label("games_played"),
-        ).where(col(Participants.puuid) == current_user)
-
-        stats_result = await session.execute(stats_stmt)
-        stats_row = stats_result.one()
-
-        kills = int(stats_row.kills or 0)
-        deaths = int(stats_row.deaths or 0)
-        assists = int(stats_row.assists or 0)
-        wins = int(stats_row.wins or 0)
-        games_played = int(stats_row.games_played or 0)
-
-        if games_played == 0:
-            return 0, PlayerSummary(
-                most_played_character="No matches yet",
-                common_mistakes=[],
-                avg_kda="0.0 / 0.0 / 0.0",
-                win_rate="0%",
+            attributes = {
+                attr["Name"]: attr.get("Value", "")
+                for attr in response["UserAttributes"]
+            }
+            user = UserProfile(
+                sub=attributes["sub"],
+                email=attributes["email"],
+                username=response["Username"],
             )
 
-        avg_deaths = float(deaths) / games_played
-        common_mistakes: list[str] = []
-        if avg_deaths >= 6:
-            common_mistakes.append("High average deaths")
-        if (float(assists) / games_played) < 5:
-            common_mistakes.append("Low average assists")
-        if not common_mistakes:
-            common_mistakes.append("No recurring mistakes detected")
+            statement = select(Users).where(Users.cognito_sub == user.sub)
+            result: Any = await session.execute(statement)
+            profile: Any | None = result.scalar_one_or_none()
 
-        summary = PlayerSummary(
-            most_played_character=(
-                str(most_played_row[0]) if most_played_row else "Unknown"
-            ),
-            common_mistakes=common_mistakes,
-            avg_kda=(
-                f"{float(kills) / games_played:.1f} / "
-                f"{avg_deaths:.1f} / "
-                f"{float(assists) / games_played:.1f}"
-            ),
-            win_rate=f"{round((float(wins) / games_played) * 100)}%",
-        )
+            if profile is not None:
+                return profile
 
-        return total_matches, summary
-
-    @staticmethod
-    async def schedule_account_deletion(
-        session: AsyncSession, user_id: str
-    ) -> datetime:
-        user = await ProfileService.get_or_create_profile(session, user_id)
-
-        deletion_date = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(
-            days=30
-        )
-        user.deletion_scheduled_at = deletion_date
-        user.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return deletion_date
-
-    @staticmethod
-    async def undo_account_deletion(session: AsyncSession, user_id: str) -> bool:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
-        result = await session.execute(statement)
-        user = result.scalar_one_or_none()
-
-        if not user or not user.deletion_scheduled_at:
-            return False
-
-        user.deletion_scheduled_at = None
-        user.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        session.add(user)
-        await session.commit()
-        return True
+            return await ProfileService.create_profile(session, user=user)
+        except Exception:
+            logger.exception("Get or create profile")
+            raise HTTPException(status_code=500, detail=traceback.format_exc())
 
     @staticmethod
     async def create_profile(
-        session: AsyncSession, user_id: str, request: ProfileCreateRequest
+        session: AsyncSession,
+        user: UserProfile | None = None,
+        user_id: int | str | None = None,
+        request: Any = None,
     ) -> Users:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
-        result = await session.execute(statement)
-        existing_profile = result.scalar_one_or_none()
-
-        if existing_profile:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Profile already exists."
-            )
-        if request.riot_puuid is not None:
-            account_stmt = select(GameAccounts).where(
-                col(GameAccounts.puuid) == request.riot_puuid
-            )
-            account_result = await session.execute(account_stmt)
-            game_account = account_result.scalar_one_or_none()
-
-            if game_account is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Linked Riot account was not found.",
+        try:
+            if user is None and request is not None:
+                sub = getattr(request, "sub", str(user_id or ""))
+                email = getattr(request, "email", "")
+                username = getattr(
+                    request, "display_name", getattr(request, "username", "")
                 )
+                user = UserProfile(sub=sub, email=email, username=username)
 
-        now = utc_now_naive()
+            if user is None:
+                raise HTTPException(status_code=400, detail="User objects is empty.")
 
-        profile = Users(
-            cognito_sub=user_id,
-            username=request.username,
-            riot_puuid=request.riot_puuid,
-            created_at=now,
-            updated_at=now,
-        )
+            if user.username is None:
+                raise HTTPException(status_code=400, detail="Username is missing.")
 
-        session.add(profile)
-        await session.commit()
-        await session.refresh(profile)
+            profile = Users(
+                cognito_sub=user.sub,
+                email=user.email,
+                display_name=user.username,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+                deletion_scheduled_at=datetime(1999, 12, 31),
+            )
+            session.add(profile)
+            await session.commit()
+            await session.refresh(profile)
 
-        return profile
+            return profile
+        except ClientError as e:
+            logger.exception("Create profile")
+            print(e.response)
+            raise
+
+    @staticmethod
+    async def build_player_summary(
+        session: AsyncSession, user_id: int | str
+    ) -> dict[str, Any]:
+        statement = select(Users).where(Users.cognito_sub == str(user_id))
+        result = await session.execute(statement)
+        profile = result.scalar_one_or_none()
+
+        if profile is None:
+            raise HTTPException(status_code=404, detail="User profile not found.")
+
+        return {
+            "user_id": profile.cognito_sub,
+            "cognito_sub": profile.cognito_sub,
+            "display_name": profile.display_name,
+            "email": profile.email,
+            "created_at": profile.created_at,
+        }
 
     @staticmethod
     async def update_profile(
-        session: AsyncSession,
-        user_id: str,
-        request: ProfileUpdateRequest,
+        session: AsyncSession, user_id: int | str, profile_data: Any
     ) -> Users:
-        statement = select(Users).where(col(Users.cognito_sub) == user_id)
+        statement = select(Users).where(Users.cognito_sub == str(user_id))
         result = await session.execute(statement)
-        user = result.scalar_one_or_none()
+        profile = result.scalar_one_or_none()
 
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Profile not found."
-            )
+        if profile is None:
+            raise HTTPException(status_code=404, detail="User profile not found.")
 
-        if request.riot_puuid is not None:
-            account_stmt = select(GameAccounts).where(
-                col(GameAccounts.puuid) == request.riot_puuid
-            )
-            account_result = await session.execute(account_stmt)
-            game_account = account_result.scalar_one_or_none()
+        if hasattr(profile_data, "display_name") and profile_data.display_name:
+            profile.display_name = profile_data.display_name
+        if hasattr(profile_data, "email") and profile_data.email:
+            profile.email = profile_data.email
 
-            if game_account is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Linked Riot account was not found.",
-                )
-            user.riot_puuid = request.riot_puuid
-
-        if request.username is not None:
-            user.username = request.username
-
-        user.updated_at = utc_now_naive()
-
-        session.add(user)
+        profile.updated_at = datetime.now()
         await session.commit()
-        await session.refresh(user)
+        await session.refresh(profile)
+        return profile
 
-        return user
+    @staticmethod
+    async def schedule_account_deletion(
+        session: AsyncSession, access_token: str
+    ) -> datetime:
+        try:
+            if access_token == "":
+                raise HTTPException(status_code=400, detail=access_token_empty)
+
+            response = await asyncio.to_thread(
+                client.get_user, AccessToken=access_token
+            )
+            attributes = {
+                attr["Name"]: attr.get("Value", "")
+                for attr in response["UserAttributes"]
+            }
+            user = UserProfile(
+                sub=attributes["sub"],
+                username=response["Username"],
+                email=attributes["email"],
+            )
+
+            statement = select(Users).where(Users.cognito_sub == user.sub)
+            result = await session.execute(statement=statement)
+            profile = result.scalar_one_or_none()
+
+            if profile is None:
+                raise HTTPException(status_code=404, detail="User does not exist")
+
+            profile.updated_at = datetime.now()
+            profile.deletion_scheduled_at = datetime.now() + timedelta(30)
+
+            await session.commit()
+            await session.refresh(profile)
+
+            return profile.deletion_scheduled_at
+        except ClientError as e:
+            print(e.response)
+            raise
+
+    @staticmethod
+    async def undo_account_deletion(session: AsyncSession, access_token: str) -> Any:
+        try:
+            if access_token == "":
+                raise HTTPException(status_code=400, detail=access_token_empty)
+
+            response = await asyncio.to_thread(
+                client.get_user, AccessToken=access_token
+            )
+            attributes = {
+                attr["Name"]: attr.get("Value", "")
+                for attr in response["UserAttributes"]
+            }
+            user = UserProfile(
+                sub=attributes["sub"],
+                username=response["Username"],
+                email=attributes["email"],
+            )
+
+            statement = select(Users).where(Users.cognito_sub == user.sub)
+            result = await session.execute(statement)
+            profile = result.scalar_one_or_none()
+
+            if profile is None:
+                raise HTTPException(status_code=404, detail="Account not Found !")
+
+            profile.deletion_scheduled_at = datetime(1999, 12, 31)
+            await session.commit()
+            await session.refresh(profile)
+            return profile.display_name
+        except ClientError as e:
+            print(e.response)
+            raise
+
+    @staticmethod
+    async def update_email(
+        session: AsyncSession, email: str | None, access_token: str
+    ) -> Users:
+        try:
+            if email is None:
+                raise HTTPException(status_code=400, detail="Email is empty")
+
+            client: (
+                CognitoIdentityProviderClient
+            ) = boto3.client(  # pyright: ignore[reportUnknownMemberType]
+                "cognito-idp", region_name=settings.aws_region
+            )  # type: ignore
+
+            statement = select(Users).where(Users.email == email)
+            result: Any = await session.execute(statement)
+            profile: Users | None = result.scalar_one_or_none()
+
+            if profile is None:
+                raise HTTPException(status_code=400, detail="User does not exist.")
+            profile.email = email
+
+            await session.commit()
+            await asyncio.to_thread(
+                client.update_user_attributes,
+                AccessToken=access_token,
+                UserAttributes=[{"Name": "email", "Value": email}],
+            )
+            await session.refresh(profile)
+            return profile
+        except ClientError as e:
+            print(e.response)
+            raise

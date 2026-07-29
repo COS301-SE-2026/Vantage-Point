@@ -2,6 +2,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore[i
 from pydantic import field_validator
 from functools import lru_cache
 from typing import Any, List, Optional
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+load_dotenv(os.path.join(os.path.dirname(__file__), "/.env"))
 
 
 class Settings(BaseSettings):

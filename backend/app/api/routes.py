@@ -1,35 +1,33 @@
 import uuid
+from typing import Annotated, List, Any
 from urllib.parse import parse_qs
 
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.api.auth import get_current_user
-from app.services import auth_service
-from app.schemas.auth_schemas import (
-    UserRegister,
-    UserLogin,
-    UserConfirm,
-)
-from app.config import get_settings
-from app.schemas.profile_schemas import (
-    MatchSummary,
-    MessageResponse,
-    ProfileResponse,
-    RiotKeyUpdateResponse,
-    LiveAdvancedMetrics,
-    ProfileCreateRequest,
-    ProfileUpdateRequest,
-)
-from app.schemas.generic_schemas import ErrorResponse
-from typing import Annotated, List
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.auth import get_current_user
+from app.config import get_settings
 from app.database.session import get_session
-from app.schemas.riot_schemas import SimplifiedMatchResponse
-from app.services.profile_services import ProfileService
-from app.services.analytics import LiveAnalyticsService
-from app.services.riot_service import filter_match_for_players, riot_service
+from app.Models.auth import LoginRequest, RegisterRequest
 from app.routers.users import router as users_router
+from app.schemas.profile import (
+    LiveAdvancedMetrics,
+    MatchSummary,
+    MessageResponse,
+    ProfileCreateRequest,
+    ProfileResponse,
+    ProfileUpdateRequest,
+    RiotKeyUpdateResponse,
+)
+from app.schemas.match import (
+    SimplifiedMatchResponse,
+)
+from app.services import auth_service
+from app.services.analytics import LiveAnalyticsService
+from app.services.profile_services import ProfileService
+from app.services.riot_service import filter_match_for_players, riot_service
 
 oauth2_scheme = HTTPBearer()
 
@@ -42,6 +40,15 @@ settings = get_settings()
 # =====================================================
 
 
+class ErrorResponse(BaseModel):
+    detail: str | dict[str, Any]
+
+
+class UserConfirm(BaseModel):
+    username: str
+    confirmation_code: str
+
+
 @router.post(
     "/auth/register",
     tags=["Authentication"],
@@ -52,8 +59,10 @@ settings = get_settings()
         400: {"model": ErrorResponse, "description": "Registration failed"},
     },
 )
-async def register(user: UserRegister) -> dict[str, str]:
-    if user.password != user.confirm_password:
+async def register(user: RegisterRequest) -> dict[str, str]:
+    if hasattr(user, "confirm_password") and user.password != getattr(
+        user, "confirm_password"
+    ):
         raise HTTPException(status_code=400, detail="Passwords do not match")
 
     # Generate an internal random UUID for Cognito's required Username parameter
@@ -90,9 +99,11 @@ async def register(user: UserRegister) -> dict[str, str]:
         401: {"model": ErrorResponse, "description": "Invalid credentials"},
     },
 )
-async def login(user: UserLogin) -> dict[str, str]:
-    # Login with email and password
-    login_identifier = getattr(user, "email", None) or user.username
+async def login(user: LoginRequest) -> dict[str, str]:
+    # Ensure login_identifier is strictly a string for mypy
+    login_identifier = str(
+        getattr(user, "email", None) or getattr(user, "username", "") or ""
+    )
     result = await auth_service.login_user(login_identifier, user.password)
 
     if "error" in result:
@@ -137,9 +148,6 @@ async def confirm(data: UserConfirm):
 async def logout(
     token_data: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ):
-    # Extracts the raw string credentials from the FastAPI HTTPBearer object
-    # needed for Cognito's global_sign_out
-    # jwt when logout request so use JWT get what user to infer which user logouts
     raw_token = token_data.credentials
     result = await auth_service.logout_user(raw_token)
     if "error" in result:
@@ -270,7 +278,7 @@ async def update_profile(
     profile = await ProfileService.update_profile(
         session=session,
         user_id=current_user,
-        request=request,
+        profile_data=request,
     )
 
     total_matches, summary = await ProfileService.build_player_summary(
