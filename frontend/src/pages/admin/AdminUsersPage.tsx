@@ -1,41 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Check,
-  Pencil,
   Trash2,
   X,
 } from "lucide-react";
 import AdminShell from "./AdminShell";
 import {
+  addUserToGroup,
   deleteUser,
+  disableUser,
+  enableUser,
   listUsers,
   registerUserManually,
-  updateUser,
 } from "../../api/admin";
 import { ApiError } from "../../api/client";
-import type { AdminUser, AppRole, UserStatus } from "../../types/admin";
 import { useAuth } from "../../context/AuthContext";
+import type { AdminUser, AppRole, UserStatus } from "../../types/admin";
+import { deriveUserStatus } from "../../types/admin";
 
 const STATUS_COLORS: Record<UserStatus, string> = {
   Active: "bg-green-600",
-  Banned: "bg-red-600",
   Pending: "bg-[#021247]",
-  Suspended: "bg-orange-500",
-  Inactive: "bg-gray-400",
+  Disabled: "bg-red-600",
 };
-
+ 
 const ROLES: AppRole[] = ["Player", "Admin", "Super Admin"];
-const STATUSES: UserStatus[] = [
-  "Active",
-  "Banned",
-  "Pending",
-  "Suspended",
-  "Inactive",
-];
+const STATUSES: UserStatus[] = ["Active", "Pending", "Disabled"];
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -55,28 +48,36 @@ function formatDate(iso: string): string {
   });
 }
 
+// below function added for export to csv functionality, could be a WOW feature for admins to export user data for their own analysis.
+function downloadCsv(filename: string, rows: string[][]) {
+  const escape = (cell: string) => `"${cell.replace(/"/g, '""')}"`;
+  const csv = rows.map((row) => row.map(escape).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AdminUsersPage() {
   const { user } = useAuth();
   const isSuperAdmin = user?.role === "Super Admin";
   const assignableRoles: AppRole[] = isSuperAdmin ? ROLES : ["Player"];
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [total, setTotal] = useState(0);
+ 
+  const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [roleFilter, setRoleFilter] = useState<AppRole | "">("");
   const [statusFilter, setStatusFilter] = useState<UserStatus | "">("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState<{
-    role: AppRole;
-    status: UserStatus;
-  } | null>(null);
+  const [busyUsername, setBusyUsername] = useState<string | null>(null);
   const [registerOpen, setRegisterOpen] = useState(false);
-
+ 
   useEffect(() => {
     let cancelled = false;
-
     (async () => {
       setLoading(true);
       setError(null);
@@ -84,73 +85,100 @@ export default function AdminUsersPage() {
         const res = await listUsers({
           role: roleFilter || undefined,
           status: statusFilter || undefined,
-          page,
-          pageSize,
         });
         if (!cancelled) {
-          setUsers(res.items);
-          setTotal(res.total);
+          setAllUsers(res.items);
+          setPage(1);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof ApiError ? err.message : "Failed to load users.",
-          );
+          setError(err instanceof ApiError ? err.message : "Failed to load users.");
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     })();
-
     return () => {
       cancelled = true;
     };
-  }, [roleFilter, statusFilter, page, pageSize]);
-
-  const startEdit = (u: AdminUser) => {
-    setEditingId(u.id);
-    setEditDraft({ role: u.role, status: u.status });
-  };
-
-  const saveEdit = async (userId: string) => {
-    if (!editDraft) return;
+  }, [roleFilter, statusFilter]);
+ 
+  const total = allUsers.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const pageUsers = useMemo(
+    () => allUsers.slice((page - 1) * pageSize, page * pageSize),
+    [allUsers, page, pageSize],
+  );
+ 
+  const handleToggleEnabled = async (u: AdminUser) => {
+    setBusyUsername(u.username);
     try {
-      const updated = await updateUser(userId, editDraft);
-      setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
-      setEditingId(null);
+      if (u.enabled) {
+        await disableUser(u.username);
+      } else {
+        await enableUser(u.username);
+      }
+      setAllUsers((prev) =>
+        prev.map((x) => (x.username === u.username ? { ...x, enabled: !x.enabled } : x)),
+      );
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Update failed.");
+      setError(err instanceof ApiError ? err.message : "Action failed.");
+    } finally {
+      setBusyUsername(null);
     }
   };
-
-  const handleDelete = async (userId: string) => {
-    if (!window.confirm("Remove this user? This cannot be undone.")) return;
+ 
+  const handleAssignRole = async (username: string, role: AppRole) => {
+    setBusyUsername(username);
     try {
-      await deleteUser(userId);
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      await addUserToGroup(username, role);
+      setAllUsers((prev) => prev.map((u) => (u.username === username ? { ...u, role } : u)));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Role assignment failed.");
+    } finally {
+      setBusyUsername(null);
+    }
+  };
+ 
+  const handleDelete = async (username: string) => {
+    if (!window.confirm("Remove this user? This cannot be undone.")) return;
+    setBusyUsername(username);
+    try {
+      await deleteUser(username);
+      setAllUsers((prev) => prev.filter((u) => u.username !== username));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Delete failed.");
+    } finally {
+      setBusyUsername(null);
     }
   };
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
+ 
+  const handleExport = () => {
+    const rows = [
+      ["Username", "Email", "Status", "Role", "Created", "Last Modified"],
+      ...allUsers.map((u) => [
+        u.username,
+        u.email,
+        deriveUserStatus(u),
+        u.role ?? "Unknown",
+        formatDate(u.user_created_date),
+        formatDate(u.user_last_modified_date),
+      ]),
+    ];
+    downloadCsv(`users-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+  };
+ 
   return (
     <AdminShell>
       <h1 className="mb-4 font-['League',sans-serif] text-2xl font-bold uppercase text-black">
         User Management
       </h1>
-
+ 
       <div className="flex flex-wrap items-center gap-2 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2">
         <div className="flex flex-wrap gap-2">
           <select
             value={roleFilter}
-            onChange={(e) => {
-              setPage(1);
-              setRoleFilter(e.target.value as AppRole | "");
-            }}
+            onChange={(e) => setRoleFilter(e.target.value as AppRole | "")}
             className="rounded-full border border-[#a9b4be] bg-white px-2 py-1 text-xs text-[#2e4258]"
           >
             <option value="">Role</option>
@@ -162,10 +190,7 @@ export default function AdminUsersPage() {
           </select>
           <select
             value={statusFilter}
-            onChange={(e) => {
-              setPage(1);
-              setStatusFilter(e.target.value as UserStatus | "");
-            }}
+            onChange={(e) => setStatusFilter(e.target.value as UserStatus | "")}
             className="rounded-full border border-[#a9b4be] bg-white px-2 py-1 text-xs text-[#2e4258]"
           >
             <option value="">Status</option>
@@ -179,7 +204,9 @@ export default function AdminUsersPage() {
         <div className="ml-auto flex gap-2">
           <button
             type="button"
-            className="flex items-center gap-1 rounded-full border border-[#a9b4be] bg-white px-3 py-1 text-xs text-[#2e4258]"
+            onClick={handleExport}
+            disabled={allUsers.length === 0}
+            className="flex items-center gap-1 rounded-full border border-[#a9b4be] bg-white px-3 py-1 text-xs text-[#2e4258] disabled:opacity-50"
           >
             Export
           </button>
@@ -192,114 +219,72 @@ export default function AdminUsersPage() {
           </button>
         </div>
       </div>
-
+ 
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
-
+      <p className="mt-2 text-[11px] text-[#757575]">
+        Role shows "Unknown" until assigned this session — the backend doesn't expose
+        existing group membership yet.
+      </p>
+ 
       <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm">
         <table className="w-full min-w-[800px] text-xs">
           <thead>
             <tr className="border-b border-[#d9ebfe]">
-              {[
-                "Name",
-                "Email",
-                "Username",
-                "Status",
-                "Role",
-                "Joined Date",
-                "Last Active",
-                "Actions",
-              ].map((col) => (
-                <th
-                  key={col}
-                  className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
-                >
-                  {col}
-                </th>
-              ))}
+              {["Username", "Email", "Status", "Role", "Joined", "Last Modified", "Actions"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                  >
+                    {col}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td
-                  colSpan={8}
-                  className="px-3 py-6 text-center text-[#757575]"
-                >
+                <td colSpan={7} className="px-3 py-6 text-center text-[#757575]">
                   Loading users…
                 </td>
               </tr>
             ) : null}
-            {!loading && users.length === 0 ? (
+            {!loading && pageUsers.length === 0 ? (
               <tr>
-                <td
-                  colSpan={8}
-                  className="px-3 py-6 text-center text-[#757575]"
-                >
+                <td colSpan={7} className="px-3 py-6 text-center text-[#757575]">
                   No users found.
                 </td>
               </tr>
             ) : null}
-            {users.map((u) => {
-              const isEditing = editingId === u.id;
+            {pageUsers.map((u) => {
+              const isBusy = busyUsername === u.username;
+              const status = deriveUserStatus(u);
+              const canEditRole = isSuperAdmin || u.role === "Player" || u.role === null;
               return (
-                <tr
-                  key={u.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
-                >
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-gray-200">
-                        {u.avatar_url ? (
-                          <img
-                            src={u.avatar_url}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </div>
-                      <span className="text-[#3b5571]">{u.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{u.email}</td>
+                <tr key={u.username} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="px-3 py-2.5 text-[#3b5571]">{u.username}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571]">{u.email}</td>
                   <td className="px-3 py-2.5">
-                    {isEditing && editDraft ? (
-                      <select
-                        value={editDraft.status}
-                        onChange={(e) =>
-                          setEditDraft((d) =>
-                            d
-                              ? { ...d, status: e.target.value as UserStatus }
-                              : d,
-                          )
-                        }
-                        className="rounded border border-gray-300 px-1 py-0.5 text-[10px]"
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-[9px] text-white ${STATUS_COLORS[u.status]}`}
-                      >
-                        {u.status}
-                      </span>
-                    )}
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-[9px] text-white ${STATUS_COLORS[status]}`}
+                    >
+                      {status}
+                    </span>
                   </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">
-                    {isEditing && editDraft ? (
+                    {canEditRole ? (
                       <select
-                        value={editDraft.role}
+                        value={u.role ?? ""}
+                        disabled={isBusy}
                         onChange={(e) =>
-                          setEditDraft((d) =>
-                            d ? { ...d, role: e.target.value as AppRole } : d,
-                          )
+                          void handleAssignRole(u.username, e.target.value as AppRole)
                         }
                         className="rounded border border-gray-300 px-1 py-0.5 text-[10px]"
                       >
+                        <option value="" disabled>
+                          Unknown
+                        </option>
                         {assignableRoles.map((r) => (
                           <option key={r} value={r}>
                             {r}
@@ -307,58 +292,34 @@ export default function AdminUsersPage() {
                         ))}
                       </select>
                     ) : (
-                      u.role
+                      (u.role ?? "Unknown")
                     )}
                   </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">
-                    {formatDate(u.joined_at)}
+                    {formatDate(u.user_created_date)}
                   </td>
                   <td className="px-3 py-2.5 text-[#3b5571]">
-                    {timeAgo(u.last_active_at)}
+                    {timeAgo(u.user_last_modified_date)}
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2">
-                      {isEditing ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => void saveEdit(u.id)}
-                            aria-label="Save"
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            <Check className="size-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(null)}
-                            aria-label="Cancel"
-                            className="text-gray-500 hover:text-gray-700"
-                          >
-                            <X className="size-4" />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          {isSuperAdmin || u.role === "Player" ? (
-                            <button
-                              type="button"
-                              onClick={() => startEdit(u)}
-                              aria-label="Edit user"
-                              className="text-[#2e4258] hover:text-black"
-                            >
-                              <Pencil className="size-4" />
-                            </button>
-                          ) : null}
-                          <button
-                            type="button"
-                            onClick={() => void handleDelete(u.id)}
-                            aria-label="Delete user"
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
-                        </>
-                      )}
+                      <button
+                        type="button"
+                        disabled={isBusy}
+                        onClick={() => void handleToggleEnabled(u)}
+                        className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50"
+                      >
+                        {u.enabled ? "Disable" : "Enable"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isBusy}
+                        onClick={() => void handleDelete(u.username)}
+                        aria-label="Delete user"
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -367,7 +328,7 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
-
+ 
       <div className="mt-3 flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
         <div className="flex items-center gap-2">
           <span className="font-medium text-[#2e4258]">Rows per page</span>
@@ -425,12 +386,12 @@ export default function AdminUsersPage() {
           </button>
         </div>
       </div>
-
+ 
       {registerOpen ? (
         <RegisterUserModal
           onClose={() => setRegisterOpen(false)}
           onCreated={(created) => {
-            setUsers((prev) => [created, ...prev]);
+            setAllUsers((prev) => [created, ...prev]);
             setRegisterOpen(false);
           }}
         />
@@ -451,7 +412,7 @@ function RegisterUserModal({
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+ 
   const handleSubmit = async () => {
     setSubmitting(true);
     setError(null);
@@ -468,7 +429,7 @@ function RegisterUserModal({
       setSubmitting(false);
     }
   };
-
+ 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
