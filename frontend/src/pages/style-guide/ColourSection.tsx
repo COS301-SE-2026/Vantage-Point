@@ -300,24 +300,36 @@ function SwatchCard({ swatch }: { swatch: ResolvedSwatch }) {
         aria-hidden
       />
       <div className="space-y-1.5 p-3 font-['Inter',sans-serif] text-xs">
-        <h3 className="text-sm font-semibold text-[#1e1e1e] device-dark:text-white">{swatch.name}</h3>
-        <p className="text-[#525252] device-dark:text-[#b7b7b7]">{swatch.usage}</p>
+        <h3 className="text-sm font-semibold text-[#1e1e1e] device-dark:text-white">
+          {swatch.name}
+        </h3>
+        <p className="text-[#525252] device-dark:text-[#b7b7b7]">
+          {swatch.usage}
+        </p>
         <dl className="mt-2 space-y-0.5 font-mono text-[11px] text-[#1e1e1e] device-dark:text-white">
           <div className="flex gap-2">
-            <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">HEX</dt>
+            <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">
+              HEX
+            </dt>
             <dd>{swatch.hex}</dd>
           </div>
           <div className="flex gap-2">
-            <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">RGB</dt>
+            <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">
+              RGB
+            </dt>
             <dd>{swatch.rgb}</dd>
           </div>
           <div className="flex gap-2">
-            <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">HSL</dt>
+            <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">
+              HSL
+            </dt>
             <dd>{swatch.hsl}</dd>
           </div>
           {swatch.kind === "token" && (
             <div className="flex gap-2">
-              <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">Var</dt>
+              <dt className="w-8 shrink-0 text-muted-foreground device-dark:text-[#929292]">
+                Var
+              </dt>
               <dd>--{swatch.source}</dd>
             </div>
           )}
@@ -440,9 +452,16 @@ export function ColourSection() {
           </thead>
           <tbody>
             {pairs.map((p) => (
-              <tr key={p.label} className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]">
-                <td className="px-4 py-3 text-[#1e1e1e] device-dark:text-white">{p.label}</td>
-                <td className="px-4 py-3 text-[#525252] device-dark:text-[#b7b7b7]">{p.context}</td>
+              <tr
+                key={p.label}
+                className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]"
+              >
+                <td className="px-4 py-3 text-[#1e1e1e] device-dark:text-white">
+                  {p.label}
+                </td>
+                <td className="px-4 py-3 text-[#525252] device-dark:text-[#b7b7b7]">
+                  {p.context}
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className="inline-block rounded px-2 py-1 text-xs font-medium"

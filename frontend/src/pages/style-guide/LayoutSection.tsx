@@ -21,13 +21,12 @@ export function LayoutSection() {
               cap <code className="text-xs">--vp-content-max: 1180px</code>
             </li>
             <li>
-              Header band{" "}
-              <code className="text-xs">--vp-dashboard-header</code> (default
-              72px; raised when showing the large account avatar)
+              Header band <code className="text-xs">--vp-dashboard-header</code>{" "}
+              (default 72px; raised when showing the large account avatar)
             </li>
             <li>
-              Sidebar panel (JS): left 34px, width 180px, content gap 34px → open
-              offset <code className="text-xs">248px</code>
+              Sidebar panel (JS): left 34px, width 180px, content gap 34px →
+              open offset <code className="text-xs">248px</code>
             </li>
             <li>
               Nav destinations: Matches, Replay, Metrics, Profile (
@@ -53,7 +52,8 @@ export function LayoutSection() {
               <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">
                 Landing /
               </strong>{" "}
-              full-bleed wallpaper; Beaufort display; device-dark wallpaper swap.
+              full-bleed wallpaper; Beaufort display; device-dark wallpaper
+              swap.
             </li>
             <li>
               <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">

@@ -139,19 +139,28 @@ export function ComponentsSection() {
           </h3>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="sg-input-default" className="device-dark:text-white">
+              <Label
+                htmlFor="sg-input-default"
+                className="device-dark:text-white"
+              >
                 Default
               </Label>
               <Input id="sg-input-default" placeholder="Summoner name" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sg-input-disabled" className="device-dark:text-white">
+              <Label
+                htmlFor="sg-input-disabled"
+                className="device-dark:text-white"
+              >
                 Disabled
               </Label>
               <Input id="sg-input-disabled" disabled placeholder="Disabled" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sg-input-error" className="device-dark:text-white">
+              <Label
+                htmlFor="sg-input-error"
+                className="device-dark:text-white"
+              >
                 Error
               </Label>
               <Input

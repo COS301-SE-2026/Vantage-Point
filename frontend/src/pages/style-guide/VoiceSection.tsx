@@ -32,7 +32,9 @@ export function VoiceSection() {
     >
       <div className="mb-6 rounded-lg border border-border bg-muted/40 p-5 font-['Inter',sans-serif] text-sm text-[#525252] device-dark:text-[#b7b7b7] device-dark:border-[#2c2c2c] device-dark:bg-[#2a2a2a]">
         <p>
-          <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">Tone:</strong>{" "}
+          <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">
+            Tone:
+          </strong>{" "}
           plain language, no slang dump. Do not blame the player. Say what
           happened in the match and what to do next.
         </p>
@@ -50,14 +52,18 @@ export function VoiceSection() {
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#1e7e34]">
               Prefer
             </p>
-            <p className="mb-3 text-sm text-[#1e1e1e] device-dark:text-white">{rule.good}</p>
+            <p className="mb-3 text-sm text-[#1e1e1e] device-dark:text-white">
+              {rule.good}
+            </p>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#c44a4a]">
               Avoid
             </p>
             <p className="mb-3 text-sm text-[#525252] line-through decoration-[#c44a4a]/40 device-dark:text-[#b7b7b7]">
               {rule.bad}
             </p>
-            <p className="text-xs text-[#525252] device-dark:text-[#b7b7b7]">{rule.note}</p>
+            <p className="text-xs text-[#525252] device-dark:text-[#b7b7b7]">
+              {rule.note}
+            </p>
           </article>
         ))}
       </div>

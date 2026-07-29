@@ -60,7 +60,8 @@ const SCALE = [
     weight: "500-700",
     lineHeight: "1.4-1.5",
     letterSpacing: "normal / tight on landing",
-    className: "font-['Beaufort_for_LOL',serif] text-2xl font-medium leading-[1.4]",
+    className:
+      "font-['Beaufort_for_LOL',serif] text-2xl font-medium leading-[1.4]",
   },
   {
     name: "h2",
@@ -126,7 +127,9 @@ export function TypographySection() {
             <h3 className="mb-3 font-['Inter',sans-serif] text-lg font-semibold text-[#1e1e1e] device-dark:text-white">
               {f.name}
             </h3>
-            <p className={`${f.sampleClass} mb-4 text-[#1e1e1e] device-dark:text-white`}>
+            <p
+              className={`${f.sampleClass} mb-4 text-[#1e1e1e] device-dark:text-white`}
+            >
               {f.sample}
             </p>
             <p className="font-mono text-[11px] leading-relaxed text-[#525252] device-dark:text-[#929292]">
@@ -152,7 +155,9 @@ export function TypographySection() {
               {item.name}
             </div>
             <div>
-              <p className={`${item.className} text-[#1e1e1e] device-dark:text-white`}>
+              <p
+                className={`${item.className} text-[#1e1e1e] device-dark:text-white`}
+              >
                 The match timeline, clarified.
               </p>
               <dl className="mt-2 grid gap-1 font-['Inter',sans-serif] text-xs text-[#525252] sm:grid-cols-2 lg:grid-cols-4 device-dark:text-[#929292]">
@@ -195,9 +200,9 @@ export function TypographySection() {
           <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs device-dark:bg-[#3a3939]">
             frontend/src/styles/fonts.css
           </code>{" "}
-          and <code className="text-xs">assets/fonts/</code>. Inter, Geist, Sarina,
-          and Sora come from Google Fonts (OFL). Use League Spartan for the
-          product wordmark and Beaufort for League-style display.
+          and <code className="text-xs">assets/fonts/</code>. Inter, Geist,
+          Sarina, and Sora come from Google Fonts (OFL). Use League Spartan for
+          the product wordmark and Beaufort for League-style display.
         </p>
       </aside>
     </GuideSection>

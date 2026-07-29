@@ -164,7 +164,10 @@ export function LogoSection() {
           ] as const
         ).map(({ Icon, label }) => (
           <div key={label} className="flex flex-col items-center gap-2">
-            <Icon className="size-6 text-[#1e1e1e] device-dark:text-white" strokeWidth={2} />
+            <Icon
+              className="size-6 text-[#1e1e1e] device-dark:text-white"
+              strokeWidth={2}
+            />
             <span className="font-['Inter',sans-serif] text-[11px] text-[#525252] device-dark:text-[#929292]">
               {label}
             </span>

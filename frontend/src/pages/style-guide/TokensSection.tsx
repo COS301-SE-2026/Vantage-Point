@@ -135,7 +135,10 @@ export function TokensSection() {
           <table className="w-full font-['Inter',sans-serif] text-sm">
             <tbody>
               {layoutTokens.map((t) => (
-                <tr key={t.name} className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]">
+                <tr
+                  key={t.name}
+                  className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]"
+                >
                   <td className="py-2 pr-3 font-mono text-xs text-[#1e1e1e] device-dark:text-white">
                     {t.name}
                   </td>
@@ -235,9 +238,16 @@ export function TokensSection() {
           </thead>
           <tbody>
             {BREAKPOINTS.map((b) => (
-              <tr key={b.name} className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]">
-                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">{b.name}</td>
-                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">{b.value}</td>
+              <tr
+                key={b.name}
+                className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]"
+              >
+                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">
+                  {b.name}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">
+                  {b.value}
+                </td>
                 <td className="px-4 py-3 text-[#525252] device-dark:text-[#929292]">
                   {b.usage}
                 </td>
@@ -262,9 +272,16 @@ export function TokensSection() {
           </thead>
           <tbody>
             {MOTION.map((m) => (
-              <tr key={m.name} className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]">
-                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">{m.name}</td>
-                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">{m.duration}</td>
+              <tr
+                key={m.name}
+                className="border-b border-border last:border-0 device-dark:border-[#2c2c2c]"
+              >
+                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">
+                  {m.name}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs device-dark:text-[#b7b7b7]">
+                  {m.duration}
+                </td>
                 <td className="px-4 py-3 text-[#525252] device-dark:text-[#929292]">
                   {m.easing}
                 </td>

@@ -71,9 +71,7 @@ export function parseCssColor(value: string): Rgb | null {
 export function rgbToHex({ r, g, b }: Rgb): string {
   return (
     "#" +
-    [r, g, b]
-      .map((c) => clampChannel(c).toString(16).padStart(2, "0"))
-      .join("")
+    [r, g, b].map((c) => clampChannel(c).toString(16).padStart(2, "0")).join("")
   );
 }
 
