@@ -3,8 +3,8 @@ from app.database.models import Users, Matches
 from typing import Any
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 from fastapi import HTTPException
-
 class DashBoardService:
     """
     This is the class where you will get all dashboard related data. Service to extract the required data.
@@ -26,5 +26,12 @@ class DashBoardService:
         except HTTPException as e:
             raise HTTPException(status_code=500, detail=f"Could not retrieve matches. Internal server error {str(e)}")
 
+    #get db table usage, will have to wait for neo to respond before seeing fully what he want for now this should suffice
     @staticmethod
-    async def 
+    async def get_table_storage(session: AsyncSession, table_name: str = "mathces") -> int:
+        statement: Any = (
+            text("Select pg_total_relation_size(:table)"),
+            {"table": table_name}
+        )
+        result: Any = await session.execute(statement)
+        return result.scalar_one()
