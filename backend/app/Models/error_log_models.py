@@ -9,3 +9,7 @@ class GetErrorLogLists(BaseModel):
     message: str
     occuret_at: str
     reviewed: str
+
+class ToggleReview(BaseModel):
+    id: int
+    reviewed: bool

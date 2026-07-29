@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from typing import Any
 from sqlmodel import select
-from app.Models.error_log_models import GetErrorLogLists
+from app.Models.error_log_models import GetErrorLogLists, ToggleReview
+from datetime import datetime
 
 class ErrorLOg():
     
@@ -18,7 +19,7 @@ class ErrorLOg():
                 statement= statement.where(ErrorLog.service==service)
             if reviewed is not None:
                 statement = statement.where(ErrorLog.reviewed==reviewed)
-            statement = statement.limit(limit).offset(statement)
+            statement = statement.limit(limit).offset(offset)
 
             result: Any = await session.execute(statement)
             logs = result.scalars().all()
@@ -38,4 +39,25 @@ class ErrorLOg():
             raise HTTPException(status_code=500, detail="Internal server error")
 
 
-        
+    @staticmethod
+    async def toggle_reviewd(error_id:int, session: AsyncSession, cognito_sub: str):
+        try:
+            statement: Any = select(ErrorLog).where(ErrorLog.id == error_id)
+            result: Any = await session.execute(statement)
+            error_log: ErrorLog | None = result.scalar_one_or_none()
+
+            if error_log is None:
+                raise HTTPException(status_code=400, detail="Invalid error id given")
+
+            #allows to use to toggle both to true and false without having to specify it.
+            reviewed = not error_log.reviewed
+            error_log.reviewed= reviewed
+            error_log.reviewed_by = cognito_sub
+            error_log.reviewed_at = datetime.now()
+            await session.commit()
+
+            return ToggleReview(
+                id=error_id, reviewed=reviewed
+            )
+        except HTTPException:
+            raise HTTPException(status_code=500, detail="Internal server error")
