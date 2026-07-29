@@ -1,19 +1,24 @@
 from datetime import datetime, timezone
 from typing import Any
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 import pytest
 
-from app.Models.admin_model import Response, UserResponse,CreateGroupResponse
+from app.Models.admin_model import Response, UserResponse, CreateGroupResponse
 from app.Models.auth_model import User
 from app.services.admin_service import admin_service
-from app.api.router.admin_routes import get_users,create_user, delete_user, get_user, add_user_to_group, remove_user_from_group, enable_user, disbale_user, set_password
+from app.api.router.admin_routes import (
+    get_users,
+    get_user,
+    add_user_to_group,
+    remove_user_from_group,
+    enable_user,
+    disbale_user,
+    set_password,
+)
 
-mock_date = datetime(2026,1,1,tzinfo=timezone.utc)
+mock_date = datetime(2026, 1, 1, tzinfo=timezone.utc)
 mock_admin = User(
-    sub="admin-sub",
-    password="Test@123",
-    username="admin",
-    email="admin@test.com"
+    sub="admin-sub", password="Test@123", username="admin", email="admin@test.com"
 )
 
 mock_user1 = UserResponse(
@@ -23,7 +28,7 @@ mock_user1 = UserResponse(
     user_created_date=mock_date,
     user_last_modified_date=mock_date,
     enabled=True,
-    user_status="CONFIRMED"
+    user_status="CONFIRMED",
 )
 
 mock_user2 = UserResponse(
@@ -33,7 +38,7 @@ mock_user2 = UserResponse(
     user_created_date=mock_date,
     user_last_modified_date=mock_date,
     enabled=True,
-    user_status="CONFIRMED"
+    user_status="CONFIRMED",
 )
 
 mock_response = Response(success=True, message="Success")
@@ -43,18 +48,17 @@ mock_group_response = CreateGroupResponse(
     descriptipn="PowerUsers",
     precedence=30,
     last_modified_date=mock_date,
-    creation_date=mock_date
+    creation_date=mock_date,
 )
+
+
 @pytest.mark.asyncio
-class TestAdminRouter():
+class TestAdminRouter:
 
     @staticmethod
     @patch.object(admin_service, "get_users")
     async def test_get_users(mock_get_users: Any) -> None:
-        mock_users = [
-            mock_user1,
-            mock_user2
-        ]
+        mock_users = [mock_user1, mock_user2]
         mock_get_users.return_value = mock_users
         response = await get_users(mock_admin, limit=10)
 
@@ -89,7 +93,9 @@ class TestAdminRouter():
     async def test_add_user_to_group(mock_add_user_to_group: Any) -> None:
         mock_add_user_to_group.return_value = mock_response
 
-        response = await add_user_to_group(mock_admin, username="user1", group="SuperAdmin")
+        response = await add_user_to_group(
+            mock_admin, username="user1", group="SuperAdmin"
+        )
 
         assert response == mock_response
         mock_add_user_to_group.assert_called_once_with("user1", "SuperAdmin")
@@ -103,7 +109,6 @@ class TestAdminRouter():
         assert response == mock_response
         mock_add_user_to_group.assert_called_once_with("user1", "Users")
 
-    
     @staticmethod
     @patch.object(admin_service, "remove_user_from_group")
     async def test_remove_user_from_group(mock_remove_user_from_group: Any) -> None:
@@ -116,7 +121,9 @@ class TestAdminRouter():
 
     @staticmethod
     @patch.object(admin_service, "remove_user_from_group")
-    async def test_remove_user_from_group_default_group(mock_remove_user_from_group: Any) -> None:
+    async def test_remove_user_from_group_default_group(
+        mock_remove_user_from_group: Any,
+    ) -> None:
         mock_remove_user_from_group.return_value = mock_response
 
         response = await remove_user_from_group(mock_admin, "user1")
@@ -150,6 +157,6 @@ class TestAdminRouter():
         assert response == mock_response
         mock_set_password.assert_called_once_with("user1", "NewPass@123")
 
-    @staticmethod
-    @patch.object(admin_service, "set_password")
-    async def test_create_user
+    # @staticmethod
+    # @patch.object(admin_service, "set_password")
+    # async def test_create_user

@@ -97,8 +97,10 @@ class admin_service:
     async def add_user_to_group(username: str, group: str = "Users") -> Response:
         try:
             if group == "Admin" or group == "SuperAdmin":
-                raise HTTPException(status_code=403, detail="You do not have the correct permission")
-            
+                raise HTTPException(
+                    status_code=403, detail="You do not have the correct permission"
+                )
+
             await asyncio.to_thread(
                 client.admin_add_user_to_group,
                 UserPoolId=settings.cognito_user_pool_id,
@@ -120,14 +122,16 @@ class admin_service:
                 )
             raise HTTPException(status_code=400, detail=error_code)
 
-    #allow to add to any group except superadmin, where the previous one limits to anything but admin and superadmin
-    #only person with access to aws can add to superadmin.
+    # allow to add to any group except superadmin, where the previous one limits to anything but admin and superadmin
+    # only person with access to aws can add to superadmin.
     @staticmethod
     async def add_user_to_admin_group(username: str, group: str = "Admin") -> Response:
         try:
             if group == "SuperAdmin":
-                raise HTTPException(status_code=403, detail="You do not have the correct permission")
-                        
+                raise HTTPException(
+                    status_code=403, detail="You do not have the correct permission"
+                )
+
             await asyncio.to_thread(
                 client.admin_add_user_to_group,
                 UserPoolId=settings.cognito_user_pool_id,
@@ -243,7 +247,7 @@ class admin_service:
             raise HTTPException(status_code=400, detail=error_code)
 
     # require db
-    #is hard delete
+    # is hard delete
     @staticmethod
     async def delete_user(session: AsyncSession, username: str, sub: str) -> Response:
         try:
@@ -420,9 +424,11 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
 
-    #be used to soft delete so it will be 24 hours before can delete. Why we have this as a normal admin suprises me
+    # be used to soft delete so it will be 24 hours before can delete. Why we have this as a normal admin suprises me
     @staticmethod
-    async def soft_delete_user(session: AsyncSession, username: str, sub: str) -> Response:
+    async def soft_delete_user(
+        session: AsyncSession, username: str, sub: str
+    ) -> Response:
         try:
             statement = select(Users).where(Users.cognito_sub == sub)
             result = await session.execute(statement)
@@ -438,7 +444,7 @@ class admin_service:
                 deletion_scheduled_at=datetime.now() + timedelta(hours=24),
                 created_at=user.created_at,
                 updated_at=datetime.now(),
-                linked_game_accounts=user.linked_game_accounts
+                linked_game_accounts=user.linked_game_accounts,
             )
 
             await session.commit()

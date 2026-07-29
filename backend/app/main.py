@@ -30,7 +30,6 @@ from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
 
 from loguru import logger
-import sys
 import logging
 from starlette.middleware.base import RequestResponseEndpoint
 from backend.app.error_sink import db_error_sink
@@ -66,12 +65,7 @@ logger.add(
     diagnose=True,
 )
 
-logger.add(
-    db_error_sink,
-    level="INFO",
-    enqueue=True,
-    diagnose=False
-)
+logger.add(db_error_sink, level="INFO", enqueue=True, diagnose=False)
 
 
 def get_error_reason(status_code: int) -> str:

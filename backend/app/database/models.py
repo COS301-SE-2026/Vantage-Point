@@ -1,9 +1,8 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime
+from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import func, Column
 
 # @NeoMachabaUP :
 # Hey so i am moving the model definitions to this file to keep main.py cleaner.
@@ -201,14 +200,16 @@ class ErrorLog(SQLModel, Table=True):
     __tablename__ = "error_logs"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    occured_at: Optional[datetime] = Field(default=None, sa_column=Column(server_default=func.now(), index=True))
-    error_code: str= Field(index=True)
+    occured_at: Optional[datetime] = Field(
+        default=None, sa_column=Column(server_default=func.now(), index=True)
+    )
+    error_code: str = Field(index=True)
     service: str = Field(index=True)
     endpoint: Optional[str] = None
     error_type: str
     message: str
     stack_trace: Optional[str] = None
-    severity: str= Field(index=True)
-    reviewed: bool= Field(default=False, index=True)
-    reviewed_by:Optional[str] = None
+    severity: str = Field(index=True)
+    reviewed: bool = Field(default=False, index=True)
+    reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None

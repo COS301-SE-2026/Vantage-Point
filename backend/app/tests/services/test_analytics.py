@@ -162,7 +162,7 @@ def make_match_detail(participants: Any = None, teams: Any = None, **overrides: 
 class TestAnalytics:
 
     @staticmethod
-    def test_find_participant_id_found():
+    def test_find_participant_id_found() -> None:
         participants: Any = [
             {"puuid": "a", "participantId": 1},
             {"puuid": "b", "participantId": 2},
@@ -170,7 +170,7 @@ class TestAnalytics:
         assert LiveAnalyticsService.find_participant_id(participants, "b") == "2"
 
     @staticmethod
-    def test_find_participant_id_not_found():
+    def test_find_participant_id_not_found() -> None:
         participants: Any = [
             {"puuid": "a", "participantId": 1},
             {"puuid": "b", "participantId": 2},

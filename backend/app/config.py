@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     redis_url: Optional[str] = "redis://localhost:6379"
     use_redis: bool = False
 
-    database_url = os.getenv("DATABASE_URL")
+    database_url: str | None = os.getenv("DATABASE_URL")
 
     # ============ CORS Configuration ============
     allowed_origins: List[str] = [

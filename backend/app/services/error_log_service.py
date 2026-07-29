@@ -6,19 +6,29 @@ from sqlmodel import select
 from app.Models.error_log_models import GetErrorLogLists, ToggleReview
 from datetime import datetime
 
-class ErrorLOg():
-    
+internal_server_error: str = "Internal server error"
+
+
+class ErrorLOg:
+
     @staticmethod
-    async def get_errors_for_dashboard(session: AsyncSession, severity: str|None, service: str|None, reviewed: bool|None,limit:int=30, offset:int=0)->Any:
+    async def get_errors_for_dashboard(
+        session: AsyncSession,
+        severity: str | None,
+        service: str | None,
+        reviewed: bool | None,
+        limit: int = 30,
+        offset: int = 0,
+    ) -> Any:
         try:
-            statement:Any = select(ErrorLog)
+            statement: Any = select(ErrorLog)
 
             if severity:
-                statement= statement.where(ErrorLog.severity==severity)
+                statement = statement.where(ErrorLog.severity == severity)
             if service:
-                statement= statement.where(ErrorLog.service==service)
+                statement = statement.where(ErrorLog.service == service)
             if reviewed is not None:
-                statement = statement.where(ErrorLog.reviewed==reviewed)
+                statement = statement.where(ErrorLog.reviewed == reviewed)
             statement = statement.limit(limit).offset(offset)
 
             result: Any = await session.execute(statement)
@@ -36,11 +46,10 @@ class ErrorLOg():
                 for e in logs
             ]
         except HTTPException:
-            raise HTTPException(status_code=500, detail="Internal server error")
-
+            raise HTTPException(status_code=500, detail=internal_server_error)
 
     @staticmethod
-    async def toggle_reviewd(error_id:int, session: AsyncSession, cognito_sub: str):
+    async def toggle_reviewd(error_id: int, session: AsyncSession, cognito_sub: str):
         try:
             statement: Any = select(ErrorLog).where(ErrorLog.id == error_id)
             result: Any = await session.execute(statement)
@@ -49,18 +58,16 @@ class ErrorLOg():
             if error_log is None:
                 raise HTTPException(status_code=400, detail="Invalid error id given")
 
-            #allows to use to toggle both to true and false without having to specify it.
+            # allows to use to toggle both to true and false without having to specify it.
             reviewed = not error_log.reviewed
-            error_log.reviewed= reviewed
+            error_log.reviewed = reviewed
             error_log.reviewed_by = cognito_sub
             error_log.reviewed_at = datetime.now()
             await session.commit()
 
-            return ToggleReview(
-                id=error_id, reviewed=reviewed
-            )
+            return ToggleReview(id=error_id, reviewed=reviewed)
         except HTTPException:
-            raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail=internal_server_error)
 
     @staticmethod
     async def get_error_log(session: AsyncSession, error_id: int) -> Any:
@@ -71,7 +78,7 @@ class ErrorLOg():
 
             if error_log is None:
                 raise HTTPException(status_code=404, detail="Not found")
-            
+
             return ErrorLog(
                 id=error_log.id,
                 occured_at=error_log.occured_at,
@@ -84,8 +91,8 @@ class ErrorLOg():
                 severity=error_log.severity,
                 reviewed_at=error_log.reviewed_at,
                 reviewed=error_log.reviewed,
-                reviewed_by=error_log.reviewed_by
+                reviewed_by=error_log.reviewed_by,
             )
 
         except HTTPException:
-            raise HTTPException(status_code=500, detail="Internal server error")
+            raise HTTPException(status_code=500, detail=internal_server_error)
