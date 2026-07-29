@@ -9,7 +9,7 @@ from datetime import datetime
 internal_server_error: str = "Internal server error"
 
 
-class ErrorLOg:
+class ErrorClass:
 
     @staticmethod
     async def get_errors_for_dashboard(
@@ -19,7 +19,7 @@ class ErrorLOg:
         reviewed: bool | None,
         limit: int = 30,
         offset: int = 0,
-    ) -> Any:
+    ) -> list[GetErrorLogLists]:
         try:
             statement: Any = select(ErrorLog)
 
@@ -49,7 +49,7 @@ class ErrorLOg:
             raise HTTPException(status_code=500, detail=internal_server_error)
 
     @staticmethod
-    async def toggle_reviewd(error_id: int, session: AsyncSession, cognito_sub: str):
+    async def toggle_reviewd(error_id: int, session: AsyncSession, cognito_sub: str) -> ToggleReview:
         try:
             statement: Any = select(ErrorLog).where(ErrorLog.id == error_id)
             result: Any = await session.execute(statement)
@@ -70,7 +70,7 @@ class ErrorLOg:
             raise HTTPException(status_code=500, detail=internal_server_error)
 
     @staticmethod
-    async def get_error_log(session: AsyncSession, error_id: int) -> Any:
+    async def get_error_log(session: AsyncSession, error_id: int) -> ErrorLog:
         try:
             statement: Any = select(ErrorLog).where(ErrorLog.id == error_id)
             result: Any = await session.execute(statement)
