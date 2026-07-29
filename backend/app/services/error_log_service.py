@@ -61,3 +61,31 @@ class ErrorLOg():
             )
         except HTTPException:
             raise HTTPException(status_code=500, detail="Internal server error")
+
+    @staticmethod
+    async def get_error_log(session: AsyncSession, error_id: int) -> Any:
+        try:
+            statement: Any = select(ErrorLog).where(ErrorLog.id == error_id)
+            result: Any = await session.execute(statement)
+            error_log: ErrorLog | None = result.scalar_one_or_none()
+
+            if error_log is None:
+                raise HTTPException(status_code=404, detail="Not found")
+            
+            return ErrorLog(
+                id=error_log.id,
+                occured_at=error_log.occured_at,
+                error_code=error_log.error_code,
+                service=error_log.service,
+                endpoint=error_log.endpoint,
+                error_type=error_log.error_type,
+                message=error_log.message,
+                stack_trace=error_log.stack_trace,
+                severity=error_log.severity,
+                reviewed_at=error_log.reviewed_at,
+                reviewed=error_log.reviewed,
+                reviewed_by=error_log.reviewed_by
+            )
+
+        except HTTPException:
+            raise HTTPException(status_code=500, detail="Internal server error")
