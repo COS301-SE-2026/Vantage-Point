@@ -33,6 +33,7 @@ from loguru import logger
 import sys
 import logging
 from starlette.middleware.base import RequestResponseEndpoint
+from app.core.error_sink import db_error_sink
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later
@@ -48,8 +49,9 @@ load_dotenv()
 
 logger.remove(0)
 logger.add(
-    sys.stdout,
+    db_error_sink,
     enqueue=True,
+    diagnose=False,
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
 )
 

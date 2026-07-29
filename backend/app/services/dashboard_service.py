@@ -1,5 +1,4 @@
-from app.config import get_settings
-from app.database.models import Users, Matches
+from app.database.models import  Matches
 from typing import Any
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,3 +34,5 @@ class DashBoardService:
         )
         result: Any = await session.execute(statement)
         return result.scalar_one()
+
+    
