@@ -66,6 +66,13 @@ logger.add(
     diagnose=True,
 )
 
+logger.add(
+    db_error_sink,
+    level="INFO",
+    enqueue=True,
+    diagnose=False
+)
+
 
 def get_error_reason(status_code: int) -> str:
     reasons = {
