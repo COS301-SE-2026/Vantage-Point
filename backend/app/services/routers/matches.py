@@ -34,7 +34,9 @@ async def get_match_by_id(
     has_access = await user_has_match_access(session, puuids, match_id)
 
     viewer_puuid = await get_primary_linked_puuid(session, current_user.sub)
-    detail = await get_match_detail(session, match_id, viewer_puuid) if has_access else None
+    detail = (
+        await get_match_detail(session, match_id, viewer_puuid) if has_access else None
+    )
 
     if not has_access or not detail:
         raise HTTPException(
