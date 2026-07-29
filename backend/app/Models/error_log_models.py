@@ -8,4 +8,4 @@ class GetErrorLogLists(BaseModel):
     severity: str
     message: str
     occuret_at: str
-    reviewedL: str
+    reviewed: str
