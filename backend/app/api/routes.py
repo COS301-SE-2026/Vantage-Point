@@ -41,6 +41,7 @@ settings = get_settings()
 # Authentication Routes
 # =====================================================
 
+
 @router.post(
     "/auth/register",
     tags=["Authentication"],
@@ -490,5 +491,6 @@ async def get_live_player_metrics(
     return await LiveAnalyticsService.get_live_metrics_from_api(
         server_region=server_region, puuid=puuid, count=count
     )
+
 
 router.include_router(users_router)

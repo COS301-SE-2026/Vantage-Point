@@ -7,9 +7,8 @@ import logging
 from fastapi import HTTPException, status
 from app.config import get_settings
 from botocore.exceptions import ClientError
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, NoReturn, Optional
 from collections.abc import Mapping
-from urllib import response
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
@@ -38,7 +37,7 @@ def get_secret_hash(username: str) -> Optional[str]:
     return base64.b64encode(dig).decode()
 
 
-def _handle_cognito_error(e: ClientError) -> None:
+def _handle_cognito_error(e: ClientError) -> NoReturn:
     """
     Helper to extract Cognito errors and raise a HTTP Exception 400/401/429 accordingly.
     """
@@ -69,8 +68,6 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
 
         response = await asyncio.to_thread(client.sign_up, **kwargs)
 
-        user_sub = response.get("UserSub") or username
-
         if getattr(settings, "debug", False):
             await asyncio.to_thread(
                 client.admin_confirm_sign_up,
@@ -85,7 +82,9 @@ async def register_user(username: str, password: str, email: str) -> Mapping[str
                 Username=username,
                 UserAttributes=[{"Name": "email_verified", "Value": "true"}],
             )
-            logger.info(f"User auto-confirmed and email verified in debug mode: {username}")
+            logger.info(
+                f"User auto-confirmed and email verified in debug mode: {username}"
+            )
 
         return response
 

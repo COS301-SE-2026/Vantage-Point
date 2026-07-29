@@ -118,7 +118,11 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     traceback.print_exception(type(exc), exc, exc.__traceback__)
 
     origin = request.headers.get("origin", "*")
-    headers = {"Access-Control-Allow-Origin": origin} if origin in origins or origin == "*" else {}
+    headers = (
+        {"Access-Control-Allow-Origin": origin}
+        if origin in origins or origin == "*"
+        else {}
+    )
 
     return JSONResponse(
         status_code=500,

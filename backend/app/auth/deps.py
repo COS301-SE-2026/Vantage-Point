@@ -23,7 +23,9 @@ async def get_current_user(
 
     cognito_sub = await get_cognito_sub(credentials.credentials)
 
-    result = await session.execute(select(Users).where(Users.cognito_sub == cognito_sub))
+    result = await session.execute(
+        select(Users).where(Users.cognito_sub == cognito_sub)
+    )
     user = result.scalar_one_or_none()
     if not user:
         user = Users(
