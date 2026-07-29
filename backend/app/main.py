@@ -33,7 +33,7 @@ from loguru import logger
 import sys
 import logging
 from starlette.middleware.base import RequestResponseEndpoint
-from app.core.error_sink import db_error_sink
+from backend.app.error_sink import db_error_sink
 
 # from typing import List, Optional
 # above commit commited out as import not used but will be used later

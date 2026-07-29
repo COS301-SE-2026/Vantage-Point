@@ -35,12 +35,12 @@ def db_error_sink(message: Any) -> None:
     try:
         error_log: ErrorLog = ErrorLog(
             error_code=extra.get("error_code", _Default_Codes.get(severity, "#000")),
-            service=extra.get("service", record["name"])
+            service=extra.get("service", record["name"]),
             endpoint=extra.get("endpoint"),
             error_type=error_type,
             message=record["message"],
             stack_trace=stack_trace,
-            severity=severity
+            severity=severity,
         )
         session.add(error_log)
         session.commit()
