@@ -7,7 +7,7 @@ from app.database.models import Users
 from sqlmodel import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from loguru import logger
 from app.Models.admin_model import UserResponse, Response, CreateGroupResponse
 
@@ -391,3 +391,36 @@ class admin_service:
     #be used to soft delete so it will be 24 hours before can delete. Why we have this as a normal admin suprises me
     @staticmethod
     async def soft_delete_user(session: AsyncSession, username: str, sub: str) -> Response:
+        try:
+            statement = select(Users).where(Users.cognito_sub == sub)
+            result = await session.execute(statement)
+            user = result.scalar_one_or_none()
+
+            if user is None:
+                raise HTTPException(status_code=404, detail=user_not_found)
+
+            # only delete here if in db. Can be that user not in db.
+            updated_user = Users(
+                cognito_sub=user.cognito_sub,
+                email=user.email,
+                deletion_scheduled_at=datetime.now() + timedelta(hours=24),
+                created_at=user.created_at,
+                updated_at=datetime.now(),
+                linked_game_accounts=user.linked_game_accounts
+            )
+
+            await session.commit()
+            await session.refresh(updated_user)
+
+            response = Response(success=True, message=f"Deleted {username} permanently")
+
+            return response
+        except ClientError as e:
+            logger.exception("Admin soft delete user profile")
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            if error_code == "UserNotFoundException":
+                raise HTTPException(status_code=404, detail=user_not_found)
+            if error_code == "InvalidParameterException":
+                raise HTTPException(status_code=422, detail=invalid_username)
+            raise HTTPException(status_code=400, detail=error_code)

@@ -25,3 +25,6 @@ class DashBoardService:
  
         except HTTPException as e:
             raise HTTPException(status_code=500, detail=f"Could not retrieve matches. Internal server error {str(e)}")
+
+    @staticmethod
+    async def 
