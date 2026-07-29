@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import RegisterComponent, {
   type RegisterFormProps,
