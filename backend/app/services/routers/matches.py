@@ -13,7 +13,7 @@ from app.services.user_accounts import get_linked_puuids, get_primary_linked_puu
 router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
 
 
-@router.get("/matches")
+@router.get("", response_model=list[MatchHistorySummaryResponse])
 async def get_matches(
     current_user: Annotated[User, Depends(require_group("10"))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -27,21 +27,19 @@ async def get_matches(
 @router.get("/{match_id}", response_model=MatchDetailResponse)
 async def get_match_by_id(
     match_id: str,
-    current_user: Annotated[User, Depends(require_group(10))],
+    current_user: Annotated[User, Depends(require_group("10"))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     puuids = await get_linked_puuids(session, current_user.sub)
-    if not await user_has_match_access(session, puuids, match_id):
+    has_access = await user_has_match_access(session, puuids, match_id)
+
+    viewer_puuid = await get_primary_linked_puuid(session, current_user.sub)
+    detail = await get_match_detail(session, match_id, viewer_puuid) if has_access else None
+
+    if not has_access or not detail:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Match not found",
         )
 
-    viewer_puuid = await get_primary_linked_puuid(session, current_user.sub)
-    detail = await get_match_detail(session, match_id, viewer_puuid)
-    if not detail:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Match not found",
-        )
     return detail
