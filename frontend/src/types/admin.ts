@@ -1,47 +1,46 @@
 export type AppRole = "Player" | "Admin" | "Super Admin";
 
-// The Figma Users design states. (Active, Banned, Pending, Suspended, Inactive).
-// NOTE : The Admin Page req document only defines Active, Deactivated. So are we limiting only to those 2 or is my figma fine with those 5?
-export type UserStatus =
-  | "Active"
-  | "Banned"
-  | "Pending"
-  | "Suspended"
-  | "Inactive";
+// Cognito's own account-status enum (from `user_status` on GET /admin/users).
+export type CognitoUserStatus =
+  | "CONFIRMED"
+  | "UNCONFIRMED"
+  | "FORCE_CHANGE_PASSWORD"
+  | "RESET_REQUIRED"
+  | "ARCHIVED"
+  | "COMPROMISED"
+  | "EXTERNAL_PROVIDER";
 
+export type UserStatus = "Active" | "Pending" | "Disabled";
+
+// adjusted the order and info based on Cognito side that Shaun shared so there is no mismatch when reading and easier for future reference
 export interface AdminUser {
-  readonly id: string;
-  readonly name: string;
+  readonly username: string; // primary key — Cognito has no separate `id`
   readonly email: string;
-  readonly username: string;
-  readonly status: UserStatus;
-  readonly role: AppRole;
-  readonly joined_at: string;
-  readonly last_active_at: string;
-  readonly avatar_url: string | null;
+  readonly sub: string;
+  readonly user_created_date: string;
+  readonly user_last_modified_date: string;
+  readonly enabled: boolean;
+  readonly user_status: CognitoUserStatus;
+  readonly role: AppRole; // derived from Cognito group membership
 }
+
+export function deriveUserStatus(u: Pick<AdminUser, "enabled" | "user_status">): UserStatus {
+  if (!u.enabled) return "Disabled";
+  return u.user_status === "CONFIRMED" ? "Active" : "Pending";
+} 
+// I am basing this on the fact that the only way to get a user into the "CONFIRMED" state is to have them complete the registration flow, which is what we want to consider "Active".
+// Also just on what Shaun described on discord.
 
 export interface AdminUserListResponse {
   readonly items: AdminUser[];
-  readonly total: number;
-  readonly page: number;
-  readonly page_size: number;
 }
 
 export interface AdminUserFilters {
   readonly role?: AppRole;
   readonly status?: UserStatus;
-  readonly startDate?: string;
-  readonly endDate?: string;
-  readonly page?: number;
-  readonly pageSize?: number;
 }
 
-export interface UpdateUserPayload {
-  // backend enforce that admin can only choose player so no ned to exclude super admin here
-  readonly role?: AppRole;
-  readonly status?: UserStatus;
-}
+// removed UpdateUserPayload based on backend capabilites
 
 export interface RegisterUserPayload {
   readonly email: string;
