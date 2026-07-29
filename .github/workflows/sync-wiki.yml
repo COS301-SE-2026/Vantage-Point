@@ -1,0 +1,25 @@
+name: Sync Docs Folder to GitHub Wiki
+
+on:
+  push:
+    branches: [main, staging, dev]
+    paths:
+      - '.github/docs/**'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Sync to GitHub Wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@64efa0a9436db17670a2259e0ac249d6f08bb352
+        with:
+          path: .github/docs
+          repository: ${{ github.repository }}
+          # Automatically generated GITHUB_TOKEN
+          token: ${{ secrets.GITHUB_TOKEN }}
