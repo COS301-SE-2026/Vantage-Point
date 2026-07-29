@@ -216,6 +216,8 @@ class ErrorLog(SQLModel, Table=True):
 
 
 class MapReplayTable(SQLModel, Table=True):
+    __tablename__ = "map_replay_table"
+
     puuid: list[str]
     participant_id: list[int]
     frame_interval: int
@@ -223,6 +225,8 @@ class MapReplayTable(SQLModel, Table=True):
     position_y: list[int]
 
 class MatchData(SQLModel, Table=True):
+    __tablename__ = "match_data_table"
+
     end_of_game_result: str
     gameDuration: int
     gameMode: str
@@ -300,6 +304,8 @@ class MatchData(SQLModel, Table=True):
 
 
 class ProfileData(SQLModel, Table=True):
+    __tablename__ = "profile_data_table"
+
     endOfGameResult: str
     gameDuration: float
     puuid: str
