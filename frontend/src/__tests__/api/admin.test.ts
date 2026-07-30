@@ -196,6 +196,26 @@ describe('admin API (real mode)', () => {
     expect(apiFetch).toHaveBeenCalledWith('/admin/users');
   });
 
+  it("listUsers fetches the bare array and merges in-memory assigned roles", async () => {
+    apiFetch.mockResolvedValueOnce([
+      {
+        username: "alice",
+        email: "alice@example.com",
+        sub: "sub-1",
+        user_created_date: "2024-01-01T00:00:00Z",
+        user_last_modified_date: "2024-01-01T00:00:00Z",
+        enabled: true,
+        user_status: "CONFIRMED",
+      },
+    ]);
+ 
+    const result = await admin.listUsers();
+    expect(apiFetch).toHaveBeenCalledWith("/admin/users");
+    expect(result.items).toEqual([
+      expect.objectContaining({ username: "alice", role: null }),
+    ]);
+  });
+
   it('listUsers passes filters as query? Actually filters are applied client-side', () => {
     // Just verifies it calls apiFetch.
     // CURRENTLY nto fully functional where filters are applied after fetch
@@ -221,9 +241,36 @@ describe('admin API (real mode)', () => {
       method: 'POST',
       body: JSON.stringify({ username: 'user', group: 'Admin' }),
     });
+
+    apiFetch.mockResolvedValueOnce([
+      {
+        username: "user",
+        email: "user@example.com",
+        sub: "sub-1",
+        user_created_date: "2024-01-01T00:00:00Z",
+        user_last_modified_date: "2024-01-01T00:00:00Z",
+        enabled: true,
+        user_status: "CONFIRMED",
+      },
+    ]);
+    const result = await admin.listUsers();
+    expect(result.items[0].role).toBe("Admin");
   });
 
-  // USERS Functional Requirements
+  it("removeUserFromGroup posts to /admin/remove_user_from_group and clears the assigned role", async () => {
+    apiFetch.mockResolvedValueOnce({ success: "ok", message: "done" });
+    await admin.addUserToGroup("bobby", "Admin");
+
+    apiFetch.mockResolvedValueOnce({ success: "ok", message: "done" });
+    await admin.removeUserFromGroup("bobby", "Admin");
+
+    expect(apiFetch).toHaveBeenCalledWith("/admin/remove_user_from_group", {
+      method: "POST",
+      body: JSON.stringify({ username: "bobby", group: "Admin" }),
+    });
+  });
+
+
   it('setRegistrationsOpen patches /admin/settings', async () => {
     await admin.setRegistrationsOpen(false);
     expect(apiFetch).toHaveBeenCalledWith('/admin/settings', {
@@ -238,6 +285,51 @@ describe('admin API (real mode)', () => {
     apiFetchFormData.mockResolvedValueOnce({ map_id: 'm', display_name: 'Map', image_url: '' });
     await admin.uploadMapAsset('m', 'Map', file);
     expect(apiFetchFormData).toHaveBeenCalledWith('/api/v1/admin/assets/maps', expect.any(FormData));
+  });
+
+  it("enableUser/disableUser/deleteUser call their respective endpoints", async () => {
+    apiFetch.mockResolvedValue({ success: "ok", message: "done" });
+    await admin.enableUser("bobby");
+
+    expect(apiFetch).toHaveBeenCalledWith("/admin/enable_user", {
+      method: "POST",
+      body: JSON.stringify({ username: "bobby" }),
+    });
+ 
+    await admin.disableUser("bobby");
+    expect(apiFetch).toHaveBeenCalledWith("/admin/disable_user", {
+      method: "POST",
+      body: JSON.stringify({ username: "bobby" }),
+    });
+ 
+    await admin.deleteUser("bobby");
+    expect(apiFetch).toHaveBeenCalledWith("/admin/delete_user", {
+      method: "POST",
+      body: JSON.stringify({ username: "bobby" }),
+    });
+  });
+
+  it("registerUserManually posts to /admin/create_user and returns role: null", async () => {
+    apiFetch.mockResolvedValueOnce({
+      username: "newp",
+      email: "new.person@example.com",
+      sub: "sub-9",
+      user_created_date: "2024-01-01T00:00:00Z",
+      user_last_modified_date: "2024-01-01T00:00:00Z",
+      enabled: true,
+      user_status: "FORCE_CHANGE_PASSWORD",
+    });
+ 
+    const created = await admin.registerUserManually({
+      email: "new.person@example.com",
+      display_name: "New Person",
+      password: "temp-pass",
+    });
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/admin/create_user",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(created.role).toBeNull();
   });
 });
 
