@@ -201,7 +201,7 @@ describe("LoginPage", () => {
 
     await waitFor(() => {
       expect(authApi.loginUser).toHaveBeenCalledWith({
-        email: "test@example.com",
+        username: "test@example.com",
         password: "password123",
       });
     });

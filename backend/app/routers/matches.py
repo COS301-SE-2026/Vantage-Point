@@ -1,8 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime
+from pydantic import BaseModel
 
-from app.api.auth import require_group
+from app.schemas.auth import require_group
 from app.Models.profile_schemas import User
 from app.database.session import get_session
 from app.schemas.match import MatchDetailResponse, MatchHistorySummaryResponse
@@ -11,6 +13,18 @@ from app.services.match_history import list_match_history
 from app.services.user_accounts import get_linked_puuids, get_primary_linked_puuid
 
 router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
+
+
+class SimplifiedMatchResponse(BaseModel):
+    match_id: str
+    champion_id: int | None = None
+    champion_name: str
+    kills: int
+    deaths: int
+    assists: int
+    win: bool
+    game_creation: datetime | None = None
+    game_duration: int | None = None
 
 
 @router.get("")

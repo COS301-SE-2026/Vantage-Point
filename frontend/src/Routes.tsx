@@ -16,6 +16,7 @@ import AdminMatchesPage from "./pages/admin/AdminMatchesPage";
 import AdminMapAssetsPage from "./pages/admin/AdminMapAssetsPage";
 import AdminChampionAssetsPage from "./pages/admin/AdminChampionAssetsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import HelpPage from "./pages/HelpPage";
 
 export const router = createBrowserRouter([
   {
@@ -74,7 +75,12 @@ export const router = createBrowserRouter([
           { path: "matches", Component: MatchesListView },
           { path: "matches/:matchId", Component: MatchDetailView },
           { path: "profile", Component: ProfileView },
+          { path: "help", Component: HelpPage },
         ],
+      },
+      {
+        path: "/help",
+        element: <Navigate to="/dashboard/help" replace />,
       },
     ],
   },

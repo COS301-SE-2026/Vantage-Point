@@ -1,47 +1,74 @@
 import os
 import re
-import httpx
-from dotenv import load_dotenv
-from app.config import get_settings
-from fastapi import HTTPException, Depends
-from typing import Any, Annotated
+from typing import Annotated, Any
 from urllib.parse import quote
+
+from dotenv import load_dotenv
+from fastapi import Depends, HTTPException
+import httpx
+
+from app.config import get_settings
 
 load_dotenv()
 
 API_KEY = os.getenv("RIOT_API_KEY")
-# Riot ID lookups use regional routing (americas, europe, asia)
 BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
+
+
+def filter_match_for_players(
+    match_data: dict[str, Any] | None = None,
+    player_ids: list[str] | str | None = None,
+    full_match: dict[str, Any] | None = None,
+    target_puuid: str | list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Filters match details to retain participants matching the given player ID(s)/PUUID(s).
+    Supports positional args, match_data/player_ids, and full_match/target_puuid kwargs.
+    """
+    data = full_match if full_match is not None else match_data
+    if not data or "info" not in data:
+        return data or {}
+
+    raw_targets = target_puuid if target_puuid is not None else player_ids
+    if raw_targets is None:
+        targets: set[str] = set()
+    elif isinstance(raw_targets, str):
+        targets = {raw_targets}
+    else:
+        targets = set(raw_targets)
+
+    if not targets:
+        return data
+
+    participants = data.get("info", {}).get("participants", [])
+    data["info"]["participants"] = [
+        p
+        for p in participants
+        if p.get("puuid") in targets or p.get("summonerId") in targets
+    ]
+    return data
 
 
 class RiotService:
     def __init__(self):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
-        self.account_url = (
-            "https://europe.api.riotgames.com"  # Region (americas, europe, etc)
-        )
-        self.platform_url = (
-            "https://euw1.api.riotgames.com"  # Platform (na1, euw1, etc)
-        )
+        self.account_url = "https://europe.api.riotgames.com"
+        self.platform_url = "https://euw1.api.riotgames.com"
 
     def _get_macro_region(self, server_region: str) -> str:
         """Maps a local Riot server region to its Match-V5 macro-region."""
         region_map = {
-            # Americas
             "na1": "americas",
             "br1": "americas",
             "la1": "americas",
             "la2": "americas",
-            # Europe
             "euw1": "europe",
             "eun1": "europe",
             "tr1": "europe",
             "ru": "europe",
-            # Asia
             "kr": "asia",
             "jp1": "asia",
-            # South East Asia
             "oc1": "sea",
             "ph2": "sea",
             "sg2": "sea",
@@ -49,15 +76,9 @@ class RiotService:
             "tw2": "sea",
             "vn2": "sea",
         }
-
-        # Default to americas if somehow not found
         return region_map.get(server_region.lower(), "americas")
 
     async def get_puuid(self, game_name: str, tag_line: str) -> str:
-        """
-        In 2024+, you must use the Account-V1 API to get a PUUID
-        via GameName and TagLine (e.g., Hide on bush #KR1).
-        """
         url = f"{self.account_url}/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -75,7 +96,6 @@ class RiotService:
             return puuid
 
     async def get_summoner_data(self, puuid: str):
-        """Gets level and profile icon using the PUUID."""
         url = f"{self.platform_url}/lol/summoner/v4/summoners/by-puuid/{puuid}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -103,10 +123,7 @@ class RiotService:
     async def get_match_ids(
         self, server_region: str, puuid: str, count: int = 5
     ) -> list[str]:
-        # Fetches a list of match IDs for a given PUUID
-
         macro_region = self._get_macro_region(server_region)
-        # Dynamically inject the macro-region into the URL
         base_url = f"https://{macro_region}.api.riotgames.com"
         endpoint = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
         url = base_url + endpoint
@@ -115,7 +132,6 @@ class RiotService:
             response = await client.get(url, headers=self.headers)
 
         if response.status_code == 200:
-            # Explicitly cast to list[str] to prevent Pylance "Unknown" errors
             return list(response.json())
         elif response.status_code == 401:
             raise HTTPException(
@@ -137,22 +153,16 @@ class RiotService:
             )
 
     async def get_match_detail(self, match_id: str) -> Any:
-        """
-        Fetches the complete MatchDto dictionary from Riot's Match-V5 API.
-        """
-
         server_region = match_id.split("_")[0].lower()
         macro_region = self._get_macro_region(server_region)
         url = (
             f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         )
-        # change store object and if it is alreayd just return object instead of having to call again
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
 
             if response.status_code == 200:
                 return response.json()
-
             elif response.status_code == 404:
                 raise HTTPException(
                     status_code=404,
@@ -175,13 +185,8 @@ class RiotService:
                 )
 
     async def get_match_timeline(self, match_id: str) -> Any:
-        """
-        Going to be used when we need to get timeline data. Then will be filtered at perspective endpoints
-        """
-        # Riot Match IDs follow the format: {PLATFORM_ID}_{GAME_ID} (e.g., "EUW1_1234567890" or "KR_987654321")
         MATCH_ID_PATTERN = re.compile(r"^[a-zA-Z0-9]+_\d+$")
 
-        # Validate format to prevent path traversal / unexpected strings
         if not MATCH_ID_PATTERN.match(match_id):
             raise HTTPException(
                 status_code=400, detail="Invalid match ID format provided."
@@ -190,7 +195,6 @@ class RiotService:
         server_region = match_id.split("_")[0].lower()
         macro_region = self._get_macro_region(server_region)
 
-        # Safely encode the path parameter
         safe_match_id = quote(match_id, safe="")
         url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
 
@@ -198,7 +202,6 @@ class RiotService:
             response = await client.get(url, headers=self.headers)
             if response.status_code == 200:
                 return response.json()
-
             elif response.status_code == 403:
                 raise HTTPException(
                     status_code=403, detail="Riot API key is invalid or expired."

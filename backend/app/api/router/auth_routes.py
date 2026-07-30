@@ -13,8 +13,8 @@ router = APIRouter()
     tags=["Auth"],
     responses={400: {"description": "Username already exists or invalid password"}},
 )
-async def register(username: str, password: str, email: str):
-    return await auth_service.register_user(username, password, email)
+async def register(email: str, password: str):
+    return await auth_service.register_user(email, password)
 
 
 # returns tokens. Not a user
