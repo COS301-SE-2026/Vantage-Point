@@ -29,6 +29,9 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     email: str = Field(unique=True, index=True)
     display_name: Optional[str] = Field(default=None)
     avatar_url: Optional[str] = Field(default=None)
+    # bcrypt hash for accounts that registered against this API directly.
+    # Stays NULL for Cognito-only accounts, which authenticate against AWS instead.
+    password_hash: Optional[str] = Field(default=None)
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
