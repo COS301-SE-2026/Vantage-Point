@@ -19,8 +19,6 @@ services:
     ports:
       - "5173:5173" # Vite (frontend)
       - "8000:8000" # FastAPI (backend)
-      - "3000:3000" # Frontend (React)
-      #WE Can remove 3000 if we are not using React, keeping it here for now as it is in the techstack that we use it
 
   # The PostgreSQL Database
   db:

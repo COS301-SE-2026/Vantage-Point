@@ -1,33 +1,37 @@
 import uuid
-from typing import Annotated, List, Any
 from urllib.parse import parse_qs
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel, Field
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
+from app.services import auth_service
+from app.schemas.auth import (
+    UserRegister,
+    UserLogin,
+    UserConfirm,
+)
 from app.config import get_settings
-from app.database.session import get_session
-from app.Models.auth import LoginRequest, RegisterRequest
-from app.routers.users import router as users_router
 from app.schemas.profile import (
-    LiveAdvancedMetrics,
     MatchSummary,
     MessageResponse,
-    ProfileCreateRequest,
     ProfileResponse,
-    ProfileUpdateRequest,
     RiotKeyUpdateResponse,
+    LiveAdvancedMetrics,
+    ProfileCreateRequest,
+    ProfileUpdateRequest,
 )
-from app.schemas.match import (
-    SimplifiedMatchResponse,
-)
-from app.services import auth_service
-from app.services.analytics import LiveAnalyticsService
+from typing import Annotated, List
+from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database.session import get_session
+from app.routers.matches import SimplifiedMatchResponse
 from app.services.profile_services import ProfileService
+from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import filter_match_for_players, riot_service
+from app.routers.users import router as users_router
+from app.schemas.common import ErrorResponse
+from sqlmodel import select
+from app.database.models import Users
 
 oauth2_scheme = HTTPBearer()
 
@@ -39,39 +43,24 @@ settings = get_settings()
 # Authentication Routes
 # =====================================================
 
-
-class ErrorResponse(BaseModel):
-    detail: str | dict[str, Any]
-
-
-class UserConfirm(BaseModel):
-    username: str
-    confirmation_code: str
-
-
 @router.post(
     "/auth/register",
     tags=["Authentication"],
     summary="Register a new user",
     description="Creates a new Cognito user account with internal UUID, email, and password.",
+    response_model=dict[str, str],
     responses={
         400: {"model": ErrorResponse, "description": "Registration failed"},
     },
 )
-async def register(user: RegisterRequest) -> dict[str, str]:
-    if hasattr(user, "confirm_password") and user.password != getattr(
-        user, "confirm_password"
-    ):
+async def register(user: UserRegister, session: AsyncSession = Depends(get_session)) -> dict[str, str]:
+    if user.password != user.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
 
-    # Generate an internal random UUID for Cognito's required Username parameter
-    internal_username = str(uuid.uuid4())
-
-    # Register with UUID as internal username and email in attributes
+    # Register email and password in attributes
     result = await auth_service.register_user(
-        username=internal_username,
-        password=user.password,
         email=user.email,
+        password=user.password,
     )
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
@@ -93,16 +82,13 @@ async def register(user: RegisterRequest) -> dict[str, str]:
     tags=["Authentication"],
     summary="Log in a user",
     description="Authenticates a user by email alias and returns Cognito tokens.",
+    response_model=dict[str, str],
     responses={
         401: {"model": ErrorResponse, "description": "Invalid credentials"},
     },
 )
-async def login(user: LoginRequest) -> dict[str, str]:
-    # Ensure login_identifier is strictly a string for mypy
-    login_identifier = str(
-        getattr(user, "email", None) or getattr(user, "username", "") or ""
-    )
-    result = await auth_service.login_user(login_identifier, user.password)
+async def login(user: UserLogin) -> dict[str, str]:
+    result = await auth_service.login_user(user.username, user.password)
 
     if "error" in result:
         raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -146,6 +132,9 @@ async def confirm(data: UserConfirm):
 async def logout(
     token_data: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ):
+    # Extracts the raw string credentials from the FastAPI HTTPBearer object
+    # needed for Cognito's global_sign_out
+    # jwt when logout request so use JWT get what user to infer which user logouts
     raw_token = token_data.credentials
     result = await auth_service.logout_user(raw_token)
     if "error" in result:
@@ -276,7 +265,7 @@ async def update_profile(
     profile = await ProfileService.update_profile(
         session=session,
         user_id=current_user,
-        profile_data=request,
+        request=request,
     )
 
     total_matches, summary = await ProfileService.build_player_summary(
@@ -483,6 +472,7 @@ async def get_filtered_match(
     tags=["Live Metrics"],
     summary="Get live performance metrics",
     description="Calculates live performance indexes across recent matches.",
+    response_model=LiveAdvancedMetrics,
     responses={
         401: {"model": ErrorResponse, "description": "Invalid or expired token"},
     },
@@ -496,6 +486,5 @@ async def get_live_player_metrics(
     return await LiveAnalyticsService.get_live_metrics_from_api(
         server_region=server_region, puuid=puuid, count=count
     )
-
 
 router.include_router(users_router)

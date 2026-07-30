@@ -1,52 +1,47 @@
 import asyncio
+import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict
-from urllib.parse import urlparse
 from types import FrameType
-from typing import Annotated
+from typing import Annotated, Any, Dict
+from urllib.parse import urlparse
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from loguru import logger
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from dotenv import load_dotenv
+from starlette.middleware.base import RequestResponseEndpoint
 
+# Modular router imports
 from app.api.router import (
     admin_routes,
-    profile_routes,
-    auth_routes,
     analytics_router,
+    auth_routes,
+    profile_routes,
     riot_api_routes,
 )
-from app.services.routers import matches, users
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
-
-from loguru import logger
-import sys
-import logging
-from starlette.middleware.base import RequestResponseEndpoint
-
-# from typing import List, Optional
-# above commit commited out as import not used but will be used later
-
-# (Make sure riot_api.py is in backend/app/services/)
-# (make sure models.py is in backend/app/database/ )
+from app.services.routers import matches, users
+from app.api.routes import router as api_router
 
 load_dotenv()
+app = FastAPI(title="Vantage Point API")
+app.include_router(api_router, prefix="/api/v1")
+app.include_router(auth_routes.router, prefix="/api/v1")
+app.include_router(profile_routes.router, prefix="/api/v1")
 
-# DATABASE & APP SETUP
-# (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
-
-
-logger.remove(0)
+# Loguru setup & Uvicorn log interception
+logger.remove()  # Clears default loguru handler safely
 logger.add(
     sys.stdout,
     enqueue=True,
@@ -142,12 +137,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# app.state.limiter = limiter
-# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
-# app.add_middleware(SlowAPIMiddleware)
-# CORS for frontend
-# 3000 = React default, 5173 = Vite default.
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=".*",
@@ -157,15 +147,8 @@ app.add_middleware(
     expose_headers=["X-Process-Time"],
 )
 
-
-# app.include_router(router, prefix="/api")
-app.include_router(auth_routes.router)
-app.include_router(profile_routes.router)
-app.include_router(admin_routes.router)
-app.include_router(analytics_router.router)
-app.include_router(riot_api_routes.router)
-app.include_router(matches.router)
-app.include_router(users.router)
+# Router inclusions with prefix
+app.include_router(api_router, prefix="/api/v1")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
@@ -203,6 +186,10 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     return JSONResponse(
         status_code=500,
         content=error_response(500, "Unexpected server error"),
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Credentials": "true",
+        },
     )
 
 
@@ -227,7 +214,6 @@ class TestResponse(BaseModel):
     description="Returns a simple message confirming that the backend is running.",
 )
 async def get_root() -> RootResponse:
-    # Explicitly call your schema class
     return RootResponse(status="success", message="Welcome to Vantage Point API")
 
 
@@ -253,26 +239,22 @@ async def test_endpoint(data: Dict[str, Any]):
     return TestResponse(received=data, message="Test successful")
 
 
-# below is not really so self explanatory so i just added comments to the code to explain the steps.
-# let me know if you want me to add more comments or if you have any questions about the code!
-# Neo
 @app.post("/summoners/register")
 async def register_summoner(
     game_name: str,
     tag_line: str,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> dict[str, str]:
-    # 1. Get PUUID from Riot Service; Gets name + tag
+    # 1. Fetch PUUID from Riot Service
     puuid = await get_puuid_by_riot_id(game_name, tag_line)
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 
-    # 2. Save to Database; should only do so if this player is not in the DB already
+    # 2. Check for existing account inside session scope
     statement = select(GameAccounts).where(GameAccounts.puuid == puuid)
     result = await session.execute(statement)
     existing_account = result.scalar_one_or_none()
 
-    # adding this check just to be safe and security even if no exist is already below it
     if existing_account:
         return {"message": "Summoner already in database."}
 
@@ -298,6 +280,6 @@ async def log_errors_middleware(request: Request, call_next: RequestResponseEndp
         return await call_next(request)
     except Exception as e:
         logger.bind(url=str(request.url), method=request.method).exception(
-            f"Bug detected in {request.method}{request.url.path}"
+            f"Bug detected in {request.method} {request.url.path}"
         )
         raise e
