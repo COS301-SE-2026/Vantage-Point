@@ -332,7 +332,7 @@ class admin_service:
             return_value = CreateGroupResponse(
                 group_name=group.get("GroupName", group_name),
                 user_pool_id=group.get("UserPoolId", ""),
-                descriptipn=group.get("Description", description),
+                description=group.get("Description", description),
                 precedence=group.get("Precedence", precedence),
                 last_modified_date=group.get(
                     "LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)
