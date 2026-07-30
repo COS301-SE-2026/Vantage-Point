@@ -53,5 +53,20 @@ describe("AdminRoute", () => {
     });
 
 
+    // alright so all functions are tested. now lets tests branches of the AdminRoute component when import.meta.env.DEV is false
+    // first if loading is true, it should render the loading state
+    // second if user is null, it should navigate to /login aka no auth
+    describe("when import.meta.env.DEV is false", () => {
+        it("renders loading state while auth is resolving", () => {
+            (import.meta.env as { DEV: boolean }).DEV = false;
+            vi.mocked(useAuth).mockReturnValue({
+                user: null,
+                loading: true,
+            } as ReturnType<typeof useAuth>);
 
+            renderAt("/admin");
+            expect(screen.getByText("Loading…")).toBeInTheDocument();
+        });
+    
+    });
 });
