@@ -203,3 +203,6 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
     average_kda: float
 
     game_account: "GameAccounts" = Relationship(back_populates="featured_games")
+
+
+    

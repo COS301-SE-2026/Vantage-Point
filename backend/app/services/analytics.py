@@ -408,7 +408,7 @@ class LiveAnalyticsService:
                 frame["participantFrames"][str(i)]["position"]["y"] for frame in frames
             ]
 
-        return MapReplay(
+        response = MapReplay(
             puuid=[p["puuid"] for p in _data["info"]["participants"]],
             participant_id=[
                 p["participantId"] for p in _data["info"]["participants"]
@@ -418,6 +418,15 @@ class LiveAnalyticsService:
             position_x=x_values,
             position_y=y_values,
         )
+
+        add_to_table = MapReplayTable(
+            
+        )
+        session.add(add_to_table)
+        await session.commit()
+        await session.refresh(add_to_table)
+
+        return response
 
     @staticmethod
     async def map_suggest_data(match_id: str, puuid: str) -> MapSuggestData:
