@@ -89,24 +89,6 @@ export default function StyleGuidePage() {
         <VoiceSection />
         <ChangelogSection />
       </main>
-
-      <footer className="border-t border-border py-10 text-center font-['Inter',sans-serif] text-xs text-muted-foreground device-dark:border-[#2c2c2c] device-dark:text-[#929292]">
-        <p>
-          Tokens sourced from{" "}
-          <code className="text-[11px]">frontend/src/styles/theme.css</code> /
-          Components from{" "}
-          <code className="text-[11px]">frontend/src/components/ui</code>
-        </p>
-        <p className="mt-2">
-          Route:{" "}
-          <Link
-            to="/style-guide"
-            className="underline underline-offset-2 device-dark:text-[#b7b7b7]"
-          >
-            /style-guide
-          </Link>
-        </p>
-      </footer>
     </div>
   );
 }
