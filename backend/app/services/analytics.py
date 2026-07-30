@@ -681,9 +681,9 @@ class LiveAnalyticsService:
                 ProfileDataTable.puuid == puuid
             )
             value: Any = await session.execute(statement)
-            value: Any = value.scalar_one_or_none()
+            tabel_response: Any = value.scalar_one_or_none()
 
-            if value is None:
+            if tabel_response is None:
                 table_data = ProfileDataTable(
                     endOfGameResult=response.endOfGameResult,
                     gameDuration=response.gameDuration,
