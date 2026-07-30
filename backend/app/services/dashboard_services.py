@@ -32,3 +32,11 @@ class DashboardService:
 
     @staticmethod
     async def new_users_this_month() -> int:
+        DashboardService.users=await admin_service.get_users()
+        
+        month_ago = datetime.now(timezone.utc) - timedelta(days=30)
+        new_week = sum(
+            1 for user in DashboardService.users
+            if user.user_created_date >= month_ago
+        )
+        return new_week
