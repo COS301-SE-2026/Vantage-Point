@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.Models.auth_model import User
-from app.schemas.auth import require_group
+from app.api.auth import require_group
 from typing import Annotated
 from app.services.analytics import LiveAnalyticsService
 from app.Models.riot_schemas import (

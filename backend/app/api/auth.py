@@ -1,14 +1,20 @@
 from jose import jwt, JWTError
 import httpx
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+)  # OAuth2PasswordBearer
 from app.config import get_settings
-from typing import Any, cast
+from typing import Any, cast, Annotated, Callable
+from app.Models.profile_schemas import User
 
 settings = get_settings()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
+
+oauth2_scheme = HTTPBearer()
 
 # Cache keys to avoid hitting AWS on every single request
+# need to make it not sterile. Will do later.
 jwks_cache: dict[str, Any] | None = None
 
 
@@ -29,18 +35,16 @@ async def get_jwks() -> dict[str, Any]:
         response = await client.get(jwks_url)
         response.raise_for_status()
 
-    try:
-        jwks: dict[str, Any] = response.json()
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Invalid JWKS response from Cognito",
-        ) from exc
-
+    jwks: dict[str, Any] = response.json()
     jwks_cache = jwks
+
     return jwks
 
 
+# at the moment no clear time the data gets changed seems it does rarely, not predefined time intervals
+# need to do it periodalically and when it fails
+# change once a day, and if a kid(key unique id) is not in the pool but
+# use get_public key, probably need to call the get_public user after the update of the pubkic keys
 def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     try:
         header = jwt.get_unverified_header(token)
@@ -82,52 +86,44 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
-    issuer = (
-        f"https://cognito-idp.{settings.aws_region}.amazonaws.com/"
-        f"{settings.cognito_user_pool_id}"
-    )
+async def get_current_user(
+    credential: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
+) -> User:
+    global jwks_cache
+    issuer = f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
 
     try:
+        token = credential.credentials
         jwks = await get_jwks()
         public_key = get_public_key(token, jwks)
 
-        # Decode and verify the token
+        # 2. Decode and verify the token
         payload = jwt.decode(
             token,
             public_key,
             algorithms=["RS256"],
+            audience=settings.cognito_client_id,
             issuer=issuer,
-            options={"verify_aud": False},
         )
 
-        # Verify token_use and client_id
-        token_use = payload.get("token_use")
-        if token_use != "access":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token_use",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-        client_id = payload.get("client_id") or payload.get("aud")
-        if client_id != settings.cognito_client_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token client mismatch",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
+        # ensure we only get access tokens in and raise exception if we receive id token
+        if payload["token_use"] != "access":
+            raise HTTPException(status_code=401, detail="Wrong Token sent in header.")
+        # add username as well in return over here
         user_id = payload.get("sub")
-        if not user_id:
+        if user_id is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=401,
                 detail="Token missing subject",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
-        return payload
-
+        # need to chnage all annotated that used str. Either to Any or Create a model for it.
+        return User(
+            sub=payload["sub"],
+            groups=payload.get("cognito:groups", []),
+            username=payload.get("username"),
+            email=payload.get("email"),
+        )
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -139,3 +135,25 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Could not fetch Cognito public keys",
         ) from exc
+
+
+role_levels = {"User": 10, "Admin": 20, "SuperAdmin": 30}
+
+
+# idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
+def get_user_highest_level(user: User):
+    # get highest level user has. Admin then user
+    return max((role_levels.get(group, 0) for group in user.groups), default=0)
+
+
+def require_group(required_value: int) -> Callable[..., User]:
+    def checker(user: Annotated[User, Depends(get_current_user)]) -> User:
+        user_level = get_user_highest_level(user)
+        if user_level >= required_value:
+            return user
+        else:
+            raise HTTPException(
+                status_code=403, detail=f"Invalid Permission {user.groups}"
+            )
+
+    return checker
