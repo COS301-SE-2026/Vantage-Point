@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router";
 import {
-  Filter,
   ArrowUpDown,
   Search,
   ChevronDown,
