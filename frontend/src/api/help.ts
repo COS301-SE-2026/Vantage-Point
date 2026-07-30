@@ -23,12 +23,16 @@ export interface UpdateHelpArticlePayload {
   tags?: string[];
 }
 
-export async function fetchHelpArticles(search?: string): Promise<HelpArticle[]> {
+export async function fetchHelpArticles(
+  search?: string,
+): Promise<HelpArticle[]> {
   const query = search ? `?search=${encodeURIComponent(search)}` : "";
   return apiFetch<HelpArticle[]>(`/api/v1/help${query}`);
 }
 
-export async function createHelpArticle(payload: CreateHelpArticlePayload): Promise<HelpArticle> {
+export async function createHelpArticle(
+  payload: CreateHelpArticlePayload,
+): Promise<HelpArticle> {
   return apiFetch<HelpArticle>("/api/v1/help", {
     method: "POST",
     body: JSON.stringify(payload),

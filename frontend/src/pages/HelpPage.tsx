@@ -51,8 +51,14 @@ export default function HelpPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(null);
-  const [formData, setFormData] = useState({ title: "", content: "", tags: "" });
+  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(
+    null,
+  );
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    tags: "",
+  });
   const [submitting, setSubmitting] = useState(false);
 
   const loadArticles = useCallback(async () => {
@@ -105,7 +111,7 @@ export default function HelpPage() {
           tags: parsedTags,
         });
         setArticles((prev) =>
-          prev.map((a) => (a.id === updated.id ? updated : a))
+          prev.map((a) => (a.id === updated.id ? updated : a)),
         );
       } else {
         const created = await createHelpArticle({
@@ -125,7 +131,8 @@ export default function HelpPage() {
 
   const handleDeleteArticle = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure you want to delete this article?")) return;
+    if (!window.confirm("Are you sure you want to delete this article?"))
+      return;
 
     try {
       await deleteHelpArticle(id);
@@ -135,12 +142,16 @@ export default function HelpPage() {
     }
   };
 
-  const handleVote = async (id: number, type: "up" | "down", e: React.MouseEvent) => {
+  const handleVote = async (
+    id: number,
+    type: "up" | "down",
+    e: React.MouseEvent,
+  ) => {
     e.stopPropagation();
     try {
       const updated = await voteHelpArticle(id, type);
       setArticles((prev) =>
-        prev.map((a) => (a.id === updated.id ? updated : a))
+        prev.map((a) => (a.id === updated.id ? updated : a)),
       );
     } catch (err) {
       console.error("Voting failed:", err);
@@ -152,7 +163,7 @@ export default function HelpPage() {
     .filter(
       (article) =>
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchQuery.toLowerCase())
+        article.content.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     .sort((a, b) => {
       const dateA = new Date(a.updated_at).getTime();
@@ -220,7 +231,11 @@ export default function HelpPage() {
               No help articles found.
             </div>
           ) : (
-            <Accordion type="single" collapsible className="flex flex-col gap-4">
+            <Accordion
+              type="single"
+              collapsible
+              className="flex flex-col gap-4"
+            >
               {filteredArticles.map((article) => (
                 <AccordionItem
                   key={article.id}
@@ -262,7 +277,9 @@ export default function HelpPage() {
                   </AccordionTrigger>
 
                   <AccordionContent className="pt-4 text-sm leading-relaxed text-zinc-600 border-t border-zinc-100 mt-4">
-                    <p className="mb-4 whitespace-pre-line">{article.content}</p>
+                    <p className="mb-4 whitespace-pre-line">
+                      {article.content}
+                    </p>
 
                     {/* Voting & Actions Toolbar */}
                     <div className="flex items-center justify-between pt-2">
@@ -318,7 +335,9 @@ export default function HelpPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
               <h2 className="text-lg font-bold text-zinc-900">
-                {editingArticle ? "Edit Help Article" : "Create New Help Article"}
+                {editingArticle
+                  ? "Edit Help Article"
+                  : "Create New Help Article"}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -385,7 +404,9 @@ export default function HelpPage() {
                   disabled={submitting}
                   className="bg-zinc-900 text-white hover:bg-zinc-800"
                 >
-                  {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {submitting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   {editingArticle ? "Save Changes" : "Create"}
                 </Button>
               </div>
