@@ -51,6 +51,33 @@ describe("AdminShell", () => {
         expect(screen.getByText("Champion Assests")).toBeInTheDocument();
         expect(screen.getByText("Settings")).toBeInTheDocument();
     });
+    
+    it("shows initials derived from the user's display name", () => {
+        renderShell();
+        expect(screen.getByText("JD")).toBeInTheDocument();
+    });
+
+    it("falls back to 'UN' initials when there is no user", () => {
+        vi.mocked(useAuth).mockReturnValue({
+            user: undefined,
+            logout: vi.fn(),
+        } as unknown as ReturnType<typeof useAuth>);
+ 
+        renderShell();
+        expect(screen.getByText("UN")).toBeInTheDocument();
+    });
+
+    it("collapses and expands the sidebar when the toggle button is clicked", () => {
+        renderShell();
+    
+        const toggle = screen.getByLabelText("Collapse navigation");
+        fireEvent.click(toggle);
+        expect(screen.getByLabelText("Expand navigation")).toBeInTheDocument();
+    
+        fireEvent.click(screen.getByLabelText("Expand navigation"));
+        expect(screen.getByLabelText("Collapse navigation")).toBeInTheDocument();
+    });
+
 
 
 });
