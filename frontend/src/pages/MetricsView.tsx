@@ -3,7 +3,9 @@ import { useNavigate, useOutletContext, useParams } from "react-router";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchMatchDetail } from "../api/match";
 import { fetchMatchHistory } from "../api/matches";
+import { fetchLiveMetrics } from "../api/user";
 import AiCoachingBar from "../components/AiCoachingBar";
+import LiveMetricsPanel from "../components/LiveMetricsPanel";
 import MapAnalysisTable from "../components/MapAnalysisTable";
 import MatchReplayToolbar, {
   type ReplayOverlayAction,
@@ -21,6 +23,7 @@ import type {
   ParticipantDetail,
   TeamDetail,
 } from "../types/match";
+import type { LiveMetrics } from "../types/profile";
 
 function formatClock(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -60,6 +63,36 @@ export default function MetricsView() {
   );
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [liveMetrics, setLiveMetrics] = useState<LiveMetrics | undefined>();
+  const [metricsLoading, setMetricsLoading] = useState(true);
+  const [metricsError, setMetricsError] = useState<string | null>(null);
+
+  // Independent of the selected match: these are averages over the account's recent
+  // games, so they load in parallel and a Riot outage must not blank the page.
+  useEffect(() => {
+    let cancelled = false;
+    setMetricsLoading(true);
+    setMetricsError(null);
+    // One Riot call per match analysed, so keep the window small — a Riot dev key
+    // only allows 100 requests per two minutes across the whole app.
+    fetchLiveMetrics(5)
+      .then((metrics) => {
+        if (!cancelled) setLiveMetrics(metrics);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setMetricsError(
+            err instanceof Error ? err.message : "Could not read live metrics",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setMetricsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -182,6 +215,12 @@ export default function MetricsView() {
             className="mx-auto flex w-full max-w-[var(--vp-content-max)] items-start gap-[8px]"
           >
             <div className="flex min-w-0 flex-1 flex-col gap-[12px]">
+              <LiveMetricsPanel
+                metrics={liveMetrics}
+                loading={metricsLoading}
+                error={metricsError}
+              />
+
               <div className="flex items-start gap-[24px]">
                 <img
                   src={mapMini}
