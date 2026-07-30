@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -12,11 +13,13 @@ from dotenv import load_dotenv
 
 from app.api.middleware import ProcessTimeMiddleware
 from app.api.routes import router
+from app.routers.auth import router as auth_router
 from app.routers.users import router as users_router
 from app.routers.matches import router as matches_router
 from app.database.models import GameAccounts
 from app.database.session import async_session_maker, init_db
 from app.schemas.generic_schemas import get_error_reason
+from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
 from app.services.riot_api import get_puuid_by_riot_id
 
 # Each module that reads the environment (database.session, services.riot_api,
@@ -76,8 +79,14 @@ app.add_middleware(
 app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(router, prefix="/api")
+app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(matches_router)
+
+# Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
+# "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.
+ensure_avatar_dir()
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
