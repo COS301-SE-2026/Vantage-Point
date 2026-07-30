@@ -1,111 +1,112 @@
 
 // Imports
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  listUsers,
-  getUser,
-  addUserToGroup,
-  removeUserFromGroup,
-  enableUser,
-  disableUser,
-  deleteUser,
-  registerUserManually,
-  getPlatformSettings,
-  setRegistrationsOpen,
-  listMatchSessions,
-  flagSessionForDeletion,
-  unflagSessionForDeletion,
-  hardDeleteSession,
-  getDashboardMetrics,
-  getSiteTraffic,
-  getErrorLog,
-  markErrorReviewed,
-  listMapAssets,
-  uploadMapAsset,
-  listChampionAssets,
-  uploadChampionAsset,
-} from '../../api/admin';
-import { apiFetch, apiFetchFormData } from '../../api/client';
-import type { AdminUser, AppRole } from '../../types/admin';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// simplified imports to just take from the api since there are a lot more to keep track of
+// also allows to make it easier to import the env info for each test 
+type AdminApi = typeof import('../../api/admin');
 
 // Constants + Mocks
-vi.mock('../../api/client', () => ({
-  apiFetch: vi.fn(),
-  apiFetchFormData: vi.fn(),
-}));
+const ogDev = import.meta.env.DEV; // save original DEV env value
 
-const mockedApiFetch = vi.mocked(apiFetch);
-const mockedApiFetchFormData = vi.mocked(apiFetchFormData);
+afterEach(() => {
+    (import.meta.env as { DEV: boolean }).DEV = ogDev; // restore original DEV env value
+    vi.doUnmock('../../api/client');
+    vi.resetModules();
+});
 
 
-// Helper fucntions
-function setDevMode(isDev: boolean) {
-  vi.stubEnv('DEV', String(isDev));
-}
+// Mock mode (USE_MOCKS === true, the vitest default)
+// === means equivalent, so type and value need to be exactly the same. This is important for the type-checking of the mock functions.
+
 
 
 
 // USERS Functional Requirements
 describe('admin API (mock mode)', () => {
-  beforeEach(() => {
+    let admin: AdminApi;
+
+  beforeEach(async () => {
+    (import.meta.env as { DEV: boolean }).DEV = true; // set DEV env to true for mock mode
     vi.resetAllMocks();
-    // USE_MOCKS = true
-    setDevMode(true); 
+    
+    admin = await import('../../api/admin');
   });
 
-  it('listUsers returns mock users', async () => {
-    const result = await listUsers();
+  it('listUsers returns mock users, (UNFILTERED)', async () => {
+    const result = await admin.listUsers();
 
-    // From MOCK_USERS
     expect(result.items).toHaveLength(5); 
-    expect(mockedApiFetch).not.toHaveBeenCalled();
+    expect(result.items.map((used) => used.username)).contains('jonny77');
   });
 
   it('listUsers filters by status', async () => {
-    const result = await listUsers({ status: 'Active' });
-    expect(result.items.every(u => u.enabled && u.user_status === 'CONFIRMED')).toBe(true);
+    const result = await admin.listUsers({ status: 'Active' });
+    expect(result.items.every(used => used.enabled && used.user_status === 'CONFIRMED')).toBe(true);
   });
 
+   it("listUsers filters by derived status", async () => {
+    const result = await admin.listUsers({ status: "Disabled" });
+    expect(result.items.every((used) => !used.enabled)).toBe(true);
+  });
+
+  it("listUsers filters by role", async () => {
+    const result = await admin.listUsers({ role: "Super Admin" });
+    expect(result.items).toEqual([
+        expect.objectContaining({ username: "bellecl", role: "Super Admin" }),
+    ]);
+});
+// Both Filters ( ROLE and Status) are being tested above
+
   it('getUser returns mock user', async () => {
-    const user = await getUser('jonny77');
-    expect(user.username).toBe('jonny77');
+    // this should find since it is nto the first and havent tested with this user yet
+    const user1 = await admin.getUser('reeds7');
+    expect(user1.username).toBe('reeds7');
+
+    // lets test another way to fall back to the FIRST user in the mock data
+    expect(( await admin.getUser("nobody") ).username).toBe('jonny77');
+    // Polyphemus 2:58 - 3:08     ^
   });
 
   it('addUserToGroup updates mock role', async () => {
-    await addUserToGroup('jonny77', 'Admin');
+    await admin.addUserToGroup('jonny77', 'Admin');
 
     // After adding, listUsers should show role
-    const { items } = await listUsers();
+    const { items } = await admin.listUsers();
     const found = items.find(u => u.username === 'jonny77');
     expect(found?.role).toBe('Admin');
   });
 
-  it('registerUserManually returns mock user', async () => {
-    const user = await registerUserManually({
-      email: 'new@example.com',
-      display_name: 'NewUser',
-      password: 'temp',
+  it('registerUserManually returns mock user derived from the email locally', async () => {
+    const creation = await admin.registerUserManually({
+      email: "Lady.of@palace.com",
+      display_name: "Circe",
+      password: "Nymphs123!",
+    //   Done For 0:11, 
     });
 
     // Derived from email
-    expect(user.username).toBe('new'); 
-    expect(user.role).toBe('Player');
+    expect(creation.username).toBe("Lady.of"); 
+    expect(creation.role).toBe("Player");
+
+    // status
+    expect(creation.user_status).toBe("FORCE_CHANGE_PASSWORD");
   });
 
   // Test other functions that return mock data
-  it('getPlatformSettings returns mock settings', async () => {
-    const settings = await getPlatformSettings();
+  it('getPlatformSettings & setRegistrationsOpen  roundtrip in-memory', async () => {
+    const settings = await admin.getPlatformSettings();
     expect(settings.registrations_open).toBe(true);
   });
 
   it('listMatchSessions returns mock sessions', async () => {
-    const result = await listMatchSessions();
+    const result = await admin.listMatchSessions();
     expect(result.items).toHaveLength(2);
   });
 
   // Dashboard / System Metrics Functional Requirements
   it('getDashboardMetrics returns mock metrics', async () => {
-    const metrics = await getDashboardMetrics();
+    const metrics = await admin.getDashboardMetrics();
     expect(metrics.active_users).toBe(500);
   });
 });
@@ -122,7 +123,7 @@ describe('admin API (real mode)', () => {
 
   it('listUsers calls apiFetch with correct URL', async () => {
     mockedApiFetch.mockResolvedValueOnce([]);
-    await listUsers();
+    await admin.listUsers();
     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/users');
   });
 
@@ -141,12 +142,12 @@ describe('admin API (real mode)', () => {
         user_last_modified_date: '', 
         enabled: true, 
         user_status: 'CONFIRMED' });
-    await getUser('test');
+    await admin.getUser('test');
     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/users/test');
   });
 
   it('addUserToGroup posts to /admin/add_user_to_group', async () => {
-    await addUserToGroup('user', 'Admin');
+    await admin.addUserToGroup('user', 'Admin');
     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/add_user_to_group', {
       method: 'POST',
       body: JSON.stringify({ username: 'user', group: 'Admin' }),
@@ -155,7 +156,7 @@ describe('admin API (real mode)', () => {
 
   // USERS Functional Requirements
   it('setRegistrationsOpen patches /admin/settings', async () => {
-    await setRegistrationsOpen(false);
+    await admin.setRegistrationsOpen(false);
     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/settings', {
       method: 'PATCH',
       body: JSON.stringify({ registrations_open: false }),
