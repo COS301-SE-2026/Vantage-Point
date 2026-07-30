@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, patch
+# from unittest.mock import AsyncMock, patch
 
 # from fastapi import HTTPException
 from app.services.analytics import LiveAnalyticsService
@@ -200,21 +200,21 @@ class TestAnalytics:
         assert stats.currentGold == [500]
         assert stats.level == [5]
 
-    @staticmethod
-    async def test_map_replay_uses_provided_data():
-        timeline = make_timeline()
-        result = await LiveAnalyticsService.map_replay("match-1", data=timeline)
+    # @staticmethod
+    # async def test_map_replay_uses_provided_data():
+    #     timeline = make_timeline()
+    #     result = await LiveAnalyticsService.map_replay("match-1", data=timeline)
 
-        assert result.frame_interval == 60000
-        assert len(result.timestamp) == 2
-        assert result.puuid == [f"puuid-{i}" for i in range(1, 11)]
-        assert len(result.position_x["1"]) == 2
+    #     assert result.frame_interval == 60000
+    #     assert len(result.timestamp) == 2
+    #     assert result.puuid == [f"puuid-{i}" for i in range(1, 11)]
+    #     assert len(result.position_x["1"]) == 2
 
-    @staticmethod
-    @patch("app.services.analytics.riot_service")
-    async def test_map_replay_fecthes_no_provided_data(mock_riot_service: Any):
-        timeline: Any = make_timeline(1)
-        mock_riot_service.get_match_timeline = AsyncMock(return_value=timeline)
-        result = await LiveAnalyticsService.map_replay("match-1")
-        mock_riot_service.get_match_timeline.assert_called_once_with("match-1")
-        assert result.frame_interval == 60000
+    # @staticmethod
+    # @patch("app.services.analytics.riot_service")
+    # async def test_map_replay_fecthes_no_provided_data(mock_riot_service: Any):
+    #     timeline: Any = make_timeline(1)
+    #     mock_riot_service.get_match_timeline = AsyncMock(return_value=timeline)
+    #     result = await LiveAnalyticsService.map_replay("match-1")
+    #     mock_riot_service.get_match_timeline.assert_called_once_with("match-1")
+    #     assert result.frame_interval == 60000

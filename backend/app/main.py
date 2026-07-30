@@ -30,11 +30,28 @@ from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
 from app.api.routes import router as api_router
 
+
+from app.api.router import (
+    admin_routes,
+    profile_routes,
+    auth_routes,
+    analytics_router,
+    riot_api_routes,
+)
+from app.services.routers import matches, users
+
 load_dotenv()
 app = FastAPI(title="Vantage Point API")
-app.include_router(api_router, prefix="/api/v1")
-app.include_router(auth_routes.router, prefix="/api/v1")
-app.include_router(profile_routes.router, prefix="/api/v1")
+# app.include_router(api_router, prefix="/api/v1")
+# app.include_router(auth_routes.router, prefix="/api/v1")
+# app.include_router(profile_routes.router, prefix="/api/v1")
+app.include_router(auth_routes.router)
+app.include_router(profile_routes.router)
+app.include_router(admin_routes.router)
+app.include_router(analytics_router.router)
+app.include_router(riot_api_routes.router)
+app.include_router(matches.router)
+app.include_router(users.router)
 
 # Loguru setup & Uvicorn log interception
 logger.remove()  # Clears default loguru handler safely
