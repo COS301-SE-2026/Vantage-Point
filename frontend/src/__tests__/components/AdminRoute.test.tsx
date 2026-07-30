@@ -67,6 +67,28 @@ describe("AdminRoute", () => {
             renderAt("/admin");
             expect(screen.getByText("Loading…")).toBeInTheDocument();
         });
-    
+
+        it("navigates to /login if user is not authenticated", () => {
+            (import.meta.env as { DEV: boolean }).DEV = false;
+            vi.mocked(useAuth).mockReturnValue({
+                user: null,
+                loading: false,
+            } as ReturnType<typeof useAuth>);
+
+            renderAt("/admin");
+            expect(screen.getByText("Login Page")).toBeInTheDocument();
+        });
+
+        it("redirects to /dashboard if user's role is a player", () => {
+            (import.meta.env as { DEV: boolean }).DEV = false;
+            vi.mocked(useAuth).mockReturnValue({
+                user: { role: "Player" },
+                loading: false,
+            } as ReturnType<typeof useAuth>);
+
+            renderAt("/admin");
+            expect(screen.getByText("Dashboard Page")).toBeInTheDocument();
+        });
+        
     });
 });
