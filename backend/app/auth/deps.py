@@ -21,16 +21,15 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    cognito_sub = await get_cognito_sub(credentials.credentials)
+    payload = await get_cognito_sub(credentials.credentials)
+    sub = str(payload.get("sub"))
 
-    result = await session.execute(
-        select(Users).where(Users.cognito_sub == cognito_sub)
-    )
+    result = await session.execute(select(Users).where(Users.cognito_sub == sub))
     user = result.scalar_one_or_none()
     if not user:
         user = Users(
-            cognito_sub=cognito_sub,
-            email=f"{cognito_sub[:8]}@placeholder.invalid",
+            cognito_sub=sub,
+            email=payload.get("email") or f"{sub[:8]}@placeholder.invalid",
             display_name=None,
         )
         session.add(user)

@@ -23,7 +23,6 @@ from app.services.auth_service import (
 )
 from app.tests.constants import TEST_USER_PASSWORD
 
-
 # =====================================================
 # Helpers for Unit Testing
 # =====================================================
@@ -115,7 +114,10 @@ class TestRegisterUser:
     @patch("app.services.auth_service.client")
     async def test_register_user_success(self, mock_client: MagicMock) -> Any:
         # Mock Cognito behavior
-        mock_client.sign_up.return_value = {"UserSub": "test-sub-123", "UserConfirmed": False}
+        mock_client.sign_up.return_value = {
+            "UserSub": "test-sub-123",
+            "UserConfirmed": False,
+        }
         mock_client.admin_confirm_sign_up.return_value = {}
         mock_client.admin_update_user_attributes.return_value = {}
 
@@ -167,7 +169,10 @@ class TestLoginUser:
     @patch("app.services.auth_service.asyncio.to_thread")
     async def test_login_user_invalid_credentials(self, mock_to_thread: MagicMock):
         mock_to_thread.side_effect = make_client_error(
-            "NotAuthorizedException", "Incorrect username or password", "initiate_auth", 401
+            "NotAuthorizedException",
+            "Incorrect username or password",
+            "initiate_auth",
+            401,
         )
 
         with pytest.raises(HTTPException) as exc_info:
