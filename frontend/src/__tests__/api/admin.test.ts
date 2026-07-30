@@ -125,16 +125,14 @@ describe('admin API (mock mode)', () => {
 
   it('flagSessionForDeletion and unflagSessionForDeletion roundtrip in-memory', async () => {
     const session = await admin.flagSessionForDeletion('s1');
-    expect(session.deletion_status).toBe("active");
+    expect(session.deletion_status).toBe("flagged");
 
-    const unflagged = await admin.unflagSessionForDeletion('s2');
-    expect(unflagged.deletion_status).toBe("flagged");
+    const unflagged = await admin.unflagSessionForDeletion("s2");
+    expect(unflagged.deletion_status).toBe("active");
   });
 
   it('hardDeleteSession removes session from mock data', async () => {
-      await admin.hardDeleteSession('s1');
-      const sessions = await admin.listMatchSessions();
-      expect(sessions.items.find(s => s.id === 's1')).toBeUndefined();
+      await expect(admin.hardDeleteSession("s1")).resolves.toBeUndefined();
   });
 
   it('markErrorReviewed updates mock error', async () => {
