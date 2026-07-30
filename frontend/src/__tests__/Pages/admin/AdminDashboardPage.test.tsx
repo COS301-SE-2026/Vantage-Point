@@ -21,7 +21,6 @@ vi.stubGlobal("ResizeObserver", ResizeObserverStub);
 // mocks
 vi.mock("../../../api/admin");
 vi.mock("../../../context/AuthContext");
- 
 
 // constants for test data
 const metrics: DashboardMetrics = {
@@ -34,9 +33,8 @@ const metrics: DashboardMetrics = {
   storage_other_mb: 5,
 };
 
-
 const traffic: SiteTrafficPoint[] = [{ month: "July 2026", relative_load: 3 }];
- 
+
 const errors: ErrorLogEntry[] = [
   {
     id: "e1",
@@ -46,7 +44,7 @@ const errors: ErrorLogEntry[] = [
     reviewed: false,
   },
 ];
- 
+
 // helper function to mock API responses
 function renderPage() {
   return render(
@@ -58,67 +56,67 @@ function renderPage() {
 
 // testing the AdminDashboardPage component
 describe("AdminDashboardPage", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        vi.mocked(useAuth).mockReturnValue({
-            user: { display_name: "Jane Doe" },
-            logout: vi.fn(),
-        } as unknown as ReturnType<typeof useAuth>);
-        vi.mocked(adminApi.getDashboardMetrics).mockResolvedValue(metrics);
-        vi.mocked(adminApi.getSiteTraffic).mockResolvedValue(traffic);
-        vi.mocked(adminApi.getErrorLog).mockResolvedValue(errors);
-        vi.mocked(adminApi.markErrorReviewed).mockResolvedValue({
-            ...errors[0],
-            reviewed: true,
-        });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useAuth).mockReturnValue({
+      user: { display_name: "Jane Doe" },
+      logout: vi.fn(),
+    } as unknown as ReturnType<typeof useAuth>);
+    vi.mocked(adminApi.getDashboardMetrics).mockResolvedValue(metrics);
+    vi.mocked(adminApi.getSiteTraffic).mockResolvedValue(traffic);
+    vi.mocked(adminApi.getErrorLog).mockResolvedValue(errors);
+    vi.mocked(adminApi.markErrorReviewed).mockResolvedValue({
+      ...errors[0],
+      reviewed: true,
     });
+  });
 
-    it("loads and displays metrics", async () => {
-        renderPage();
-    
-        expect(await screen.findByText("10")).toBeInTheDocument(); // active users
-        expect(screen.getByText("2")).toBeInTheDocument(); // inactive users
-        expect(screen.getByText("40")).toBeInTheDocument();
-        expect(screen.getByText("400")).toBeInTheDocument();
-    });
+  it("loads and displays metrics", async () => {
+    renderPage();
 
-    it("renders the error log rows", async () => {
-        renderPage();
-    
-        expect(await screen.findByText("#404")).toBeInTheDocument();
-        expect(screen.getByText("File Not Found")).toBeInTheDocument();
-    });
+    expect(await screen.findByText("10")).toBeInTheDocument(); // active users
+    expect(screen.getByText("2")).toBeInTheDocument(); // inactive users
+    expect(screen.getByText("40")).toBeInTheDocument();
+    expect(screen.getByText("400")).toBeInTheDocument();
+  });
 
-    it("shows an empty state when there are no errors", async () => {
-        vi.mocked(adminApi.getErrorLog).mockResolvedValue([]);
-        renderPage();
-    
-        expect(await screen.findByText("No errors logged.")).toBeInTheDocument();
-    });
- 
-    it("shows an error message when loading fails", async () => {
-        vi.mocked(adminApi.getDashboardMetrics).mockRejectedValue(
-            new Error("boom"),
-        );
-        renderPage();
-    
-        expect(
-            await screen.findByText("Failed to load dashboard."),
-        ).toBeInTheDocument();
-    });
- 
+  it("renders the error log rows", async () => {
+    renderPage();
+
+    expect(await screen.findByText("#404")).toBeInTheDocument();
+    expect(screen.getByText("File Not Found")).toBeInTheDocument();
+  });
+
+  it("shows an empty state when there are no errors", async () => {
+    vi.mocked(adminApi.getErrorLog).mockResolvedValue([]);
+    renderPage();
+
+    expect(await screen.findByText("No errors logged.")).toBeInTheDocument();
+  });
+
+  it("shows an error message when loading fails", async () => {
+    vi.mocked(adminApi.getDashboardMetrics).mockRejectedValue(
+      new Error("boom"),
+    );
+    renderPage();
+
+    expect(
+      await screen.findByText("Failed to load dashboard."),
+    ).toBeInTheDocument();
+  });
+
   it("optimistically toggles reviewed and calls markErrorReviewed", async () => {
     renderPage();
     await screen.findByText("#404");
- 
+
     const checkbox = screen.getByRole("checkbox");
     expect(checkbox).not.toBeChecked();
- 
+
     fireEvent.click(checkbox);
     expect(checkbox).toBeChecked();
- 
+
     await waitFor(() => {
-        expect(adminApi.markErrorReviewed).toHaveBeenCalledWith("e1", true);
+      expect(adminApi.markErrorReviewed).toHaveBeenCalledWith("e1", true);
     });
   });
 
@@ -126,13 +124,13 @@ describe("AdminDashboardPage", () => {
     vi.mocked(adminApi.markErrorReviewed).mockRejectedValue(new Error("nope"));
     renderPage();
     await screen.findByText("#404");
- 
+
     const checkbox = screen.getByRole("checkbox");
     fireEvent.click(checkbox);
     expect(checkbox).toBeChecked();
- 
+
     await waitFor(() => {
-        expect(checkbox).not.toBeChecked();
+      expect(checkbox).not.toBeChecked();
     });
   });
 });
