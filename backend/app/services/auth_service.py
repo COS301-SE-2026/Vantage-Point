@@ -4,7 +4,7 @@ import hashlib
 import hmac
 import logging
 import uuid
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import boto3
 from botocore.exceptions import ClientError
@@ -155,7 +155,7 @@ async def login_user(email_or_username: str, password: str) -> dict[str, Any]:
         )
 
         if "AuthenticationResult" in response:
-            return response["AuthenticationResult"]
+            return cast(dict[str, Any], response["AuthenticationResult"])
 
         if "ChallengeName" in response:
             raise HTTPException(

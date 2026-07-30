@@ -19,10 +19,7 @@ from app.services.auth_service import (
     login_user,
     confirm_user,
     logout_user,
-    revoke_refresh_token,
     get_secret_hash,
-    log_registration,
-    handle_cognito_error,
 )
 from app.tests.constants import TEST_USER_PASSWORD
 
@@ -218,7 +215,7 @@ class TestRegisterUser:
 
         # Real function executes and handles error
         with pytest.raises(HTTPException) as exc_info:
-            await register_user("existinguser", "TestPass123!", "test@example.com")
+            await register_user("test@example.com", "TestPass123!")
 
         assert exc_info.value.status_code == 400
 

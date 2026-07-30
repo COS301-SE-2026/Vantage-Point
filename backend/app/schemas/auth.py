@@ -56,6 +56,8 @@ def require_group(allowed_group: str | int) -> Callable:
         return User(
             sub=str(payload.get("sub")),
             email=str(payload.get("email", "")),
+            groups=user_groups,
+            username=payload.get("username") or payload.get("cognito:username"),
         )
 
     return dependency

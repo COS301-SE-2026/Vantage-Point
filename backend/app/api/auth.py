@@ -82,7 +82,7 @@ def get_public_key(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
     issuer = (
         f"https://cognito-idp.{settings.aws_region}.amazonaws.com/"
         f"{settings.cognito_user_pool_id}"
@@ -126,7 +126,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        return str(user_id)  # Return the Cognito User ID
+        return payload
+
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

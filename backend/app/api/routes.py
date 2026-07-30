@@ -265,7 +265,7 @@ async def update_profile(
     profile = await ProfileService.update_profile(
         session=session,
         user_id=current_user,
-        request=request,
+        profile_data=request,
     )
 
     total_matches, summary = await ProfileService.build_player_summary(
