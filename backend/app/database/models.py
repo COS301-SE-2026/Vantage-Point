@@ -215,7 +215,8 @@ class MapReplayTable(SQLModel, Table=True):
     position_x: list[int]
     position_y: list[int]
 
-#will do this later to ave top db. need to add a puuid or some finding entity. Primary key
+
+# will do this later to ave top db. need to add a puuid or some finding entity. Primary key
 class MatchDataTable(SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
@@ -293,6 +294,7 @@ class MatchDataTable(SQLModel, Table=True):
     tower_kills: int
     teams_teamId: int
     teams_win: bool
+
 
 class ProfileDataTable(SQLModel, Table=True):
     __tablename__ = "profile_data_table"

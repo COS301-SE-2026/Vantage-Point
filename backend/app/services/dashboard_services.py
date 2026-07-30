@@ -7,83 +7,69 @@ class DashboardService:
 
     @staticmethod
     async def new_users_today() -> int:
-        users:list[UserResponse]=await admin_service.get_users()
+        users: list[UserResponse] = await admin_service.get_users()
         today = datetime.now(timezone.utc).date
-        new_today = sum(
-            1 for user in users
-            if user.user_created_date == today
-        ) | 0
+        new_today = sum(1 for user in users if user.user_created_date == today) | 0
         return new_today
 
     @staticmethod
     async def new_users_this_week() -> int:
-        users:list[UserResponse]=await admin_service.get_users()
+        users: list[UserResponse] = await admin_service.get_users()
 
         week_ago = datetime.now(timezone.utc) - timedelta(days=7)
-        new_week = sum(
-            1 for user in users
-            if user.user_created_date >= week_ago
-        ) | 0
+        new_week = sum(1 for user in users if user.user_created_date >= week_ago) | 0
         return new_week
-
 
     @staticmethod
     async def new_users_this_month() -> int:
-        users:list[UserResponse]=await admin_service.get_users()
-        
+        users: list[UserResponse] = await admin_service.get_users()
+
         month_ago = datetime.now(timezone.utc) - timedelta(days=30)
-        new_month = sum(
-            1 for user in users
-            if user.user_created_date >= month_ago
-        ) | 0
+        new_month = sum(1 for user in users if user.user_created_date >= month_ago) | 0
         return new_month
 
     @staticmethod
-    async def confirmed_users():
-        users:list[UserResponse]=await admin_service.get_users()
+    async def confirmed_users() -> int:
+        users: list[UserResponse] = await admin_service.get_users()
 
-        confirmed_user = sum(
-            1 for user in users
-            if user.user_status == "CONFIRMED"
-        ) | 0
+        confirmed_user = sum(1 for user in users if user.user_status == "CONFIRMED") | 0
         return confirmed_user
 
-    
     @staticmethod
-    async def unconfirmed_users():
-        users:list[UserResponse]=await admin_service.get_users()
+    async def unconfirmed_users() -> int:
+        users: list[UserResponse] = await admin_service.get_users()
 
-        unconfirmed_user = sum(
-            1 for user in users
-            if user.user_status == "UNCONFIRMED"
-        ) | 0
+        unconfirmed_user = (
+            sum(1 for user in users if user.user_status == "UNCONFIRMED") | 0
+        )
         return unconfirmed_user
 
     @staticmethod
     async def weekly_growth() -> int:
-        this_week_start= datetime.now(timezone.utc) - timedelta(7)
-        last_week_start= datetime.now(timezone.utc) - timedelta(14)
-        last_week_end= this_week_start
+        this_week_start = datetime.now(timezone.utc) - timedelta(7)
+        last_week_start = datetime.now(timezone.utc) - timedelta(14)
+        last_week_end = this_week_start
 
         this_week = await DashboardService.new_users_this_week()
         users = await admin_service.get_users()
         last_week = sum(
-            1 for user in users
+            1
+            for user in users
             if last_week_start <= user.user_created_date < last_week_end
         )
         return this_week - last_week
 
     @staticmethod
-    async def monthly_growth():
-        this_month_start= datetime.now(timezone.utc) - timedelta(7)
-        last_month_start= datetime.now(timezone.utc) - timedelta(14)
-        last_month_end= this_month_start
+    async def monthly_growth() -> int:
+        this_month_start = datetime.now(timezone.utc) - timedelta(7)
+        last_month_start = datetime.now(timezone.utc) - timedelta(14)
+        last_month_end = this_month_start
 
         this_week = await DashboardService.new_users_this_week()
         users = await admin_service.get_users()
         last_week = sum(
-            1 for user in users
+            1
+            for user in users
             if last_month_start <= user.user_created_date < last_month_end
         )
         return this_week - last_week
-    

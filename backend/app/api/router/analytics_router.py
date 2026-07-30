@@ -22,7 +22,11 @@ router = APIRouter()
 @router.get(
     "/analytics/map-replay/{match_id}", response_model=MapReplay, tags=["Analytics"]
 )
-async def map_replay(_: Annotated[User, Depends(require_group(10))],session: Annotated[AsyncSession, Depends(get_session)], match_id: str):
+async def map_replay(
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+):
     return await LiveAnalyticsService.map_replay(match_id, session)
 
 
@@ -32,7 +36,10 @@ async def map_replay(_: Annotated[User, Depends(require_group(10))],session: Ann
     tags=["Analytics"],
 )
 async def map_suggest_data(
-    _: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)],match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
     return await LiveAnalyticsService.map_suggest_data(match_id, puuid, session)
 
@@ -41,7 +48,10 @@ async def map_suggest_data(
     "/analytics/profile_data/{match_id}", response_model=ProfileData, tags=["Analytics"]
 )
 async def profile_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str, session: Annotated[AsyncSession, Depends(get_session)]
+    _: Annotated[User, Depends(require_group(10))],
+    match_id: str,
+    puuid: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     return await LiveAnalyticsService.profile_data(match_id, puuid, session)
 
@@ -70,7 +80,10 @@ async def champion_data(
     "/analytics/item_data/{match_id}", response_model=ItemData, tags=["Analytics"]
 )
 async def item_data(
-    _: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)],match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
     return await LiveAnalyticsService.item_data(match_id, puuid, session)
 
@@ -79,7 +92,10 @@ async def item_data(
     "/analytics/skill_data/{match_id}", response_model=SkillData, tags=["Analytics"]
 )
 async def skill_data(
-    _: Annotated[User, Depends(require_group(10))], session: Annotated[AsyncSession, Depends(get_session)],match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
     return await LiveAnalyticsService.skill_data(match_id, puuid, session)
 

@@ -180,6 +180,3 @@ async def update_group_attr(
     description: str,
 ):
     return await admin_service.update_group_attr(group_name, precedence, description)
-
-
-
