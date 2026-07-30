@@ -75,13 +75,15 @@ async def update_me(
 
 @router.post("/me/avatar", response_model=AvatarUploadResponse)
 async def upload_avatar(
-    file: UploadFile = File(...),
-    current_user: Users = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    file: Annotated[UploadFile, File(...)],
 ):
-    avatar_path = await save_avatar(current_user.cognito_sub, file)
-    current_user.avatar_url = avatar_path
-    session.add(current_user)
+    
+    avatar_path = await save_avatar(current_user.sub, file)
+    response = await _get_users(current_user.sub, session)
+    response.avatar_url = avatar_path
+    session.add(response)
     await session.commit()
     return AvatarUploadResponse(avatar_url=avatar_path)
 
