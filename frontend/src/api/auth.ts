@@ -14,18 +14,38 @@ export interface LoginPayload {
   readonly password: string;
 }
 
+export interface ConfirmPayload {
+  readonly username: string;
+  readonly code: string;
+}
+
 export async function registerUser(payload: RegisterPayload): Promise<void> {
-  const tokens = await apiFetchPublic<TokenResponse>("/api/v1/auth/register", {
+  await apiFetchPublic<void>("/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  setStoredTokens(tokens.access_token, tokens.refresh_token);
 }
 
 export async function loginUser(payload: LoginPayload): Promise<void> {
-  const tokens = await apiFetchPublic<TokenResponse>("/api/v1/auth/login", {
-    method: "POST",
-    body: JSON.stringify(payload),
+  const params = new URLSearchParams({
+    username: payload.username,
+    password: payload.password,
   });
+
+  const tokens = await apiFetchPublic<TokenResponse>(`/login?${params.toString()}`, {
+    method: "POST",
+  });
+
   setStoredTokens(tokens.access_token, tokens.refresh_token);
+}
+
+export async function confirmUser(payload: ConfirmPayload): Promise<void> {
+  const params = new URLSearchParams({
+    username: payload.username,
+    code: payload.code,
+  });
+
+  await apiFetchPublic<void>(`/confim-user?${params.toString()}`, {
+    method: "POST",
+  });
 }
