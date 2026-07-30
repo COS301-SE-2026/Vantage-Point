@@ -18,20 +18,22 @@ class Settings(BaseSettings):
     riot_region: str = "americas"
     riot_platform: str = "na1"
 
-    # ============ AWS Cognito Configuration ============
-    aws_region: str = "eu-north-1"
-    cognito_user_pool_id: str = "eu-north-1_V2oWQIRB9"
-    cognito_client_id: str = "7ca1djteu2tpo5itu5ve9huh2p"
-    cognito_client_secret: str = "hkj5b1rh9sg028f0lnr2pqpbr7pblncoslr8n6n0qcjhfqi2hip"
+    # ============= Database Configuration =============
+    database_url: str = ""
 
-    # ============ AWS IAM Credentials ============
-    aws_access_key_id: Any = os.getenv("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key: Any = os.getenv("AWS_SECRET_ACCESS_KEY")
+    # ============ AWS Credentials & Cognito Configuration ============
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
+    aws_region: str = "eu-west-1"
+    cognito_user_pool_id: str = ""
+    cognito_client_id: str = ""
+    cognito_client_secret: str = ""
 
     # ============ Server Configuration ============
     debug: bool = True
     host: str = "0.0.0.0"  # nosec B104
     port: int = 8000
+
     # ============ Rate Limiting ============
     rate_limit_requests: int = 20
     rate_limit_seconds: int = 1

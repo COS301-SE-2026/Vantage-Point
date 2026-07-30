@@ -14,13 +14,11 @@ This file serves as the entry point for all tests.
 # Import service tests
 from app.tests.services.test_auth import (
     TestGetSecretHash,
-    TestLogRegistration,
     TestHandleCognitoError,
     TestRegisterUser,
     TestLoginUser,
     TestConfirmUser,
     TestLogoutUser,
-    TestRevokeRefreshToken,
 )
 
 __all__ = [
@@ -30,11 +28,9 @@ __all__ = [
     # "TestTestEndpoint",
     # Auth service
     "TestGetSecretHash",
-    "TestLogRegistration",
     "TestHandleCognitoError",
     "TestRegisterUser",
     "TestLoginUser",
     "TestConfirmUser",
     "TestLogoutUser",
-    "TestRevokeRefreshToken",
 ]

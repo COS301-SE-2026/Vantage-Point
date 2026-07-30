@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
 import imgLogo from "../../assets/images/logos/logo.webp";
 import imgGoogle from "../../assets/images/providers/google.webp";
@@ -17,6 +18,24 @@ const MARQUEE_ITEMS = [
   "Positioning",
   "Risk Prediction",
 ] as const;
+
+export type RegisterFormProps = Readonly<{
+  email: string;
+  password: string;
+  confirmPassword: string;
+  error?: string | null;
+  loading?: boolean;
+  onEmailChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onConfirmPasswordChange: (value: string) => void;
+  onSubmit: () => void;
+  onSocialClick?: () => void;
+}>;
+
+interface RegisterProps {
+  form: RegisterFormProps;
+  backgroundImage?: string;
+}
 
 function Logo() {
   return (
@@ -38,7 +57,9 @@ function Logo() {
   );
 }
 
-function SocialProviders() {
+function SocialProviders({
+  onSocialClick,
+}: Readonly<{ onSocialClick?: () => void }>) {
   const providers = [
     { id: "google", src: imgGoogle, alt: "Google logo" },
     { id: "apple", src: imgAppleInc, alt: "Apple logo" },
@@ -55,6 +76,7 @@ function SocialProviders() {
           <button
             key={provider.id}
             type="button"
+            onClick={onSocialClick}
             className="flex flex-1 items-center justify-center h-[54px] border border-[#d9d9d9] rounded-[8px] hover:bg-neutral-50 transition-colors cursor-pointer"
           >
             <img
@@ -99,16 +121,65 @@ function Marquee() {
   );
 }
 
-export default function Register() {
-  const [showPassword, setShowPassword] = useState(false);
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+}: Readonly<{
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  placeholder: string;
+}>) {
+  const id = `register-${label.toLowerCase().replace(/\s+/g, "-")}`;
+
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <label htmlFor={id} className="text-sm font-semibold text-neutral-700">
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={authInputClassName}
+      />
+    </div>
+  );
+}
+
+export default function Register({
+  form,
+  backgroundImage,
+}: Readonly<RegisterProps>) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
+    if (backgroundImage) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % backgroundImages.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [backgroundImage]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (typeof form?.onSubmit === "function") {
+      form.onSubmit();
+    } else {
+      console.warn(
+        "Register form `onSubmit` function was not passed or is invalid.",
+        form,
+      );
+    }
+  };
 
   return (
     <div className="relative flex w-screen h-screen min-h-[100dvh] overflow-hidden bg-white select-none">
@@ -118,24 +189,15 @@ export default function Register() {
 
         <form
           className="w-full flex flex-col gap-5 mt-4"
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSubmit}
         >
-          {/* Email Field Group */}
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="register-email"
-              className="text-sm font-semibold text-neutral-700"
-            >
-              Email Address
-            </label>
-            <input
-              id="register-email"
-              type="email"
-              placeholder="name@domain.com"
-              className={authInputClassName}
-              required
-            />
-          </div>
+          <Field
+            label="Email Address"
+            value={form?.email ?? ""}
+            onChange={form?.onEmailChange}
+            type="email"
+            placeholder="name@domain.com"
+          />
 
           {/* Password Field Group */}
           <div className="flex flex-col gap-1 w-full">
@@ -149,6 +211,8 @@ export default function Register() {
               <input
                 id="register-password"
                 type={showPassword ? "text" : "password"}
+                value={form?.password ?? ""}
+                onChange={(e) => form?.onPasswordChange(e.target.value)}
                 placeholder="••••••••"
                 className={authInputClassName}
                 required
@@ -156,28 +220,62 @@ export default function Register() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-sm font-medium transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-sm font-medium transition-colors cursor-pointer"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
           </div>
 
+          <div className="flex flex-col gap-1 w-full">
+            <label
+              htmlFor="register-confirm-password"
+              className="text-sm font-semibold text-neutral-700"
+            >
+              Confirm Password
+            </label>
+            <div className="relative w-full">
+              <input
+                id="register-confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                value={form?.confirmPassword ?? ""}
+                onChange={(e) => form?.onConfirmPasswordChange(e.target.value)}
+                placeholder="••••••••"
+                className={authInputClassName}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-sm font-medium transition-colors cursor-pointer"
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          {form?.error ? (
+            <p className="text-sm font-medium text-red-600">{form.error}</p>
+          ) : null}
+
           <button
             type="submit"
-            className="w-full h-[54px] bg-[#2c2c2c] hover:bg-black text-white font-medium rounded-[8px] transition-colors mt-2"
+            disabled={form?.loading}
+            className="w-full h-[54px] bg-[#2c2c2c] hover:bg-black disabled:opacity-60 text-white font-medium rounded-[8px] transition-colors mt-2 cursor-pointer"
           >
-            Create Account
+            {form?.loading ? "Creating Account..." : "Create Account"}
           </button>
 
-          <SocialProviders />
+          <SocialProviders onSocialClick={form?.onSocialClick} />
         </form>
 
         <p className="text-sm text-neutral-500">
           Already have an account?{" "}
-          <a href="/login" className="text-black font-semibold hover:underline">
+          <Link
+            to="/login"
+            className="text-black font-semibold hover:underline"
+          >
             Sign In
-          </a>
+          </Link>
         </p>
       </div>
 
