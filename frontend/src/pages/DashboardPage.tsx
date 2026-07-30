@@ -8,13 +8,24 @@ import {
 import DashboardShell, {
   type DashboardSection,
 } from "../components/DashboardShell";
+import ProfileHeaderEditor from "../components/ProfileHeaderEditor";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchPlayerProfile } from "../api/profile";
 import { useAuth } from "../context/AuthContext";
 import type { PlayerProfile } from "../types/profile";
 
 function sectionFromPathname(pathname: string): DashboardSection {
-  return pathname.includes("/dashboard/profile") ? "profile" : "matches";
+  if (pathname.includes("/dashboard/profile")) return "profile";
+  if (pathname.includes("/dashboard/replay")) return "replay";
+  if (pathname.includes("/dashboard/metrics")) return "metrics";
+  return "matches";
 }
 
 export default function DashboardPage() {
@@ -24,6 +35,7 @@ export default function DashboardPage() {
   const { user, logout, refreshUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profile, setProfile] = useState<PlayerProfile | undefined>(undefined);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   const loadProfile = useCallback(async () => {
     if (!user) {
@@ -73,6 +85,7 @@ export default function DashboardPage() {
 
   const accountAvatarUrl = profile?.avatar_url ?? user?.avatar_url ?? null;
   const accountInitials = profile?.avatar_initials ?? "VP";
+  const isProfileSection = activeSection === "profile";
 
   const handleLogout = () => {
     logout();
@@ -86,21 +99,49 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-auto bg-white">
+    <div className="vp-scrollbar min-h-screen w-full overflow-x-auto bg-white device-dark:bg-[#181818]">
       <div className="relative mx-auto w-full min-w-0 max-w-[var(--vp-layout-max)]">
         <DashboardShell
           sidebarOpen={sidebarOpen}
           onSidebarToggle={() => setSidebarOpen((open) => !open)}
           activeSection={activeSection}
           onMatchesClick={() => navigate("/dashboard/matches")}
+          onReplayClick={() => navigate("/dashboard/replay")}
+          onMetricsClick={() => navigate("/dashboard/metrics")}
           onProfileClick={() => navigate("/dashboard/profile")}
           onLogout={handleLogout}
           accountInitials={accountInitials}
           accountAvatarUrl={accountAvatarUrl}
+          accountName={isProfileSection ? profile?.display_name : undefined}
+          accountTag={isProfileSection ? profile?.riot_id_tag : undefined}
+          onEditProfileClick={
+            profile ? () => setEditProfileOpen(true) : undefined
+          }
         >
           <Outlet context={outletContext} />
         </DashboardShell>
       </div>
+
+      {profile ? (
+        <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[560px]">
+            <DialogHeader>
+              <DialogTitle className="font-['Inter',sans-serif]">
+                Edit profile
+              </DialogTitle>
+              <DialogDescription className="font-['Inter',sans-serif]">
+                Update your display name, Riot ID and profile photo.
+              </DialogDescription>
+            </DialogHeader>
+            <ProfileHeaderEditor
+              profile={profile}
+              onSaved={refreshProfile}
+              forceEditing
+              onClose={() => setEditProfileOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </div>
   );
 }
