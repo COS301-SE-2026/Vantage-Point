@@ -52,7 +52,7 @@ MAX_SYNC_COUNT = 40
 RIOT_TIMEOUT_SECONDS = 20.0
 
 
-def _api_key() -> str:
+def riot_api_key() -> str:
     load_dotenv(override=True)
     key = os.getenv("RIOT_API_KEY", "").strip()
     if not key:
@@ -62,7 +62,7 @@ def _api_key() -> str:
     return key
 
 
-def _raise_for_riot_status(response: httpx.Response) -> None:
+def raise_for_riot_status(response: httpx.Response) -> None:
     if response.status_code in (401, 403):
         raise RiotApiUnauthorizedError(
             "Riot API key is invalid or expired. Regenerate it at "
@@ -76,7 +76,7 @@ def _raise_for_riot_status(response: httpx.Response) -> None:
 
 async def fetch_recent_match_ids(puuid: str, count: int) -> list[str]:
     """Recent Match-V5 ids for a PUUID, probing routing clusters until one answers."""
-    headers = {"X-Riot-Token": _api_key()}
+    headers = {"X-Riot-Token": riot_api_key()}
 
     async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
         for cluster in ROUTING_CLUSTERS:
@@ -85,7 +85,7 @@ async def fetch_recent_match_ids(puuid: str, count: int) -> list[str]:
                 f"by-puuid/{puuid}/ids?start=0&count={count}"
             )
             response = await client.get(url, headers=headers)
-            _raise_for_riot_status(response)
+            raise_for_riot_status(response)
 
             if response.status_code == 200:
                 ids = [str(match_id) for match_id in response.json()]
@@ -100,12 +100,12 @@ async def fetch_recent_match_ids(puuid: str, count: int) -> list[str]:
 async def fetch_match(match_id: str) -> dict[str, Any] | None:
     macro_region = get_macro_region(match_id.split("_")[0].lower())
     url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
-    headers = {"X-Riot-Token": _api_key()}
+    headers = {"X-Riot-Token": riot_api_key()}
 
     async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
         response = await client.get(url, headers=headers)
 
-    _raise_for_riot_status(response)
+    raise_for_riot_status(response)
     if response.status_code != 200:
         logger.warning(
             "Skipping match %s: Riot returned %s", match_id, response.status_code
