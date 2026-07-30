@@ -168,11 +168,13 @@ To ensure a stable and collaborative development workflow, the following strateg
 
 - **[Project Board](https://github.com/orgs/COS301-SE-2026/projects/32/views/6)** - Sprint planning and task tracking
 - **[Setup Guide](.github/docs/Setup.md)** - Initial project setup and dependencies
-- **[Functional Requirements (SRS)](.github/docs/SRS_v2.pdf)** - Functional, architectural and technology requirements
+- **[SRS]()** - Functional and Non-functional Requirements, Use Cases, Domain model
+- **[SAS]()** - Architecture, API, Deployment
 - **[Dev Quickstart](.github/docs/Dev-Quickstart.md)** - Seed database, run backend/frontend, sign in as test user
 - **[Backend Development Guide](.github/docs/Backend-Development-Guide.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/Frontend-Development-Guide.md)** - Frontend setup, components, styling, testing
-- **[CI/CD Documentation](.github/docs/CICD.md)** - GitHub Actions workflows, automated testing, deployment pipeline
 - **[SCRUM & Sprint Planning](.github/docs/Scrum-Setup.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
 - **[Brand Style Guide](.github/docs/Brand-Style.md)** - Brand style guide for consistent UI/UX across the application
-- **[Wireframes](https://www.figma.com/design/cUssojtAVvCokYU7k9yAmW/vantage-point?m=auto&t=oenm7gYsMCu5Tsix-6)** - Wireframes for the application UI
+- **[Wireframes]()** - Wireframes for the application UI
+- **[Coding Standards](.github/docs/Coding_Standards.pdf)** - Sonarqube, Black, and File Structure
+- **[Testing Policy](.github/docs/Testing_Policy.pdf)** - Testing Tools, Environments, and Policy
