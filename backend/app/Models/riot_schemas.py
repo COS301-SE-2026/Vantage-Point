@@ -131,7 +131,7 @@ class MatchData(BaseModel):
     thirdInhibitorDestroyedTime: int
     fistBumpTakedowns: int
     baronTakedowns: int
-    bountyGold: int
+    bountyGold: float
     damagePerMinute: float
     deatshByEnemyChamps: int
     elderDragonKillsWithOpposingSoul: int

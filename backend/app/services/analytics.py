@@ -425,27 +425,6 @@ class LiveAnalyticsService:
             position_y=y_values,
         )
 
-        statement: Any = select(MapReplayTable).where(
-            MapReplayTable.puuid == response.puuid
-        )
-        value: Any = session.execute(statement)
-        value = value.scalar_one_or_none()
-
-        if value is not None:  # meanign already in the db just return
-            return response
-
-        add_to_table = MapReplayTable(
-            puuid=response.puuid,
-            participant_id=response.participant_id,
-            frame_interval=response.frame_interval,
-            timestamp=response.timestamp,
-            position_x=response.position_x,
-            position_y=response.position_y,
-        )
-        session.add(add_to_table)
-        await session.commit()
-        await session.refresh(add_to_table)
-
         return response
 
     @staticmethod
@@ -676,50 +655,6 @@ class LiveAnalyticsService:
             # //dpm
             # //creep score
             # //xp
-
-            statement: Any = select(ProfileDataTable).where(
-                ProfileDataTable.puuid == puuid
-            )
-            value: Any = await session.execute(statement)
-            tabel_response: Any = value.scalar_one_or_none()
-
-            if tabel_response is None:
-                table_data = ProfileDataTable(
-                    endOfGameResult=response.endOfGameResult,
-                    gameDuration=response.gameDuration,
-                    puuid=response.puuid,
-                    champExperience=response.champExperience,
-                    champLevel=response.champLevel,
-                    goldPerMinute=response.goldPerMinute,
-                    kda=response.kda,
-                    deaths=response.deaths,
-                    doubleKills=response.doubleKills,
-                    killingSprees=response.killingSprees,
-                    largestKillingSpree=response.largestKillingSpree,
-                    largestMultiKill=response.largestKillingSpree,
-                    playerScore0=response.playerScore0,
-                    playerScore1=response.playerScore1,
-                    playerScore2=response.playerScore2,
-                    playerScore3=response.playerScore3,
-                    playerScore4=response.playerScore4,
-                    playerScore5=response.playerScore5,
-                    playerScore6=response.playerScore6,
-                    playerScore7=response.playerScore7,
-                    playerScore8=response.playerScore8,
-                    playerScore9=response.playerScore9,
-                    playerScore10=response.playerScore10,
-                    playerScore11=response.playerScore11,
-                    pentakills=response.pentakills,
-                    quadrakills=response.quadrakills,
-                    timePlayed=response.timePlayed,
-                    tripleKills=response.tripleKills,
-                    unreal=response.unreal,
-                    kills=response.kills,
-                    lane=response.lane,
-                    teamPosition=response.teamPosition,
-                )
-                await session.commit()
-                await session.refresh(table_data)
             return response
         except KeyError as e:
             raise HTTPException(

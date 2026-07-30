@@ -85,7 +85,7 @@ class ProfileService:
             )  # email needs to be added.
             session.add(profile)
             await session.commit()
-            await session.refresh(user)
+            await session.refresh(profile)
 
             return profile
         except ClientError as e:
