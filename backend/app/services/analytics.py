@@ -17,8 +17,6 @@ from app.Models.riot_schemas import (
 )
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
-from app.database.models import MapReplayTable, ProfileDataTable
-from sqlmodel import select
 
 internal_server_error: str = "Internal server error"
 player_not_found: str = "PLayer not found in match"

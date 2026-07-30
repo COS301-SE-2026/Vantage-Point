@@ -19,10 +19,11 @@ from app.services.auth_service import (
     confirm_user,
     logout_user,
     get_secret_hash,
-    _handle_cognito_error,
+    handle_cognito_error,
 )
-from app.tests.constants import TEST_USER_PASSWORD
 
+# from app.tests.constants import TEST_USER_PASSWORD
+TEST_USER_PASSWORD = "Test@User123!"
 # =====================================================
 # Helpers for Unit Testing
 # =====================================================
@@ -76,7 +77,7 @@ class TestGetSecretHash:
 class TestHandleCognitoError:
     """Test suite for Cognito error handling.
 
-    These tests execute the real _handle_cognito_error() function.
+    These tests execute the real handle_cognito_error() function.
     Tests error mapping logic.
     """
 
@@ -88,7 +89,7 @@ class TestHandleCognitoError:
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
-            _handle_cognito_error(client_error)
+            handle_cognito_error(client_error)
         assert exc_info.value.status_code == 401
 
     def test_handle_cognito_error_too_many_requests(self):
@@ -99,7 +100,7 @@ class TestHandleCognitoError:
 
         # Real function executes
         with pytest.raises(HTTPException) as exc_info:
-            _handle_cognito_error(client_error)
+            handle_cognito_error(client_error)
         assert exc_info.value.status_code == 429
 
 
@@ -122,10 +123,10 @@ class TestRegisterUser:
         mock_client.admin_update_user_attributes.return_value = {}
 
         # Service now takes only email and password
-        result = await register_user("test@example.com", TEST_USER_PASSWORD)
+        result = await register_user("test1", "test@example.com", TEST_USER_PASSWORD)
 
-        assert result["user_sub"] == "test-sub-123"
-        assert result["user_confirmed"] is True
+        assert result["UserSub"] == "test-sub-123"
+        assert result["UserConfirmed"] is False
         mock_client.sign_up.assert_called_once()
 
     @patch("app.services.auth_service.client")
@@ -136,9 +137,9 @@ class TestRegisterUser:
 
         # Real function executes and handles error
         with pytest.raises(HTTPException) as exc_info:
-            await register_user("existing@example.com", TEST_USER_PASSWORD)
+            await register_user("test1", "existing@example.com", TEST_USER_PASSWORD)
 
-        assert exc_info.value.status_code == 409
+        assert exc_info.value.status_code == 400
 
 
 @pytest.mark.anyio
@@ -163,8 +164,10 @@ class TestLoginUser:
 
         result = await login_user("test@example.com", TEST_USER_PASSWORD)
 
-        assert "AccessToken" in result
-        assert result["AccessToken"] == "access_token_123"
+        assert "access_token" in result
+        assert result["access_token"] == "access_token_123"
+        assert result["id_token"] == "id_token_123"
+        assert result["refresh_token"] == "refresh_token_123"
 
     @patch("app.services.auth_service.asyncio.to_thread")
     async def test_login_user_invalid_credentials(self, mock_to_thread: MagicMock):

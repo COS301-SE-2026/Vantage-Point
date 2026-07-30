@@ -5,7 +5,6 @@ from typing import Any, Annotated
 from app.Models.profile_schemas import User
 from app.database.models import Users
 from app.api.auth import require_group
-from app.database.models import Users
 from app.database.session import get_session
 from app.schemas.profile import PlayerProfileResponse
 from app.schemas.user import (
@@ -37,6 +36,7 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
         riot_id_tag=tag,
         has_linked_riot=account is not None,
     )
+
 
 async def _get_users(sub: str, session: AsyncSession) -> Users:
     statement = select(Users).where(Users.cognito_sub == sub)
@@ -79,7 +79,7 @@ async def upload_avatar(
     session: Annotated[AsyncSession, Depends(get_session)],
     file: Annotated[UploadFile, File(...)],
 ):
-    
+
     avatar_path = await save_avatar(current_user.sub, file)
     response = await _get_users(current_user.sub, session)
     response.avatar_url = avatar_path
@@ -93,7 +93,7 @@ async def delete_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    
+
     delete_avatar_files(current_user.sub)
     response = await _get_users(current_user.sub, session)
     response.avatar_url = None
@@ -103,7 +103,7 @@ async def delete_avatar(
 
 @router.get("/me/profile", response_model=PlayerProfileResponse)
 async def get_my_profile(
-     current_user: Annotated[User, Depends(require_group(10))],
+    current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     account = await get_primary_linked_account(session, current_user.sub)
@@ -140,7 +140,7 @@ async def link_game_account(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    
+
     return await _link_game_account_impl(body, current_user, session)
 
 

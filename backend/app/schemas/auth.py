@@ -1,9 +1,4 @@
-from typing import Callable
-from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
-
-from app.api.auth import get_current_user
-from app.Models.profile_schemas import User
 
 
 class RegisterRequest(BaseModel):
