@@ -215,7 +215,8 @@ class MapReplayTable(SQLModel, Table=True):
     position_x: list[int]
     position_y: list[int]
 
-class MatchData(SQLModel, Table=True):
+#will do this later to ave top db. need to add a puuid or some finding entity. Primary key
+class MatchDataTable(SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
     end_of_game_result: str
@@ -292,3 +293,39 @@ class MatchData(SQLModel, Table=True):
     tower_kills: int
     teams_teamId: int
     teams_win: bool
+
+class ProfileData(SQLModel, Table=True):
+    __tablename__ = "profile_data_table"
+
+    endOfGameResult: str
+    gameDuration: float
+    puuid: str
+    champExperience: int
+    champLevel: int
+    goldPerMinute: float
+    kda: float
+    deaths: int
+    doubleKills: int
+    killingSprees: int
+    largestKillingSpree: int
+    largestMultiKill: int
+    playerScore0: int
+    playerScore1: int
+    playerScore2: int
+    playerScore3: int
+    playerScore4: int
+    playerScore5: int
+    playerScore6: int
+    playerScore7: int
+    playerScore8: int
+    playerScore9: int
+    playerScore10: int
+    playerScore11: int
+    pentakills: int
+    quadrakills: int
+    timePlayed: int
+    tripleKills: int
+    unreal: int
+    kills: int
+    lane: str
+    teamPosition: str
