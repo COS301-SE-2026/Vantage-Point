@@ -4,9 +4,11 @@ import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchMatchDetail } from "../api/match";
 import { fetchMatchHistory } from "../api/matches";
 import { fetchLiveMetrics } from "../api/user";
+import { fetchMatchTimeline } from "../api/timeline";
 import AiCoachingBar from "../components/AiCoachingBar";
 import LiveMetricsPanel from "../components/LiveMetricsPanel";
 import MapAnalysisTable from "../components/MapAnalysisTable";
+import MatchReplayMapOverlay from "../components/MatchReplayMapOverlay";
 import MatchReplayToolbar, {
   type ReplayOverlayAction,
   type ReplayToolbarMode,
@@ -17,6 +19,8 @@ import {
 } from "../lib/dashboardLayout";
 import { buildMapAnalysisRows } from "../lib/mapAnalysisRows";
 import { buildMapAnalysisTips } from "../lib/replayCoaching";
+import { buildAnalysisSnapshot, formatTimelineClock } from "../lib/timeline";
+import { useReplayClock } from "../lib/useReplayClock";
 import { mapMini } from "../assets/images/metrics";
 import type {
   MatchDetail,
@@ -24,12 +28,7 @@ import type {
   TeamDetail,
 } from "../types/match";
 import type { LiveMetrics } from "../types/profile";
-
-function formatClock(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-}
+import type { MatchTimeline } from "../types/timeline";
 
 function viewerAndTeam(match: MatchDetail): {
   viewer?: ParticipantDetail;
@@ -61,11 +60,14 @@ export default function MetricsView() {
   const [selectedPuuids, setSelectedPuuids] = useState<Set<string>>(
     () => new Set(),
   );
-  const [playing, setPlaying] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
+  const [timeline, setTimeline] = useState<MatchTimeline | null>(null);
   const [liveMetrics, setLiveMetrics] = useState<LiveMetrics | undefined>();
   const [metricsLoading, setMetricsLoading] = useState(true);
   const [metricsError, setMetricsError] = useState<string | null>(null);
+
+  // The table reads the frame at this clock, so it starts at kick-off rather than at
+  // the final whistle and the transport row below it actually moves the numbers.
+  const clock = useReplayClock(timeline?.game_duration_ms ?? 0);
 
   // Independent of the selected match: these are averages over the account's recent
   // games, so they load in parallel and a Riot outage must not blank the page.
@@ -115,9 +117,18 @@ export default function MetricsView() {
       const detail = await fetchMatchDetail(id);
       if (cancelled) return;
       setMatch(detail);
-      setElapsed(detail.game_duration);
       const { viewer } = viewerAndTeam(detail);
       setSelectedPuuids(viewer ? new Set([viewer.puuid]) : new Set());
+
+      // Per-frame rows need the timeline, but the rest of the page does not, so its
+      // absence only costs those rows their values (see buildMapAnalysisRows).
+      setTimeline(null);
+      try {
+        const frames = await fetchMatchTimeline(id);
+        if (!cancelled) setTimeline(frames);
+      } catch {
+        // Riot has no timeline for this match; the table falls back to "—".
+      }
     };
 
     load()
@@ -148,9 +159,39 @@ export default function MetricsView() {
     [match],
   );
 
+  const teamIdByPuuid = useMemo(() => {
+    const byPuuid = new Map<string, number>();
+    for (const matchTeam of match?.teams ?? []) {
+      for (const participant of matchTeam.participants) {
+        byPuuid.set(participant.puuid, matchTeam.team_id);
+      }
+    }
+    return byPuuid;
+  }, [match]);
+
+  const snapshot = useMemo(() => {
+    if (!timeline) return undefined;
+    return buildAnalysisSnapshot(
+      timeline,
+      viewer?.puuid,
+      team ? team.participants.map((p) => p.puuid) : [],
+      team?.team_id,
+      clock.elapsedMs,
+    );
+  }, [timeline, viewer, team, clock.elapsedMs]);
+
   const rows = useMemo(
-    () => buildMapAnalysisRows(viewer, team),
-    [viewer, team],
+    () => buildMapAnalysisRows(viewer, team, snapshot),
+    [viewer, team, snapshot],
+  );
+
+  const overlayToggles = useMemo(
+    () => ({
+      kills: activeActions.has("kills"),
+      deaths: activeActions.has("deaths"),
+      path: activeActions.has("path"),
+    }),
+    [activeActions],
   );
 
   const tips = useMemo(
@@ -222,22 +263,36 @@ export default function MetricsView() {
               />
 
               <div className="flex items-start gap-[24px]">
-                <img
-                  src={mapMini}
-                  alt="Match minimap"
+                <div
                   data-name="map_mini"
                   data-node-id="32:422"
-                  className="size-[180px] shrink-0 rounded-[5px] object-cover shadow-[4px_4px_4px_0px_rgba(0,0,0,0.5)]"
-                />
+                  className="relative size-[180px] shrink-0 overflow-hidden rounded-[5px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.5)]"
+                >
+                  <img
+                    src={mapMini}
+                    alt="Match minimap"
+                    className="size-full object-cover"
+                  />
+                  {timeline ? (
+                    <MatchReplayMapOverlay
+                      timeline={timeline}
+                      players={players}
+                      teamIdByPuuid={teamIdByPuuid}
+                      selectedPuuids={selectedPuuids}
+                      elapsedMs={clock.elapsedMs}
+                      toggles={overlayToggles}
+                    />
+                  ) : null}
+                </div>
                 <AiCoachingBar tips={tips} />
               </div>
 
               <MapAnalysisTable
                 rows={rows}
-                clock={formatClock(elapsed)}
-                playing={playing}
-                onTogglePlaying={() => setPlaying((value) => !value)}
-                onRewind={() => setElapsed(0)}
+                clock={formatTimelineClock(clock.elapsedMs)}
+                playing={clock.playing}
+                onTogglePlaying={clock.togglePlaying}
+                onRewind={clock.rewind}
               />
             </div>
 

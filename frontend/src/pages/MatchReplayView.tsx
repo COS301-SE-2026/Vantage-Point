@@ -3,8 +3,10 @@ import { useNavigate, useOutletContext, useParams } from "react-router";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import { fetchMatchDetail } from "../api/match";
 import { fetchMatchHistory } from "../api/matches";
+import { fetchMatchTimeline } from "../api/timeline";
 import AiCoachingComments from "../components/AiCoachingComments";
 import MatchReplayControls from "../components/MatchReplayControls";
+import MatchReplayMapOverlay from "../components/MatchReplayMapOverlay";
 import MatchReplayMenuRow from "../components/MatchReplayMenuRow";
 import MatchReplayToolbar, {
   type ReplayOverlayAction,
@@ -15,8 +17,11 @@ import {
   getDashboardContentStyle,
 } from "../lib/dashboardLayout";
 import { buildReplayCoachingNotes } from "../lib/replayCoaching";
+import { formatTimelineClock } from "../lib/timeline";
+import { useReplayClock } from "../lib/useReplayClock";
 import { mapDefault } from "../assets/images/match-replay";
 import type { MatchDetail, ParticipantDetail } from "../types/match";
+import type { MatchTimeline } from "../types/timeline";
 
 /**
  * Figma "Map view" 26:1008 — 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel.
@@ -49,8 +54,10 @@ export default function MatchReplayView() {
     () => new Set(),
   );
   const [zoomPercent, setZoomPercent] = useState(0);
-  const [progress, setProgress] = useState(0.2);
-  const [playing, setPlaying] = useState(true);
+  const [timeline, setTimeline] = useState<MatchTimeline | null>(null);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
+
+  const clock = useReplayClock(timeline?.game_duration_ms ?? 0);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,6 +82,24 @@ export default function MatchReplayView() {
       setMatch(detail);
       const viewer = allParticipants(detail).find((p) => p.is_viewer);
       setSelectedPuuids(viewer ? new Set([viewer.puuid]) : new Set());
+
+      // The scoreboard is enough to render the screen, so the timeline loads after it
+      // and its absence only costs the map overlay — the backend has to reach Riot for
+      // it the first time any match is opened.
+      setTimeline(null);
+      setTimelineError(null);
+      try {
+        const frames = await fetchMatchTimeline(id);
+        if (!cancelled) setTimeline(frames);
+      } catch (err: unknown) {
+        if (!cancelled) {
+          setTimelineError(
+            err instanceof Error
+              ? err.message
+              : "No replay data available for this match",
+          );
+        }
+      }
     };
 
     load()
@@ -96,6 +121,25 @@ export default function MatchReplayView() {
   }, [matchIdParam, navigate]);
 
   const players = useMemo(() => (match ? allParticipants(match) : []), [match]);
+
+  const teamIdByPuuid = useMemo(() => {
+    const byPuuid = new Map<string, number>();
+    for (const team of match?.teams ?? []) {
+      for (const participant of team.participants) {
+        byPuuid.set(participant.puuid, team.team_id);
+      }
+    }
+    return byPuuid;
+  }, [match]);
+
+  const overlayToggles = useMemo(
+    () => ({
+      kills: activeActions.has("kills"),
+      deaths: activeActions.has("deaths"),
+      path: activeActions.has("path"),
+    }),
+    [activeActions],
+  );
 
   const viewer = players.find((p) => p.is_viewer);
 
@@ -185,29 +229,47 @@ export default function MatchReplayView() {
                   maxWidth: "calc(100vh - 210px)",
                 }}
               >
-                <img
-                  src={mapDefault}
-                  alt="Summoner's Rift map"
-                  className="size-full object-cover transition-transform duration-200"
+                {/* The overlay shares this transform so markers stay pinned to the
+                    terrain under them as the map is zoomed. */}
+                <div
+                  className="absolute inset-0 transition-transform duration-200"
                   style={{ transform: `scale(${1 + zoomPercent / 100})` }}
-                  data-name="map_default 1"
-                />
-                {activeActions.has("kills") ? (
-                  <span className="absolute left-[28%] top-[34%] size-3 rounded-full bg-[#e11d2e] ring-2 ring-white/80" />
-                ) : null}
-                {activeActions.has("deaths") ? (
-                  <span className="absolute left-[58%] top-[48%] size-3 rounded-full bg-[#525252] ring-2 ring-white/80" />
-                ) : null}
-                {activeActions.has("path") ? (
-                  <span className="pointer-events-none absolute inset-[18%] rounded-full border-2 border-dashed border-[#07f]/70" />
-                ) : null}
+                >
+                  <img
+                    src={mapDefault}
+                    alt="Summoner's Rift map"
+                    className="size-full object-cover"
+                    data-name="map_default 1"
+                  />
+                  {timeline ? (
+                    <MatchReplayMapOverlay
+                      timeline={timeline}
+                      players={players}
+                      teamIdByPuuid={teamIdByPuuid}
+                      selectedPuuids={selectedPuuids}
+                      elapsedMs={clock.elapsedMs}
+                      toggles={overlayToggles}
+                    />
+                  ) : null}
+                </div>
+
+                <div className="absolute left-[8px] top-[8px] flex items-center gap-2 rounded-[6px] bg-black/55 px-[8px] py-[3px]">
+                  <span className="font-['Beaufort_for_LOL',serif] text-[14px] font-bold tabular-nums text-white">
+                    {formatTimelineClock(clock.elapsedMs)}
+                  </span>
+                  {timeline ? null : (
+                    <span className="font-['Beaufort_for_LOL',serif] text-[12px] text-white/70">
+                      {timelineError ?? "Loading replay data…"}
+                    </span>
+                  )}
+                </div>
 
                 <MatchReplayControls
-                  playing={playing}
-                  progress={progress}
+                  playing={clock.playing}
+                  progress={clock.progress}
                   zoomPercent={zoomPercent}
-                  onTogglePlaying={() => setPlaying((value) => !value)}
-                  onScrub={setProgress}
+                  onTogglePlaying={clock.togglePlaying}
+                  onScrub={clock.seekToProgress}
                   onZoomIn={() => setZoomPercent((z) => Math.min(100, z + 10))}
                   onZoomOut={() => setZoomPercent((z) => Math.max(0, z - 10))}
                 />

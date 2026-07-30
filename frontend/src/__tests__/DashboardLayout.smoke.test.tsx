@@ -113,8 +113,10 @@ describe("Fluid dashboard pages still mount", () => {
       </MemoryRouter>,
     );
 
-    const map = await screen.findByAltText("Summoner's Rift map");
-    const box = map.parentElement;
+    // The map art sits inside a zoom wrapper it shares with the replay overlay, so
+    // the sizing box is the labelled ancestor rather than the image's direct parent.
+    await screen.findByAltText("Summoner's Rift map");
+    const box = container.querySelector('[data-name="Map"]');
     expect(box?.className).toContain("aspect-square");
     expect(box?.className).toContain("flex-1");
     // The transport row is anchored to the map's bottom edge, not y=483.
