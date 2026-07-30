@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any
-from app.Models.profile_schemas import LiveAdvancedMetrics
+from app.schemas.profile import LiveAdvancedMetrics
 from app.Models.riot_schemas import (
     MapReplay,
     MapSuggestData,

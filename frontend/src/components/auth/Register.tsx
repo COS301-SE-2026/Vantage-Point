@@ -24,7 +24,7 @@ export type RegisterFormProps = Readonly<{
 
 interface RegisterProps {
   form: RegisterFormProps;
-  backgroundImage?: string; // Optional: overrides the automatic slide rotation
+  backgroundImage?: string;
 }
 
 export default function Register({

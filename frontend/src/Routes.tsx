@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
+import HelpPage from "./pages/HelpPage";
 import LinkRiotPage from "./pages/LinkRiotPage";
 import LoadingPage from "./pages/LoadingPage";
 import LoginPage from "./pages/LoginPage";
@@ -67,7 +68,12 @@ export const router = createBrowserRouter([
           { path: "metrics", Component: MetricsView },
           { path: "metrics/:matchId", Component: MetricsView },
           { path: "profile", Component: ProfileView },
+          { path: "help", Component: HelpPage },
         ],
+      },
+      {
+        path: "/help",
+        element: <Navigate to="/dashboard/help" replace />,
       },
     ],
   },
