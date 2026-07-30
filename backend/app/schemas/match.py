@@ -2,16 +2,6 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class SimplifiedMatchResponse(BaseModel):
-    match_id: str
-    champion_id: int | None = None
-    champion_name: str
-    kills: int
-    deaths: int
-    assists: int
-    win: bool
-    game_creation: datetime | None = None
-    game_duration: int | None = None
 
 
 class ObjectivesSummaryResponse(BaseModel):

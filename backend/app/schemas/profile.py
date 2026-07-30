@@ -56,41 +56,4 @@ class LiveAdvancedMetrics(BaseModel):
     win_rate: str
 
 
-class MatchSummary(BaseModel):
-    match_id: str
-    champion_name: str
-    kills: int
-    deaths: int
-    assists: int
-    win: bool
-    game_creation: datetime | None = None
 
-
-class MessageResponse(BaseModel):
-    message: str
-
-
-class ProfileCreateRequest(BaseModel):
-    display_name: str
-    email: EmailStr | None = None
-
-
-class ProfileUpdateRequest(BaseModel):
-    display_name: str | None = None
-    email: EmailStr | None = None
-    avatar_url: str | None = None
-
-
-class ProfileResponse(BaseModel):
-    sub: str | None = None
-    username: str | None = None
-    email: str | None = None
-    display_name: str | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-    scheduled_deletion: datetime | None = None
-
-
-class RiotKeyUpdateResponse(BaseModel):
-    message: str
-    success: bool = True
