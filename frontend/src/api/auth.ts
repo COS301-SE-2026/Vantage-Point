@@ -1,4 +1,4 @@
-import { apiFetchPublic } from "./client";
+import { apiFetch, apiFetchPublic } from "./client";
 import { setStoredTokens } from "../lib/tokens";
 import type { TokenResponse } from "../types/auth";
 
@@ -31,4 +31,17 @@ export async function loginUser(payload: LoginPayload): Promise<void> {
     body: JSON.stringify(payload),
   });
   await storeTokensFromResponse(tokens);
+}
+
+/**
+ * Tells the API the session is over. Access tokens are stateless, so the local
+ * clear-down is what actually signs the user out — this is best effort and must
+ * never keep the user on a screen they asked to leave.
+ */
+export async function logoutUser(): Promise<void> {
+  try {
+    await apiFetch<{ message: string }>("/api/auth/logout", { method: "POST" });
+  } catch {
+    // already signed out, or the API is unreachable
+  }
 }

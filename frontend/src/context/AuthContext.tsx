@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   loginUser,
+  logoutUser,
   registerUser,
   type LoginPayload,
   type RegisterPayload,
@@ -73,6 +74,9 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   );
 
   const logout = useCallback(() => {
+    // Tell the API first — once the tokens are gone the request can't be authorised.
+    // It is fire-and-forget so the UI never waits on it to sign the user out.
+    void logoutUser();
     clearStoredTokens();
     setUser(null);
   }, []);

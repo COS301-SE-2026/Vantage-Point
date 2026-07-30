@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { MatchHistorySummary } from "../types/match";
+import type { MatchHistorySummary, MatchSyncResult } from "../types/match";
 
 interface MatchHistorySummaryApi {
   readonly match_id: string;
@@ -34,4 +34,15 @@ function mapHistoryRow(row: MatchHistorySummaryApi): MatchHistorySummary {
 export async function fetchMatchHistory(): Promise<MatchHistorySummary[]> {
   const rows = await apiFetch<MatchHistorySummaryApi[]>("/api/v1/matches");
   return rows.map(mapHistoryRow);
+}
+
+/**
+ * Pulls the linked Riot account's recent matches into the backend. Match history,
+ * match detail and the profile radar all read the stored copy, so nothing appears
+ * in the dashboard until this has run at least once for an account.
+ */
+export async function syncMatchHistory(count = 10): Promise<MatchSyncResult> {
+  return apiFetch<MatchSyncResult>(`/api/v1/matches/sync?count=${count}`, {
+    method: "POST",
+  });
 }
