@@ -53,6 +53,14 @@ class MatchDetailResponse(BaseModel):
     teams: list[TeamDetailResponse]
 
 
+class MatchSyncResponse(BaseModel):
+    """Outcome of a Riot -> local import."""
+
+    fetched: int
+    imported: int
+    total: int
+
+
 class MatchHistorySummaryResponse(BaseModel):
     match_id: str
     champion_name: str
