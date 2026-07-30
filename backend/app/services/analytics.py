@@ -444,11 +444,11 @@ class LiveAnalyticsService:
         return response
 
     @staticmethod
-    async def map_suggest_data(match_id: str, puuid: str) -> MapSuggestData:
+    async def map_suggest_data(match_id: str, puuid: str, session:AsyncSession) -> MapSuggestData:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
+        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id, session)
 
         paritcipants: Any = match["info"]["participants"]
         player = next((p for p in paritcipants if p["puuid"] == puuid))
@@ -938,7 +938,7 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
     @staticmethod
-    async def item_data(match_id: str, puuid: str) -> ItemData:
+    async def item_data(match_id: str, puuid: str, session:AsyncSession) -> ItemData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -981,7 +981,7 @@ class LiveAnalyticsService:
             participant_data = LiveAnalyticsService.get_participants_data(
                 frames, participant_id
             )
-            map_replay = await LiveAnalyticsService.map_replay(match_id)
+            map_replay = await LiveAnalyticsService.map_replay(match_id, session)
 
             response = ItemData(
                 itemId=item_id,
@@ -1040,7 +1040,7 @@ class LiveAnalyticsService:
             )
 
     @staticmethod
-    async def skill_data(match_id: str, puuid: str) -> SkillData:
+    async def skill_data(match_id: str, puuid: str, session: AsyncSession) -> SkillData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -1137,7 +1137,7 @@ class LiveAnalyticsService:
             damage_stats_data = LiveAnalyticsService.get_damage_stats(
                 frames, (participant_id)
             )
-            map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
+            map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id, session)
             response = SkillData(
                 skillslot=skill_slot,
                 levelUpType=level_up_type,
