@@ -52,4 +52,13 @@ class DashboardService:
         return confirmed_user
 
     
+    @staticmethod
+    async def unconfirmed_users():
+        DashboardService.users=await admin_service.get_users()
+
+        unconfirmed_user = sum(
+            1 for user in DashboardService.users
+            if user.user_status == "UNCONFIRMED"
+        )
+        return unconfirmed_user
     
