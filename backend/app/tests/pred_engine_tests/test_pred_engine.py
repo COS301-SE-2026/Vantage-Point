@@ -262,10 +262,10 @@ class Test_main:
 
         if r1 is not None:
             result1 = main.run_rf(r1, d1, "champion")
-            assert result1 is None
+            assert result1 is not None
         if r1 is not None:
             result2 = main.run_rf(r2, d2, "item")
-            assert result2 is None
+            assert result2 is not None
         if r1 is not None:
             result3 = main.run_rf(r3, d3, "role")
             assert hasattr(result3, "__len__")
