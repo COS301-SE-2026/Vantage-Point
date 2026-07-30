@@ -38,14 +38,24 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
         has_linked_riot=account is not None,
     )
 
+async def _get_users(sub: str, session: AsyncSession) -> Users:
+    statement = select(Users).where(Users.cognito_sub == sub)
+    result: Any = await session.execute(statement)
+    response: Users | None = result.scalar_one_or_none()
+
+    if response is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return response
+
 
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(
-     current_user: Annotated[User, Depends(require_group(20))],
-        session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(current_user, account)
+    response: Users = await _get_users(current_user.sub, session)
+    return _user_me_response(response, account)
 
 
 @router.patch("/me", response_model=UserMeResponse)
