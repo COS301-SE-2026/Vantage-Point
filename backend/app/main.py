@@ -21,10 +21,6 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 
 # Modular router imports
-from app.api.router import (
-    auth_routes,
-    profile_routes,
-)
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
