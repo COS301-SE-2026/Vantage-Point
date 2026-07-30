@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 from app.schemas.profile import LiveAdvancedMetrics
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.Models.riot_schemas import (
     MapReplay,
     MapSuggestData,
@@ -388,7 +389,10 @@ class LiveAnalyticsService:
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
     @staticmethod
     async def map_replay(
-        match_id: str, puuid: str | None = None, data: MapReplay | None = None
+        match_id: str,
+        session: AsyncSession,
+        puuid: str | None = None,
+        data: MapReplay | None = None,
     ) -> MapReplay:
         if data is None:
             _data: Any = await riot_service.get_match_timeline(match_id)
@@ -398,7 +402,7 @@ class LiveAnalyticsService:
         x_values: dict[str, list[int]] = {}
         y_values: dict[str, list[int]] = {}
         frames = _data["info"]["frames"]
-        timestamps: Any = [frame["timestamp"] for frame in frames]
+        timestamps: list[int] = [frame["timestamp"] for frame in frames]
 
         for i in range(1, 10):
             x_values[str(i)] = [
@@ -408,7 +412,7 @@ class LiveAnalyticsService:
                 frame["participantFrames"][str(i)]["position"]["y"] for frame in frames
             ]
 
-        return MapReplay(
+        response = MapReplay(
             puuid=[p["puuid"] for p in _data["info"]["participants"]],
             participant_id=[
                 p["participantId"] for p in _data["info"]["participants"]
@@ -419,12 +423,16 @@ class LiveAnalyticsService:
             position_y=y_values,
         )
 
+        return response
+
     @staticmethod
-    async def map_suggest_data(match_id: str, puuid: str) -> MapSuggestData:
+    async def map_suggest_data(
+        match_id: str, puuid: str, session: AsyncSession
+    ) -> MapSuggestData:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
+        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id, session)
 
         paritcipants: Any = match["info"]["participants"]
         player = next((p for p in paritcipants if p["puuid"] == puuid))
@@ -575,7 +583,9 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    async def profile_data(match_id: str, puuid: str) -> ProfileData:
+    async def profile_data(
+        match_id: str, puuid: str, session: AsyncSession
+    ) -> ProfileData:
         try:
             match = await riot_service.get_match_detail(match_id)
 
@@ -914,7 +924,7 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
     @staticmethod
-    async def item_data(match_id: str, puuid: str) -> ItemData:
+    async def item_data(match_id: str, puuid: str, session: AsyncSession) -> ItemData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -957,7 +967,7 @@ class LiveAnalyticsService:
             participant_data = LiveAnalyticsService.get_participants_data(
                 frames, participant_id
             )
-            map_replay = await LiveAnalyticsService.map_replay(match_id)
+            map_replay = await LiveAnalyticsService.map_replay(match_id, session)
 
             response = ItemData(
                 itemId=item_id,
@@ -1016,7 +1026,7 @@ class LiveAnalyticsService:
             )
 
     @staticmethod
-    async def skill_data(match_id: str, puuid: str) -> SkillData:
+    async def skill_data(match_id: str, puuid: str, session: AsyncSession) -> SkillData:
         try:
             timeline = await riot_service.get_match_timeline(match_id)
             match = await riot_service.get_match_detail(match_id)
@@ -1113,7 +1123,9 @@ class LiveAnalyticsService:
             damage_stats_data = LiveAnalyticsService.get_damage_stats(
                 frames, (participant_id)
             )
-            map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id)
+            map_replay: MapReplay = await LiveAnalyticsService.map_replay(
+                match_id, session
+            )
             response = SkillData(
                 skillslot=skill_slot,
                 levelUpType=level_up_type,

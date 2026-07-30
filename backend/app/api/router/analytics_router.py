@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.Models.auth_model import User
-from app.schemas.auth import require_group
+from app.api.auth import require_group
 from typing import Annotated
 from app.services.analytics import LiveAnalyticsService
 from app.Models.riot_schemas import (
@@ -13,6 +13,8 @@ from app.Models.riot_schemas import (
     SkillData,
     RoleData,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database.session import get_session
 
 router = APIRouter()
 
@@ -20,8 +22,12 @@ router = APIRouter()
 @router.get(
     "/analytics/map-replay/{match_id}", response_model=MapReplay, tags=["Analytics"]
 )
-async def map_replay(_: Annotated[User, Depends(require_group(10))], match_id: str):
-    return await LiveAnalyticsService.map_replay(match_id)
+async def map_replay(
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+):
+    return await LiveAnalyticsService.map_replay(match_id, session)
 
 
 @router.get(
@@ -30,18 +36,24 @@ async def map_replay(_: Annotated[User, Depends(require_group(10))], match_id: s
     tags=["Analytics"],
 )
 async def map_suggest_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
-    return await LiveAnalyticsService.map_suggest_data(match_id, puuid)
+    return await LiveAnalyticsService.map_suggest_data(match_id, puuid, session)
 
 
 @router.get(
     "/analytics/profile_data/{match_id}", response_model=ProfileData, tags=["Analytics"]
 )
 async def profile_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    match_id: str,
+    puuid: str,
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    return await LiveAnalyticsService.profile_data(match_id, puuid)
+    return await LiveAnalyticsService.profile_data(match_id, puuid, session)
 
 
 @router.get(
@@ -68,18 +80,24 @@ async def champion_data(
     "/analytics/item_data/{match_id}", response_model=ItemData, tags=["Analytics"]
 )
 async def item_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
-    return await LiveAnalyticsService.item_data(match_id, puuid)
+    return await LiveAnalyticsService.item_data(match_id, puuid, session)
 
 
 @router.get(
     "/analytics/skill_data/{match_id}", response_model=SkillData, tags=["Analytics"]
 )
 async def skill_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
-    return await LiveAnalyticsService.skill_data(match_id, puuid)
+    return await LiveAnalyticsService.skill_data(match_id, puuid, session)
 
 
 @router.get(

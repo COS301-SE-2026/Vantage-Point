@@ -1,20 +1,19 @@
-import rf_model as rf  # type: ignore
-import knn_model as knn  # type: ignore
-import Data_Converter.src.Converter_Main as converter  # type: ignore
+from app.pred_engine import knn_model as knn, rf_model as rf  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 
 
 def create_rf_models():
-    champ_rf, _ = rf.final_train(
+    champ_rf = rf.final_train(
         "/workspaces/backend/app/pred_engine/Training_csv/champ_rf_training.csv",
         "champion",
     )
-    item_rf, _ = rf.final_train(
+    item_rf = rf.final_train(
         "/workspaces/backend/app/pred_engine/Training_csv/item_rf_training.csv", "item"
     )
-    role_rf, _ = rf.final_train(
+    role_rf = rf.final_train(
         "/workspaces/backend/app/pred_engine/Training_csv/role_rf_training.csv", "role"
     )
-    skill_rf, _ = rf.final_train(
+    skill_rf = rf.final_train(
         "/workspaces/backend/app/pred_engine/Training_csv/skill_rf_training.csv",
         "skill",
     )

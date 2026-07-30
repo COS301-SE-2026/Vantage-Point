@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.Models.profile_schemas import User
 from app.Models.help import HelpArticleModel
-from app.schemas.auth import require_group
+from app.api.auth import require_group
 from app.schemas.help import (
     HelpArticleCreate,
     HelpArticleResponse,

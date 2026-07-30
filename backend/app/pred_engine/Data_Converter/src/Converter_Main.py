@@ -1,10 +1,3 @@
-from Models.riot_schemas import (
-    MapSuggestData,
-    ChampionData,
-    ItemData,
-    SkillData,
-    RoleData,
-)
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 import csv
@@ -121,7 +114,7 @@ def format_data_multivar(data, pos, role, lane):
     prev_row = []
 
     for row in data:
-        if not isinstance(data, list):
+        if not isinstance(data, list) and not isinstance(row, list):
             row = list(row.values())
             if r == -1:
                 r = r + 1
@@ -218,21 +211,13 @@ def get_train_test_data_rf(file_name, category):
 def convert_to_rows(data):
     data_arr = []
 
-    if (
-        isinstance(data, MapSuggestData)
-        or isinstance(data, ChampionData)
-        or isinstance(data, ItemData)
-        or isinstance(data, SkillData)
-        or isinstance(data, RoleData)
-    ):
-        data_arr = data.convert_to_arr()
-    elif isinstance(data, list):
+    if isinstance(data, list):
         if not isinstance(data[0], list):  # check if 1D array
             data_arr.append(data)
         else:
             data_arr = data
     else:
-        print(type_err)
+        data_arr = data.convert_to_arr()
 
     return data_arr
 
