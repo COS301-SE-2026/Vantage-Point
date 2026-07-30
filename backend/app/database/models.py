@@ -205,4 +205,11 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
     game_account: "GameAccounts" = Relationship(back_populates="featured_games")
 
 
-    
+class MapReplayTable(SQLModel, Table=True):
+    __tablename__ = "map_replay_table"
+
+    puuid: list[str]
+    participant_id: list[int]
+    frame_interval: int
+    position_x: list[int]
+    position_y: list[int]
