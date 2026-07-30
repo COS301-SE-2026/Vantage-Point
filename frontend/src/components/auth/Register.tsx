@@ -25,7 +25,10 @@ interface RegisterProps {
   backgroundImage?: string;
 }
 
-export default function Register({ form, backgroundImage }: Readonly<RegisterProps>) {
+export default function Register({
+  form,
+  backgroundImage,
+}: Readonly<RegisterProps>) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -104,7 +107,10 @@ export default function Register({ form, backgroundImage }: Readonly<RegisterPro
         <div className="text-center mt-4">
           <p className="text-[#b3b3b3] text-[16px]">
             Already have an account?{" "}
-            <Link to="/login" className="text-black font-semibold hover:underline">
+            <Link
+              to="/login"
+              className="text-black font-semibold hover:underline"
+            >
               Login
             </Link>
           </p>
