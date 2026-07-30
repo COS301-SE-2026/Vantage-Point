@@ -164,63 +164,80 @@ describe('admin API (mock mode)', () => {
 });
 
 
-// // using real mode (USE_MOCKS === false) to test that the API calls are made correctly
-// describe('admin API (real mode)', () => {
-//   beforeEach(() => {
-//     vi.resetAllMocks();
+// using real mode (USE_MOCKS === false) to test that the API calls are made correctly
+describe('admin API (real mode)', () => {
 
-//     // USE_MOCKS = false
-//     setDevMode(false); 
-//   });
+  const apiFetch = vi.fn();
+  const apiFetchFormData = vi.fn();
+  let admin: AdminApi;
+  
+  beforeEach(async () => {
+    apiFetch.mockReset();
+    apiFetchFormData.mockReset();
+    vi.doMock("../../api/client", () => ({
+      apiFetch,
+      apiFetchFormData,
+      ApiError: class ApiError extends Error {
+        status: number;
+        constructor(status: number, message: string) {
+          super(message);
+          this.status = status;
+        }
+      },
+    }));
+    (import.meta.env as { DEV: boolean }).DEV = false;
+    vi.resetModules();
+    admin = await import("../../api/admin");
+  });
 
-//   it('listUsers calls apiFetch with correct URL', async () => {
-//     mockedApiFetch.mockResolvedValueOnce([]);
-//     await admin.listUsers();
-//     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/users');
-//   });
+  it('listUsers calls apiFetch with correct URL', async () => {
+    apiFetch.mockResolvedValueOnce([]);
+    await admin.listUsers();
+    expect(apiFetch).toHaveBeenCalledWith('/admin/users');
+  });
 
-//   it('listUsers passes filters as query? Actually filters are applied client-side', () => {
-//     // Just verifies it calls apiFetch.
-//     // CURRENTLY nto fully functional where filters are applied after fetch
-//     // Futur will do that test
-//   });
+  it('listUsers passes filters as query? Actually filters are applied client-side', () => {
+    // Just verifies it calls apiFetch.
+    // CURRENTLY nto fully functional where filters are applied after fetch
+    // Futur will do that test
+  });
 
-//   it('getUser calls apiFetch with username', async () => {
-//     mockedApiFetch.mockResolvedValueOnce({ 
-//         username: 'test', 
-//         email: 'test@x.com', 
-//         sub: 'sub', 
-//         user_created_date: '', 
-//         user_last_modified_date: '', 
-//         enabled: true, 
-//         user_status: 'CONFIRMED' });
-//     await admin.getUser('test');
-//     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/users/test');
-//   });
+  it('getUser calls apiFetch with username', async () => {
+    apiFetch.mockResolvedValueOnce({ 
+        username: 'test', 
+        email: 'test@x.com', 
+        sub: 'sub', 
+        user_created_date: '', 
+        user_last_modified_date: '', 
+        enabled: true, 
+        user_status: 'CONFIRMED' });
+    await admin.getUser('test');
+    expect(apiFetch).toHaveBeenCalledWith('/admin/users/test');
+  });
 
-//   it('addUserToGroup posts to /admin/add_user_to_group', async () => {
-//     await admin.addUserToGroup('user', 'Admin');
-//     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/add_user_to_group', {
-//       method: 'POST',
-//       body: JSON.stringify({ username: 'user', group: 'Admin' }),
-//     });
-//   });
+  it('addUserToGroup posts to /admin/add_user_to_group', async () => {
+    await admin.addUserToGroup('user', 'Admin');
+    expect(apiFetch).toHaveBeenCalledWith('/admin/add_user_to_group', {
+      method: 'POST',
+      body: JSON.stringify({ username: 'user', group: 'Admin' }),
+    });
+  });
 
-//   // USERS Functional Requirements
-//   it('setRegistrationsOpen patches /admin/settings', async () => {
-//     await admin.setRegistrationsOpen(false);
-//     expect(mockedApiFetch).toHaveBeenCalledWith('/admin/settings', {
-//       method: 'PATCH',
-//       body: JSON.stringify({ registrations_open: false }),
-//     });
-//   });
+  // USERS Functional Requirements
+  it('setRegistrationsOpen patches /admin/settings', async () => {
+    await admin.setRegistrationsOpen(false);
+    expect(apiFetch).toHaveBeenCalledWith('/admin/settings', {
+      method: 'PATCH',
+      body: JSON.stringify({ registrations_open: false }),
+    });
+  });
 
-//   // Map & Champion Assests Functional Requirements
-//   it('uploadMapAsset uses apiFetchFormData', async () => {
-//     const file = new File([''], 'map.png');
-//     mockedApiFetchFormData.mockResolvedValueOnce({ map_id: 'm', display_name: 'Map', image_url: '' });
-//     await uploadMapAsset('m', 'Map', file);
-//     expect(mockedApiFetchFormData).toHaveBeenCalledWith('/api/v1/admin/assets/maps', expect.any(FormData));
-//   });
-// });
+  // Map & Champion Assests Functional Requirements
+  it('uploadMapAsset uses apiFetchFormData', async () => {
+    const file = new File([''], 'map.png');
+    apiFetchFormData.mockResolvedValueOnce({ map_id: 'm', display_name: 'Map', image_url: '' });
+    await admin.uploadMapAsset('m', 'Map', file);
+    expect(apiFetchFormData).toHaveBeenCalledWith('/api/v1/admin/assets/maps', expect.any(FormData));
+  });
+});
 
