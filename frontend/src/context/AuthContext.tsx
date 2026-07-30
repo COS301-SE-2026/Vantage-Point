@@ -66,8 +66,12 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const register = useCallback(
     async (payload: RegisterPayload): Promise<void> => {
       await registerUser(payload);
-      const me = await getMe();
-      setUser(me);
+      try {
+        const me = await getMe();
+        setUser(me);
+      } catch {
+        setUser(null);
+      }
     },
     [],
   );

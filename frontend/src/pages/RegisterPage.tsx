@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import RegisterComponent, {
   type RegisterFormProps,
@@ -10,7 +9,6 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,28 +16,45 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     setError(null);
+
+    const trimmedEmail = email.trim();
+
+    // Validation checks before API call
+    if (!trimmedEmail) {
+      setError("Please enter your email address.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
+
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
     setLoading(true);
+
     try {
+      // Calls AuthContext register function, which posts to /api/auth/register
       await register({
-        email: email.trim(),
-        display_name: displayName.trim(),
+        username: trimmedEmail,
+        email: trimmedEmail,
         password,
+        confirm_password: confirmPassword,
       });
+
       navigate("/link-riot", { replace: true });
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Registration failed. Please try again.";
+      console.error("Registration failed:", err);
+
+      let message = "Registration failed. Please try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+
       setError(message);
     } finally {
       setLoading(false);
@@ -48,13 +63,11 @@ export default function RegisterPage() {
 
   const formProps: RegisterFormProps = {
     email,
-    displayName,
     password,
     confirmPassword,
     error,
     loading,
     onEmailChange: setEmail,
-    onDisplayNameChange: setDisplayName,
     onPasswordChange: setPassword,
     onConfirmPasswordChange: setConfirmPassword,
     onSubmit: () => void handleSubmit(),
