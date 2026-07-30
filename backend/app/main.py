@@ -22,16 +22,12 @@ from starlette.middleware.base import RequestResponseEndpoint
 
 # Modular router imports
 from app.api.router import (
-    admin_routes,
-    analytics_router,
     auth_routes,
     profile_routes,
-    riot_api_routes,
 )
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.riot_api import get_puuid_by_riot_id
-from app.services.routers import matches, users
 from app.api.routes import router as api_router
 
 load_dotenv()

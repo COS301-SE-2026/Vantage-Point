@@ -1,4 +1,3 @@
-import uuid
 from urllib.parse import parse_qs
 
 from fastapi import APIRouter, HTTPException, Depends, Request
@@ -30,8 +29,6 @@ from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import filter_match_for_players, riot_service
 from app.routers.users import router as users_router
 from app.schemas.common import ErrorResponse
-from sqlmodel import select
-from app.database.models import Users
 
 oauth2_scheme = HTTPBearer()
 
@@ -43,6 +40,7 @@ settings = get_settings()
 # Authentication Routes
 # =====================================================
 
+
 @router.post(
     "/auth/register",
     tags=["Authentication"],
@@ -53,7 +51,9 @@ settings = get_settings()
         400: {"model": ErrorResponse, "description": "Registration failed"},
     },
 )
-async def register(user: UserRegister, session: AsyncSession = Depends(get_session)) -> dict[str, str]:
+async def register(
+    user: UserRegister, session: AsyncSession = Depends(get_session)
+) -> dict[str, str]:
     if user.password != user.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
 
@@ -486,5 +486,6 @@ async def get_live_player_metrics(
     return await LiveAnalyticsService.get_live_metrics_from_api(
         server_region=server_region, puuid=puuid, count=count
     )
+
 
 router.include_router(users_router)

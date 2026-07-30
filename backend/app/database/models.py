@@ -31,12 +31,19 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     avatar_url: Optional[str] = Field(default=None)
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now()),
-        default_factory=datetime.utcnow
+        sa_column=Column(
+            DateTime(timezone=True), nullable=False, server_default=func.now()
+        ),
+        default_factory=datetime.utcnow,
     )
     updated_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()),
-        default_factory=datetime.utcnow
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+        default_factory=datetime.utcnow,
     )
 
     linked_puuids_cache: Optional[str] = Field(

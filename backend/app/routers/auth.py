@@ -1,3 +1,13 @@
+from jose import jwt, JWTError
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from app.config import get_settings
+from app.api.auth import get_jwks, get_public_key
+
+settings = get_settings()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
+
+
 # Auth is handled via AWS Cognito.
 # These are some helper functions for token validation
 # and error mitigation.

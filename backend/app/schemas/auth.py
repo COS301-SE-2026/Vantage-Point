@@ -12,9 +12,11 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     confirm_password: str = Field(min_length=8, max_length=128)
 
+
 class LoginRequest(BaseModel):
     username: str
     password: str
+
 
 # 1. Define ConfirmRequest first
 class ConfirmRequest(BaseModel):

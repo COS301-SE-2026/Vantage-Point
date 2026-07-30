@@ -55,9 +55,7 @@ def _handle_cognito_error(e: ClientError) -> None:
     raise HTTPException(status_code=status_code, detail=error_message)
 
 
-async def register_user(
-    email: str, password: str
-) -> dict[str, Any]:
+async def register_user(email: str, password: str) -> dict[str, Any]:
     """Registers a user by generating an internal UUID for Username and setting email as attribute."""
     clean_email = email.strip().lower()
     internal_username = str(uuid.uuid4())
@@ -99,9 +97,7 @@ async def register_user(
                 client.admin_update_user_attributes,
                 UserPoolId=pool_id,
                 Username=internal_username,
-                UserAttributes=[
-                    {"Name": "email_verified", "Value": "true"}
-                ],
+                UserAttributes=[{"Name": "email_verified", "Value": "true"}],
             )
             logger.info(f"Auto-confirmed and verified email for: {clean_email}")
             is_confirmed = True
