@@ -115,6 +115,28 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     participants: List["Participants"] = Relationship(back_populates="match")
 
 
+# MatchTimelines
+# Riot's Match-V5 timeline for one match, distilled down before storage.
+# The raw payload is several megabytes (a frame per minute holding every stat of every
+# player, plus every event in the game); we keep the fields the replay and map-analysis
+# screens actually draw. It lives in its own table rather than on Matches because the
+# match-history query selects whole Matches rows, and a multi-hundred-kilobyte column
+# there would be loaded on every list request.
+class MatchTimelines(SQLModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "match_timelines"
+
+    match_id: str = Field(primary_key=True, foreign_key="matches.match_id")
+    frame_interval_ms: int
+    game_duration_ms: int
+    map_id: int = 11
+    # JSON: {"frames": [...], "events": [...], "participants": [...]}
+    # See app/schemas/timeline.py for the shape; app/services/timeline_ingest.py writes it.
+    timeline_json: str
+    fetched_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+
+
 # Participants
 # This is the "join table" that connects Summoners, Matches, and Champions.
 # Each row represents one player's participation in one match, including which champion they played and their performance stats.
