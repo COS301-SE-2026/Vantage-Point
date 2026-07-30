@@ -41,9 +41,9 @@ async def map_suggest_data(
     "/analytics/profile_data/{match_id}", response_model=ProfileData, tags=["Analytics"]
 )
 async def profile_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str, session: Annotated[AsyncSession, Depends(get_session)]
 ):
-    return await LiveAnalyticsService.profile_data(match_id, puuid)
+    return await LiveAnalyticsService.profile_data(match_id, puuid, session)
 
 
 @router.get(

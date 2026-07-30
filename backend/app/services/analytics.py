@@ -599,7 +599,7 @@ class LiveAnalyticsService:
         )
 
     @staticmethod
-    async def profile_data(match_id: str, puuid: str) -> ProfileData:
+    async def profile_data(match_id: str, puuid: str, session: AsyncSession) -> ProfileData:
         try:
             match = await riot_service.get_match_detail(match_id)
 
@@ -667,6 +667,48 @@ class LiveAnalyticsService:
             # //dpm
             # //creep score
             # //xp
+
+            statement: Any = select(ProfileDataTable).where(ProfileDataTable.puuid == puuid)
+            value: Any = await session.execute(statement)
+            value: Any = value.scalar_one_or_none()
+
+            if value is None:
+                table_data = ProfileDataTable(
+                    endOfGameResult=response.endOfGameResult,
+                    gameDuration=response.gameDuration,
+                    puuid=response.puuid,
+                    champExperience=response.champExperience,
+                    champLevel=response.champLevel,
+                    goldPerMinute=response.goldPerMinute,
+                    kda=response.kda,
+                    deaths=response.deaths,
+                    doubleKills=response.doubleKills,
+                    killingSprees=response.killingSprees,
+                    largestKillingSpree=response.largestKillingSpree,
+                    largestMultiKill=response.largestKillingSpree,
+                    playerScore0=response.playerScore0,
+                    playerScore1=response.playerScore1,
+                    playerScore2=response.playerScore2,
+                    playerScore3=response.playerScore3,
+                    playerScore4=response.playerScore4,
+                    playerScore5=response.playerScore5,
+                    playerScore6=response.playerScore6,
+                    playerScore7=response.playerScore7,
+                    playerScore8=response.playerScore8,
+                    playerScore9=response.playerScore9,
+                    playerScore10=response.playerScore10,
+                    playerScore11=response.playerScore11,
+                    pentakills=response.pentakills,
+                    quadrakills=response.quadrakills,
+                    timePlayed=response.timePlayed,
+                    tripleKills=response.tripleKills,
+                    unreal=response.unreal,
+                    kills=response.kills,
+                    lane=response.lane,
+                    teamPosition=response.teamPosition
+                )
+                await session.commit()
+                await session.refresh(table_data)
             return response
         except KeyError as e:
             raise HTTPException(

@@ -294,7 +294,7 @@ class MatchDataTable(SQLModel, Table=True):
     teams_teamId: int
     teams_win: bool
 
-class ProfileData(SQLModel, Table=True):
+class ProfileDataTable(SQLModel, Table=True):
     __tablename__ = "profile_data_table"
 
     endOfGameResult: str
