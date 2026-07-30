@@ -61,15 +61,16 @@ async def get_me(
 @router.patch("/me", response_model=UserMeResponse)
 async def update_me(
     body: UpdateUserMeRequest,
-     current_user: Annotated[User, Depends(require_group(20))],
-        session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    current_user.display_name = body.display_name.strip()
-    session.add(current_user)
+    response = await _get_users(current_user.sub, session)
+    response.display_name = body.display_name.strip()
+    session.add(response)
     await session.commit()
-    await session.refresh(current_user)
+    await session.refresh(response)
     account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(current_user, account)
+    return _user_me_response(response, account)
 
 
 @router.post("/me/avatar", response_model=AvatarUploadResponse)
