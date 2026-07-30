@@ -35,8 +35,21 @@ class DashboardService:
         DashboardService.users=await admin_service.get_users()
         
         month_ago = datetime.now(timezone.utc) - timedelta(days=30)
-        new_week = sum(
+        new_month = sum(
             1 for user in DashboardService.users
             if user.user_created_date >= month_ago
         )
-        return new_week
+        return new_month
+
+    @staticmethod
+    async def confirmed_users():
+        DashboardService.users=await admin_service.get_users()
+
+        confirmed_user = sum(
+            1 for user in DashboardService.users
+            if user.user_status == "CONFIRMED"
+        )
+        return confirmed_user
+
+    
+    
