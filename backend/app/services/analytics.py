@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 from app.schemas.profile import LiveAdvancedMetrics
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.Models.riot_schemas import (
     MapReplay,
     MapSuggestData,
@@ -16,6 +17,8 @@ from app.Models.riot_schemas import (
 )
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
+from app.database.models import MapReplayTable
+from sqlmodel import select
 
 internal_server_error: str = "Internal server error"
 player_not_found: str = "PLayer not found in match"
@@ -388,7 +391,7 @@ class LiveAnalyticsService:
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
     @staticmethod
     async def map_replay(
-        match_id: str, puuid: str | None = None, data: MapReplay | None = None
+        match_id: str, session: AsyncSession, puuid: str | None = None, data: MapReplay | None = None
     ) -> MapReplay:
         if data is None:
             _data: Any = await riot_service.get_match_timeline(match_id)
@@ -398,7 +401,7 @@ class LiveAnalyticsService:
         x_values: dict[str, list[int]] = {}
         y_values: dict[str, list[int]] = {}
         frames = _data["info"]["frames"]
-        timestamps: Any = [frame["timestamp"] for frame in frames]
+        timestamps: list[int] = [frame["timestamp"] for frame in frames]
 
         for i in range(1, 10):
             x_values[str(i)] = [
@@ -419,8 +422,20 @@ class LiveAnalyticsService:
             position_y=y_values,
         )
 
+        statement: Any = select(MapReplayTable).where(MapReplayTable.puuid == response.puuid)
+        value: Any = session.execute(statement)
+        value = value.scalar_one_or_none()
+
+        if value is not None:#meanign already in the db just return
+            return response
+        
         add_to_table = MapReplayTable(
-            
+            puuid=response.puuid,
+            participant_id=response.participant_id,
+            frame_interval=response.frame_interval,
+            timestamp=response.timestamp,
+            position_x=response.position_x,
+            position_y=response.position_y
         )
         session.add(add_to_table)
         await session.commit()

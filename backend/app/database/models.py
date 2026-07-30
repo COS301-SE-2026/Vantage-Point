@@ -211,5 +211,6 @@ class MapReplayTable(SQLModel, Table=True):
     puuid: list[str]
     participant_id: list[int]
     frame_interval: int
+    timestamp: list[int]
     position_x: list[int]
     position_y: list[int]
