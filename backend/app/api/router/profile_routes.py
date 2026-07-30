@@ -7,7 +7,7 @@ from app.database.session import get_session
 from datetime import datetime
 from app.Models.auth_model import User
 from app.database.models import Users
-from app.schemas.auth import require_group
+from app.api.auth import require_group
 
 from app.api.auth import oauth2_scheme
 

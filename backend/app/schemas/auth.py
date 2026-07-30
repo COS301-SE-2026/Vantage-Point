@@ -1,9 +1,4 @@
-from typing import Callable
-from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
-
-from app.auth.deps import get_current_user
-from app.Models.profile_schemas import User
 
 
 class RegisterRequest(BaseModel):
@@ -40,24 +35,24 @@ UserLogin = LoginRequest
 UserConfirm = ConfirmRequest
 
 
-def require_group(allowed_group: str | int) -> Callable:
-    """FastAPI dependency to enforce role/group-based access control."""
-    target_group = str(allowed_group)
+# def require_group(allowed_group: str | int) -> Callable:
+#     """FastAPI dependency to enforce role/group-based access control."""
+#     target_group = str(allowed_group)
 
-    def dependency(payload: dict = Depends(get_current_user)) -> User:
-        user_groups = [str(g) for g in payload.get("cognito:groups", [])]
+#     def dependency(payload: dict = Depends(get_current_user)) -> User:
+#         user_groups = [str(g) for g in payload.get("cognito:groups", [])]
 
-        if target_group not in user_groups:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"User does not belong to required group: '{target_group}'",
-            )
+#         if target_group not in user_groups:
+#             raise HTTPException(
+#                 status_code=status.HTTP_403_FORBIDDEN,
+#                 detail=f"User does not belong to required group: '{target_group}'",
+#             )
 
-        return User(
-            sub=str(payload.get("sub")),
-            email=str(payload.get("email", "")),
-            groups=user_groups,
-            username=payload.get("username") or payload.get("cognito:username"),
-        )
+#         return User(
+#             sub=str(payload.get("sub")),
+#             email=str(payload.get("email", "")),
+#             groups=user_groups,
+#             username=payload.get("username") or payload.get("cognito:username"),
+#         )
 
-    return dependency
+#     return dependency

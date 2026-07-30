@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from typing import Any, Annotated
-from app.schemas.auth import require_group
+from app.api.auth import require_group
 from app.Models.profile_schemas import User
 from app.database.models import Users
 from app.database.session import get_session
