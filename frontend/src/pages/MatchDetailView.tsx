@@ -12,6 +12,11 @@ import {
   itemIconUrl,
   summonerSpellIconUrl,
 } from "../lib/ddragon";
+import {
+  buildMapAnalysisTips,
+  buildReplayCoachingNotes,
+  type ReplayCoachingNote,
+} from "../lib/replayCoaching";
 import type {
   MatchDetail,
   ParticipantDetail,
@@ -368,42 +373,22 @@ function BansSection({ teams }: Readonly<{ teams: readonly TeamDetail[] }>) {
   );
 }
 
-function viewerDisplayName(viewer: ParticipantDetail): string {
-  return viewer.riot_id ?? `Summoner#${viewer.champion_name}`;
-}
-
+/**
+ * Reads the same derived notes as the replay panel (lib/replayCoaching) rather than
+ * carrying its own copy, so the two screens never disagree about the same match.
+ */
 function MatchInsightsPanel({
-  viewer,
-  teammateHint,
+  notes,
 }: Readonly<{
-  viewer?: ParticipantDetail;
-  teammateHint?: string;
+  notes: readonly ReplayCoachingNote[];
 }>) {
-  if (!viewer) return null;
+  if (notes.length === 0) return null;
 
-  const playerName = viewerDisplayName(viewer);
-  const cards = [
-    {
-      title: "Champion choices",
-      body: `${playerName}'s playstyle is better suited to play ${viewer.champion_name}`,
-      expanded: true,
-    },
-    {
-      title: "Player Roles",
-      body:
-        teammateHint ??
-        "A teammate was playing more like a Support than a Jungler",
-      expanded: true,
-    },
-    {
-      title: "General Tip",
-      body:
-        viewer.deaths > viewer.kills
-          ? "Try to reduce isolated deaths before key objective spawns."
-          : "Keep timing recalls around objective windows to convert leads.",
-      expanded: true,
-    },
-  ] as const;
+  const cards = notes.map((note) => ({
+    title: note.heading,
+    body: note.body,
+    expanded: true,
+  }));
 
   return (
     // Figma 17:171 — parent panel for AI coaching cards
@@ -515,18 +500,16 @@ export default function MatchDetailView({
   const blueTeam = match?.teams.find((t) => t.team_id === 100);
   const redTeam = match?.teams.find((t) => t.team_id === 200);
 
-  const teammateHint = (() => {
-    if (!match || !viewer) return undefined;
-    const viewerTeam = match.teams.find((t) =>
-      t.participants.some((p) => p.puuid === viewer.puuid),
-    );
-    const mate = viewerTeam?.participants.find(
-      (p) => p.puuid !== viewer.puuid && roleLabel(p.position) === "UTILITY",
-    );
-    if (!mate) return undefined;
-    const name = mate.riot_id ?? mate.champion_name;
-    return `${name} was playing more like a Support than a Jungler`;
-  })();
+  // "Champion choices" / "Player Roles" read the scoreboard; the three tips below
+  // them read the viewer's own line. Both come from lib/replayCoaching so this panel
+  // stays in step with the replay screen.
+  const coachingNotes =
+    match && viewer
+      ? [
+          ...buildReplayCoachingNotes(match, viewer),
+          ...buildMapAnalysisTips(match, viewer),
+        ]
+      : [];
 
   return (
     <div
@@ -635,7 +618,7 @@ export default function MatchDetailView({
         </div>
 
         {match && !loading ? (
-          <MatchInsightsPanel viewer={viewer} teammateHint={teammateHint} />
+          <MatchInsightsPanel notes={coachingNotes} />
         ) : null}
       </div>
     </div>

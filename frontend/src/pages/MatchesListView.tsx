@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { ChevronRight, RefreshCw } from "lucide-react";
 import { useNavigate, useOutletContext } from "react-router";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
 import {
   DASHBOARD_CONTENT_HEIGHT,
   getDashboardContentStyle,
 } from "../lib/dashboardLayout";
-import { fetchMatchHistory } from "../api/matches";
+import { fetchMatchHistory, syncMatchHistory } from "../api/matches";
 import {
   groupDashboardMatchesByDay,
   type DashboardMatchListItem,
@@ -138,6 +138,33 @@ function MatchHistoryListRow({
   );
 }
 
+/** Pulls the linked Riot account's latest games into the backend, then reloads. */
+function SyncMatchesButton({
+  syncing,
+  onSync,
+  label,
+}: Readonly<{
+  syncing: boolean;
+  onSync: () => void;
+  label: string;
+}>) {
+  return (
+    <button
+      type="button"
+      onClick={onSync}
+      disabled={syncing}
+      className="inline-flex shrink-0 items-center gap-2 rounded-[9999px] border border-solid border-[#d9d9d9] px-4 py-[6px] font-['Inter:Regular',sans-serif] text-[14px] text-[#1e1e1e] transition-colors hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60 device-dark:border-[#3a3939] device-dark:text-white device-dark:hover:bg-[#3a3939]"
+    >
+      <RefreshCw
+        className={`size-4 shrink-0 ${syncing ? "animate-spin" : ""}`}
+        strokeWidth={1.8}
+        aria-hidden
+      />
+      {syncing ? "Syncing…" : label}
+    </button>
+  );
+}
+
 function MatchHistoryDaySection({
   dayRow,
   onOpenMatch,
@@ -184,6 +211,8 @@ export default function MatchesListView(
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterId, setFilterId] = useState<MatchFilterId>(
     DEFAULT_MATCH_FILTER_ID,
@@ -218,6 +247,29 @@ export default function MatchesListView(
     };
   }, []);
 
+  const handleSync = useCallback(async () => {
+    setSyncing(true);
+    setSyncMessage(null);
+    setError(null);
+    try {
+      const result = await syncMatchHistory();
+      setAllMatches(await fetchMatchHistory());
+      if (result.imported > 0) {
+        setSyncMessage(`Imported ${result.imported} new match(es) from Riot.`);
+      } else if (result.total > 0) {
+        setSyncMessage("Already up to date with Riot.");
+      } else {
+        setSyncMessage("Riot returned no recent matches for this account.");
+      }
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Could not sync with Riot",
+      );
+    } finally {
+      setSyncing(false);
+    }
+  }, []);
+
   const dayRows = useMemo(
     () =>
       groupDashboardMatchesByDay(
@@ -240,16 +292,26 @@ export default function MatchesListView(
       data-name="matches-list-view"
     >
       <div className="vp-scrollbar relative h-full overflow-auto px-0 pb-5 pt-3">
-        {!loading && !error ? (
-          <div className="mx-auto w-full max-w-[var(--vp-content-max)]">
-            <MatchesListToolbar
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              filterId={filterId}
-              onFilterIdChange={setFilterId}
-              sortId={sortId}
-              onSortIdChange={setSortId}
-            />
+        {!loading ? (
+          <div className="mx-auto flex w-full max-w-[var(--vp-content-max)] items-center gap-3">
+            {/* mb-5 mirrors the toolbar's own bottom margin so the two align. */}
+            <div className="mb-5">
+              <SyncMatchesButton
+                syncing={syncing}
+                onSync={() => void handleSync()}
+                label="Sync with Riot"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <MatchesListToolbar
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
+                filterId={filterId}
+                onFilterIdChange={setFilterId}
+                sortId={sortId}
+                onSortIdChange={setSortId}
+              />
+            </div>
           </div>
         ) : null}
         {loading ? (
@@ -262,11 +324,23 @@ export default function MatchesListView(
             {error}
           </p>
         ) : null}
-        {hasNoMatches ? (
-          <p className="mx-auto w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-            No matches yet. Link your Riot ID or sign in with the seeded test
-            account.
+        {syncMessage ? (
+          <p className="mx-auto mb-3 w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[14px] text-[#757575] device-dark:text-[#929292]">
+            {syncMessage}
           </p>
+        ) : null}
+        {hasNoMatches ? (
+          <div className="mx-auto flex w-full max-w-[var(--vp-content-max)] flex-col items-start gap-3">
+            <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
+              No matches stored yet. Pull your recent games from Riot to fill the
+              dashboard.
+            </p>
+            <SyncMatchesButton
+              syncing={syncing}
+              onSync={() => void handleSync()}
+              label="Import my matches"
+            />
+          </div>
         ) : null}
         {hasNoVisibleMatches ? (
           <p className="mx-auto w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
