@@ -62,7 +62,18 @@ class DashboardService:
         return unconfirmed_user
 
     @staticmethod
-    async def weekly_growth():
+    async def weekly_growth() -> int:
+        this_week_start= datetime.now(timezone.utc) - timedelta(7)
+        last_week_start= datetime.now(timezone.utc) - timedelta(14)
+        last_week_end= this_week_start
+
+        this_week = await DashboardService.new_users_this_week()
+        DashboardService.users = await admin_service.get_users()
+        last_week = sum(
+            1 for user in DashboardService.users
+            if last_week_start <= user.user_created_date < last_week_end
+        )
+        return this_week - last_week
 
     @staticmethod
     async def monthly_growth():
