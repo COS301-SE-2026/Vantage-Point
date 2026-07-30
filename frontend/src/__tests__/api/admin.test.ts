@@ -331,5 +331,73 @@ describe('admin API (real mode)', () => {
     );
     expect(created.role).toBeNull();
   });
+
+  it("getPlatformSettings/setRegistrationsOpen hit /admin/settings", async () => {
+    apiFetch.mockResolvedValueOnce({ registrations_open: true });
+    await admin.getPlatformSettings();
+    expect(apiFetch).toHaveBeenCalledWith("/admin/settings");
+ 
+    apiFetch.mockResolvedValueOnce({ registrations_open: false });
+    await admin.setRegistrationsOpen(false);
+    expect(apiFetch).toHaveBeenCalledWith("/admin/settings", {
+      method: "PATCH",
+      body: JSON.stringify({ registrations_open: false }),
+    });
+  });
+
+  it("listMatchSessions builds query params from filters and defaults page to 1", async () => {
+    apiFetch.mockResolvedValueOnce({ items: [], total: 0 });
+    await admin.listMatchSessions({
+      mapName: "Summoner's Rift",
+      startDate: "2026-01-01",
+      endDate: "2026-01-31",
+    });
+ 
+    const [url] = apiFetch.mock.calls[0] as [string];
+    expect(url).toContain("/api/v1/admin/sessions?");
+    expect(url).toContain("map_name=Summoner%27s+Rift");
+    expect(url).toContain("start_date=2026-01-01");
+    expect(url).toContain("end_date=2026-01-31");
+    expect(url).toContain("page=1");
+  });
+
+  it("flagSessionForDeletion/unflagSessionForDeletion hit the flag endpoints", async () => {
+    apiFetch.mockResolvedValueOnce({ id: "s1", deletion_status: "flagged" });
+    await admin.flagSessionForDeletion("s1");
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/admin/sessions/s1/flag-delete",
+      { method: "POST" },
+    );
+ 
+    apiFetch.mockResolvedValueOnce({ id: "s1", deletion_status: "active" });
+    await admin.unflagSessionForDeletion("s1");
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/admin/sessions/s1/unflag-delete",
+      { method: "POST" },
+    );
+  });
+
+  it("hardDeleteSession issues a DELETE to the session endpoint", async () => {
+    apiFetch.mockResolvedValueOnce(undefined);
+    await admin.hardDeleteSession("s1");
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/admin/sessions/s1", {
+      method: "DELETE",
+    });
+  });
+ 
+  it("getDashboardMetrics/getSiteTraffic/getErrorLog hit the dashboard endpoints", async () => {
+    apiFetch.mockResolvedValueOnce({});
+    await admin.getDashboardMetrics();
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/admin/dashboard/metrics");
+ 
+    apiFetch.mockResolvedValueOnce([]);
+    await admin.getSiteTraffic();
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/admin/dashboard/traffic");
+ 
+    apiFetch.mockResolvedValueOnce([]);
+    await admin.getErrorLog();
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/admin/dashboard/errors");
+  });
+
 });
 
