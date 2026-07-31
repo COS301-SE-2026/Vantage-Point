@@ -40,4 +40,17 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  {
+    // The Playwright suite runs in Node, not React. Its fixtures take a callback
+    // that Playwright names `use`, which the hooks rule reads as a React hook
+    // called outside a component.
+    files: ["e2e/**/*.ts", "playwright.config.ts"],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      "react-hooks/rules-of-hooks": "off",
+      "react-refresh/only-export-components": "off",
+    },
+  },
 ]);
