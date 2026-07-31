@@ -26,7 +26,7 @@ describe("Auth screen dark mode (Figma 12:44)", () => {
     const panel = container.querySelector('[data-node-id="12:52"]');
     expect(panel?.className).toContain("device-dark:bg-[#181818]");
 
-    const email = screen.getByLabelText("Email");
+    const email = screen.getByLabelText("Username or Email");
     // Dark fields are a filled #575757 pill with #929292 placeholder text.
     expect(email.className).toContain("device-dark:bg-[#575757]");
     expect(email.className).toContain("device-dark:placeholder:text-[#929292]");

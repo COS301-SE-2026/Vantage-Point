@@ -30,7 +30,7 @@ describe("Login Component", () => {
     const form = buildForm();
     renderLogin(form);
 
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Username or Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
   });
@@ -40,7 +40,7 @@ describe("Login Component", () => {
     const form = buildForm({ onEmailChange });
     renderLogin(form);
 
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("Username or Email"), {
       target: { value: "test@example.com" },
     });
     expect(onEmailChange).toHaveBeenCalledWith("test@example.com");

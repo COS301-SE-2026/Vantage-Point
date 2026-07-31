@@ -4,7 +4,6 @@ import AuthScreen, {
   AuthFormError,
   AuthInputField,
   AuthSubmitButton,
-  AuthSwitchPrompt,
   PasswordVisibilityToggle,
 } from "./AuthScreen";
 
