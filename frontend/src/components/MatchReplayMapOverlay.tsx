@@ -101,7 +101,14 @@ export default function MatchReplayMapOverlay({
         ];
       },
     );
-  }, [toggles.kills, toggles.deaths, timeline, elapsedMs, trackedPuuids, bounds]);
+  }, [
+    toggles.kills,
+    toggles.deaths,
+    timeline,
+    elapsedMs,
+    trackedPuuids,
+    bounds,
+  ]);
 
   const markers = useMemo(
     () =>
@@ -155,7 +162,10 @@ export default function MatchReplayMapOverlay({
           className={`absolute size-[10px] -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white/80 ${
             marker.isDeath ? "bg-[#525252]" : "bg-[#e11d2e]"
           }`}
-          style={{ left: `${marker.point.leftPct}%`, top: `${marker.point.topPct}%` }}
+          style={{
+            left: `${marker.point.leftPct}%`,
+            top: `${marker.point.topPct}%`,
+          }}
         />
       ))}
 

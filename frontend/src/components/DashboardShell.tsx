@@ -47,7 +47,6 @@ interface DashboardShellProps {
   readonly onLogout?: () => void;
   readonly onMatchesClick?: () => void;
   readonly onReplayClick?: () => void;
-  readonly onMetricsClick?: () => void;
   readonly onProfileClick?: () => void;
   readonly accountInitials?: string;
   readonly accountAvatarUrl?: string | null;
@@ -101,7 +100,6 @@ export default function DashboardShell({
   onLogout,
   onMatchesClick,
   onReplayClick,
-  onMetricsClick,
   onProfileClick,
   accountInitials = "UN",
   accountAvatarUrl = null,
@@ -210,17 +208,6 @@ export default function DashboardShell({
               aria-current={activeSection === "replay" ? "page" : undefined}
             >
               <NavItemLabel>Match Replay</NavItemLabel>
-            </button>
-            <button
-              type="button"
-              onClick={onMetricsClick}
-              className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] device-dark:bg-[#2a2a2a] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
-              style={{ width: DASHBOARD_NAV_WIDTH }}
-              data-name="Metrics"
-              aria-label="Metrics"
-              aria-current={activeSection === "metrics" ? "page" : undefined}
-            >
-              <NavItemLabel>Metrics</NavItemLabel>
             </button>
           </div>
           <div

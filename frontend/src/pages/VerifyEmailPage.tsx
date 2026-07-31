@@ -26,9 +26,13 @@ export default function VerifyEmailPage() {
     try {
       await confirm({ username, code });
       // Redirect to login with a success message in state
-      navigate("/login", { state: { message: "Account verified! Please log in." } });
-    } catch (err: any) {
-      setError(err.message || "Invalid verification code.");
+      navigate("/login", {
+        state: { message: "Account verified! Please log in." },
+      });
+    } catch (err) {
+      let message = "Invalid verification code.";
+      if (err instanceof Error && err.message) message = err.message;
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -39,8 +43,12 @@ export default function VerifyEmailPage() {
       <AuthScreen socialVerb="Confirm" backgroundImage={undefined}>
         <form onSubmit={handleVerify} className="flex w-full flex-col gap-5">
           <div className="text-center">
-            <h2 className="text-xl font-bold device-dark:text-white">Verify Account</h2>
-            <p className="text-sm text-gray-500">Enter the code sent to {email}</p>
+            <h2 className="text-xl font-bold device-dark:text-white">
+              Verify Account
+            </h2>
+            <p className="text-sm text-gray-500">
+              Enter the code sent to {email}
+            </p>
           </div>
 
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}

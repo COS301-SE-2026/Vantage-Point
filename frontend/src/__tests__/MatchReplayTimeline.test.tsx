@@ -4,7 +4,10 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import MatchReplayView from "../pages/MatchReplayView";
 import MetricsView from "../pages/MetricsView";
 import type { MatchDetail, ParticipantDetail } from "../types/match";
-import type { MatchTimeline, TimelineParticipantFrame } from "../types/timeline";
+import type {
+  MatchTimeline,
+  TimelineParticipantFrame,
+} from "../types/timeline";
 
 function participant(
   puuid: string,
@@ -45,7 +48,13 @@ const match: MatchDetail = {
       team_id: 100,
       win: false,
       bans: [],
-      objectives: { baron: 0, dragon: 3, rift_herald: 1, tower: 7, inhibitor: 0 },
+      objectives: {
+        baron: 0,
+        dragon: 3,
+        rift_herald: 1,
+        tower: 7,
+        inhibitor: 0,
+      },
       participants: [
         participant("viewer", { is_viewer: true }),
         participant("mate"),
@@ -55,7 +64,13 @@ const match: MatchDetail = {
       team_id: 200,
       win: true,
       bans: [],
-      objectives: { baron: 1, dragon: 2, rift_herald: 0, tower: 4, inhibitor: 1 },
+      objectives: {
+        baron: 1,
+        dragon: 2,
+        rift_herald: 0,
+        tower: 4,
+        inhibitor: 1,
+      },
       participants: [participant("enemy", { win: true })],
     },
   ],
@@ -188,7 +203,10 @@ function renderReplay() {
   return render(
     <MemoryRouter initialEntries={["/dashboard/replay/EUW1_1"]}>
       <Routes>
-        <Route path="/dashboard/replay/:matchId" element={<MatchReplayView />} />
+        <Route
+          path="/dashboard/replay/:matchId"
+          element={<MatchReplayView />}
+        />
       </Routes>
     </MemoryRouter>,
   );
@@ -199,7 +217,9 @@ describe("Replay map reads the match timeline", () => {
     const { container } = renderReplay();
 
     await waitFor(() => {
-      expect(container.querySelector('[data-name="replay-overlay"]')).not.toBeNull();
+      expect(
+        container.querySelector('[data-name="replay-overlay"]'),
+      ).not.toBeNull();
     });
 
     // The viewer is selected by default, so exactly one champion marker is drawn.
@@ -226,7 +246,9 @@ describe("Replay map reads the match timeline", () => {
   it("only plots kills once the overlay is switched on", async () => {
     const { container } = renderReplay();
     await waitFor(() => {
-      expect(container.querySelector('[data-name="replay-overlay"]')).not.toBeNull();
+      expect(
+        container.querySelector('[data-name="replay-overlay"]'),
+      ).not.toBeNull();
     });
 
     const overlayMarkers = () =>
@@ -266,5 +288,29 @@ describe("Map analysis table reads the timeline frame at the clock", () => {
     expect(screen.getByText("2,400")).toBeDefined();
     expect(screen.getByText("65")).toBeDefined();
     expect(screen.getByText("360")).toBeDefined();
+  });
+});
+
+describe("Show Analysis is the way into the metrics view", () => {
+  it("opens the metrics view for the match being replayed", async () => {
+    render(
+      <MemoryRouter initialEntries={["/dashboard/replay/EUW1_1"]}>
+        <Routes>
+          <Route
+            path="/dashboard/replay/:matchId"
+            element={<MatchReplayView />}
+          />
+          <Route
+            path="/dashboard/metrics/:matchId"
+            element={<div>metrics for EUW1_1</div>}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    // The button only toggled an unused overlay flag before the sidebar entry went.
+    fireEvent.click(await screen.findByTitle("Show Analysis"));
+
+    expect(await screen.findByText("metrics for EUW1_1")).toBeDefined();
   });
 });

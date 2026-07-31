@@ -36,9 +36,12 @@ export async function loginUser(payload: LoginPayload): Promise<void> {
     password: payload.password,
   });
 
-  const tokens = await apiFetchPublic<TokenResponse>(`login?${params.toString()}`, {
-    method: "POST",
-  });
+  const tokens = await apiFetchPublic<TokenResponse>(
+    `/login?${params.toString()}`,
+    {
+      method: "POST",
+    },
+  );
 
   setStoredTokens(tokens.access_token, tokens.refresh_token);
 }

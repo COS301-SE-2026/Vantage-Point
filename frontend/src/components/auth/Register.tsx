@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import AuthScreen, {
-  AuthFormError,
   AuthInputField,
-  AuthSubmitButton,
-  AuthSwitchPrompt,
   PasswordVisibilityToggle,
 } from "./AuthScreen";
 

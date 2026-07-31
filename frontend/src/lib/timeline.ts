@@ -41,7 +41,10 @@ export function projectPosition(
 }
 
 /** Index of the last frame at or before `elapsedMs`; -1 when the timeline is empty. */
-export function frameIndexAt(timeline: MatchTimeline, elapsedMs: number): number {
+export function frameIndexAt(
+  timeline: MatchTimeline,
+  elapsedMs: number,
+): number {
   let index = -1;
   for (let i = 0; i < timeline.frames.length; i += 1) {
     if (timeline.frames[i].timestamp_ms <= elapsedMs) {
@@ -269,7 +272,9 @@ export interface AnalysisSnapshot {
 
 function average(values: number[]): number {
   if (values.length === 0) return 0;
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+  return Math.round(
+    values.reduce((sum, value) => sum + value, 0) / values.length,
+  );
 }
 
 export function buildAnalysisSnapshot(

@@ -84,7 +84,11 @@ const timeline: MatchTimeline = {
       timestamp_ms: 60_000,
       participants: [
         participantFrame("me", 400, 800, { level: 6, health: 900, armor: 55 }),
-        participantFrame("mate", 200, 200, { level: 5, health: 800, armor: 50 }),
+        participantFrame("mate", 200, 200, {
+          level: 5,
+          health: 800,
+          armor: 50,
+        }),
       ],
     },
     {
@@ -96,15 +100,60 @@ const timeline: MatchTimeline = {
     },
   ],
   events: [
-    event({ timestamp_ms: 10_000, type: "SKILL_LEVEL_UP", actor_puuid: "me", skill_slot: 1 }),
-    event({ timestamp_ms: 20_000, type: "SKILL_LEVEL_UP", actor_puuid: "me", skill_slot: 2 }),
-    event({ timestamp_ms: 30_000, type: "SKILL_LEVEL_UP", actor_puuid: "me", skill_slot: 1 }),
-    event({ timestamp_ms: 90_000, type: "SKILL_LEVEL_UP", actor_puuid: "me", skill_slot: 4 }),
-    event({ timestamp_ms: 95_000, type: "SKILL_LEVEL_UP", actor_puuid: "other", skill_slot: 3 }),
-    event({ timestamp_ms: 15_000, type: "ITEM_PURCHASED", actor_puuid: "me", item_id: 1001 }),
-    event({ timestamp_ms: 25_000, type: "ITEM_PURCHASED", actor_puuid: "me", item_id: 3031 }),
-    event({ timestamp_ms: 26_000, type: "ITEM_SOLD", actor_puuid: "me", item_id: 1001 }),
-    event({ timestamp_ms: 70_000, type: "ITEM_PURCHASED", actor_puuid: "me", item_id: 3006 }),
+    event({
+      timestamp_ms: 10_000,
+      type: "SKILL_LEVEL_UP",
+      actor_puuid: "me",
+      skill_slot: 1,
+    }),
+    event({
+      timestamp_ms: 20_000,
+      type: "SKILL_LEVEL_UP",
+      actor_puuid: "me",
+      skill_slot: 2,
+    }),
+    event({
+      timestamp_ms: 30_000,
+      type: "SKILL_LEVEL_UP",
+      actor_puuid: "me",
+      skill_slot: 1,
+    }),
+    event({
+      timestamp_ms: 90_000,
+      type: "SKILL_LEVEL_UP",
+      actor_puuid: "me",
+      skill_slot: 4,
+    }),
+    event({
+      timestamp_ms: 95_000,
+      type: "SKILL_LEVEL_UP",
+      actor_puuid: "other",
+      skill_slot: 3,
+    }),
+    event({
+      timestamp_ms: 15_000,
+      type: "ITEM_PURCHASED",
+      actor_puuid: "me",
+      item_id: 1001,
+    }),
+    event({
+      timestamp_ms: 25_000,
+      type: "ITEM_PURCHASED",
+      actor_puuid: "me",
+      item_id: 3031,
+    }),
+    event({
+      timestamp_ms: 26_000,
+      type: "ITEM_SOLD",
+      actor_puuid: "me",
+      item_id: 1001,
+    }),
+    event({
+      timestamp_ms: 70_000,
+      type: "ITEM_PURCHASED",
+      actor_puuid: "me",
+      item_id: 3006,
+    }),
     event({
       timestamp_ms: 40_000,
       type: "CHAMPION_KILL",
@@ -237,7 +286,12 @@ describe("itemsAt", () => {
     const withUndo: MatchTimeline = {
       ...timeline,
       events: [
-        event({ timestamp_ms: 1000, type: "ITEM_PURCHASED", actor_puuid: "me", item_id: 1055 }),
+        event({
+          timestamp_ms: 1000,
+          type: "ITEM_PURCHASED",
+          actor_puuid: "me",
+          item_id: 1055,
+        }),
         event({ timestamp_ms: 2000, type: "ITEM_UNDO", actor_puuid: "me" }),
       ],
     };

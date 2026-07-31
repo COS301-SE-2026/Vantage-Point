@@ -14,7 +14,7 @@ import {
   confirmUser,
   type LoginPayload,
   type RegisterPayload,
-  type ConfirmPayload
+  type ConfirmPayload,
 } from "../api/auth";
 import { getMe, linkGameAccount } from "../api/user";
 import { clearStoredTokens, hasStoredAccessToken } from "../lib/tokens";
@@ -80,9 +80,12 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     [],
   );
 
-  const confirm = useCallback(async (payload: ConfirmPayload): Promise<void> => {
-    await confirmUser(payload);
-  }, []);
+  const confirm = useCallback(
+    async (payload: ConfirmPayload): Promise<void> => {
+      await confirmUser(payload);
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     // Tell the API first — once the tokens are gone the request can't be authorised.

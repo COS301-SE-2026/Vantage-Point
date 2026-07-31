@@ -107,7 +107,6 @@ export default function DashboardPage() {
           activeSection={activeSection}
           onMatchesClick={() => navigate("/dashboard/matches")}
           onReplayClick={() => navigate("/dashboard/replay")}
-          onMetricsClick={() => navigate("/dashboard/metrics")}
           onProfileClick={() => navigate("/dashboard/profile")}
           onLogout={handleLogout}
           accountInitials={accountInitials}
