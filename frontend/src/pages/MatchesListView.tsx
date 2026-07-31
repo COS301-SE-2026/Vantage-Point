@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { ChevronRight, RefreshCw } from "lucide-react";
 import { useNavigate, useOutletContext } from "react-router";
 import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
@@ -262,9 +268,7 @@ export default function MatchesListView(
         setSyncMessage("Riot returned no recent matches for this account.");
       }
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Could not sync with Riot",
-      );
+      setError(err instanceof Error ? err.message : "Could not sync with Riot");
     } finally {
       setSyncing(false);
     }
@@ -332,8 +336,8 @@ export default function MatchesListView(
         {hasNoMatches ? (
           <div className="mx-auto flex w-full max-w-[var(--vp-content-max)] flex-col items-start gap-3">
             <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-              No matches stored yet. Pull your recent games from Riot to fill the
-              dashboard.
+              No matches stored yet. Pull your recent games from Riot to fill
+              the dashboard.
             </p>
             <SyncMatchesButton
               syncing={syncing}

@@ -123,7 +123,10 @@ export function buildMapAnalysisRows(
       itemLabel: "Item_2",
       itemId: itemAt(viewer, snapshot, 1),
       objectiveLabel: "Dragons",
-      objectiveValue: objectiveValue(liveObjectives?.dragon, objectives?.dragon),
+      objectiveValue: objectiveValue(
+        liveObjectives?.dragon,
+        objectives?.dragon,
+      ),
     },
     {
       id: "armor",

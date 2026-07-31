@@ -29,7 +29,9 @@ export default function RegisterPage() {
 
     // 2. COGNITO FIX: Ensure Username is NOT an email
     if (trimmedUsername.includes("@")) {
-      setError("Username cannot be an email address. Use a handle like 'Player123'.");
+      setError(
+        "Username cannot be an email address. Use a handle like 'Player123'.",
+      );
       return;
     }
 
@@ -62,7 +64,7 @@ export default function RegisterPage() {
 
       // Redirect to verification because Cognito starts users as UNCONFIRMED
       navigate("/verify-email", {
-        state: { email: trimmedEmail, username: trimmedUsername }
+        state: { email: trimmedEmail, username: trimmedUsername },
       });
     } catch (err) {
       console.error("Registration failed:", err);
