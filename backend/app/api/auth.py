@@ -145,6 +145,7 @@ def get_user_highest_level(user: User):
     # get highest level user has. Admin then user
     return max((role_levels.get(group, 0) for group in user.groups), default=0)
 
+
 role_display_names = {"User": "Player", "Admin": "Admin", "SuperAdmin": "Super Admin"}
 
 

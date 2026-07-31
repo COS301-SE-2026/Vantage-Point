@@ -49,7 +49,7 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
         avatar_url=user.avatar_url,
         riot_id_tag=tag,
         has_linked_riot=account is not None,
-        role= role,
+        role=role,
     )
 
 
