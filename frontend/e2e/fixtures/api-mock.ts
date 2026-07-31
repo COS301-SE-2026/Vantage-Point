@@ -4,7 +4,6 @@ import {
   API_ORIGIN,
   CONFIRMATION_CODE,
   MATCH_HISTORY,
-  PRIMARY_MATCH_ID,
   REFRESH_TOKEN,
   ROTATED_ACCESS_TOKEN,
   ROTATED_REFRESH_TOKEN,
@@ -551,4 +550,4 @@ function parseJson<T>(raw: string | null | undefined): T | null {
   }
 }
 
-export { PRIMARY_MATCH_ID };
+export { PRIMARY_MATCH_ID } from "./data";

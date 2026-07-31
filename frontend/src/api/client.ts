@@ -5,9 +5,20 @@ import {
 } from "../lib/tokens";
 import type { ApiErrorBody, TokenResponse } from "../types/auth";
 
-const API_URL = (
-  import.meta.env.VITE_API_URL ?? "http://localhost:8000"
-).replace(/\/+$/, "");
+/**
+ * Trailing slashes are trimmed in a single pass. The obvious `/\/+$/` costs
+ * quadratic time on a long run of slashes, because the engine has to backtrack
+ * through every split before it can fail.
+ */
+function withoutTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") end -= 1;
+  return value.slice(0, end);
+}
+
+const API_URL = withoutTrailingSlashes(
+  import.meta.env.VITE_API_URL ?? "http://localhost:8000",
+);
 
 export class ApiError extends Error {
   readonly status: number;

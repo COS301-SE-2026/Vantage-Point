@@ -50,30 +50,37 @@ done
 
 cd "$FRONTEND"
 
-if [[ ! -d node_modules ]]; then
-  echo "Installing frontend dependencies..."
-  # The repo's peer tree needs this flag; package.json pins the peers it relies
-  # on directly so nothing is dropped.
-  npm ci --legacy-peer-deps
+# Run the Playwright that is pinned in package.json rather than going through
+# npx, which would fall back to fetching a version from the registry.
+PLAYWRIGHT="$FRONTEND/node_modules/.bin/playwright"
+
+if [[ ! -x "$PLAYWRIGHT" ]]; then
+  echo "Error: Playwright is not installed in frontend/node_modules." >&2
+  echo "Run 'npm ci --legacy-peer-deps' in frontend/ first." >&2
+  exit 1
 fi
 
 # Playwright refuses to start without a matching browser build, and the version
 # moves with the package, so check on every run rather than only on first use.
-if ! npx playwright install --dry-run chromium >/dev/null 2>&1; then
-  npx playwright install chromium
+if ! "$PLAYWRIGHT" install --dry-run chromium >/dev/null 2>&1; then
+  "$PLAYWRIGHT" install chromium
 fi
 
 case "$MODE" in
   install)
-    npx playwright install chromium
+    "$PLAYWRIGHT" install chromium
     ;;
   report)
-    npx playwright show-report
+    "$PLAYWRIGHT" show-report
     ;;
   ui)
-    npx playwright test --ui "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
+    "$PLAYWRIGHT" test --ui "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
     ;;
   run)
-    npx playwright test "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
+    "$PLAYWRIGHT" test "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
+    ;;
+  *)
+    echo "Error: unknown mode '$MODE'" >&2
+    exit 2
     ;;
 esac
