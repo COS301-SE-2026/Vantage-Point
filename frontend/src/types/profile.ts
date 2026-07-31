@@ -48,6 +48,24 @@ export interface FeaturedGameSlide {
   readonly kda_label: string;
 }
 
+/**
+ * Averages computed by the backend over the account's most recent matches, read
+ * live from Riot Match-v5 rather than from the stored copy.
+ * @see GET /api/v1/users/me/live-metrics
+ */
+export interface LiveMetrics {
+  readonly games_analyzed: number;
+  /** Preformatted "K / D / A" averages. */
+  readonly avg_kda: string;
+  readonly avg_vision_score: number;
+  readonly avg_kill_participation_pct: number;
+  readonly avg_cs_per_minute: number;
+  readonly avg_damage_per_minute: number;
+  readonly avg_gold_per_minute: number;
+  /** Preformatted percentage, e.g. "65%". */
+  readonly win_rate: string;
+}
+
 export interface PlayerProfile {
   readonly display_name: string;
   readonly riot_id_tag: string;

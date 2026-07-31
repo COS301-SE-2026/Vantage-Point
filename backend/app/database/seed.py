@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from datetime import datetime, timezone
 
@@ -13,6 +14,7 @@ from app.database.models import (
     GameAccounts,
     UserGameAccounts,
     Matches,
+    MatchTimelines,
     Participants,
 )
 from app.database.seed_data import (
@@ -25,6 +27,8 @@ from app.database.seed_data import (
 )
 from app.database.seed_profile import seed_profile_for_puuid
 from app.database.seed_data.matches import build_detail_json, game_creation_for
+from app.database.seed_data.timelines import FRAME_INTERVAL_MS, build_timeline_payload
+from app.services.timeline_ingest import distill_timeline
 
 load_dotenv()
 
@@ -288,6 +292,33 @@ async def seed():
             for row in SEED_MATCHES
         ]
         session.add_all(matches)
+        # Timelines and participants both point at matches, so get the parent rows in
+        # first rather than relying on the unit of work to order the inserts.
+        await session.flush()
+
+        # --- Timelines (replay map positions, kills, skill points, purchases) ---
+        # The seeded matches do not exist on Riot's servers, so timeline_ingest can never
+        # fetch these; they are generated from the scoreboard above. See seed_data/timelines.py.
+        session.add_all(
+            [
+                MatchTimelines(
+                    match_id=match.match_id,
+                    frame_interval_ms=FRAME_INTERVAL_MS,
+                    game_duration_ms=match.game_duration * 1000,
+                    map_id=MAP_ID,
+                    timeline_json=json.dumps(
+                        distill_timeline(
+                            build_timeline_payload(
+                                match.match_id,
+                                match.detail_json or "{}",
+                                match.game_duration,
+                            )
+                        )
+                    ),
+                )
+                for match in matches
+            ]
+        )
 
         # --- Viewer participants (one per match for list + profile) ---
         session.add_all(
@@ -328,6 +359,7 @@ async def seed():
     print(f"  Participants:   {len(SEED_VIEWER_PARTICIPANTS)} (viewer)")
     print(f"  Achievements:   {len(SEED_USER_ACHIEVEMENTS)} (viewer)")
     print(f"  Featured games: {len(SEED_FEATURED_GAMES)} (viewer)")
+    print(f"  Timelines:      {len(SEED_MATCHES)}")
 
 
 if __name__ == "__main__":

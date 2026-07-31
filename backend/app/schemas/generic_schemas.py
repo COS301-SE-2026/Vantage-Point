@@ -7,6 +7,7 @@ ERROR_REASONS: dict[int, str] = {
     403: "Forbidden",
     404: "Data not found",
     405: "Method not allowed",
+    409: "Conflict",
     415: "Unsupported media type",
     429: "Rate limit exceeded",
     500: "Internal server error",
