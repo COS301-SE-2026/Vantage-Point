@@ -4,6 +4,7 @@ import type {
   LinkGameAccountResponse,
   UserMe,
 } from "../types/auth";
+import type { LiveMetrics } from "../types/profile";
 
 export async function getMe(): Promise<UserMe> {
   return apiFetch<UserMe>("/api/v1/users/me");
@@ -40,6 +41,11 @@ export async function linkGameAccount(
     method: "POST",
     body: JSON.stringify({ riot_id: riotId }),
   });
+}
+
+/** Averages over the linked account's most recent matches, computed live from Riot. */
+export async function fetchLiveMetrics(count = 10): Promise<LiveMetrics> {
+  return apiFetch<LiveMetrics>(`/api/v1/users/me/live-metrics?count=${count}`);
 }
 
 export async function updateRiotId(

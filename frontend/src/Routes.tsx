@@ -6,8 +6,11 @@ import LinkRiotPage from "./pages/LinkRiotPage";
 import LoadingPage from "./pages/LoadingPage";
 import LoginPage from "./pages/LoginPage";
 import MatchDetailView from "./pages/MatchDetailView";
+import MatchReplayView from "./pages/MatchReplayView";
 import MatchesListView from "./pages/MatchesListView";
+import MetricsView from "./pages/MetricsView";
 import ProfileView from "./pages/ProfileView";
+import LandingPage from "./pages/LandingPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
@@ -17,11 +20,12 @@ import AdminMapAssetsPage from "./pages/admin/AdminMapAssetsPage";
 import AdminChampionAssetsPage from "./pages/admin/AdminChampionAssetsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import HelpPage from "./pages/HelpPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    Component: LandingPage,
   },
   {
     path: "/login",
@@ -31,6 +35,11 @@ export const router = createBrowserRouter([
     path: "/register",
     Component: RegisterPage,
   },
+  {
+    path: "/verify-email",
+    Component: VerifyEmailPage,
+  },
+
   {
     element: <AdminRoute />,
     children: [
@@ -74,6 +83,10 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="matches" replace /> },
           { path: "matches", Component: MatchesListView },
           { path: "matches/:matchId", Component: MatchDetailView },
+          { path: "replay", Component: MatchReplayView },
+          { path: "replay/:matchId", Component: MatchReplayView },
+          { path: "metrics", Component: MetricsView },
+          { path: "metrics/:matchId", Component: MetricsView },
           { path: "profile", Component: ProfileView },
           { path: "help", Component: HelpPage },
         ],

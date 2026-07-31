@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import List, Optional
 
 from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func
@@ -29,6 +29,9 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     email: str = Field(unique=True, index=True)
     display_name: Optional[str] = Field(default=None)
     avatar_url: Optional[str] = Field(default=None)
+    # bcrypt hash for accounts that registered against this API directly.
+    # Stays NULL for Cognito-only accounts, which authenticate against AWS instead.
+    password_hash: Optional[str] = Field(default=None)
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(
         sa_column=Column(
@@ -119,6 +122,28 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
 
     participants: List["Participants"] = Relationship(back_populates="match")
+
+
+# MatchTimelines
+# Riot's Match-V5 timeline for one match, distilled down before storage.
+# The raw payload is several megabytes (a frame per minute holding every stat of every
+# player, plus every event in the game); we keep the fields the replay and map-analysis
+# screens actually draw. It lives in its own table rather than on Matches because the
+# match-history query selects whole Matches rows, and a multi-hundred-kilobyte column
+# there would be loaded on every list request.
+class MatchTimelines(SQLModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "match_timelines"
+
+    match_id: str = Field(primary_key=True, foreign_key="matches.match_id")
+    frame_interval_ms: int
+    game_duration_ms: int
+    map_id: int = 11
+    # JSON: {"frames": [...], "events": [...], "participants": [...]}
+    # See app/schemas/timeline.py for the shape; app/services/timeline_ingest.py writes it.
+    timeline_json: str
+    fetched_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
 
 
 # Participants

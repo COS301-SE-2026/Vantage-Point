@@ -92,8 +92,8 @@ SEED_FEATURED_GAMES: list[SeedFeaturedGame] = [
     SeedFeaturedGame(
         sort_order=0,
         game_name="League Of Legends",
-        cover_image_key="league_wild_rift_cover",
-        card_image_key="league_wild_rift_card",
+        cover_image_key="league_of_legends_cover",
+        card_image_key="league_of_legends_card",
         efficiency_score=115,
         time_spent_seconds=1 * 86400 + 4 * 3600 + 34 * 60 + 23,
         wins=13,
@@ -103,8 +103,8 @@ SEED_FEATURED_GAMES: list[SeedFeaturedGame] = [
     SeedFeaturedGame(
         sort_order=1,
         game_name="League Of Legends",
-        cover_image_key="league_wild_rift_cover",
-        card_image_key="league_wild_rift_card",
+        cover_image_key="league_of_legends_cover",
+        card_image_key="league_of_legends_card",
         efficiency_score=98,
         time_spent_seconds=42 * 3600 + 18 * 60 + 5,
         wins=7,

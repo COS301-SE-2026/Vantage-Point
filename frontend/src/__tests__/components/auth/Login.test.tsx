@@ -30,12 +30,8 @@ describe("Login Component", () => {
     const form = buildForm();
     renderLogin(form);
 
-    expect(
-      screen.getByPlaceholderText("What's your email address?"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText("What's your password?"),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Username or Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
   });
 
@@ -44,10 +40,9 @@ describe("Login Component", () => {
     const form = buildForm({ onEmailChange });
     renderLogin(form);
 
-    fireEvent.change(
-      screen.getByPlaceholderText("What's your email address?"),
-      { target: { value: "test@example.com" } },
-    );
+    fireEvent.change(screen.getByLabelText("Username or Email"), {
+      target: { value: "test@example.com" },
+    });
     expect(onEmailChange).toHaveBeenCalledWith("test@example.com");
   });
 
@@ -56,7 +51,7 @@ describe("Login Component", () => {
     const form = buildForm({ onPasswordChange });
     renderLogin(form);
 
-    fireEvent.change(screen.getByPlaceholderText("What's your password?"), {
+    fireEvent.change(screen.getByLabelText("Password"), {
       target: { value: "secret" },
     });
     expect(onPasswordChange).toHaveBeenCalledWith("secret");
@@ -88,18 +83,17 @@ describe("Login Component", () => {
     expect(button).toHaveTextContent("Signing in…");
   });
 
-  it("toggles password visibility when 'Show password' checkbox is clicked", () => {
+  it("toggles password visibility when the reveal control is clicked", () => {
     const form = buildForm();
     renderLogin(form);
 
-    const passwordInput = screen.getByPlaceholderText("What's your password?");
+    const passwordInput = screen.getByLabelText("Password");
     expect(passwordInput).toHaveAttribute("type", "password");
 
-    const checkbox = screen.getByLabelText("Show password");
-    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
     expect(passwordInput).toHaveAttribute("type", "text");
 
-    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByRole("button", { name: "Hide password" }));
     expect(passwordInput).toHaveAttribute("type", "password");
   });
 
@@ -131,7 +125,7 @@ describe("Login Component", () => {
     expect(slidesDots).toBeInTheDocument();
 
     const allSlideImages = screen.getAllByAltText(
-      "League of Legends Background Slide",
+      "League of Legends champion splash art",
     );
     expect(allSlideImages.length).toBeGreaterThan(0);
   });
@@ -142,7 +136,7 @@ describe("Login Component", () => {
     renderLogin(form, staticBg);
 
     expect(
-      screen.getByAltText("League of Legends Wallpaper"),
+      screen.getByAltText("League of Legends champion splash art"),
     ).toBeInTheDocument();
 
     expect(

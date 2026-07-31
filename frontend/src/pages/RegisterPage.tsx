@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState(""); // This is the "Username"
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,10 +19,25 @@ export default function RegisterPage() {
     setError(null);
 
     const trimmedEmail = email.trim();
+    const trimmedUsername = displayName.trim();
 
-    // Validation checks before API call
-    if (!trimmedEmail) {
-      setError("Please enter your email address.");
+    // 1. Basic empty check
+    if (!trimmedEmail || !trimmedUsername) {
+      setError("Please fill in both Email and Username.");
+      return;
+    }
+
+    // 2. COGNITO FIX: Ensure Username is NOT an email
+    if (trimmedUsername.includes("@")) {
+      setError(
+        "Username cannot be an email address. Use a handle like 'Player123'.",
+      );
+      return;
+    }
+
+    // 3. The API rejects anything without an "@" with a generic 400, so catch it here
+    if (!trimmedEmail.includes("@")) {
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -30,31 +46,30 @@ export default function RegisterPage() {
       return;
     }
 
+    // Cognito's minimum, enforced by the API too
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError("Password must be at least 8 characters.");
       return;
     }
 
     setLoading(true);
 
     try {
-      // Calls AuthContext register function, which posts to /api/auth/register
+      // Map 'displayName' from the UI to 'username' for the API
       await register({
-        username: trimmedEmail,
+        username: trimmedUsername,
         email: trimmedEmail,
         password,
-        confirm_password: confirmPassword,
       });
 
-      navigate("/link-riot", { replace: true });
+      // Redirect to verification because Cognito starts users as UNCONFIRMED
+      navigate("/verify-email", {
+        state: { email: trimmedEmail, username: trimmedUsername },
+      });
     } catch (err) {
       console.error("Registration failed:", err);
-
       let message = "Registration failed. Please try again.";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-
+      if (err instanceof Error) message = err.message;
       setError(message);
     } finally {
       setLoading(false);
@@ -63,11 +78,13 @@ export default function RegisterPage() {
 
   const formProps: RegisterFormProps = {
     email,
+    displayName, // Binds to the Username input
     password,
     confirmPassword,
     error,
     loading,
     onEmailChange: setEmail,
+    onDisplayNameChange: setDisplayName,
     onPasswordChange: setPassword,
     onConfirmPasswordChange: setConfirmPassword,
     onSubmit: () => void handleSubmit(),
@@ -75,7 +92,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-white overflow-hidden">
+    <div className="w-screen h-screen bg-white device-dark:bg-[#181818] overflow-hidden">
       <RegisterComponent form={formProps} />
     </div>
   );

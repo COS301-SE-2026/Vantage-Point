@@ -33,7 +33,15 @@ VITE_API_URL=http://localhost:8000
 
 ## Step 1 — Seed the database
 
-From inside the dev container:
+**Option A — script (activates the venv and confirms before wiping):**
+
+```bash
+./scripts/seed.sh
+```
+
+Pass `-y` to skip the confirmation prompt (e.g. in a task runner).
+
+**Option B — manual.** From inside the dev container:
 
 ```bash
 cd /workspaces/backend
@@ -132,7 +140,7 @@ Newly registered accounts without seeded rows will have empty match history unti
 
 ```text
 1. backend/.env + frontend/.env (from .env.example)
-2. cd backend && python -m app.database.seed
+2. ./scripts/seed.sh
 3. ./scripts/start.sh   (or ./backend/start.sh + ./frontend/start.sh)
 4. Login: testuser1@vantagepoint.dev / <SEED_DEV_PASSWORD>
 ```

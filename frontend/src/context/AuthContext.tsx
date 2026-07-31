@@ -9,9 +9,12 @@ import {
 } from "react";
 import {
   loginUser,
+  logoutUser,
   registerUser,
+  confirmUser,
   type LoginPayload,
   type RegisterPayload,
+  type ConfirmPayload,
 } from "../api/auth";
 import { getMe, linkGameAccount } from "../api/user";
 import { clearStoredTokens, hasStoredAccessToken } from "../lib/tokens";
@@ -22,6 +25,7 @@ interface AuthContextValue {
   readonly loading: boolean;
   readonly login: (payload: LoginPayload) => Promise<UserMe>;
   readonly register: (payload: RegisterPayload) => Promise<void>;
+  readonly confirm: (payload: ConfirmPayload) => Promise<void>;
   readonly logout: () => void;
   readonly refreshUser: () => Promise<UserMe | null>;
   readonly linkRiot: (riotId: string) => Promise<UserMe>;
@@ -76,7 +80,17 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     [],
   );
 
+  const confirm = useCallback(
+    async (payload: ConfirmPayload): Promise<void> => {
+      await confirmUser(payload);
+    },
+    [],
+  );
+
   const logout = useCallback(() => {
+    // Tell the API first — once the tokens are gone the request can't be authorised.
+    // It is fire-and-forget so the UI never waits on it to sign the user out.
+    void logoutUser();
     clearStoredTokens();
     setUser(null);
   }, []);
@@ -94,11 +108,12 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       loading,
       login,
       register,
+      confirm,
       logout,
       refreshUser,
       linkRiot,
     }),
-    [user, loading, login, register, logout, refreshUser, linkRiot],
+    [user, loading, login, register, confirm, logout, refreshUser, linkRiot],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

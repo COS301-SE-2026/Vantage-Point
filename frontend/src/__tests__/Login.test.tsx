@@ -35,6 +35,7 @@ const mockUser: UserMe = {
   avatar_url: null,
   riot_id_tag: null,
   has_linked_riot: false,
+  role: "Player",
 };
 
 // ─── AuthContext tests ───────────────────────────────────────
@@ -75,7 +76,7 @@ describe("AuthContext", () => {
         <div>
           <button
             onClick={() =>
-              login({ email: "test@example.com", password: "PassCode" })
+              login({ username: "test@example.com", password: "PassCode" })
             }
           >
             Log In
@@ -98,7 +99,7 @@ describe("AuthContext", () => {
 
     await waitFor(() => {
       expect(authApi.loginUser).toHaveBeenCalledWith({
-        email: "test@example.com",
+        username: "test@example.com",
         password: "PassCode",
       });
     });
@@ -115,7 +116,7 @@ describe("AuthContext", () => {
       const { user, login, logout } = useAuth();
       return (
         <div>
-          <button onClick={() => login({ email: "x", password: "x" })}>
+          <button onClick={() => login({ username: "x", password: "x" })}>
             Log In
           </button>
           <button onClick={() => logout()}>Log Out</button>
@@ -170,7 +171,7 @@ describe("LoginPage", () => {
     );
 
     // Wait for the AuthProvider to finish initializing
-    const emailInput = await screen.findByLabelText("Email");
+    const emailInput = await screen.findByLabelText("Username or Email");
     const passwordInput = screen.getByLabelText("Password");
     const signInButton = screen.getByRole("button", { name: /^sign in$/i });
 
@@ -189,9 +190,9 @@ describe("LoginPage", () => {
     );
 
     // Wait for form to appear
-    await screen.findByLabelText("Email");
+    await screen.findByLabelText("Username or Email");
 
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("Username or Email"), {
       target: { value: "test@example.com" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
@@ -223,9 +224,9 @@ describe("LoginPage", () => {
       </MemoryRouter>,
     );
 
-    await screen.findByLabelText("Email"); // form is ready
+    await screen.findByLabelText("Username or Email"); // form is ready
 
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("Username or Email"), {
       target: { value: "bad@example.com" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
