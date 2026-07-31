@@ -30,7 +30,7 @@ describe("Dashboard dark mode (Figma 14:369)", () => {
     });
     expect(sidebar.className).toContain(TOKENS.surface);
 
-    for (const label of ["Matches", "Match Replay", "Metrics", "Log out"]) {
+    for (const label of ["Matches", "Match Replay", "Log out"]) {
       const button = screen.getByRole("button", { name: label });
       expect(button.className).toContain(TOKENS.control);
       // The label sits in a child span, so assert on the rendered subtree.

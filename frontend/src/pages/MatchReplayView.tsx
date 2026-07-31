@@ -164,6 +164,18 @@ export default function MatchReplayView() {
       return;
     }
 
+    // Analysis is a destination, not an overlay: it opens the metrics view for the
+    // match being replayed. That view used to be reachable from the sidebar instead.
+    if (action === "analysis") {
+      const id = match?.match_id ?? matchIdParam;
+      navigate(
+        id
+          ? `/dashboard/metrics/${encodeURIComponent(id)}`
+          : "/dashboard/metrics",
+      );
+      return;
+    }
+
     setActiveActions((prev) => {
       const next = new Set(prev);
       if (next.has(action)) next.delete(action);

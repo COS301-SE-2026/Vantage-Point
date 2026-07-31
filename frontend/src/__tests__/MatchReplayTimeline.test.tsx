@@ -290,3 +290,27 @@ describe("Map analysis table reads the timeline frame at the clock", () => {
     expect(screen.getByText("360")).toBeDefined();
   });
 });
+
+describe("Show Analysis is the way into the metrics view", () => {
+  it("opens the metrics view for the match being replayed", async () => {
+    render(
+      <MemoryRouter initialEntries={["/dashboard/replay/EUW1_1"]}>
+        <Routes>
+          <Route
+            path="/dashboard/replay/:matchId"
+            element={<MatchReplayView />}
+          />
+          <Route
+            path="/dashboard/metrics/:matchId"
+            element={<div>metrics for EUW1_1</div>}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    // The button only toggled an unused overlay flag before the sidebar entry went.
+    fireEvent.click(await screen.findByTitle("Show Analysis"));
+
+    expect(await screen.findByText("metrics for EUW1_1")).toBeDefined();
+  });
+});
