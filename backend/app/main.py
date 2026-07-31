@@ -11,7 +11,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+# from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -172,8 +172,8 @@ app.include_router(users.router)
 
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
 # "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.
-ensure_avatar_dir()
-app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+# ensure_avatar_dir()
+# app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 
 def error_response(status_code: int, detail: Any) -> dict[str, Any]:
