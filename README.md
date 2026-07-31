@@ -22,6 +22,8 @@ Transform your gameplay through advanced positioning analysis. Move beyond K/D r
 
 Vantage Point is a spatial intelligence platform designed for competitive gamers to move beyond traditional surface-level statistics like Kill/Death ratios. By transforming raw coordinate data from real-time matches into actionable insights, it identifies positioning errors and failing engagement patterns to help players visualize and correct their gameplay.
 
+- **[Website link](https://16.28.28.249/)**
+
 ---
 
 ## The F.R.O.S.N Team
