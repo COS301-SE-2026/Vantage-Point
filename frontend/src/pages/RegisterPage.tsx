@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import RegisterComponent, {
   type RegisterFormProps,
@@ -10,7 +9,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState(""); // This is the "Username"
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,28 +17,45 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     setError(null);
+
+    const trimmedEmail = email.trim();
+    const trimmedUsername = displayName.trim();
+
+    // 1. Basic empty check
+    if (!trimmedEmail || !trimmedUsername) {
+      setError("Please fill in both Email and Username.");
+      return;
+    }
+
+    // 2. COGNITO FIX: Ensure Username is NOT an email
+    if (trimmedUsername.includes("@")) {
+      setError("Username cannot be an email address. Use a handle like 'Player123'.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
 
     setLoading(true);
+
     try {
+      // Map 'displayName' from the UI to 'username' for the API
       await register({
-        email: email.trim(),
-        display_name: displayName.trim(),
+        username: trimmedUsername,
+        email: trimmedEmail,
         password,
       });
-      navigate("/link-riot", { replace: true });
+
+      // Redirect to verification because Cognito starts users as UNCONFIRMED
+      navigate("/verify-email", {
+        state: { email: trimmedEmail, username: trimmedUsername }
+      });
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Registration failed. Please try again.";
+      console.error("Registration failed:", err);
+      let message = "Registration failed. Please try again.";
+      if (err instanceof Error) message = err.message;
       setError(message);
     } finally {
       setLoading(false);
@@ -48,7 +64,7 @@ export default function RegisterPage() {
 
   const formProps: RegisterFormProps = {
     email,
-    displayName,
+    displayName, // Binds to the Username input
     password,
     confirmPassword,
     error,

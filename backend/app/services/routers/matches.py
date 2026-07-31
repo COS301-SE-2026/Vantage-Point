@@ -1,0 +1,47 @@
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.auth import require_group
+from app.Models.profile_schemas import User
+from app.database.session import get_session
+from app.schemas.match import MatchDetailResponse, MatchHistorySummaryResponse
+from app.services.match_detail import get_match_detail, user_has_match_access
+from app.services.match_history import list_match_history
+from app.services.user_accounts import get_linked_puuids, get_primary_linked_puuid
+
+router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
+
+
+@router.get("", response_model=list[MatchHistorySummaryResponse])
+async def get_matches(
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[MatchHistorySummaryResponse]:
+    puuid = await get_primary_linked_puuid(session, current_user.sub)
+    if not puuid:
+        return []
+    return await list_match_history(session, puuid)
+
+
+@router.get("/{match_id}", response_model=MatchDetailResponse)
+async def get_match_by_id(
+    match_id: str,
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
+    puuids = await get_linked_puuids(session, current_user.sub)
+    has_access = await user_has_match_access(session, puuids, match_id)
+
+    viewer_puuid = await get_primary_linked_puuid(session, current_user.sub)
+    detail = (
+        await get_match_detail(session, match_id, viewer_puuid) if has_access else None
+    )
+
+    if not has_access or not detail:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Match not found",
+        )
+
+    return detail

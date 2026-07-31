@@ -22,6 +22,7 @@ cd backend
 python3.11 -m venv venv
 source venv/bin/activate  # macOS/Linux
 # or
+py -3.11 -m venv venv
 venv\Scripts\activate     # Windows
 
 # 2. Install dependencies

@@ -20,7 +20,28 @@ export type LoginFormProps = Readonly<{
 
 interface LoginProps {
   form: LoginFormProps;
-  backgroundImage?: string; // Optional: overrides the automatic slide rotation
+  backgroundImage?: string; // Optional: If passed, overrides the automatic slide rotation loop
+}
+
+function RegistrationLink() {
+  const navigate = useNavigate();
+  return (
+    <div
+      className="flex items-center justify-center w-full"
+      data-name="Sign up option"
+    >
+      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
+        {`Don't have an account? `}
+        <button
+          type="button"
+          onClick={() => navigate("/register")}
+          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] device-dark:text-white cursor-pointer hover:underline"
+        >
+          Sign Up
+        </button>
+      </p>
+    </div>
+  );
 }
 
 export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
@@ -42,10 +63,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
         <AuthFormError message={form.error} />
 
         <AuthInputField
-          label="Email"
-          placeholder="john.doe@example.com"
-          type="email"
-          autoComplete="email"
+          label="Username or Email"
+          placeholder="john.doe@example.com or handle"
+          type="text"
+          autoComplete="username"
           value={form.email}
           onChange={form.onEmailChange}
         />
@@ -72,12 +93,7 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
           loading={form.loading}
         />
 
-        <AuthSwitchPrompt
-          prompt={`Don't have an account? `}
-          actionLabel="Sign Up"
-          to="/register"
-          dataName="Sign up option"
-        />
+        <RegistrationLink />
       </form>
     </AuthScreen>
   );

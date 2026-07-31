@@ -1,15 +1,15 @@
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
-import numpy as np
 import csv
 
 file_error_text = "Training file not found"
+type_err = "Input data is the wrong type"
 
 
 def convert_to_int(row, lane, role, pos):
     # add logic to convert everything to int
     for j in range(len(row)):
-        if any(char.isdigit() for char in row[j]):
+        if isinstance(row[j], str) and any(char.isdigit() for char in row[j]):
             row[j] = int(row[j])
 
     if lane != -1:
@@ -63,6 +63,8 @@ def convert_to_int(row, lane, role, pos):
         if not isinstance(row[j], int):
             row[j] = 0
 
+    return row
+
 
 def format_data_univar(data, pos, role, lane):
     r = -1
@@ -71,7 +73,7 @@ def format_data_univar(data, pos, role, lane):
     prev_row = []
 
     for row in data:
-        if r == -1:
+        if r == -1 and (not isinstance(data, list)):
             r = r + 1
             continue
 
@@ -102,10 +104,7 @@ def format_data_univar(data, pos, role, lane):
 
 def remove_dup(row, prev_row, r):
     # if feature values are identical, take new row
-    if r != 0 and row[1:] == prev_row[1:]:
-        return True
-    else:
-        return False
+    return r != 0 and row[1:] == prev_row[1:]
 
 
 def format_data_multivar(data, pos, role, lane):
@@ -115,11 +114,15 @@ def format_data_multivar(data, pos, role, lane):
     prev_row = []
 
     for row in data:
-        if r == -1:
-            r = r + 1
-            continue
+        if not isinstance(data, list) and not isinstance(row, list):
+            row = list(row.values())
+            if r == -1:
+                r = r + 1
+                continue
+        elif r == -1:
+            r = 0
 
-        convert_to_int(row, lane, role, pos)
+        row = convert_to_int(row, lane, role, pos)
 
         # if skill data (-1, -1, -1)
         if pos == -1 and role == -1 and lane == -1 and remove_dup(row, prev_row, r):
@@ -156,11 +159,11 @@ def get_train_test_data_knn(file_name):
         exit()
 
     with f:
-        data = csv.reader(f)
+        data = csv.DictReader(f)
         x_data, y_data = format_data_multivar(data, 2, 4, 3)
 
         scaler = StandardScaler()
-        x_data = scaler.fit_transform(x_data)
+        x_data = scaler.fit_transform(x_data)  # pyright: ignore[reportArgumentType]
     # Do train/test split
     x_train, x_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
@@ -176,6 +179,9 @@ def get_train_test_data_rf(file_name, category):
     except OSError:
         print(file_error_text)
         exit()
+
+    x_data = []
+    y_data = []
 
     with f:
         data = csv.reader(f)
@@ -199,43 +205,61 @@ def get_train_test_data_rf(file_name, category):
     return X_train, X_test, y_train, y_test
 
 
-def convert_json(json_data):
-    numpy_array = np.array(json_data)
-    print(numpy_array)
+# -----------------------------------------------------------------------------------#
 
 
-def format_api_data_knn(json_data):
-    data = json_data
+def convert_to_rows(data):
+    data_arr = []
 
-    x_data, y_data = format_data_multivar(data, 2, 4, 3)
+    if isinstance(data, list):
+        if not isinstance(data[0], list):  # check if 1D array
+            data_arr.append(data)
+        else:
+            data_arr = data
+    else:
+        data_arr = data.convert_to_arr()
+
+    return data_arr
+
+
+def format_api_data_knn(obj_data):
+    data = obj_data
+    x_data_rows = []
+    y_data_rows = []
+
+    # need to convert to consist of a row of data for each frame
+    data = convert_to_rows(data)
+
+    # run thru format function
+    x_data_rows, y_data_rows = format_data_multivar(data, 2, 4, 3)
 
     scaler = StandardScaler()
-    y_data = scaler.fit_transform(y_data)
-
-    x_train, x_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
-    )
+    x_data_rows = scaler.fit_transform(
+        x_data_rows
+    )  # pyright: ignore[reportArgumentType]
 
     # x is target, y is given
-    return x_train, x_test, y_train, y_test
+    return x_data_rows, y_data_rows
 
 
-def format_api_data_rf(json_data, category):
-    data = json_data
+def format_api_data_rf(obj_data, category):
+    data = obj_data
+    x_data_rows = []
+    y_data_rows = []
 
+    # need to convert to consist of a row of data for each frame
+    data = convert_to_rows(data)
+
+    # run thru format function
     match category:
         case "champion":
-            x_data, y_data = format_data_univar(data, 1, 2, 3)
+            x_data_rows, y_data_rows = format_data_univar(data, 1, 2, 3)
         case "item":
-            x_data, y_data = format_data_univar(data, 4, 3, 2)
+            x_data_rows, y_data_rows = format_data_univar(data, 4, 3, 2)
         case "skill":
-            x_data, y_data = format_data_multivar(data, -1, -1, -1)
+            x_data_rows, y_data_rows = format_data_multivar(data, -1, -1, -1)
         case "role":
-            x_data, y_data = format_data_multivar(data, 0, -1, 1)
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, random_state=42, stratify=None
-    )
+            x_data_rows, y_data_rows = format_data_multivar(data, 0, -1, 1)
 
     # X is given, y is target
-    return X_train, X_test, y_train, y_test
+    return x_data_rows, y_data_rows
