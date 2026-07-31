@@ -29,6 +29,8 @@ from app.services.user_accounts import get_linked_puuids, get_primary_linked_puu
 
 router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
 
+MATCH_NOT_FOUND = "Match not found"
+
 
 class SimplifiedMatchResponse(BaseModel):
     match_id: str
@@ -63,14 +65,16 @@ async def get_matches(
     ),
 )
 async def sync_matches(
-    count: int = Query(
-        DEFAULT_SYNC_COUNT,
-        ge=1,
-        le=MAX_SYNC_COUNT,
-        description="How many recent matches to pull from Riot",
-    ),
-    current_user: User = Depends(require_group(10)),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    count: Annotated[
+        int,
+        Query(
+            ge=1,
+            le=MAX_SYNC_COUNT,
+            description="How many recent matches to pull from Riot",
+        ),
+    ] = DEFAULT_SYNC_COUNT,
 ):
     puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
@@ -103,7 +107,7 @@ async def _assert_match_access(
     if not await user_has_match_access(session, puuids, match_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Match not found",
+            detail=MATCH_NOT_FOUND,
         )
 
 
@@ -117,7 +121,7 @@ async def get_match_by_id(
     if not await user_has_match_access(session, puuids, match_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Match not found",
+            detail=MATCH_NOT_FOUND,
         )
 
     viewer_puuid = await get_primary_linked_puuid(session, current_user.sub)
@@ -125,7 +129,7 @@ async def get_match_by_id(
     if not detail:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Match not found",
+            detail=MATCH_NOT_FOUND,
         )
     return detail
 
@@ -140,15 +144,15 @@ async def get_match_by_id(
         "purchases that fired. Fetched from Riot and cached on first request."
     ),
     responses={
-        404: {"description": "Match not found, or Riot has no timeline for it"},
+        404: {"description": f"{MATCH_NOT_FOUND}, or Riot has no timeline for it"},
         502: {"description": "Riot rejected the request"},
         503: {"description": "No Riot API key is configured"},
     },
 )
 async def get_match_timeline(
     match_id: str,
-    current_user: User = Depends(require_group(10)),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     await _assert_match_access(session, current_user.sub, match_id)
 

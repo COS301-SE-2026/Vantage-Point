@@ -153,13 +153,15 @@ async def get_my_profile(
     ),
 )
 async def get_my_live_metrics(
-    count: int = Query(10, ge=1, le=20, description="Matches to analyse"),
-    server_region: str | None = Query(
-        None,
-        description="Riot platform, e.g. euw1. Inferred from match history if omitted",
-    ),
-    current_user: User = Depends(require_group(10)),
-    session: AsyncSession = Depends(get_session),
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    count: Annotated[int, Query(ge=1, le=20, description="Matches to analyse")] = 10,
+    server_region: Annotated[
+        str | None,
+        Query(
+            description="Riot platform, e.g. euw1. Inferred from match history if omitted",
+        ),
+    ] = None,
 ):
     puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
