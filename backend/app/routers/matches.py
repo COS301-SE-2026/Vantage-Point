@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from pydantic import BaseModel
@@ -69,10 +69,10 @@ async def sync_matches(
         le=MAX_SYNC_COUNT,
         description="How many recent matches to pull from Riot",
     ),
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(require_group(10)),
     session: AsyncSession = Depends(get_session),
 ):
-    puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
+    puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -147,10 +147,10 @@ async def get_match_by_id(
 )
 async def get_match_timeline(
     match_id: str,
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(require_group(10)),
     session: AsyncSession = Depends(get_session),
 ):
-    await _assert_match_access(session, current_user.cognito_sub, match_id)
+    await _assert_match_access(session, current_user.sub, match_id)
 
     try:
         return await get_or_fetch_timeline(session, match_id)
