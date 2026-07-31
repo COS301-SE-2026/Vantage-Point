@@ -3,10 +3,20 @@ from urllib.parse import parse_qs
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.api.auth import get_current_user
-from app.services import auth_service
+from app.routers.auth import (
+    LOGIN_RESPONSES,
+    REGISTER_RESPONSES,
+    login_handler,
+    refresh_handler,
+    register_handler,
+)
+from app.services import auth_service, identity
+from app.config import get_settings
 from app.schemas.auth_schemas import (
-    UserRegister,
-    UserLogin,
+    AuthTokens,
+    LoginRequest,
+    RefreshTokenRequest,
+    RegisterRequest,
     UserConfirm,
 )
 from app.schemas.profile_schemas import (
@@ -19,7 +29,7 @@ from app.schemas.profile_schemas import (
     ProfileUpdateRequest,
 )
 from app.schemas.generic_schemas import ErrorResponse
-from typing import Annotated, Any
+from typing import Annotated
 from pydantic import BaseModel, Field
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,42 +40,59 @@ from app.services.analytics import LiveAnalyticsService
 from app.services.riot_service import riot_service, filter_match_for_players
 
 oauth2_scheme = HTTPBearer()
+settings = get_settings()
+
+INVALID_CREDENTIALS_DETAIL = identity.INVALID_CREDENTIALS_DETAIL
 
 router = APIRouter()
 
 
-#
+# The three routes below are the `/api/auth/*` aliases the web client calls. They share
+# their implementation with `/api/v1/auth/*` (app/routers/auth.py) so both prefixes hand
+# out the same locally signed tokens that `/api/v1` routes accept.
 @router.post(
     "/auth/register",
     tags=["Authentication"],
     summary="Register a new user",
-    description="Creates a new Cognito user account with username, email, and password.",
-    response_model=MessageResponse,
-    responses={
-        400: {"model": ErrorResponse, "description": "Registration failed"},
-    },
+    description=(
+        "Creates the account, mirrors it into Cognito when AWS is configured, and "
+        "returns a token pair so the client is signed in straight away."
+    ),
+    responses=REGISTER_RESPONSES,
 )
-async def register(user: UserRegister):
-    result = await auth_service.register_user(user.username, user.password, user.email)
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return {"message": "User registered successfully."}
+async def register(
+    body: RegisterRequest,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AuthTokens:
+    return await register_handler(body, session)
 
 
 @router.post(
     "/auth/login",
     tags=["Authentication"],
     summary="Log in a user",
-    description="Authenticates a user with Cognito and returns the token payload from AWS.",
-    responses={
-        401: {"model": ErrorResponse, "description": "Invalid username or password"},
-    },
+    description="Exchanges an email and password for an access/refresh token pair.",
+    responses=LOGIN_RESPONSES,
 )
-async def login(user: UserLogin) -> dict[str, Any]:
-    result = await auth_service.login_user(user.username, user.password)
-    if "error" in result:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
-    return dict(result)
+async def login(
+    body: LoginRequest,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AuthTokens:
+    return await login_handler(body, session)
+
+
+@router.post(
+    "/auth/refresh",
+    tags=["Authentication"],
+    summary="Refresh an expired access token",
+    description="Exchanges a valid refresh token for a fresh access/refresh pair.",
+    responses=LOGIN_RESPONSES,
+)
+async def refresh(
+    body: RefreshTokenRequest,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AuthTokens:
+    return await refresh_handler(body, session)
 
 
 @router.post(
@@ -90,24 +117,26 @@ async def confirm(data: UserConfirm):
     "/auth/logout",
     tags=["Authentication"],
     summary="Log out the current user",
-    description="Invalidates the authenticated user's Cognito access token globally.",
+    description=(
+        "Signs the caller out. Tokens issued by this API are stateless, so the client "
+        "discards its pair; a Cognito-issued token is additionally revoked with AWS."
+    ),
     response_model=MessageResponse,
     responses={
-        400: {"model": ErrorResponse, "description": "Logout failed"},
         403: {"model": ErrorResponse, "description": "Missing or invalid bearer token"},
     },
 )
 async def logout(
     token_data: Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)],
 ):
-    # Extracts the raw string credentials from the FastAPI HTTPBearer object
-    # needed for Cognito's global_sign_out
-    # jwt when logout request so use JWT get what user to infer which user logouts
-    raw_token = token_data.credentials
-    result = await auth_service.logout_user(raw_token)
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return {"message": "Successfully logged out from all devices."}
+    # Only a Cognito-issued access token can be revoked at AWS. Tokens minted here are
+    # short-lived HS256 JWTs with no server-side session, so a failed global_sign_out
+    # is expected rather than an error worth failing the request over.
+    try:
+        await auth_service.logout_user(token_data.credentials)
+    except Exception:  # noqa: BLE001 - sign-out is best effort
+        pass
+    return {"message": "Successfully logged out."}
 
 
 @router.get(
@@ -351,7 +380,7 @@ async def get_live_player_metrics(
     include_in_schema=False,
     responses={
         400: {"description": "Username and password are required"},
-        401: {"description": "Invalid username or password"},
+        401: {"description": INVALID_CREDENTIALS_DETAIL},
     },
 )
 async def swagger_login(request: Request) -> dict[str, str]:
@@ -373,7 +402,7 @@ async def swagger_login(request: Request) -> dict[str, str]:
     if "error" in result:
         raise HTTPException(
             status_code=401,
-            detail="Invalid username or password",
+            detail=INVALID_CREDENTIALS_DETAIL,
         )
 
     return {

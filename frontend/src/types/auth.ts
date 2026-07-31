@@ -5,12 +5,13 @@ export interface TokenResponse {
 }
 
 export interface UserMe {
-  readonly id: string;
+  readonly cognito_sub: string;
   readonly email: string;
   readonly display_name: string;
   readonly avatar_url: string | null;
   readonly riot_id_tag: string | null;
   readonly has_linked_riot: boolean;
+  readonly role: "Player" | "Admin" | "Super Admin"; // This is for COGNITO grouping. needs /api/v1/users/me  to be working
 }
 
 export interface AvatarUploadResponse {

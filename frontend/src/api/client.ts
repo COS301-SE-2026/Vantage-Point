@@ -5,7 +5,20 @@ import {
 } from "../lib/tokens";
 import type { ApiErrorBody, TokenResponse } from "../types/auth";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+/**
+ * Trailing slashes are trimmed in a single pass. The obvious `/\/+$/` costs
+ * quadratic time on a long run of slashes, because the engine has to backtrack
+ * through every split before it can fail.
+ */
+function withoutTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === "/") end -= 1;
+  return value.slice(0, end);
+}
+
+const API_URL = withoutTrailingSlashes(
+  import.meta.env.VITE_API_URL ?? "http://localhost:8000",
+);
 
 export class ApiError extends Error {
   readonly status: number;
@@ -15,6 +28,11 @@ export class ApiError extends Error {
     this.name = "ApiError";
     this.status = status;
   }
+}
+
+function buildUrl(path: string): string {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_URL}${cleanPath}`;
 }
 
 async function parseErrorMessage(response: Response): Promise<string> {
@@ -40,7 +58,7 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 
-  const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+  const response = await fetch(buildUrl("/api/auth/refresh"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh_token: refreshToken }),
@@ -69,8 +87,8 @@ export async function apiFetch<T>(
   if (accessToken) {
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
-
-  let response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const url = buildUrl(path);
+  let response = await fetch(url, { ...options, headers });
 
   if (response.status === 401 && retryOnUnauthorized) {
     if (!refreshInFlight) {
@@ -88,7 +106,7 @@ export async function apiFetch<T>(
       if (newAccess) {
         retryHeaders.set("Authorization", `Bearer ${newAccess}`);
       }
-      response = await fetch(`${API_URL}${path}`, {
+      response = await fetch(buildUrl(path), {
         ...options,
         headers: retryHeaders,
       });
@@ -117,7 +135,8 @@ export async function apiFetchFormData<T>(
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  let response = await fetch(`${API_URL}${path}`, {
+  const url = buildUrl(path);
+  let response = await fetch(url, {
     method: "POST",
     headers,
     body: formData,
@@ -136,7 +155,7 @@ export async function apiFetchFormData<T>(
       if (newAccess) {
         retryHeaders.set("Authorization", `Bearer ${newAccess}`);
       }
-      response = await fetch(`${API_URL}${path}`, {
+      response = await fetch(buildUrl(path), {
         method: "POST",
         headers: retryHeaders,
         body: formData,
@@ -159,8 +178,9 @@ export async function apiFetchPublic<T>(
   if (!headers.has("Content-Type") && options.body) {
     headers.set("Content-Type", "application/json");
   }
+  const url = buildUrl(path);
 
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const response = await fetch(url, { ...options, headers });
   if (!response.ok) {
     throw new ApiError(response.status, await parseErrorMessage(response));
   }

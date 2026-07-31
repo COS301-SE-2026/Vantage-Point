@@ -50,6 +50,16 @@ export interface MatchDetail {
   readonly teams: readonly TeamDetail[];
 }
 
+/** Result of importing recent matches from Riot into the backend. */
+export interface MatchSyncResult {
+  /** Match ids Riot returned for the linked account. */
+  readonly fetched: number;
+  /** How many of those were new and got stored. */
+  readonly imported: number;
+  /** Matches now stored for this account in total. */
+  readonly total: number;
+}
+
 /** Viewer summary for a single match in the dashboard list. */
 export interface MatchHistorySummary {
   readonly matchId: string;

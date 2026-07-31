@@ -1,5 +1,14 @@
 @custom-variant dark (&:is(.dark *));
 
+/**
+ * Follows the device/OS theme directly, with no `.dark` class and no JS.
+ * Kept separate from `dark:` on purpose: `dark:` is class-driven and is used
+ * throughout the shadcn primitives, so widening it would flip token-based
+ * components inside the dashboard, whose surfaces are hardcoded to the light
+ * Figma spec. `device-dark:` is opt-in per screen (landing, auth).
+ */
+@custom-variant device-dark (@media (prefers-color-scheme: dark));
+
 :root {
   --font-size: 16px;
   --background: #ffffff;
@@ -39,8 +48,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --vp-chart-grid: #d4d4d4;
+  --vp-chart-label: #525252;
   --vp-layout-max: 1512px;
-  --vp-dashboard-header: 94px;
+  /* Cap for the fluid content columns — one knob for how wide pages run. */
+  --vp-content-max: 1180px;
+  /* Header band. DashboardShell raises this on screens that show the 88px
+     account avatar, which needs more room than the logo/48px avatar do. */
+  --vp-dashboard-header: 72px;
   --vp-sidebar-width: 220px;
   --vp-sidebar-left: 28px;
   --vp-content-gap: 51px;
@@ -245,6 +260,8 @@
     animation: vantage-breathe 2.8s ease-in-out infinite;
   }
 
+  /* Fills from the element's own color, so the same animation works on both
+     light and dark backgrounds. */
   @keyframes vantage-dot-fill {
     0%,
     8% {
@@ -253,7 +270,7 @@
     }
     12%,
     88% {
-      background-color: #0f172a;
+      background-color: currentColor;
       transform: scale(1);
     }
     92%,
@@ -265,5 +282,82 @@
 
   .animate-vantage-dot-fill {
     animation: vantage-dot-fill 2.7s ease-in-out infinite;
+  }
+
+  /* Figma 14:1617 — 10px track (#f0f0f0) with a rounded #b7b7b7 thumb. */
+  .vp-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #b7b7b7 #f0f0f0;
+  }
+
+  .vp-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .vp-scrollbar::-webkit-scrollbar-track {
+    background-color: #f0f0f0;
+    border-radius: 9999px;
+  }
+
+  .vp-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #b7b7b7;
+    border: 2px solid #f0f0f0;
+    border-radius: 9999px;
+  }
+
+  .vp-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
+  }
+
+  .vp-scrollbar::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
+  /* Figma 22:642 — the dark page keeps the #b7b7b7 thumb on a #181818 track. */
+  @media (prefers-color-scheme: dark) {
+    .vp-scrollbar {
+      scrollbar-color: #b7b7b7 #181818;
+    }
+
+    .vp-scrollbar::-webkit-scrollbar-track {
+      background-color: #181818;
+    }
+
+    .vp-scrollbar::-webkit-scrollbar-thumb {
+      border-color: #181818;
+    }
+  }
+
+  /* Material-3 style indeterminate bar: a short segment sweeping the track. */
+  @keyframes vantage-progress {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(400%);
+    }
+  }
+
+  .animate-vantage-progress {
+    animation: vantage-progress 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-vantage-breathe,
+    .animate-vantage-dot-fill,
+    .animate-vantage-progress,
+    .animate-scroll {
+      animation: none;
+    }
+  }
+}
+
+/* Recharts colours are passed as JS strings, so the device theme flips them here. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Figma 14:370 keeps the radar web light on the dark page; only labels dim. */
+    --vp-chart-grid: #d4d4d4;
+    --vp-chart-label: #929292;
   }
 }

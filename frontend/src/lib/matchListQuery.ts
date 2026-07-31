@@ -25,11 +25,18 @@ function kdaRatio(match: MatchHistorySummary): number {
 }
 
 function compareNewest(a: MatchHistorySummary, b: MatchHistorySummary): number {
-  const dayCompare = b.played_on.localeCompare(a.played_on);
+  const playedOnA = a.played_on ?? "";
+  const playedOnB = b.played_on ?? "";
+
+  const dayCompare = playedOnB.localeCompare(playedOnA);
   if (dayCompare !== 0) {
     return dayCompare;
   }
-  return b.matchId.localeCompare(a.matchId);
+
+  const matchIdA = a.matchId ?? "";
+  const matchIdB = b.matchId ?? "";
+
+  return matchIdB.localeCompare(matchIdA);
 }
 
 function compareOldest(a: MatchHistorySummary, b: MatchHistorySummary): number {

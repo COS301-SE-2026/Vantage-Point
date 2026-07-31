@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy import BigInteger, Column, UniqueConstraint
+from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
@@ -29,12 +29,24 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     email: str = Field(unique=True, index=True)
     display_name: Optional[str] = Field(default=None)
     avatar_url: Optional[str] = Field(default=None)
+    # bcrypt hash for accounts that registered against this API directly.
+    # Stays NULL for Cognito-only accounts, which authenticate against AWS instead.
+    password_hash: Optional[str] = Field(default=None)
     deletion_scheduled_at: Optional[datetime] = None
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+        sa_column=Column(
+            DateTime(timezone=True), nullable=False, server_default=func.now()
+        ),
+        default_factory=datetime.utcnow,
     )
     updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+        default_factory=datetime.utcnow,
     )
 
     linked_puuids_cache: Optional[str] = Field(
@@ -110,6 +122,28 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
 
     participants: List["Participants"] = Relationship(back_populates="match")
+
+
+# MatchTimelines
+# Riot's Match-V5 timeline for one match, distilled down before storage.
+# The raw payload is several megabytes (a frame per minute holding every stat of every
+# player, plus every event in the game); we keep the fields the replay and map-analysis
+# screens actually draw. It lives in its own table rather than on Matches because the
+# match-history query selects whole Matches rows, and a multi-hundred-kilobyte column
+# there would be loaded on every list request.
+class MatchTimelines(SQLModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "match_timelines"
+
+    match_id: str = Field(primary_key=True, foreign_key="matches.match_id")
+    frame_interval_ms: int
+    game_duration_ms: int
+    map_id: int = 11
+    # JSON: {"frames": [...], "events": [...], "participants": [...]}
+    # See app/schemas/timeline.py for the shape; app/services/timeline_ingest.py writes it.
+    timeline_json: str
+    fetched_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
 
 
 # Participants
@@ -194,3 +228,131 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
     average_kda: float
 
     game_account: "GameAccounts" = Relationship(back_populates="featured_games")
+
+
+class MapReplayTable(SQLModel, Table=True):
+    __tablename__ = "map_replay_table"
+
+    puuid: list[str]
+    participant_id: list[int]
+    frame_interval: int
+    timestamp: list[int]
+    position_x: list[int]
+    position_y: list[int]
+
+
+# will do this later to ave top db. need to add a puuid or some finding entity. Primary key
+class MatchDataTable(SQLModel, Table=True):
+    __tablename__ = "match_data_table"
+
+    end_of_game_result: str
+    gameDuration: int
+    gameMode: str
+    gameName: str
+    mapId: int
+    champExperience: int
+    champLevel: int
+    championName: str
+    earliestBaron: int
+    earliestDragonTakedown: int
+    earliestElderDragon: int
+    fastestLegendary: int
+    hadAfkTeammate: int
+    highestChampionDamage: int
+    takedownFirst25Min: int
+    teleportTakedowns: int
+    thirdInhibitorDestroyedTime: int
+    fistBumpTakedowns: int
+    baronTakedowns: int
+    bountyGold: int
+    damagePerMinute: float
+    deatshByEnemyChamps: int
+    elderDragonKillsWithOpposingSoul: int
+    elderDragonMultikill: int
+    enemyJungleMonsterKills: int
+    firstTurretKilled: bool
+    firstTuttetKilledTime: float
+    gameLength: float
+    goldPerMinute: float
+    kda: float
+    killingSprees: int
+    lostAnInhibitor: int
+    perfectDragonSoulsTaken: int
+    quickFirstTurrentKills: int
+    quickSoloKills: int
+    scuttleCrabKills: int
+    soloBaronKills: int
+    SWARM_DefeatAatrox: int
+    SWARM_DefeatBriar: int
+    SWARM_DefeatMiniBosses: int
+    SWARM_EvolveWeapon: int
+    SWARM_Have3Passives: int
+    SWARM_KillEnemy: int
+    SWARM_PickupGold: float
+    SWARM_ReachLevel50: int
+    SWARM_WinWith5EvolvedWeapons: int
+    soloKills: int
+    stealthWardsPlaced: int
+    takedowns: int
+    teamBaronKills: int
+    teamElderDragonKills: int
+    teamRiftHeraldKills: int
+    unseenRecalls: int
+    visionScorePerMinute: float
+    wardTakedowns: int
+    platformId: str
+    championId: list[int]
+    pickTurn: list[int]
+    baron_first: bool
+    baron_kills: int
+    champion_first: bool
+    champion_kills: int
+    dragon_first: bool
+    dragon_kills: int
+    horde_first: bool
+    horde_kills: int
+    inhibitor_first: bool
+    inhobitor_kills: int
+    riftHerald_first: bool
+    riftherald_kills: int
+    tower_first: bool
+    tower_kills: int
+    teams_teamId: int
+    teams_win: bool
+
+
+class ProfileDataTable(SQLModel, Table=True):
+    __tablename__ = "profile_data_table"
+
+    endOfGameResult: str
+    gameDuration: float
+    puuid: str
+    champExperience: int
+    champLevel: int
+    goldPerMinute: float
+    kda: float
+    deaths: int
+    doubleKills: int
+    killingSprees: int
+    largestKillingSpree: int
+    largestMultiKill: int
+    playerScore0: int
+    playerScore1: int
+    playerScore2: int
+    playerScore3: int
+    playerScore4: int
+    playerScore5: int
+    playerScore6: int
+    playerScore7: int
+    playerScore8: int
+    playerScore9: int
+    playerScore10: int
+    playerScore11: int
+    pentakills: int
+    quadrakills: int
+    timePlayed: int
+    tripleKills: int
+    unreal: int
+    kills: int
+    lane: str
+    teamPosition: str
