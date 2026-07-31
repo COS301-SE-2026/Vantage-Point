@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from pydantic import BaseModel
 
-from app.schemas.auth import require_group
+from app.api.auth import require_group
 from app.Models.profile_schemas import User
 from app.database.session import get_session
 from app.schemas.match import MatchDetailResponse, MatchHistorySummaryResponse

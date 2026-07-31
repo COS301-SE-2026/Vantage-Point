@@ -14,6 +14,14 @@ import ProfileView from "./pages/ProfileView";
 import LandingPage from "./pages/LandingPage";
 import RegisterPage from "./pages/RegisterPage";
 import StyleGuidePage from "./pages/StyleGuidePage";
+import AdminRoute from "./components/AdminRoute";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminMatchesPage from "./pages/admin/AdminMatchesPage";
+import AdminMapAssetsPage from "./pages/admin/AdminMapAssetsPage";
+import AdminChampionAssetsPage from "./pages/admin/AdminChampionAssetsPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import HelpPage from "./pages/HelpPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +39,18 @@ export const router = createBrowserRouter([
   {
     path: "/style-guide",
     Component: StyleGuidePage,
+  },
+  {
+    element: <AdminRoute />,
+    children: [
+      { path: "/admin", element: <Navigate to="/admin/dashboard" replace /> },
+      { path: "/admin/dashboard", Component: AdminDashboardPage },
+      { path: "/admin/users", Component: AdminUsersPage },
+      { path: "/admin/matches", Component: AdminMatchesPage },
+      { path: "/admin/map-assets", Component: AdminMapAssetsPage },
+      { path: "/admin/champion-assets", Component: AdminChampionAssetsPage },
+      { path: "/admin/settings", Component: AdminSettingsPage },
+    ],
   },
   {
     path: "/link-riot-id",
