@@ -1,4 +1,13 @@
-from fastapi import APIRouter, Depends, File, UploadFile, status, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    UploadFile,
+    status,
+)
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from typing import Any, Annotated
@@ -6,8 +15,7 @@ from app.Models.profile_schemas import User
 from app.database.models import Users
 from app.api.auth import require_group
 from app.database.session import get_session
-from app.schemas.profile import PlayerProfileResponse
-from app.schemas.profile_schemas import LiveAdvancedMetrics
+from app.schemas.profile import LiveAdvancedMetrics, PlayerProfileResponse
 from app.schemas.user import (
     AvatarUploadResponse,
     LinkGameAccountRequest,
@@ -19,6 +27,7 @@ from app.services.analytics import LiveAnalyticsService
 from app.services.avatar_storage import delete_avatar_files, save_avatar
 from app.services.match_ingest import resolve_platform, sync_matches_best_effort
 from app.services.player_profile import build_player_profile
+from app.services.profile_services import ProfileService
 from app.services.user_accounts import (
     get_primary_linked_account,
     get_primary_linked_puuid,
@@ -27,6 +36,8 @@ from app.services.user_accounts import (
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+bearer_scheme = HTTPBearer()
 
 
 def _user_me_response(user: Users, account: Any) -> UserMeResponse:
@@ -53,18 +64,31 @@ async def _get_users(sub: str, session: AsyncSession) -> Users:
 
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(
-    current_user: Annotated[User, Depends(require_group(20))],
+    current_user: Annotated[User, Depends(require_group(10))],
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     account = await get_primary_linked_account(session, current_user.sub)
-    response: Users = await _get_users(current_user.sub, session)
+
+    # Registering only creates the account in Cognito, so the first authenticated call
+    # after sign-up has no local row yet. Materialise it from the Cognito profile the
+    # same way POST /profile/get does, rather than 404ing a user who just signed in.
+    statement = select(Users).where(Users.cognito_sub == current_user.sub)
+    result: Any = await session.execute(statement)
+    response: Users | None = result.scalar_one_or_none()
+
+    if response is None:
+        response = await ProfileService.get_or_create_profile(
+            session, credentials.credentials
+        )
+
     return _user_me_response(response, account)
 
 
 @router.patch("/me", response_model=UserMeResponse)
 async def update_me(
     body: UpdateUserMeRequest,
-    current_user: Annotated[User, Depends(require_group(20))],
+    current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     response = await _get_users(current_user.sub, session)
@@ -133,10 +157,10 @@ async def get_my_live_metrics(
         None,
         description="Riot platform, e.g. euw1. Inferred from match history if omitted",
     ),
-    current_user: Users = Depends(get_current_user),
+    current_user: User = Depends(require_group(10)),
     session: AsyncSession = Depends(get_session),
 ):
-    puuid = await get_primary_linked_puuid(session, current_user.cognito_sub)
+    puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

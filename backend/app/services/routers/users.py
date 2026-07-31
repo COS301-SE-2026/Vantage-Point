@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, File, UploadFile, status, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -17,6 +18,7 @@ from app.Models.user import (
 )
 from app.services.avatar_storage import delete_avatar_files, save_avatar
 from app.services.player_profile import build_player_profile
+from app.services.profile_services import ProfileService
 from app.services.user_accounts import (
     get_primary_linked_account,
     get_primary_linked_puuid,
@@ -25,6 +27,8 @@ from app.services.user_accounts import (
 )
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
+
+bearer_scheme = HTTPBearer()
 
 user_not_found: str = "User not found"
 
@@ -59,9 +63,21 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
 )
 async def get_me(
     current_user: Annotated[User, Depends(require_group(10))],
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    response: Users = await _get_users(current_user.sub, session)
+    # Registering only creates the account in Cognito, so the first authenticated call
+    # after sign-up has no local row yet. Materialise it from the Cognito profile the
+    # same way POST /profile/get does, rather than 404ing a user who just signed in.
+    statement = select(Users).where(Users.cognito_sub == current_user.sub)
+    result: Any = await session.execute(statement)
+    response: Users | None = result.scalar_one_or_none()
+
+    if response is None:
+        response = await ProfileService.get_or_create_profile(
+            session, credentials.credentials
+        )
+
     account = await get_primary_linked_account(session, current_user.sub)
     return _user_me_response(response, account)
 

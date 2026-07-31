@@ -25,9 +25,10 @@ from app.api.router import (
     analytics_router,
     riot_api_routes,
 )
-from app.services.routers import matches, users
+from app.routers import matches, users
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
+from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
 from app.services.riot_api import get_puuid_by_riot_id
 
 from loguru import logger
@@ -168,7 +169,8 @@ app.include_router(admin_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
-app.include_router(users.router)
+# This router declares only "/users"; the frontend calls the versioned path.
+app.include_router(users.router, prefix="/api/v1")
 
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
 # "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.
