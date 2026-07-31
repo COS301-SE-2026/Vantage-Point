@@ -11,9 +11,9 @@ export default function AdminRoute({
   const { user, loading } = useAuth();
 
   // STUB — remove once the backend returns UserMe.role
-  if (import.meta.env.DEV) {
-    return <Outlet />;
-  }
+  // if (import.meta.env.DEV) {
+  //   return <Outlet />;
+  // }
 
   if (loading) {
     return (

@@ -4,7 +4,7 @@ from sqlmodel import select
 from typing import Any, Annotated
 from app.Models.profile_schemas import User
 from app.database.models import Users
-from app.api.auth import require_group
+from app.api.auth import require_group, get_user_role
 from app.database.session import get_session
 from app.schemas.profile import PlayerProfileResponse
 from app.schemas.user import (
@@ -35,6 +35,7 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
         avatar_url=user.avatar_url,
         riot_id_tag=tag,
         has_linked_riot=account is not None,
+        role= role,
     )
 
 
@@ -55,7 +56,7 @@ async def get_me(
 ):
     account = await get_primary_linked_account(session, current_user.sub)
     response: Users = await _get_users(current_user.sub, session)
-    return _user_me_response(response, account)
+    return _user_me_response(response, account, get_user_role(current_user))
 
 
 @router.patch("/me", response_model=UserMeResponse)
