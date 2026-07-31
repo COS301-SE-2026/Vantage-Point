@@ -6,7 +6,6 @@ export interface RegisterPayload {
   readonly username: string;
   readonly email: string;
   readonly password: string;
-  readonly confirm_password: string;
 }
 
 export interface LoginPayload {
@@ -20,9 +19,14 @@ export interface ConfirmPayload {
 }
 
 export async function registerUser(payload: RegisterPayload): Promise<void> {
-  await apiFetchPublic<void>("/register", {
+  const params = new URLSearchParams({
+    username: payload.username,
+    email: payload.email,
+    password: payload.password,
+  });
+
+  await apiFetchPublic<void>(`/register?${params.toString()}`, {
     method: "POST",
-    body: JSON.stringify(payload),
   });
 }
 

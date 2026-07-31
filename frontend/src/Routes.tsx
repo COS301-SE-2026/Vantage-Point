@@ -20,6 +20,7 @@ import AdminMapAssetsPage from "./pages/admin/AdminMapAssetsPage";
 import AdminChampionAssetsPage from "./pages/admin/AdminChampionAssetsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import HelpPage from "./pages/HelpPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +35,11 @@ export const router = createBrowserRouter([
     path: "/register",
     Component: RegisterPage,
   },
+  {
+    path: "/verify-email",
+    Component: VerifyEmailPage,
+  },
+
   {
     element: <AdminRoute />,
     children: [

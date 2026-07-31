@@ -68,10 +68,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
         )}
 
         <AuthInputField
-          label="Email"
-          placeholder="john.doe@example.com"
-          type="email"
-          autoComplete="email"
+          label="Username or Email"
+          placeholder="john.doe@example.com or handle"
+          type="text"
+          autoComplete="username"
           value={form.email}
           onChange={form.onEmailChange}
         />
