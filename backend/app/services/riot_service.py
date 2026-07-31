@@ -50,6 +50,33 @@ def filter_match_for_players(
     return data
 
 
+# Match-V5 is served per macro-region rather than per platform, so every match call has
+# to map the player's local server across first.
+MACRO_REGIONS = {
+    "na1": "americas",
+    "br1": "americas",
+    "la1": "americas",
+    "la2": "americas",
+    "euw1": "europe",
+    "eun1": "europe",
+    "tr1": "europe",
+    "ru": "europe",
+    "kr": "asia",
+    "jp1": "asia",
+    "oc1": "sea",
+    "ph2": "sea",
+    "sg2": "sea",
+    "th2": "sea",
+    "tw2": "sea",
+    "vn2": "sea",
+}
+
+
+def get_macro_region(server_region: str) -> str:
+    """Maps a local Riot server region to its Match-V5 macro-region."""
+    return MACRO_REGIONS.get(server_region.lower(), "americas")
+
+
 class RiotService:
     def __init__(self):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
@@ -57,26 +84,7 @@ class RiotService:
         self.platform_url = "https://euw1.api.riotgames.com"
 
     def _get_macro_region(self, server_region: str) -> str:
-        """Maps a local Riot server region to its Match-V5 macro-region."""
-        region_map = {
-            "na1": "americas",
-            "br1": "americas",
-            "la1": "americas",
-            "la2": "americas",
-            "euw1": "europe",
-            "eun1": "europe",
-            "tr1": "europe",
-            "ru": "europe",
-            "kr": "asia",
-            "jp1": "asia",
-            "oc1": "sea",
-            "ph2": "sea",
-            "sg2": "sea",
-            "th2": "sea",
-            "tw2": "sea",
-            "vn2": "sea",
-        }
-        return region_map.get(server_region.lower(), "americas")
+        return get_macro_region(server_region)
 
     async def get_puuid(self, game_name: str, tag_line: str) -> str:
         url = f"{self.account_url}/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
