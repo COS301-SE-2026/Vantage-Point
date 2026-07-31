@@ -33,8 +33,20 @@ export default function RegisterPage() {
       return;
     }
 
+    // 3. The API rejects anything without an "@" with a generic 400, so catch it here
+    if (!trimmedEmail.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    // Cognito's minimum, enforced by the API too
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
