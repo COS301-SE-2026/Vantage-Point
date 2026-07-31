@@ -40,7 +40,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 bearer_scheme = HTTPBearer()
 
 
-def _user_me_response(user: Users, account: Any) -> UserMeResponse:
+def _user_me_response(user: Users, account: Any, role: str | None) -> UserMeResponse:
     tag = riot_id_tag(account.game_name, account.tag_line) if account else None
     return UserMeResponse(
         cognito_sub=user.cognito_sub,
@@ -98,7 +98,7 @@ async def update_me(
     await session.commit()
     await session.refresh(response)
     account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(response, account)
+    return _user_me_response(response, account, get_user_role(current_user))
 
 
 @router.post("/me/avatar", response_model=AvatarUploadResponse)
