@@ -20,7 +20,7 @@ import { deriveUserStatus } from "../types/admin";
 
 // MOCK DATA - STUB for Local UI testing only,
 // delete this  block and ever "if (USE_MOCKS) { ... } block once backend admin routes exist"
-const USE_MOCKS = import.meta.env.DEV === true;
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
 
 const MOCK_USERS: AdminUser[] = [
   {
