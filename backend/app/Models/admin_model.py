@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -10,6 +11,7 @@ class UserResponse(BaseModel):
     user_last_modified_date: datetime
     enabled: bool
     user_status: str
+    role: Optional[str] = None
 
 
 class Response(BaseModel):

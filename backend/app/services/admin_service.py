@@ -24,13 +24,50 @@ invalid_username: str = "Invalid username"
 class admin_service:
     @staticmethod
     async def get_users(limit: int = 10) -> list[UserResponse]:
+        """
+        Fetch all Cognito users (paginated) and enrich each with their role from Cognito groups.
+        The 'limit' parameter is ignored; we fetch all users.
+        """
         try:
             response = await asyncio.to_thread(
                 client.list_users, UserPoolId=settings.cognito_user_pool_id, Limit=limit
             )
+            users_Data = response.get("Users", [])
+
+            # so we first get a map from username to role
+            # getting all groups and their members in 1 shot
+            user_role_map = {}
+
+            # alright so get all groups and only consider they fit into the 3 roles we Have Defined.
+            group_response = await asyncio.to_thread(
+                client.list_groups, UserPoolId=settings.cognito_user_pool_id
+            )
+            groups = group_response.get("Groups", [])
+
+            for group in groups:
+                group_name = group.get("GroupName")
+                if group_name not in ["Admin", "Player", "Super Admin"]:
+                    continue
+
+                # whilst within the group, we getting the members of the group and mapping them to their role
+                members_response = await asyncio.to_thread(
+                    client.list_users_in_group,
+                    UserPoolId=settings.cognito_user_pool_id,
+                    GroupName=group_name,
+                )
+                members = members_response.get("Users", [])
+
+                for member in members:
+                    username = member.get("Username")
+                    # If a user has multiple roles, it is chaai. Praying that isnt the case. I am too tired to think about that now but hjere is comment for reference.
+                    user_role_map[username] = group_name
+
+
+
+            # Adjusting the existance response now to include the role of the user based on the mapping we created above
             users: list[UserResponse] = []
 
-            for user in response["Users"]:
+            for user in users_Data:
                 attributes: Any = {
                     attr["Name"]: attr.get("Value", "")
                     for attr in user.get("Attributes", [])
@@ -47,6 +84,7 @@ class admin_service:
                         ),
                         enabled=user.get("Enabled", True),
                         user_status=user.get("UserStatus", ""),
+                        role=user_role_map.get(username),
                     )
                 )
 

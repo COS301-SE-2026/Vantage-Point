@@ -86,6 +86,7 @@ export default function AdminUsersPage() {
           role: roleFilter || undefined,
           status: statusFilter || undefined,
         });
+        console.log("Sample user:", res.items[0]);
         if (!cancelled) {
           setAllUsers(res.items);
           setPage(1);
