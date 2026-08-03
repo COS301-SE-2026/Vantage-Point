@@ -93,6 +93,19 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
                 {item.label}
               </NavLink>
             ))}
+
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                  `rounded-[10px] bg-white px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
+                    isActive
+                      ? "font-bold text-[#1e1e1e]"
+                      : "text-[#1e1e1e] hover:opacity-80"
+                  } ${sidebarOpen ? "" : "hidden"}`
+                }
+              >
+                Player Dashboard
+              </NavLink>
           </nav>
 
           <button
