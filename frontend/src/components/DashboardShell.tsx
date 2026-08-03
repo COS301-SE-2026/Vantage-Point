@@ -54,6 +54,9 @@ interface DashboardShellProps {
   readonly accountName?: string;
   readonly accountTag?: string;
   readonly onEditProfileClick?: () => void;
+
+  readonly onAdminClick?: () => void;
+  readonly userRole?: string;
 }
 
 /**
@@ -106,6 +109,9 @@ export default function DashboardShell({
   accountName,
   accountTag,
   onEditProfileClick,
+
+  onAdminClick,
+  userRole,
 }: Readonly<DashboardShellProps>) {
   const showAccountHeading = Boolean(accountName);
   const panelVars = {
@@ -116,6 +122,8 @@ export default function DashboardShell({
   const headerVars = showAccountHeading
     ? ({ "--vp-dashboard-header": "108px" } as CSSProperties)
     : undefined;
+
+    const isAdmin = userRole === "admin";
 
   return (
     <div
@@ -209,6 +217,18 @@ export default function DashboardShell({
             >
               <NavItemLabel>Match Replay</NavItemLabel>
             </button>
+
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={onAdminClick}
+                className="flex h-[35px] cursor-pointer items-center rounded-[10px] border-0 bg-[#dadada] device-dark:bg-[#2a2a2a] py-0 pl-[12px] pr-0 text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-opacity hover:opacity-80"
+                style={{ width: DASHBOARD_NAV_WIDTH }}
+                aria-label="Admin Panel"
+              >
+                <NavItemLabel>Admin Panel</NavItemLabel>
+              </button>
+            )}
           </div>
           <div
             className="mt-auto px-[10px]"
