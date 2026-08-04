@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 
 
 class UserMeResponse(BaseModel):
@@ -9,6 +9,7 @@ class UserMeResponse(BaseModel):
     avatar_url: Optional[str] = None
     riot_id_tag: Optional[str] = None
     has_linked_riot: bool
+    role: Optional[Literal["Player", "Admin", "Super Admin"]] = None
 
 
 class UpdateUserMeRequest(BaseModel):

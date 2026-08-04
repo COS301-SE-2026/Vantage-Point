@@ -3,7 +3,14 @@ import re
 from typing import Annotated, Any
 from urllib.parse import quote
 
+import re
+from typing import Annotated, Any
+from urllib.parse import quote
+
 from dotenv import load_dotenv
+from fastapi import Depends, HTTPException
+import httpx
+
 from fastapi import Depends, HTTPException
 import httpx
 
@@ -77,6 +84,16 @@ class RiotService:
             "vn2": "sea",
         }
         return region_map.get(server_region.lower(), "americas")
+
+
+class RiotService:
+    def __init__(self):
+        self.headers = {"X-Riot-Token": settings.riot_api_key}
+        self.account_url = "https://europe.api.riotgames.com"
+        self.platform_url = "https://euw1.api.riotgames.com"
+
+    def _get_macro_region(self, server_region: str) -> str:
+        return get_macro_region(server_region)
 
     async def get_puuid(self, game_name: str, tag_line: str) -> str:
         url = f"{self.account_url}/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"

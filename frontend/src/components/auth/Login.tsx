@@ -1,19 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
-import imgLogo from "../../assets/images/logos/logo.webp";
-import imgGoogle from "../../assets/images/providers/google.webp";
-import imgAppleInc from "../../assets/images/providers/apple.webp";
-import imgRiotGames from "../../assets/images/providers/riot-games.webp";
-
-// Shared SVG checkmark path
-const checkmarkPath = "M11.4667 0.8L4.13333 8.13333L0.8 4.8";
-
-const backgroundImages = authBackgroundImages;
-const SLIDE_DOT_INDICES = authSlideIndices;
-
-const authInputClassName =
-  "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
+import AuthScreen, {
+  AuthFormError,
+  AuthInputField,
+  AuthSubmitButton,
+  PasswordVisibilityToggle,
+} from "./AuthScreen";
 
 export type LoginFormProps = Readonly<{
   email: string;
@@ -31,6 +23,7 @@ interface LoginProps {
   backgroundImage?: string; // Optional: If passed, overrides the automatic slide rotation loop
 }
 
+<<<<<<< Updated upstream
 function Logo() {
   return (
     <div
@@ -210,19 +203,21 @@ function CheckboxAndLabel({
   );
 }
 
+=======
+>>>>>>> Stashed changes
 function RegistrationLink() {
   const navigate = useNavigate();
   return (
     <div
       className="flex items-center justify-center w-full"
-      data-name="Checkbox and Label"
+      data-name="Sign up option"
     >
-      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] text-[16px] leading-[1.4] text-center">
+      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
         {`Don't have an account? `}
         <button
           type="button"
           onClick={() => navigate("/register")}
-          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] cursor-pointer hover:underline"
+          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] device-dark:text-white cursor-pointer hover:underline"
         >
           Sign Up
         </button>
@@ -233,105 +228,54 @@ function RegistrationLink() {
 
 export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
   const [showPassword, setShowPassword] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Auto-rotating slider hook for standard rotation (if no hardcoded single override image is passed)
-  useEffect(() => {
-    if (backgroundImage) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % backgroundImages.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [backgroundImage]);
 
   return (
-    <div
-      className="relative size-full bg-white overflow-clip"
-      data-name="Login"
+    <AuthScreen
+      onSocialClick={form.onSocialClick}
+      socialVerb="Sign in"
+      backgroundImage={backgroundImage}
     >
-      {/* Right Side Wallpaper Area (Takes 70% width exactly like your old layout view) */}
-      <div className="absolute h-full left-[30%] top-0 right-0 z-0">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {backgroundImage ? (
-            // Single override wallpaper mode (e.g. static Champion screen)
-            <img
-              alt="League of Legends Wallpaper"
-              className="absolute h-full w-full object-cover"
-              src={backgroundImage}
-            />
-          ) : (
-            // Normal auto-looping rotational slide mode
-            backgroundImages.map((img, index) => (
-              <img
-                key={img}
-                alt="League of Legends Background Slide"
-                className={`absolute h-full w-full object-cover transition-opacity duration-1000 ${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                }`}
-                src={img}
-              />
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Slide Pagination Dots Indicator */}
-      {!backgroundImage && (
-        <div
-          className="absolute h-[44px] right-[5%] bottom-[5%] w-[clamp(200px,30vw,402px)] z-10"
-          data-name="Page control"
-        >
-          <Frame currentSlide={currentSlide} onDotClick={setCurrentSlide} />
-        </div>
-      )}
-
-      {/* Left Side Form Stack (Occupies exactly 30% spacing matching the original aspect ratio) */}
-      <div
-        className="absolute left-0 top-0 z-20 box-border flex h-full min-w-0 w-[30%] flex-col items-center overflow-y-auto px-[clamp(16px,4vw,40px)] py-[clamp(24px,5vh,48px)] bg-white"
-        data-name="left-panel"
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.onSubmit();
+        }}
+        className="flex w-full flex-col gap-6"
       >
-        <div className="flex w-full max-w-[min(378px,100%)] flex-1 flex-col items-center gap-8">
-          <Logo />
-          <SocialLoginButtons onSocialClick={form.onSocialClick} />
+        <AuthFormError message={form.error} />
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.onSubmit();
-            }}
-            className="flex w-full flex-col gap-6"
-          >
-            {form.error && (
-              <p
-                className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600 text-center"
-                role="alert"
-              >
-                {form.error}
-              </p>
-            )}
+        <AuthInputField
+          label="Username or Email"
+          placeholder="john.doe@example.com or handle"
+          type="text"
+          autoComplete="username"
+          value={form.email}
+          onChange={form.onEmailChange}
+        />
 
-            <InputField
-              label="Email"
-              placeholder="What's your email address?"
-              type="email"
-              value={form.email}
-              onChange={form.onEmailChange}
+        <AuthInputField
+          label="Password"
+          placeholder="••••••••••"
+          type={showPassword ? "text" : "password"}
+          autoComplete="current-password"
+          value={form.password}
+          onChange={form.onPasswordChange}
+          trailing={
+            <PasswordVisibilityToggle
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              fieldLabel="password"
             />
+          }
+        />
 
-            <div className="flex flex-col gap-[8px]">
-              <InputField
-                label="Password"
-                placeholder="What's your password?"
-                type={showPassword ? "text" : "password"}
-                value={form.password}
-                onChange={form.onPasswordChange}
-              />
-              <CheckboxAndLabel
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-              />
-            </div>
+        <AuthSubmitButton
+          label="Sign In"
+          loadingLabel="Signing in…"
+          loading={form.loading}
+        />
 
+<<<<<<< Updated upstream
             <button
               type="submit"
               disabled={form.loading}
@@ -345,5 +289,10 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
         </div>
       </div>
     </div>
+=======
+        <RegistrationLink />
+      </form>
+    </AuthScreen>
+>>>>>>> Stashed changes
   );
 }

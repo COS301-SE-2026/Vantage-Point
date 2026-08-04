@@ -146,6 +146,44 @@ def get_user_highest_level(user: User):
     return max((role_levels.get(group, 0) for group in user.groups), default=0)
 
 
+role_display_names = {"User": "Player", "Admin": "Admin", "SuperAdmin": "Super Admin"}
+
+
+def get_user_role(user: User) -> str | None:
+    """Highest-privilege group, translated to the frontend's AppRole labels.
+    None if the user has no recognized group — Cognito returns nothing here
+    for a plain user with no group assigned yet.
+    """
+    highest_group = max(
+        (g for g in user.groups if g in role_levels),
+        key=lambda g: role_levels[g],
+        default=None,
+    )
+    return role_display_names.get(highest_group) if highest_group else None
+
+
+def require_group(required_value: int) -> Callable[..., User]:
+    def checker(user: Annotated[User, Depends(get_current_user)]) -> User:
+        user_level = get_user_highest_level(user)
+        if user_level >= required_value:
+            return user
+        else:
+            raise HTTPException(
+                status_code=403, detail=f"Invalid Permission {user.groups}"
+            )
+
+    return checker
+
+
+role_levels = {"User": 10, "Admin": 20, "SuperAdmin": 30}
+
+
+# idea behind this is to allow admin to use user also without specifying as it will make the endpoint roles a lot easier and less to manage
+def get_user_highest_level(user: User):
+    # get highest level user has. Admin then user
+    return max((role_levels.get(group, 0) for group in user.groups), default=0)
+
+
 def require_group(required_value: int) -> Callable[..., User]:
     def checker(user: Annotated[User, Depends(get_current_user)]) -> User:
         user_level = get_user_highest_level(user)

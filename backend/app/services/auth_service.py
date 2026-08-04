@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
+from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
 
 if TYPE_CHECKING:
@@ -56,9 +57,13 @@ def handle_cognito_error(e: ClientError) -> NoReturn:
 
 
 async def register_user(username: str, password: str, email: str):
-    if not (("@" in email) and (len(password) >= 8) and (len(username) > 0)):
+    if len(username) == 0:
+        raise HTTPException(status_code=400, detail="Username is required")
+    if "@" not in email:
+        raise HTTPException(status_code=400, detail="A valid email address is required")
+    if len(password) < 8:
         raise HTTPException(
-            status_code=400, detail="Param does not met min requirements"
+            status_code=400, detail="Password must be at least 8 characters"
         )
 
     try:

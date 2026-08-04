@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { authBackgroundImages, authSlideIndices } from "../../lib/backgrounds";
@@ -5,10 +6,31 @@ import imgLogo from "../../assets/images/logos/logo.webp";
 import imgGoogle from "../../assets/images/providers/google.webp";
 import imgAppleInc from "../../assets/images/providers/apple.webp";
 import imgRiotGames from "../../assets/images/providers/riot-games.webp";
+=======
+import { useState } from "react";
+import { Link } from "react-router";
+import AuthScreen, {
+  AuthInputField,
+  PasswordVisibilityToggle,
+} from "./AuthScreen";
+>>>>>>> Stashed changes
 
-const backgroundImages = authBackgroundImages;
-const SLIDE_DOT_INDICES = authSlideIndices;
+export type RegisterFormProps = Readonly<{
+  email: string;
+  displayName: string;
+  password: string;
+  confirmPassword: string;
+  error?: string | null;
+  loading?: boolean;
+  onEmailChange: (value: string) => void;
+  onDisplayNameChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onConfirmPasswordChange: (value: string) => void;
+  onSubmit: () => void;
+  onSocialClick?: () => void;
+}>;
 
+<<<<<<< Updated upstream
 const authInputClassName =
   "bg-transparent min-w-0 rounded-[8px] w-full px-[16px] py-[12px] font-['Inter:Regular',sans-serif] font-normal text-[16px] text-[#1e1e1e] placeholder:text-[#b3b3b3] border border-[#d9d9d9] focus:outline-none focus:border-[#2c2c2c] caret-[#1e1e1e] [&:-webkit-autofill]:[-webkit-text-fill-color:#1e1e1e] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(255,255,255)] [&:-webkit-autofill]:caret-[#1e1e1e] [&:-moz-autofill]:bg-transparent";
 
@@ -153,10 +175,18 @@ function Field({
   );
 }
 
+=======
+interface RegisterProps {
+  form: RegisterFormProps;
+  backgroundImage?: string;
+}
+
+>>>>>>> Stashed changes
 export default function Register({
   form,
   backgroundImage,
 }: Readonly<RegisterProps>) {
+<<<<<<< Updated upstream
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -308,31 +338,95 @@ export default function Register({
           <p className="mt-4 max-w-md text-lg text-white/80 drop-shadow-sm">
             Advanced AI telemetry built to transform complex match tracking
             arrays into sharp decisions.
+=======
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  return (
+    <AuthScreen
+      onSocialClick={form.onSocialClick}
+      socialVerb="Sign up"
+      backgroundImage={backgroundImage}
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.onSubmit();
+        }}
+        className="flex w-full flex-col gap-5"
+      >
+        {form.error && (
+          <p className="text-[14px] text-red-600 text-center" role="alert">
+            {form.error}
+>>>>>>> Stashed changes
           </p>
-        </section>
+        )}
 
-        {/* Endless rolling marquee info bar */}
-        <div className="absolute bg-white/10 backdrop-blur-md border-y border-white/20 bottom-[142px] flex flex-row items-center left-0 overflow-hidden py-4 w-full z-20">
-          <Marquee />
-        </div>
+        <AuthInputField
+          label="Username"
+          placeholder="gameName#1234"
+          value={form.displayName}
+          onChange={form.onDisplayNameChange}
+        />
 
-        {/* Dots Navigation indicators control */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 items-center justify-center px-4 py-2 bg-white/10 backdrop-blur-md rounded-full z-30">
-          {SLIDE_DOT_INDICES.map((slideNum) => (
-            <button
-              type="button"
-              key={`slide-dot-control-${slideNum}`} // slideNum is a standalone distinct value [0, 1, 2, ...]
-              aria-label={`Go to slide ${slideNum + 1}`}
-              onClick={() => setCurrentSlide(slideNum)}
-              className={`size-2.5 rounded-full border-0 p-0 transition-all duration-300 cursor-pointer ${
-                slideNum === currentSlide
-                  ? "bg-white scale-110 opacity-100"
-                  : "bg-white/40 opacity-50"
-              }`}
+        <AuthInputField
+          label="Email Address"
+          placeholder="name@domain.com"
+          type="email"
+          value={form.email}
+          onChange={form.onEmailChange}
+        />
+
+        <AuthInputField
+          label="Password"
+          placeholder="••••••••"
+          type={showPassword ? "text" : "password"}
+          value={form.password}
+          onChange={form.onPasswordChange}
+          trailing={
+            <PasswordVisibilityToggle
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              fieldLabel="password"
             />
-          ))}
+          }
+        />
+
+        <AuthInputField
+          label="Confirm Password"
+          placeholder="••••••••"
+          type={showConfirmPassword ? "text" : "password"}
+          value={form.confirmPassword}
+          onChange={form.onConfirmPasswordChange}
+          trailing={
+            <PasswordVisibilityToggle
+              showPassword={showConfirmPassword}
+              setShowPassword={setShowConfirmPassword}
+              fieldLabel="password confirmation"
+            />
+          }
+        />
+
+        <button
+          type="submit"
+          disabled={form.loading}
+          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full text-white hover:bg-[#3c3c3c] transition-colors disabled:opacity-60"
+        >
+          {form.loading ? "Creating account..." : "Register"}
+        </button>
+
+        <div className="text-center mt-4">
+          <p className="text-[#b3b3b3] text-[16px]">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-black font-semibold hover:underline"
+            >
+              Login
+            </Link>
+          </p>
         </div>
-      </div>
-    </div>
+      </form>
+    </AuthScreen>
   );
 }

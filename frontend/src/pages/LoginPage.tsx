@@ -7,7 +7,7 @@ import LoginComponent, { type LoginFormProps } from "../components/auth/Login";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,12 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
+<<<<<<< Updated upstream
       const me = await login({ username: email.trim(), password });
+=======
+      const me = await login({ username: identifier.trim(), password });
+
+>>>>>>> Stashed changes
       if (me.has_linked_riot) {
         navigate("/loading", { replace: true });
       } else {
@@ -26,7 +31,7 @@ export default function LoginPage() {
       const message =
         err instanceof ApiError
           ? err.message
-          : "Sign in failed. Please try again.";
+          : "Sign in failed. Please check your credentials.";
       setError(message);
     } finally {
       setLoading(false);
@@ -34,18 +39,18 @@ export default function LoginPage() {
   };
 
   const formProps: LoginFormProps = {
-    email,
+    email: identifier, // This maps to the input value
     password,
     error,
     loading,
-    onEmailChange: setEmail,
+    onEmailChange: setIdentifier,
     onPasswordChange: setPassword,
     onSubmit: () => void handleSubmit(),
     onSocialClick: () => setError("Social sign-in is coming soon."),
   };
 
   return (
-    <div className="w-screen h-screen bg-white overflow-hidden">
+    <div className="w-screen h-screen bg-white device-dark:bg-[#181818] overflow-hidden">
       <LoginComponent form={formProps} />
     </div>
   );
