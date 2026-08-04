@@ -27,8 +27,6 @@ services:
     restart: always
     depends_on:
       - postgres-db
-    ports:
-      - "8000:8000"
     networks:
       - app-network
 
@@ -63,6 +61,7 @@ services:
     ports:
       - "${FRONTEND_PORT}:80"
       - "${FRONTEND_PORT_SSL}:443"
+      - "${BACKEND_PORT}:8000"
     volumes:
       # Mounts nginx.conf into the container
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
