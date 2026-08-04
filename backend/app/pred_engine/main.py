@@ -28,7 +28,32 @@ def create_knn_model():
 
     return knn_model
 
+#run functions will cll error correctors
+def correct_knn(y_output):
+    #check dist fom prev location
+    #check for obsticles
+    print()
 
+#skill = ability
+def correct_skill_rf(y_output):
+    #check if skill is available for champ
+    print()
+
+def correct_role_rf(y_output):
+    #check if role is same as current role
+    #check if role is available for champ
+    print()
+
+def correct_item_rf(y_output):
+    #check that item could be afforded
+    #check that item is available?
+    print()
+
+def correct_champion_rf(y_output):
+    #check if output is same as player current champ
+    print()
+
+#replace with dedicated run function for each rf
 def run_knn(knn_model, data):
     # data parameter comes from api
     x_data, _ = converter.format_api_data_knn(data)
