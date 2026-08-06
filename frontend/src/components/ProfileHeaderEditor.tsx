@@ -15,13 +15,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 interface ProfileHeaderEditorProps {
   readonly profile: PlayerProfile;
   readonly onSaved: () => Promise<void>;
+  /** Skip the read-only header and open straight into the form (dialog use). */
+  readonly forceEditing?: boolean;
+  /** Called after a successful save or a cancel while `forceEditing`. */
+  readonly onClose?: () => void;
 }
 
 export default function ProfileHeaderEditor({
   profile,
   onSaved,
+  forceEditing = false,
+  onClose,
 }: Readonly<ProfileHeaderEditorProps>) {
   const [editing, setEditing] = useState(false);
+  const isEditing = forceEditing || editing;
   const [displayName, setDisplayName] = useState(profile.display_name);
   const [riotId, setRiotId] = useState(
     profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag,
@@ -36,7 +43,7 @@ export default function ProfileHeaderEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!editing) {
+    if (!isEditing) {
       setDisplayName(profile.display_name);
       setRiotId(
         profile.riot_id_tag === "Not linked" ? "" : profile.riot_id_tag,
@@ -45,7 +52,7 @@ export default function ProfileHeaderEditor({
       setPendingFile(null);
       setRemoveAvatar(false);
     }
-  }, [profile, editing]);
+  }, [profile, isEditing]);
 
   const resetForm = () => {
     setDisplayName(profile.display_name);
@@ -59,6 +66,7 @@ export default function ProfileHeaderEditor({
   const handleCancel = () => {
     resetForm();
     setEditing(false);
+    onClose?.();
   };
 
   const handleFileChange = (file: File | undefined) => {
@@ -102,6 +110,7 @@ export default function ProfileHeaderEditor({
       setEditing(false);
       setPendingFile(null);
       setRemoveAvatar(false);
+      onClose?.();
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -117,7 +126,7 @@ export default function ProfileHeaderEditor({
 
   const viewAvatarSrc = resolveAvatarUrl(profile.avatar_url);
 
-  if (!editing) {
+  if (!isEditing) {
     return (
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-6">
@@ -134,10 +143,10 @@ export default function ProfileHeaderEditor({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <h1 className="truncate font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold leading-tight text-[#1e1e1e]">
+            <h1 className="truncate font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold leading-tight text-[#1e1e1e] device-dark:text-white">
               {profile.display_name}
             </h1>
-            <p className="mt-1 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575]">
+            <p className="mt-1 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
               {profile.riot_id_tag}
             </p>
           </div>
@@ -148,7 +157,7 @@ export default function ProfileHeaderEditor({
             resetForm();
             setEditing(true);
           }}
-          className="flex shrink-0 items-center gap-2 rounded-lg border border-[#d9d9d9] px-4 py-2 font-['Inter:Regular',sans-serif] text-[14px] text-[#525252] transition-colors hover:bg-[#f5f5f5]"
+          className="flex shrink-0 items-center gap-2 rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-4 py-2 font-['Inter:Regular',sans-serif] text-[14px] text-[#525252] device-dark:text-[#929292] transition-colors hover:bg-[#f5f5f5]"
         >
           <Pencil className="size-4" aria-hidden />
           Edit profile
@@ -215,7 +224,7 @@ export default function ProfileHeaderEditor({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="font-['Inter:Regular',sans-serif] text-[12px] text-[#525252] underline hover:text-[#1e1e1e]"
+            className="font-['Inter:Regular',sans-serif] text-[12px] text-[#525252] device-dark:text-[#929292] underline hover:text-[#1e1e1e]"
           >
             Change photo
           </button>
@@ -227,7 +236,7 @@ export default function ProfileHeaderEditor({
                 setRemoveAvatar(true);
                 setAvatarPreview(undefined);
               }}
-              className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575] underline hover:text-[#1e1e1e]"
+              className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575] device-dark:text-[#929292] underline hover:text-[#1e1e1e]"
             >
               Remove photo
             </button>
@@ -236,19 +245,19 @@ export default function ProfileHeaderEditor({
 
         <div className="flex min-w-[240px] flex-1 flex-col gap-4">
           <label className="flex flex-col gap-1">
-            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#525252]">
+            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#525252] device-dark:text-[#929292]">
               Display name
             </span>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="rounded-lg border border-[#d9d9d9] px-3 py-2 font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e] outline-none focus:border-[#525252]"
+              className="rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-3 py-2 font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e] device-dark:text-white outline-none focus:border-[#525252]"
               maxLength={64}
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#525252]">
+            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#525252] device-dark:text-[#929292]">
               Riot ID
             </span>
             <input
@@ -256,9 +265,9 @@ export default function ProfileHeaderEditor({
               value={riotId}
               onChange={(e) => setRiotId(e.target.value)}
               placeholder="Player#EUW"
-              className="rounded-lg border border-[#d9d9d9] px-3 py-2 font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e] outline-none focus:border-[#525252]"
+              className="rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-3 py-2 font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e] device-dark:text-white outline-none focus:border-[#525252]"
             />
-            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575]">
+            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575] device-dark:text-[#929292]">
               Verified via Riot API. Match history follows the linked account.
             </span>
           </label>
@@ -287,7 +296,7 @@ export default function ProfileHeaderEditor({
           type="button"
           onClick={handleCancel}
           disabled={saving}
-          className="rounded-lg border border-[#d9d9d9] px-5 py-2 font-['Inter:Regular',sans-serif] text-[14px] text-[#525252] disabled:opacity-50"
+          className="rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-5 py-2 font-['Inter:Regular',sans-serif] text-[14px] text-[#525252] device-dark:text-[#929292] disabled:opacity-50"
         >
           Cancel
         </button>

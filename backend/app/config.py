@@ -2,6 +2,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore[i
 from pydantic import field_validator
 from functools import lru_cache
 from typing import Any, List, Optional
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+load_dotenv(os.path.join(os.path.dirname(__file__), "/.env"))
 
 
 class Settings(BaseSettings):
@@ -12,7 +18,12 @@ class Settings(BaseSettings):
     riot_region: str = "americas"
     riot_platform: str = "na1"
 
-    # ============ AWS Cognito Configuration ============
+    # ============= Database Configuration =============
+    database_url: str = ""
+
+    # ============ AWS Credentials & Cognito Configuration ============
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
     aws_region: str = "eu-west-1"
     cognito_user_pool_id: str = ""
     cognito_client_id: str = ""
@@ -22,6 +33,7 @@ class Settings(BaseSettings):
     debug: bool = True
     host: str = "0.0.0.0"  # nosec B104
     port: int = 8000
+
     # ============ Rate Limiting ============
     rate_limit_requests: int = 20
     rate_limit_seconds: int = 1

@@ -5,38 +5,50 @@ This setup uses simple mocks instead of database connections,
 allowing tests to run while the database is still being set up.
 """
 
-pytest_plugins = ["app.tests.postgres_fixtures"]
+import os
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock
 
-import os  # noqa: E402
+import pytest
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi.testclient import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD  # noqa: E402
+from app.api.auth import get_current_user, oauth2_scheme
+from app.main import app
+from app.Models.auth_model import (
+    UserTest,
+)
+from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
-import pytest  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
-from unittest.mock import MagicMock, AsyncMock  # noqa: E402
-from app.main import app  # noqa: E402
+pytest_plugins = ["app.tests.postgres_fixtures"]
+
+fake_user = UserTest(
+    sub="123456",
+    username="testuser",
+    password="TestPass123",
+    email="test@example.com",
+    groups=["Admin", "User"],
+)
 
 
 @pytest.fixture(scope="function")
 def client():
-    """
-    Provide a FastAPI TestClient for testing endpoints.
+    """Provide a FastAPI TestClient for testing endpoints."""
+    app.dependency_overrides[get_current_user] = lambda: fake_user
+    app.dependency_overrides[oauth2_scheme] = lambda: HTTPAuthorizationCredentials(
+        scheme="Bearer", credentials="fake-access-token"
+    )
 
-    Scope: function (new instance for each test)
-    """
-    return TestClient(app)
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
 def test_user_data():
-    """
-    Provide sample user data for testing user-related endpoints.
-
-    Returns:
-        dict: User data with display_name, email, password
-    """
     return {
         "display_name": "testuser",
         "email": "test@example.com",
@@ -45,13 +57,7 @@ def test_user_data():
 
 
 @pytest.fixture
-def test_user_response():
-    """
-    Provide sample user response data (as returned from the API).
-
-    Returns:
-        dict: User profile fields from GET /api/v1/users/me
-    """
+def test_user_response() -> dict[str, Any]:
     return {
         "id": "00000000-0000-4000-8000-000000000099",
         "email": "test@example.com",
@@ -62,13 +68,7 @@ def test_user_response():
 
 
 @pytest.fixture
-def test_match_data():
-    """
-    Provide sample match data for testing match-related endpoints.
-
-    Returns:
-        dict: Match data with match_id and coordinates
-    """
+def test_match_data() -> dict[str, Any]:
     return {
         "match_id": "NA1_123456789",
         "summoner_name": "TestPlayer",
@@ -77,13 +77,7 @@ def test_match_data():
 
 
 @pytest.fixture
-def test_match_response():
-    """
-    Provide sample match response data (as returned from the API).
-
-    Returns:
-        dict: Match response with id, match_id, user_id, and timestamp
-    """
+def test_match_response() -> dict[str, Any]:
     return {
         "id": 1,
         "match_id": "NA1_123456789",
@@ -94,24 +88,11 @@ def test_match_response():
 
 @pytest.fixture
 def mock_db_session():
-    """
-    Provide a mock database session for testing services.
-
-    Returns:
-        MagicMock: Mock session object with common database methods
-    """
-    mock_session = MagicMock()
-    return mock_session
+    return MagicMock()
 
 
 @pytest.fixture
 def mock_riot_api():
-    """
-    Provide a mock Riot API client for testing external API integration.
-
-    Returns:
-        AsyncMock: Mock async client for Riot API
-    """
     mock_api = AsyncMock()
     mock_api.fetch_matches = AsyncMock(return_value=[])
     mock_api.fetch_match_timeline = AsyncMock(return_value={})
@@ -120,10 +101,9 @@ def mock_riot_api():
 
 @pytest.fixture
 def mock_logger():
-    """
-    Provide a mock logger for testing logging behavior.
-
-    Returns:
-        MagicMock: Mock logger object
-    """
     return MagicMock()
+
+
+@pytest.fixture
+def mock_session():
+    return AsyncMock(spec=AsyncSession)

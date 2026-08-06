@@ -7,8 +7,8 @@ export default function AuthOnlyRoute() {
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-white">
-        <p className="font-['Inter:Regular',sans-serif] text-[#757575]">
+      <div className="flex min-h-dvh items-center justify-center bg-white device-dark:bg-[#181818]">
+        <p className="font-['Inter:Regular',sans-serif] text-[#757575] device-dark:text-[#929292]">
           Loading…
         </p>
       </div>

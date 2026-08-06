@@ -1,4 +1,17 @@
+from datetime import datetime
 from pydantic import BaseModel
+
+
+class SimplifiedMatchResponse(BaseModel):
+    match_id: str
+    champion_id: int | None = None
+    champion_name: str
+    kills: int
+    deaths: int
+    assists: int
+    win: bool
+    game_creation: datetime | None = None
+    game_duration: int | None = None
 
 
 class ObjectivesSummaryResponse(BaseModel):
@@ -51,6 +64,14 @@ class MatchDetailResponse(BaseModel):
     map_id: int
     map_label: str
     teams: list[TeamDetailResponse]
+
+
+class MatchSyncResponse(BaseModel):
+    """Outcome of a Riot -> local import."""
+
+    fetched: int
+    imported: int
+    total: int
 
 
 class MatchHistorySummaryResponse(BaseModel):
