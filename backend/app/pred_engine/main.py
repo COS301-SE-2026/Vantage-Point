@@ -1,5 +1,6 @@
-from app.pred_engine import knn_model as knn, rf_model as rf  # type: ignore
-from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
+#from app.pred_engine import knn_model as knn, rf_model as rf  # type: ignore
+#from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
+import json
 
 
 def create_rf_models():
@@ -34,38 +35,48 @@ def correct_knn(y_output):
     #check for obsticles
     print()
 
-#skill = ability
-def correct_skill_rf(y_output):
-    #check if skill is available for champ
-    print()
-
-def correct_role_rf(y_output):
+def correct_role_rf(y_output, y_data, x_data):
     #check if role is same as current role
+    if y_output == y_data:
+        return None
+    else:
+        champID = x_data[2]
+        with open("datasets/champions.json", "r") as file:
+            data = json.load(file)
+
+        for champ in data:
+            if (data[champ]["id"] == champID) and (y_output in data[champ]["positions"]):
+                return y_output
+    return None
+        
     #check if role is available for champ
-    print()
 
-def correct_item_rf(y_output):
-    #check that item could be afforded
-    #check that item is available?
-    print()
-
-def correct_champion_rf(y_output):
+def correct_champion_rf(y_output, y_data):
     #check if output is same as player current champ
-    print()
-
-#replace with dedicated run function for each rf
+    if y_output == y_data:
+        return None
+    else:
+        return y_output
+''
+''
+#replace with dedicated run function for each lane
 def run_knn(knn_model, data):
     # data parameter comes from api
-    x_data, _ = converter.format_api_data_knn(data)
+    x_data, y_data = converter.format_api_data_knn(data)
 
     y_output = knn_model.predict(x_data)
-    return y_output
-
+    return y_output, y_data
 
 def run_rf(rf_model, data, cat):
     # data parameter comes from api
     # cat is "champion", "item", "skill", "role"
-    x_data, _ = converter.format_api_data_rf(data, cat)
+    x_data, y_data = converter.format_api_data_rf(data, cat)
 
     y_output = rf_model.predict(x_data)
+    match cat:
+        case "champion":
+            y_output = correct_champion_rf(y_output, y_data)
+        case "role":
+            y_output = correct_role_rf(y_output, y_data, x_data)
+        
     return y_output
