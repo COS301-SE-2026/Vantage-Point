@@ -14,6 +14,7 @@ from sqlmodel import SQLModel, Field, Relationship
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
 # we can cross reference api responses directly without a lookup step making it easier to confirm data integrity.
+# image_path is the admin-uploaded display asset for the Champion Assets admin page.
 class Champions(SQLModel, table=True):  # type: ignore[call-arg]
     champion_id: int = Field(primary_key=True)
     name: str
@@ -22,6 +23,33 @@ class Champions(SQLModel, table=True):  # type: ignore[call-arg]
 
     participants: List["Participants"] = Relationship(back_populates="champion")
 
+# MapAssets
+# Admin-uploaded display assets (icons/art) for the Map Assets admin page.
+# map_id is Riot's own numeric map ID (11 = Summoner's Rift, 12 = Howling Abyss, etc. —
+# see MAP_LABELS in app/utils/game_labels.py), 
+# same id space as Matches.map_id, so we won't change that, 
+# rather make it a fk similiar with how champion is working. 
+# There's no foreign key to Matches currently:
+    # Riot's map catalog is static
+    # and external, so an admin can upload a map's display asset independently of any match
+    # data existing;  
+# Keeping the same id type avoids two competing identities for the
+# same map, even if We don't make the key a Foreign Key.
+class MapAssets(SQLModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "map_assets"
+
+    map_id: int = Field(primary_key=True)
+    name: str # "Summoner's Rift", "Howling Abyss"
+    image_path: Optional[str] = None
+    updated_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+        default_factory=datetime.utcnow,
+    )
 
 # Users
 # Represents a registered Vantage Point account.

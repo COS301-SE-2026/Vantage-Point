@@ -22,14 +22,14 @@ class Response(BaseModel):
 class CreateGroupResponse(BaseModel):
     group_name: str
     user_pool_id: str
-    descriptipn: str
+    description: str
     precedence: int
     last_modified_date: datetime
     creation_date: datetime
 
 class MapAssetResponse(BaseModel):
-    map_id: str
-    display_name: str
+    map_id: int
+    name: str
     image_url: str
 
 
