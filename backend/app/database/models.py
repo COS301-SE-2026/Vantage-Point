@@ -18,6 +18,7 @@ class Champions(SQLModel, table=True):  # type: ignore[call-arg]
     champion_id: int = Field(primary_key=True)
     name: str
     tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
+    image_path: Optional[str] = None  # admin-uploaded display asset, e.g. "/uploads/assets/champions/103.png"
 
     participants: List["Participants"] = Relationship(back_populates="champion")
 
@@ -120,6 +121,10 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     map_id: int = 11
     played_on: date = Field(default_factory=lambda: date.today())
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
+
+    deletion_status: str = Field(default="active")
+    deletion_flagged_at: Optional[datetime] = None 
+    #these 2 are for soft deletion of matches. we will use this to flag matches for deletion and then delete them in a batch process later. This is to avoid deleting matches that are still being processed or viewed by users.
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -242,7 +247,7 @@ class MapReplayTable(SQLModel, Table=True):
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key
-class MatchDataTable(SQLModel, Table=True):
+class   (SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
     end_of_game_result: str

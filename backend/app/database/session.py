@@ -26,6 +26,7 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 ADDITIVE_MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR",
     "ALTER TABLE game_accounts ADD COLUMN IF NOT EXISTS profile_matches_sampled INTEGER",
+    "ALTER TABLE champions ADD COLUMN IF NOT EXISTS image_path VARCHAR",
 )
 
 

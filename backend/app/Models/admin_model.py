@@ -34,6 +34,6 @@ class MapAssetResponse(BaseModel):
 
 
 class ChampionAssetResponse(BaseModel):
-    champion_id: str
+    champion_id: int
     display_name: str
     image_url: str
