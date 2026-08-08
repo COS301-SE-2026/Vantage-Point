@@ -26,3 +26,14 @@ class CreateGroupResponse(BaseModel):
     precedence: int
     last_modified_date: datetime
     creation_date: datetime
+
+class MapAssetResponse(BaseModel):
+    map_id: str
+    display_name: str
+    image_url: str
+
+
+class ChampionAssetResponse(BaseModel):
+    champion_id: str
+    display_name: str
+    image_url: str
