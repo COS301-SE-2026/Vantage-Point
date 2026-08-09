@@ -146,7 +146,7 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     game_duration: int  # in seconds;
     queue_id: int
     game_creation: int = Field(default=0, sa_column=Column(BigInteger()))  # epoch ms
-    map_id: int = 11
+    map_id: int = Field(default=11, foreign_key="map_assets.map_id")
     played_on: date = Field(default_factory=lambda: date.today())
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
 
@@ -170,7 +170,7 @@ class MatchTimelines(SQLModel, table=True):  # type: ignore[call-arg]
     match_id: str = Field(primary_key=True, foreign_key="matches.match_id")
     frame_interval_ms: int
     game_duration_ms: int
-    map_id: int = 11
+    map_id: int = Field(default=11, foreign_key="map_assets.map_id")
     # JSON: {"frames": [...], "events": [...], "participants": [...]}
     # See app/schemas/timeline.py for the shape; app/services/timeline_ingest.py writes it.
     timeline_json: str
@@ -275,7 +275,7 @@ class MapReplayTable(SQLModel, Table=True):
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key
-class   (SQLModel, Table=True):
+class   MatchDataTable(SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
     end_of_game_result: str
