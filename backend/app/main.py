@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 
 from app.api.router import (
     admin_routes,
+    admin_assets_routes,
     profile_routes,
     auth_routes,
     analytics_router,
@@ -29,6 +30,7 @@ from app.routers import matches, users
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
+from app.services.asset_storage import ensure_asset_dirs
 from app.services.riot_api import get_puuid_by_riot_id
 
 from loguru import logger
