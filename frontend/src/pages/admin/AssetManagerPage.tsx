@@ -49,7 +49,7 @@ export default function AssetManagerPage({
     setError(null);
     try {
       const created = await upload(id, name, file);
-      setAssets((prev) => [created, ...prev]);
+      setAssets((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
       setId("");
       setName("");
       setFile(null);
@@ -65,10 +65,6 @@ export default function AssetManagerPage({
       <h1 className="mb-1 font-['League',sans-serif] text-2xl font-bold uppercase text-black">
         {title}
       </h1>
-      <p className="mb-4 text-xs text-[#757575]">
-        No Figma frame exists for this section yet — styled to match
-        Users/Dashboard in the meantime.
-      </p>
 
       {error ? <p className="mb-2 text-sm text-red-600">{error}</p> : null}
 
