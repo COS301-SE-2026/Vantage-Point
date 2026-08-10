@@ -276,49 +276,27 @@ class LiveAnalyticsService:
 
     @staticmethod
     def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
-        damage_stats = {field: [] for field in DamageStats.model_fields}
+        damage_stats = {field: [] for field in DamageStats.model_fields if field != "paritcipantId"}
 
         for frame in frames:
             stats = frame["participantFrames"][paritcipant_id]["damageStats"]
 
             for field in damage_stats:
-                damage_stats["field"].append(stats[field])
+                damage_stats[field].append(stats[field])
 
         return DamageStats(**damage_stats)
 
     @staticmethod
     def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
-        return Participant(
-            currentGold=[
-                frame["participantFrames"][paritcipant_id]["currentGold"]
-                for frame in frames
-            ],
-            goldPerSecond=[
-                frame["participantFrames"][paritcipant_id]["goldPerSecond"]
-                for frame in frames
-            ],
-            jungleMinionsKilled=[
-                frame["participantFrames"][paritcipant_id]["jungleMinionsKilled"]
-                for frame in frames
-            ],
-            level=[
-                frame["participantFrames"][paritcipant_id]["level"] for frame in frames
-            ],
-            minionsKilled=[
-                frame["participantFrames"][paritcipant_id]["minionsKilled"]
-                for frame in frames
-            ],
-            participantId=paritcipant_id,
-            timeEnemySpentControlled=[
-                frame["participantFrames"][paritcipant_id]["timeEnemySpentControlled"]
-                for frame in frames
-            ],
-            totalGold=[
-                frame["participantFrames"][paritcipant_id]["totalGold"]
-                for frame in frames
-            ],
-            xp=[frame["participantFrames"][paritcipant_id]["xp"] for frame in frames],
-        )
+        participant_data = {field: [] for field in Participant.model_fields if field != "paritcipantId"}
+
+        for frame in frames:
+            stats = frame["participantFrames"][paritcipant_id]
+
+            for field in participant_data:
+                participant_data[field].append(stats[field])
+
+        return Participant(**participant_data)
 
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
