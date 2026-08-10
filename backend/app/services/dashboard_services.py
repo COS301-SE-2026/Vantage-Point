@@ -143,4 +143,4 @@ class DashboardService:
 
         return int(values[0])
 
-        
+    
