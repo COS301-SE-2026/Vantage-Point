@@ -177,104 +177,21 @@ class LiveAnalyticsService:
     #still needs to be optimized
     @staticmethod
     def get_champion_stats(frames: Any, paritcipant_id: str) -> ChampionStats:
-        return ChampionStats(
-            abilityPower=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "abilityPower"
-                ]
-                for frame in frames
-            ],
-            armor=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["armor"]
-                for frame in frames
-            ],
-            armorPenPercent=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "armorPenPercent"
-                ]
-                for frame in frames
-            ],
-            attackDamage=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "attackDamage"
-                ]
-                for frame in frames
-            ],
-            attackSpeed=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "attackSpeed"
-                ]
-                for frame in frames
-            ],
-            ccReduction=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "ccReduction"
-                ]
-                for frame in frames
-            ],
-            health=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["health"]
-                for frame in frames
-            ],
-            healthMax=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["healthMax"]
-                for frame in frames
-            ],
-            healthRegen=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "healthRegen"
-                ]
-                for frame in frames
-            ],
-            lifesteal=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["lifesteal"]
-                for frame in frames
-            ],
-            magicPen=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["magicPen"]
-                for frame in frames
-            ],
-            magicPenPercent=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "magicPenPercent"
-                ]
-                for frame in frames
-            ],
-            magicResist=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "magicResist"
-                ]
-                for frame in frames
-            ],
-            movementSpeed=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "movementSpeed"
-                ]
-                for frame in frames
-            ],
-            omnivamp=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["omnivamp"]
-                for frame in frames
-            ],
-            power=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["power"]
-                for frame in frames
-            ],
-            powerMax=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["powerMax"]
-                for frame in frames
-            ],
-            physicalVamp=[
-                frame["participantFrames"][paritcipant_id]["championStats"][
-                    "physicalVamp"
-                ]
-                for frame in frames
-            ],
-            spellVamp=[
-                frame["participantFrames"][paritcipant_id]["championStats"]["spellVamp"]
-                for frame in frames
-            ],
-        )
+        champion_stats: dict[str, list[int]] = {field: [] for field in ChampionStats.model_fields if field != "paritcipantId" and field != "healthRegen" and field != "lifesteal"}
+
+        health_regen: list[float] = []
+        lifesteal: list[float] = []
+
+        for frame in frames:
+            stats = frame["participantFrames"][paritcipant_id]["damageStats"]
+
+            for field in champion_stats:
+                champion_stats[field].append(stats.get(field, 0))
+
+            health_regen.append(stats.get("healthRegen", 0))
+            lifesteal.append(stats.get("lifesteal", 0))
+
+        return ChampionStats(**champion_stats, healthRegen=health_regen, lifesteal=lifesteal)
 
     @staticmethod
     def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
