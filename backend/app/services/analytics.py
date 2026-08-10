@@ -172,41 +172,32 @@ class LiveAnalyticsService:
 
         return None
 
-    # still needs to be optimized
     @staticmethod
-    def get_champion_stats(frames: Any, paritcipant_id: str) -> ChampionStats:
+    def get_champion_stats(frames: Any, participant_id: str) -> ChampionStats:
         champion_stats: dict[str, list[int]] = {
             field: []
             for field in ChampionStats.model_fields
-            if field != "paritcipantId"
-            and field != "healthRegen"
-            and field != "lifesteal"
+            if field != "participantId"
         }
 
-        health_regen: list[float] = []
-        lifesteal: list[float] = []
-
         for frame in frames:
-            stats = frame["participantFrames"][paritcipant_id]["damageStats"]
+            stats = frame["participantFrames"][participant_id]["championStats"]
 
             for field in champion_stats:
                 champion_stats[field].append(stats.get(field, 0))
 
-            health_regen.append(stats.get("healthRegen", 0))
-            lifesteal.append(stats.get("lifesteal", 0))
-
         return ChampionStats(
-            **champion_stats, healthRegen=health_regen, lifesteal=lifesteal
+            **champion_stats
         )
 
     @staticmethod
-    def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
+    def get_damage_stats(frames: Any, participant_id: str) -> DamageStats:
         damage_stats: dict[str, list[int]] = {
-            field: [] for field in DamageStats.model_fields if field != "paritcipantId"
+            field: [] for field in DamageStats.model_fields if field != "participantId"
         }
 
         for frame in frames:
-            stats = frame["participantFrames"][paritcipant_id]["damageStats"]
+            stats = frame["participantFrames"][participant_id]["damageStats"]
 
             for field in damage_stats:
                 damage_stats[field].append(stats.get(field, 0))
@@ -214,18 +205,18 @@ class LiveAnalyticsService:
         return DamageStats(**damage_stats)
 
     @staticmethod
-    def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
+    def get_participants_data(frames: Any, participant_id: str) -> Participant:
         participant_data: dict[str, list[int]] = {
-            field: [] for field in Participant.model_fields if field != "paritcipantId"
+            field: [] for field in Participant.model_fields if field != "participantId"
         }
 
         for frame in frames:
-            stats = frame["participantFrames"][paritcipant_id]
+            stats = frame["participantFrames"][participant_id]
 
             for field in participant_data:
                 participant_data[field].append(stats.get(field, 0))
 
-        return Participant(participantId=int(paritcipant_id), **participant_data)
+        return Participant(participantId=int(participant_id), **participant_data)
 
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
