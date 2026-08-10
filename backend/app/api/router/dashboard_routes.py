@@ -26,3 +26,12 @@ async def get_new_users_today(_: Annotated[User, Depends(require_group(20))]):
 )
 async def get_new_users_this_month(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.new_users_this_month()
+
+@router.get(
+    "/dashboard/new_users_this_week",
+    response_model=int,
+    summary="Get newly created users done this week",
+    tags=["dashboard"],
+)
+async def get_new_users_this_week(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.new_users_this_week()
