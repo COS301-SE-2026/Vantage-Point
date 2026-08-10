@@ -44,3 +44,13 @@ async def get_new_users_this_week(_: Annotated[User, Depends(require_group(20))]
 )
 async def get_confirmed_users(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.confirmed_users()
+
+@router.get(
+    "/dashboard/unconfirmed_users",
+    response_model=int,
+    summary="Get unconfirmed users from cognito pool",
+    tags=["dashboard"],
+)
+async def get_unconfirmed_users(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.unconfirmed_users()
+
