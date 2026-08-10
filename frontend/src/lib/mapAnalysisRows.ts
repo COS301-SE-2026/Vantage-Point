@@ -98,6 +98,12 @@ export function buildMapAnalysisRows(
     playerDamage = viewer.damage_to_champions.toLocaleString();
   }
 
+  //change here
+  /*
+    SkillSlot_x and Item_1 needs to be replaced with actual values
+    Item name based on item ID
+    Skill name is champion "abilities" "P" "Q" "W" "E" "R"
+  */
   return [
     {
       id: "health",
