@@ -3,10 +3,8 @@ from typing import Any
 from app.schemas.profile import LiveAdvancedMetrics
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Models.riot_schemas import (
-    MapReplay,
     MapSuggestData,
     ProfileData,
-    MatchData,
     ChampionData,
     ItemData,
     SkillData,
@@ -15,7 +13,7 @@ from app.Models.riot_schemas import (
     DamageStats,
     Participant,
 )
-from app.database.models import (MapReplayTable, MatchDataTable, ProfileDataTable)
+from app.database.models import MapReplayTable, MatchDataTable, ProfileDataTable
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 from sqlmodel import select
@@ -174,10 +172,16 @@ class LiveAnalyticsService:
 
         return None
 
-    #still needs to be optimized
+    # still needs to be optimized
     @staticmethod
     def get_champion_stats(frames: Any, paritcipant_id: str) -> ChampionStats:
-        champion_stats: dict[str, list[int]] = {field: [] for field in ChampionStats.model_fields if field != "paritcipantId" and field != "healthRegen" and field != "lifesteal"}
+        champion_stats: dict[str, list[int]] = {
+            field: []
+            for field in ChampionStats.model_fields
+            if field != "paritcipantId"
+            and field != "healthRegen"
+            and field != "lifesteal"
+        }
 
         health_regen: list[float] = []
         lifesteal: list[float] = []
@@ -191,11 +195,15 @@ class LiveAnalyticsService:
             health_regen.append(stats.get("healthRegen", 0))
             lifesteal.append(stats.get("lifesteal", 0))
 
-        return ChampionStats(**champion_stats, healthRegen=health_regen, lifesteal=lifesteal)
+        return ChampionStats(
+            **champion_stats, healthRegen=health_regen, lifesteal=lifesteal
+        )
 
     @staticmethod
     def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
-        damage_stats: dict[str, list[int]] = {field: [] for field in DamageStats.model_fields if field != "paritcipantId"}
+        damage_stats: dict[str, list[int]] = {
+            field: [] for field in DamageStats.model_fields if field != "paritcipantId"
+        }
 
         for frame in frames:
             stats = frame["participantFrames"][paritcipant_id]["damageStats"]
@@ -207,7 +215,9 @@ class LiveAnalyticsService:
 
     @staticmethod
     def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
-        participant_data:dict[str, list[int]] = {field: [] for field in Participant.model_fields if field != "paritcipantId"}
+        participant_data: dict[str, list[int]] = {
+            field: [] for field in Participant.model_fields if field != "paritcipantId"
+        }
 
         for frame in frames:
             stats = frame["participantFrames"][paritcipant_id]
@@ -215,9 +225,7 @@ class LiveAnalyticsService:
             for field in participant_data:
                 participant_data[field].append(stats.get(field, 0))
 
-        return Participant(participantId=int(paritcipant_id),**participant_data)
-
-
+        return Participant(participantId=int(paritcipant_id), **participant_data)
 
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
@@ -230,15 +238,17 @@ class LiveAnalyticsService:
         data: MapReplayTable | None = None,
     ) -> MapReplayTable:
         if data is None:
-            #search first then call api, if found return else get
-            statement = select(MapReplayTable).where(MapReplayTable.match_id == match_id, MapReplayTable.puuid == puuid)
+            # search first then call api, if found return else get
+            statement = select(MapReplayTable).where(
+                MapReplayTable.match_id == match_id, MapReplayTable.puuid == puuid
+            )
             result: Any = await session.execute(statement)
             response: MapReplayTable | None = result.scalar_one_or_none()
 
             if response is not None:
                 return response
 
-            _data: Any = await riot_service.get_match_timeline(match_id)           
+            _data: Any = await riot_service.get_match_timeline(match_id)
         else:
             _data = data
 
@@ -255,10 +265,11 @@ class LiveAnalyticsService:
                 frame["participantFrames"][str(i)]["position"]["y"] for frame in frames
             ]
 
-        participant_id = LiveAnalyticsService.find_participant_id(_data["info"]["participants"], puuid)
+        participant_id = LiveAnalyticsService.find_participant_id(
+            _data["info"]["participants"], puuid
+        )
         if participant_id is None:
             raise HTTPException(status_code=404, detail=player_not_found)
-
 
         replay: MapReplayTable = MapReplayTable(
             match_id=match_id,
@@ -270,10 +281,10 @@ class LiveAnalyticsService:
             position_y=y_values,
         )
 
-        #save to db
-        session.add(replay)  
+        # save to db
+        session.add(replay)
         await session.commit()
-        await session.refresh(replay)      
+        await session.refresh(replay)
 
         return replay
 
@@ -284,7 +295,9 @@ class LiveAnalyticsService:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplayTable = await LiveAnalyticsService.map_replay(match_id, session, puuid)
+        map_replay: MapReplayTable = await LiveAnalyticsService.map_replay(
+            match_id, session, puuid
+        )
 
         paritcipants: Any = match["info"]["participants"]
         player = next((p for p in paritcipants if p["puuid"] == puuid))
@@ -354,13 +367,15 @@ class LiveAnalyticsService:
     ) -> ProfileData | ProfileDataTable:
         try:
 
-            statement = select(ProfileDataTable).where(ProfileDataTable.matchId == match_id, ProfileDataTable.puuid == puuid)
+            statement = select(ProfileDataTable).where(
+                ProfileDataTable.matchId == match_id, ProfileDataTable.puuid == puuid
+            )
             result: Any = await session.execute(statement)
             response: ProfileDataTable | None = result.scalar_one_or_none()
 
             if response is not None:
                 return response
-            
+
             match = await riot_service.get_match_detail(match_id)
 
             # cast
@@ -442,15 +457,19 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
 
     @staticmethod
-    async def match_data(session: AsyncSession, match_id: str, puuid: str) -> MatchDataTable:
+    async def match_data(
+        session: AsyncSession, match_id: str, puuid: str
+    ) -> MatchDataTable:
         try:
-            statement = select(MatchDataTable).where(MatchDataTable.matchId == match_id, MatchDataTable.puuid == puuid)
+            statement = select(MatchDataTable).where(
+                MatchDataTable.matchId == match_id, MatchDataTable.puuid == puuid
+            )
             result: Any = await session.execute(statement)
             response: MatchDataTable | None = result.scalar_one_or_none()
 
             if response is not None:
                 return response
-            
+
             match = await riot_service.get_match_detail(match_id)
             # cast
             info = match["info"]
@@ -604,10 +623,10 @@ class LiveAnalyticsService:
                 teams_win=teams.get("win", False),
             )
 
-            #save to db
-            session.add(match_data)  
+            # save to db
+            session.add(match_data)
             await session.commit()
-            await session.refresh(match_data)    
+            await session.refresh(match_data)
 
             return match_data
         except HTTPException:
@@ -761,7 +780,9 @@ class LiveAnalyticsService:
             participant_data = LiveAnalyticsService.get_participants_data(
                 frames, participant_id
             )
-            map_replay = await LiveAnalyticsService.map_replay(match_id, session)
+            map_replay = await LiveAnalyticsService.map_replay(
+                match_id, session, puuid=puuid
+            )
 
             response = ItemData(
                 itemId=item_id,
@@ -917,8 +938,8 @@ class LiveAnalyticsService:
             damage_stats_data = LiveAnalyticsService.get_damage_stats(
                 frames, (participant_id)
             )
-            map_replay: MapReplay = await LiveAnalyticsService.map_replay(
-                match_id, session
+            map_replay: MapReplayTable = await LiveAnalyticsService.map_replay(
+                match_id, session, puuid=puuid
             )
             response = SkillData(
                 skillslot=skill_slot,

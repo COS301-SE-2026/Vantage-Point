@@ -26,8 +26,9 @@ async def map_replay(
     _: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
     match_id: str,
+    puuid: str,
 ):
-    return await LiveAnalyticsService.map_replay(match_id, session)
+    return await LiveAnalyticsService.map_replay(match_id, session, puuid)
 
 
 @router.get(
@@ -60,9 +61,12 @@ async def profile_data(
     "/analytics/match_data/{match_id}", response_model=MatchData, tags=["Analytics"]
 )
 async def match_data(
-    _: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    match_id: str,
+    puuid: str,
 ):
-    return await LiveAnalyticsService.match_data(match_id, puuid)
+    return await LiveAnalyticsService.match_data(session, match_id, puuid)
 
 
 @router.get(
