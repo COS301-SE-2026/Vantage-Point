@@ -238,8 +238,8 @@ class MapReplayTable(SQLModel, Table=True):
     participant_id: int
     frame_interval: int
     timestamp: list[int]
-    position_x: list[int]
-    position_y: list[int]
+    position_x: dict[str, list[int]]
+    position_y: dict[str, list[int]]
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key

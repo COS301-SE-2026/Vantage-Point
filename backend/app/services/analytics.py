@@ -310,8 +310,8 @@ class LiveAnalyticsService:
         match_id: str,
         session: AsyncSession,
         puuid: str,
-        data: MapReplay | None = None,
-    ) -> MapReplay | MapReplayTable:
+        data: MapReplayTable | None = None,
+    ) -> MapReplayTable:
         if data is None:
             #search first then call api, if found return else get
             statement = select(MapReplayTable).where(MapReplayTable.match_id == match_id, MapReplayTable.puuid == puuid)
@@ -343,7 +343,7 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=404, detail=player_not_found)
 
 
-        build_response: MapReplay = MapReplay(
+        replay: MapReplayTable = MapReplayTable(
             match_id=match_id,
             puuid=puuid,
             participant_id=int(participant_id),
@@ -353,7 +353,12 @@ class LiveAnalyticsService:
             position_y=y_values,
         )
 
-        return build_response
+        #save to db
+        session.add(replay)  
+        await session.commit()
+        await session.refresh(replay)      
+
+        return replay
 
     @staticmethod
     async def map_suggest_data(

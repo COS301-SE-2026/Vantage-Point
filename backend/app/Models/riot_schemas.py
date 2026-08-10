@@ -8,8 +8,8 @@ class MapReplay(BaseModel):
     participant_id: int
     frame_interval: int
     timestamp: list[int]
-    position_x: Any
-    position_y: Any
+    position_x: dict[str, list[int]]
+    position_y: dict[str, list[int]]
 
 
 class MapSuggestData(BaseModel):
