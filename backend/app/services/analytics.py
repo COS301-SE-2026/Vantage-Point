@@ -278,27 +278,27 @@ class LiveAnalyticsService:
 
     @staticmethod
     def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
-        damage_stats = {field: [] for field in DamageStats.model_fields if field != "paritcipantId"}
+        damage_stats: dict[str, list[int]] = {field: [] for field in DamageStats.model_fields if field != "paritcipantId"}
 
         for frame in frames:
             stats = frame["participantFrames"][paritcipant_id]["damageStats"]
 
             for field in damage_stats:
-                damage_stats[field].append(stats[field])
+                damage_stats[field].append(stats.get(field, 0))
 
         return DamageStats(**damage_stats)
 
     @staticmethod
     def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
-        participant_data = {field: [] for field in Participant.model_fields if field != "paritcipantId"}
+        participant_data:dict[str, list[int]] = {field: [] for field in Participant.model_fields if field != "paritcipantId"}
 
         for frame in frames:
             stats = frame["participantFrames"][paritcipant_id]
 
             for field in participant_data:
-                participant_data[field].append(stats[field])
+                participant_data[field].append(stats.get(field, 0))
 
-        return Participant(**participant_data)
+        return Participant(participantId=int(paritcipant_id),**participant_data)
 
 
 
@@ -367,7 +367,7 @@ class LiveAnalyticsService:
         timeline = await riot_service.get_match_timeline(match_id)
         match = await riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplay = await LiveAnalyticsService.map_replay(match_id, session)
+        map_replay: MapReplayTable = await LiveAnalyticsService.map_replay(match_id, session, puuid)
 
         paritcipants: Any = match["info"]["participants"]
         player = next((p for p in paritcipants if p["puuid"] == puuid))
@@ -380,98 +380,12 @@ class LiveAnalyticsService:
             timeline["info"]["participants"], puuid
         )
 
-        armor = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["armor"]
-            for frame in frames
-        ]
-        attack_damage = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["attackDamage"]
-            for frame in frames
-        ]
-        attack_speed = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["attackSpeed"]
-            for frame in frames
-        ]
-        health = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["health"]
-            for frame in frames
-        ]
-        health_max = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["healthMax"]
-            for frame in frames
-        ]
-        health_regen = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["healthRegen"]
-            for frame in frames
-        ]
-        ability_haste = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["abilityHaste"]
-            for frame in frames
-        ]
-        ability_power = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["abilityPower"]
-            for frame in frames
-        ]
-        cc_reduction = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["ccReduction"]
-            for frame in frames
-        ]
-        cooldown_reduction = [
-            frame["participantFrames"][paritcipant_id]["championStats"][
-                "cooldownReduction"
-            ]
-            for frame in frames
-        ]
-        lifesteal = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["lifesteal"]
-            for frame in frames
-        ]
-        movement_speed = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["movementSpeed"]
-            for frame in frames
-        ]
-        power = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["power"]
-            for frame in frames
-        ]
-        power_max = [
-            frame["participantFrames"][paritcipant_id]["championStats"]["powerMax"]
-            for frame in frames
-        ]
+        if paritcipant_id is None:
+            raise HTTPException(status_code=404, detail=player_not_found)
 
-        total_damage_done = [
-            frame["participantFrames"][paritcipant_id]["damageStats"]["totalDamageDone"]
-            for frame in frames
-        ]
-        total_damage_done_to_champions = [
-            frame["participantFrames"][paritcipant_id]["damageStats"][
-                "totalDamageDoneToChampions"
-            ]
-            for frame in frames
-        ]
-        total_damage_taken = [
-            frame["participantFrames"][paritcipant_id]["damageStats"][
-                "totalDamageTaken"
-            ]
-            for frame in frames
-        ]
-
-        level = [
-            frame["participantFrames"][paritcipant_id]["level"] for frame in frames
-        ]
-        xp = [frame["participantFrames"][paritcipant_id]["xp"] for frame in frames]
-        jungle_minions_killed = [
-            frame["participantFrames"][paritcipant_id]["jungleMinionsKilled"]
-            for frame in frames
-        ]
-        minions_killed = [
-            frame["participantFrames"][paritcipant_id]["minionsKilled"]
-            for frame in frames
-        ]
-        time_enemy_spent_controlled = [
-            frame["participantFrames"][paritcipant_id]["timeEnemySpentControlled"]
-            for frame in frames
-        ]
+        damage_stats = LiveAnalyticsService.get_damage_stats(frames, paritcipant_id)
+        champion_stats = LiveAnalyticsService.get_champion_stats(frames, paritcipant_id)
+        participant = LiveAnalyticsService.get_participants_data(frames, paritcipant_id)
 
         return MapSuggestData(
             position_x=map_replay.position_x[paritcipant_id],
@@ -493,28 +407,28 @@ class LiveAnalyticsService:
             killingSprees=player.get("killingSprees", 0),
             kills=player["kills"],
             visionScore=player.get("visionScore", 0),
-            jungleMinionsKilled=jungle_minions_killed,
-            level=level,
-            minionsKilled=minions_killed,
-            timeEnemySpentControlled=time_enemy_spent_controlled,
-            xp=xp,
-            totalDamageDone=total_damage_done,
-            totalDamageDoneToChampions=total_damage_done_to_champions,
-            totalDamageTaken=total_damage_taken,
+            jungleMinionsKilled=participant.jungleMinionsKilled,
+            level=participant.level,
+            minionsKilled=participant.minionsKilled,
+            timeEnemySpentControlled=participant.timeEnemySpentControlled,
+            xp=participant.xp,
+            totalDamageDone=damage_stats.totalDamageDone,
+            totalDamageDoneToChampions=damage_stats.totalDamageDoneToChampions,
+            totalDamageTaken=damage_stats.totalDamageTaken,
             abilityHaste=ability_haste,
-            abilityPower=ability_power,
-            armor=armor,
-            attackDamage=attack_damage,
-            attackSpeed=attack_speed,
-            ccReduction=cc_reduction,
+            abilityPower=champion_stats.abilityPower,
+            armor=champion_stats.armor,
+            attackDamage=champion_stats.attackDamage,
+            attackSpeed=champion_stats.attackSpeed,
+            ccReduction=champion_stats.ccReduction,
             cooldownReduction=cooldown_reduction,
-            health=health,
-            health_max=health_max,
-            health_regen=health_regen,
-            lifesteal=lifesteal,
-            movementSpeed=movement_speed,
-            power=power,
-            powerMax=power_max,
+            health=champion_stats.health,
+            health_max=champion_stats.healthMax,
+            health_regen=champion_stats.healthRegen,
+            lifesteal=champion_stats.lifesteal,
+            movementSpeed=champion_stats.movementSpeed,
+            power=champion_stats.power,
+            powerMax=champion_stats.powerMax,
         )
 
     @staticmethod

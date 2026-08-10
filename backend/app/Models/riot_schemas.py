@@ -50,7 +50,7 @@ class MapSuggestData(BaseModel):
     health: Any
     health_max: Any
     health_regen: Any
-    lifesteal: list[int]
+    lifesteal: list[float]
     movementSpeed: list[int]
     power: list[int]
     powerMax: list[int]
@@ -605,7 +605,7 @@ class Participant(BaseModel):
     jungleMinionsKilled: list[int]
     level: list[int]
     minionsKilled: list[int]
-    participantId: str
+    participantId: int
     timeEnemySpentControlled: list[int]
     totalGold: list[int]
     xp: list[int]
