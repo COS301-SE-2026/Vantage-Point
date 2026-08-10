@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { resolveAvatarUrl } from "../../lib/avatarUrl";
 import AdminShell from "./AdminShell";
 
 interface Asset {
@@ -118,7 +119,7 @@ export default function AssetManagerPage({
           {assets.map((a) => (
             <div key={a.id} className="text-center">
               <img
-                src={a.imageUrl}
+                src={resolveAvatarUrl(a.imageUrl)}
                 alt={a.displayName}
                 className="mx-auto h-16 w-16 rounded-lg border border-gray-200 object-cover"
               />
