@@ -73,3 +73,5 @@ class DashboardService:
             if last_month_start <= user.user_created_date < last_month_end
         )
         return this_week - last_week
+
+    

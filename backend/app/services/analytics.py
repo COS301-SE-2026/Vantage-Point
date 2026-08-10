@@ -15,6 +15,7 @@ from app.Models.riot_schemas import (
     DamageStats,
     Participant,
 )
+from app.database.models import (MapReplayTable, MatchDataTable, ProfileDataTable)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
 
@@ -275,80 +276,15 @@ class LiveAnalyticsService:
 
     @staticmethod
     def get_damage_stats(frames: Any, paritcipant_id: str) -> DamageStats:
-        return DamageStats(
-            magicDamageDone=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "magicDamageDone"
-                ]
-                for frame in frames
-            ],
-            magicDamageDoneToChampions=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "magicDamageDoneToChampions"
-                ]
-                for frame in frames
-            ],
-            magicDamageTaken=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "magicDamageTaken"
-                ]
-                for frame in frames
-            ],
-            physicalDamageDone=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "physicalDamageDone"
-                ]
-                for frame in frames
-            ],
-            physicalDamageDoneToChampions=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "physicalDamageDoneToChampions"
-                ]
-                for frame in frames
-            ],
-            physicalDamageTaken=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "physicalDamageTaken"
-                ]
-                for frame in frames
-            ],
-            totalDamageDone=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "totalDamageDone"
-                ]
-                for frame in frames
-            ],
-            totalDamageDoneToChampions=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "totalDamageDoneToChampions"
-                ]
-                for frame in frames
-            ],
-            totalDamageTaken=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "totalDamageTaken"
-                ]
-                for frame in frames
-            ],
-            trueDamageDone=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "trueDamageDone"
-                ]
-                for frame in frames
-            ],
-            trueDamageDoneToChampions=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "trueDamageDoneToChampions"
-                ]
-                for frame in frames
-            ],
-            trueDamageTaken=[
-                frame["participantFrames"][paritcipant_id]["damageStats"][
-                    "trueDamageTaken"
-                ]
-                for frame in frames
-            ],
-        )
+        damage_stats = {field: [] for field in DamageStats.model_fields}
+
+        for frame in frames:
+            stats = frame["participantFrames"][paritcipant_id]["damageStats"]
+
+            for field in damage_stats:
+                damage_stats["field"].append(stats[field])
+
+        return DamageStats(**damage_stats)
 
     @staticmethod
     def get_participants_data(frames: Any, paritcipant_id: str) -> Participant:
@@ -395,6 +331,8 @@ class LiveAnalyticsService:
         data: MapReplay | None = None,
     ) -> MapReplay:
         if data is None:
+            #search here then call match timeline. Need a save as well. Maybe can save the whole object ?? 
+
             _data: Any = await riot_service.get_match_timeline(match_id)
         else:
             _data = data
