@@ -168,6 +168,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(profile_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(admin_assets_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
@@ -177,6 +178,7 @@ app.include_router(users.router, prefix="/api/v1")
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
 # "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.
 ensure_avatar_dir()
+ensure_asset_dirs()
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 

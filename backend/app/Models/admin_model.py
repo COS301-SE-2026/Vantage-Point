@@ -29,7 +29,7 @@ class CreateGroupResponse(BaseModel):
 
 class MapAssetResponse(BaseModel):
     map_id: int
-    name: str
+    display_name: str
     image_url: str
 
 
