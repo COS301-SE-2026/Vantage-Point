@@ -17,3 +17,12 @@ router = APIRouter()
 )
 async def get_new_users_today(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.new_users_today()
+
+@router.get(
+    "/dashboard/new_users_this_month",
+    response_model=int,
+    summary="Get newly created users done this month",
+    tags=["dashboard"],
+)
+async def get_new_users_this_month(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.new_users_this_month()
