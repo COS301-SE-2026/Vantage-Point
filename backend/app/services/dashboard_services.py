@@ -1,7 +1,12 @@
 from app.services.admin_service import admin_service
 from app.Models.admin_model import UserResponse
 from datetime import datetime, timezone, timedelta
-
+from sqlmodel import select, func
+from app.database.models import Matches
+from typing import Annotated
+from app.database.session import get_session
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
 
 class DashboardService:
 
@@ -73,3 +78,13 @@ class DashboardService:
             if last_month_start <= user.user_created_date < last_month_end
         )
         return this_week - last_week
+
+
+    @staticmethod
+    async def get_total_matches(session: Annotated[AsyncSession, Depends(get_session)]) -> int:
+        statement = select(func.count()).select_from(Matches)
+        result = await session.execute(statement)
+        match_count = result.scalar_one()
+
+        return match_count
+        

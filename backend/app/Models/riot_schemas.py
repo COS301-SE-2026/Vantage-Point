@@ -50,7 +50,7 @@ class MapSuggestData(BaseModel):
     health: Any
     health_max: Any
     health_regen: Any
-    lifesteal: list[float]
+    lifesteal: list[int]
     movementSpeed: list[int]
     power: list[int]
     powerMax: list[int]
@@ -263,8 +263,8 @@ class ChampionData(BaseModel):
     ccReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -377,8 +377,8 @@ class ItemData(BaseModel):
     ccReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
