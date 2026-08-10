@@ -104,13 +104,13 @@ export interface ErrorLogEntry {
 
 // Map & Champion Assets Functional Requirements
 export interface MapAsset {
-  readonly map_id: string;
+  readonly map_id: number;
   readonly display_name: string;
   readonly image_url: string;
 }
 
 export interface ChampionAsset {
-  readonly champion_id: string;
+  readonly champion_id: number;
   readonly display_name: string;
   readonly image_url: string;
 }

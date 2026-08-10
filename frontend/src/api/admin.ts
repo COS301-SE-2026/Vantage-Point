@@ -141,11 +141,11 @@ const MOCK_ERRORS: ErrorLogEntry[] = [
 ];
 
 const MOCK_MAP_ASSETS: MapAsset[] = [
-  { map_id: "summoners_rift", display_name: "Summoner's Rift", image_url: "" },
+  { map_id: 11, display_name: "Summoner's Rift", image_url: "" },
 ];
 
 const MOCK_CHAMPION_ASSETS: ChampionAsset[] = [
-  { champion_id: "ahri", display_name: "Ahri", image_url: "" },
+  { champion_id: 103, display_name: "Ahri", image_url: "" },
 ];
 
 // In-memory tracking of roles assigned this session, since the backend has
@@ -405,7 +405,7 @@ export async function listMapAssets(): Promise<MapAsset[]> {
 }
 
 export async function uploadMapAsset(
-  mapId: string,
+  mapId: number,
   displayName: string,
   file: File,
 ): Promise<MapAsset> {
@@ -419,7 +419,7 @@ export async function uploadMapAsset(
   }
 
   const formData = new FormData();
-  formData.append("map_id", mapId);
+  formData.append("map_id", String(mapId));
   formData.append("display_name", displayName);
   formData.append("file", file);
   return apiFetchFormData<MapAsset>("/api/v1/admin/assets/maps", formData);
@@ -432,7 +432,7 @@ export async function listChampionAssets(): Promise<ChampionAsset[]> {
 }
 
 export async function uploadChampionAsset(
-  championId: string,
+  championId: number,
   displayName: string,
   file: File,
 ): Promise<ChampionAsset> {
@@ -451,7 +451,7 @@ export async function uploadChampionAsset(
   }
 
   const formData = new FormData();
-  formData.append("champion_id", championId);
+  formData.append("champion_id", String(championId));
   formData.append("display_name", displayName);
   formData.append("file", file);
   return apiFetchFormData<ChampionAsset>(
