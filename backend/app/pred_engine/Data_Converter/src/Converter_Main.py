@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
+import numpy as np
 import csv
 
 file_error_text = "Training file not found"
@@ -159,14 +160,14 @@ def get_train_test_data_knn(file_name):
         exit()
 
     with f:
-        data = csv.DictReader(f)
-        x_data, y_data = format_data_multivar(data, 2, 4, 3)
+        data = csv.DictReader(f)            #lane, role, pos
+        x_data, y_data = format_data_multivar(data, -1, 2, -1)
 
         scaler = StandardScaler()
         x_data = scaler.fit_transform(x_data)  # pyright: ignore[reportArgumentType]
     # Do train/test split
     x_train, x_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
+        x_data, y_data, test_size=0.05, train_size=0.95, random_state=42
     )
     # x is given, y is target
     return x_train, x_test, y_train, y_test
@@ -231,7 +232,7 @@ def format_api_data_knn(obj_data):
     data = convert_to_rows(data)
 
     # run thru format function
-    x_data_rows, y_data_rows = format_data_multivar(data, 2, 4, 3)
+    x_data_rows, y_data_rows = format_data_multivar(data, -1, 2, -1)
 
     scaler = StandardScaler()
     x_data_rows = scaler.fit_transform(

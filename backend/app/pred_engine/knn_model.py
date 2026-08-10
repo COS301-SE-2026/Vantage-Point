@@ -1,7 +1,7 @@
 from sklearn.neighbors import KNeighborsRegressor  # type: ignore
 from sklearn.metrics import r2_score  # type: ignore
 from sklearn.ensemble import BaggingRegressor  # type: ignore
-from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
+import Converter_Main as converter  # type: ignore
 
 
 def test_predict(file_name):
@@ -14,8 +14,8 @@ def test_predict(file_name):
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
 
     # nullcheck data
-    if x_train == [] or x_test == [] or y_train == [] or y_test == []:
-        return None
+    #if x_train == [] or x_test == [] or y_train == [] or y_test == []:
+    #    return None
 
     # train model
     knn_regressor = KNeighborsRegressor(n_neighbors=5)
@@ -40,7 +40,7 @@ def get_knn(file_name):
     except OSError:
         return None
 
-    x_train, _, y_train, _ = converter.get_train_test_data_knn(file_name)
+    x_train, x_test, y_train, y_test = converter.get_train_test_data_knn(file_name)
 
     # nullcheck data
     if len(x_train) == 0 or len(y_train) == 0:
@@ -49,5 +49,6 @@ def get_knn(file_name):
     bagged_knn = KNeighborsRegressor(n_neighbors=7, weights="distance")
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=69420)
     bagging_model.fit(x_train, y_train)
+
 
     return bagging_model
