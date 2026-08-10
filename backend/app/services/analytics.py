@@ -18,6 +18,7 @@ from app.Models.riot_schemas import (
 from app.database.models import (MapReplayTable, MatchDataTable, ProfileDataTable)
 from app.services.riot_service import riot_service
 from fastapi import HTTPException
+from sqlmodel import select
 
 internal_server_error: str = "Internal server error"
 player_not_found: str = "PLayer not found in match"
@@ -173,6 +174,7 @@ class LiveAnalyticsService:
 
         return None
 
+    #still needs to be optimized
     @staticmethod
     def get_champion_stats(frames: Any, paritcipant_id: str) -> ChampionStats:
         return ChampionStats(
@@ -298,6 +300,8 @@ class LiveAnalyticsService:
 
         return Participant(**participant_data)
 
+
+
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
@@ -305,13 +309,19 @@ class LiveAnalyticsService:
     async def map_replay(
         match_id: str,
         session: AsyncSession,
-        puuid: str | None = None,
+        puuid: str,
         data: MapReplay | None = None,
-    ) -> MapReplay:
+    ) -> MapReplay | MapReplayTable:
         if data is None:
-            #search here then call match timeline. Need a save as well. Maybe can save the whole object ?? 
+            #search first then call api, if found return else get
+            statement = select(MapReplayTable).where(MapReplayTable.match_id == match_id, MapReplayTable.puuid == puuid)
+            result: Any = await session.execute(statement)
+            response: MapReplayTable | None = result.scalar_one_or_none()
 
-            _data: Any = await riot_service.get_match_timeline(match_id)
+            if response is not None:
+                return response
+
+            _data: Any = await riot_service.get_match_timeline(match_id)           
         else:
             _data = data
 
@@ -328,18 +338,22 @@ class LiveAnalyticsService:
                 frame["participantFrames"][str(i)]["position"]["y"] for frame in frames
             ]
 
-        response = MapReplay(
-            puuid=[p["puuid"] for p in _data["info"]["participants"]],
-            participant_id=[
-                p["participantId"] for p in _data["info"]["participants"]
-            ],  # is a list need to change/update the model as it stands
+        participant_id = LiveAnalyticsService.find_participant_id(_data["info"]["participants"], puuid)
+        if participant_id is None:
+            raise HTTPException(status_code=404, detail=player_not_found)
+
+
+        build_response: MapReplay = MapReplay(
+            match_id=match_id,
+            puuid=puuid,
+            participant_id=int(participant_id),
             frame_interval=_data["info"]["frameInterval"],
             timestamp=timestamps,
             position_x=x_values,
             position_y=y_values,
         )
 
-        return response
+        return build_response
 
     @staticmethod
     async def map_suggest_data(

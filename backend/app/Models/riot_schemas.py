@@ -3,8 +3,9 @@ from pydantic import BaseModel
 
 
 class MapReplay(BaseModel):
-    puuid: List[str]
-    participant_id: List[int]
+    match_id: str
+    puuid: str
+    participant_id: int
     frame_interval: int
     timestamp: list[int]
     position_x: Any

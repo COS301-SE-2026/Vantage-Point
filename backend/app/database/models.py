@@ -233,8 +233,9 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
 class MapReplayTable(SQLModel, Table=True):
     __tablename__ = "map_replay_table"
 
-    puuid: list[str]
-    participant_id: list[int]
+    match_id: str
+    puuid: str
+    participant_id: int
     frame_interval: int
     timestamp: list[int]
     position_x: list[int]
