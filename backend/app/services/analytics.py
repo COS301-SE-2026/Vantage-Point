@@ -434,8 +434,16 @@ class LiveAnalyticsService:
     @staticmethod
     async def profile_data(
         match_id: str, puuid: str, session: AsyncSession
-    ) -> ProfileData:
+    ) -> ProfileData | ProfileDataTable:
         try:
+
+            statement = select(ProfileDataTable).where(ProfileDataTable.matchId == match_id, ProfileDataTable.puuid == puuid)
+            result: Any = await session.execute(statement)
+            response: ProfileDataTable | None = result.scalar_one_or_none()
+
+            if response is not None:
+                return response
+            
             match = await riot_service.get_match_detail(match_id)
 
             # cast
@@ -460,10 +468,11 @@ class LiveAnalyticsService:
                 gold_earned / game_duration_min if game_duration_min > 0 else 0
             )
 
-            response = ProfileData(
+            response = ProfileDataTable(
                 endOfGameResult=info["endOfGameResult"],
                 gameDuration=info["gameDuration"],
                 puuid=puuid,
+                matchId=match_id,
                 champExperience=participants.get("champExperience", 0),
                 champLevel=participants.get("champLevel", 1),
                 goldPerMinute=gold_per_minute,
@@ -502,6 +511,11 @@ class LiveAnalyticsService:
             # //dpm
             # //creep score
             # //xp
+
+            session.add(response)
+            await session.commit()
+            await session.refresh(response)
+
             return response
         except KeyError as e:
             raise HTTPException(

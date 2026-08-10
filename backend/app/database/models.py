@@ -330,6 +330,7 @@ class ProfileDataTable(SQLModel, Table=True):
     endOfGameResult: str
     gameDuration: float
     puuid: str
+    matchId:str
     champExperience: int
     champLevel: int
     goldPerMinute: float
