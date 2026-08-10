@@ -415,13 +415,13 @@ class LiveAnalyticsService:
             totalDamageDone=damage_stats.totalDamageDone,
             totalDamageDoneToChampions=damage_stats.totalDamageDoneToChampions,
             totalDamageTaken=damage_stats.totalDamageTaken,
-            abilityHaste=ability_haste,
+            abilityHaste=champion_stats.abilityHaste,
             abilityPower=champion_stats.abilityPower,
             armor=champion_stats.armor,
             attackDamage=champion_stats.attackDamage,
             attackSpeed=champion_stats.attackSpeed,
             ccReduction=champion_stats.ccReduction,
-            cooldownReduction=cooldown_reduction,
+            cooldownReduction=champion_stats.cooldownReduction,
             health=champion_stats.health,
             health_max=champion_stats.healthMax,
             health_regen=champion_stats.healthRegen,
@@ -511,8 +511,15 @@ class LiveAnalyticsService:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
 
     @staticmethod
-    async def match_data(match_id: str, puuid: str) -> MatchData:
+    async def match_data(session: AsyncSession, match_id: str, puuid: str) -> MatchDataTable:
         try:
+            statement = select(MatchDataTable).where(MatchDataTable.matchId == match_id, MatchDataTable.puuid == puuid)
+            result: Any = await session.execute(statement)
+            response: MatchDataTable | None = result.scalar_one_or_none()
+
+            if response is not None:
+                return response
+            
             match = await riot_service.get_match_detail(match_id)
             # cast
             info = match["info"]
@@ -551,7 +558,9 @@ class LiveAnalyticsService:
             def get_challenges(field: str, default: Any = 0):
                 return challenges.get(field, default)
 
-            response = MatchData(
+            match_data: MatchDataTable = MatchDataTable(
+                puuid=puuid,
+                matchId=match_id,
                 end_of_game_result=info["endOfGameResult"],
                 gameDuration=info["gameDuration"],
                 gameMode=info["gameMode"],
@@ -664,7 +673,12 @@ class LiveAnalyticsService:
                 teams_win=teams.get("win", False),
             )
 
-            return response
+            #save to db
+            session.add(match_data)  
+            await session.commit()
+            await session.refresh(match_data)    
+
+            return match_data
         except HTTPException:
             raise HTTPException(status_code=500, detail=internal_server_error)
         except KeyError as e:

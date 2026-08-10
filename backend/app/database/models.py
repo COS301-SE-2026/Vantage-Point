@@ -246,6 +246,8 @@ class MapReplayTable(SQLModel, Table=True):
 class MatchDataTable(SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
+    puuid: str
+    matchId: str
     end_of_game_result: str
     gameDuration: int
     gameMode: str

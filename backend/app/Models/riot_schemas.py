@@ -563,12 +563,14 @@ class RoleData(BaseModel):
 
 
 class ChampionStats(BaseModel):
+    abilityHaste: list[int]
     abilityPower: list[int]
     armor: list[int]
     armorPenPercent: list[int]
     attackDamage: list[int]
     attackSpeed: list[int]
     ccReduction: list[int]
+    cooldownReduction: list[int]
     health: list[int]
     healthMax: list[int]
     healthRegen: list[float]
