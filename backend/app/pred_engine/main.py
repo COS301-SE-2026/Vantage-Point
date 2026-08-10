@@ -1,5 +1,5 @@
-#from app.pred_engine import knn_model as knn, rf_model as rf  # type: ignore
-#from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
+from app.pred_engine import knn_model as knn, rf_model as rf  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 import json
 
 
@@ -21,15 +21,20 @@ def create_rf_models():
 
     return champ_rf, item_rf, role_rf, skill_rf
 
-
+#change to create seperate models for each lane
+#"TOP", "MIDDLE", "BOTTOM", "JUNGLE", "NONE"
 def create_knn_model():
-    knn_model = knn.get_knn(
-        "/workspaces/backend/app/pred_engine/Training_csv/knn_training.csv"
-    )
+    knn_top_model = knn.get_knn("")
+    knn_mid_model = knn.get_knn("")
+    knn_bot_model = knn.get_knn("")
+    knn_jung_model = knn.get_knn("")
+    knn_none_model = knn.get_knn("")
 
-    return knn_model
+    knn_models = [knn_top_model, knn_mid_model, knn_bot_model, knn_jung_model, knn_none_model]
 
-#run functions will cll error correctors
+    return knn_models
+
+#run functions will call error correctors
 def correct_knn(y_output):
     #check dist fom prev location
     #check for obsticles
@@ -60,11 +65,37 @@ def correct_champion_rf(y_output, y_data):
 ''
 ''
 #replace with dedicated run function for each lane
-def run_knn(knn_model, data):
+def run_knn(knn_models, data):
     # data parameter comes from api
-    x_data, y_data = converter.format_api_data_knn(data)
+    
+    lane_val = []
+    data_list = converter.convert_to_rows(data)
+    for row in data_list:
+        #remove teamPos variable
+        row.remove(row[2])
+        #get lane value for check
+        lane_val.append(row[3])
+        #remove lane variable
+        row.remove(row[3])
+    
+    x_data, y_data = converter.format_api_data_knn(data_list)
 
-    y_output = knn_model.predict(x_data)
+    #for each row, run based on lane value
+    y_output = []
+    for i in range(len(lane_val)):
+        #"TOP", "MIDDLE", "BOTTOM", "JUNGLE", "NONE"
+        match lane_val[i]:
+            case "TOP":
+                y_output.append(knn_models[0].predict(x_data[i]))
+            case "MIDDLE":
+                y_output.append(knn_models[1].predict(x_data[i]))
+            case "BOTTOM":
+                y_output.append(knn_models[2].predict(x_data[i]))
+            case "JUNGLE":
+                y_output.append(knn_models[3].predict(x_data[i]))
+            case "NONE":
+                y_output.append(knn_models[4].predict(x_data[i]))
+
     return y_output, y_data
 
 def run_rf(rf_model, data, cat):
