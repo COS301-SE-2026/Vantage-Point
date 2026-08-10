@@ -54,3 +54,21 @@ async def get_confirmed_users(_: Annotated[User, Depends(require_group(20))]):
 async def get_unconfirmed_users(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.unconfirmed_users()
 
+@router.get(
+    "/dashboard/weekly-growth",
+    response_model=int,
+    summary="Get unconfirmed users from cognito pool",
+    tags=["dashboard"],
+)
+async def get_weekly_growth(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.weekly_growth()
+
+@router.get(
+    "/dashboard/weekly-growth",
+    response_model=int,
+    summary="Get unconfirmed users from cognito pool",
+    tags=["dashboard"],
+)
+async def get_monthly_growth(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.monthly_growth()
+
