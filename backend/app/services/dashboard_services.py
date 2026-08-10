@@ -3,10 +3,14 @@ from app.Models.admin_model import UserResponse
 from datetime import datetime, timezone, timedelta
 from sqlmodel import select, func
 from app.database.models import Matches
-from typing import Annotated
+from typing import Annotated, Any
 from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
+import boto3
+from app.config import get_settings
+
+settings = get_settings()
 
 class DashboardService:
 
@@ -87,4 +91,56 @@ class DashboardService:
         match_count = result.scalar_one()
 
         return match_count
+
+    
+    @staticmethod
+    async def get_s3_storage_used() -> int:
+        cloudwatch = boto3.client("cloudwatch", region_name=settings.aws_region)#type:ignore
+
+        now = datetime.now(timezone.utc)
+        start_time = now - timedelta(days=2)
+
+        response = cloudwatch.get_metric_data(
+            MetricDataQueries=[
+            {
+                'Id': 's3Storage',
+                'MetricStat': {
+                    'Metric': {
+                        'Namespace': 'AWS',
+                        'MetricName': 'BucketSize',
+                        'Dimensions': [
+                            {
+                                'Name': 'BucketName',
+                                'Value': settings.bucket_name
+                            },
+                            {
+                                'Name': 'StorageType',
+                                'Value': 'StandardStorage'
+                            }
+                        ]
+                    },
+                    'Period': 86400,
+                    'Stat': 'Average',
+                },
+                'ReturnData': True,
+            },
+        ],
+        StartTime=start_time,
+        EndTime=now,
+        NextToken='string',
+        ScanBy='TimestampDescending',
+        )
+
+        results: Any = response["MetricDataResults"]
+
+        if not results:
+            return 0
+
+        values: Any = results[0]["Values"]
+
+        if not values:
+            return 0
+
+        return int(values[0])
+
         

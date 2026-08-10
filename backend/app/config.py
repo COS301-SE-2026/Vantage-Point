@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     cognito_client_id: str = ""
     cognito_client_secret: str = ""
 
+    # ============ S3 Bucket Config ============
+    bucket_name:str = ""
+
     # ============ Server Configuration ============
     debug: bool = True
     host: str = "0.0.0.0"  # nosec B104
