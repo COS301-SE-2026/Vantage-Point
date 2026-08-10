@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     cognito_client_secret: str = ""
 
     # ============ S3 Bucket Config ============
-    bucket_name:str = ""
+    bucket_name: str = ""
 
     # ============ Server Configuration ============
     debug: bool = True

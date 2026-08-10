@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
+
 @router.get(
     "/dashboard/new-users-today",
     response_model=int,
@@ -16,6 +17,7 @@ router = APIRouter()
 )
 async def get_new_users_today(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.new_users_today()
+
 
 @router.get(
     "/dashboard/new_users_this_month",
@@ -26,6 +28,7 @@ async def get_new_users_today(_: Annotated[User, Depends(require_group(20))]):
 async def get_new_users_this_month(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.new_users_this_month()
 
+
 @router.get(
     "/dashboard/new_users_this_week",
     response_model=int,
@@ -34,6 +37,7 @@ async def get_new_users_this_month(_: Annotated[User, Depends(require_group(20))
 )
 async def get_new_users_this_week(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.new_users_this_week()
+
 
 @router.get(
     "/dashboard/confirmed_users",
@@ -44,6 +48,7 @@ async def get_new_users_this_week(_: Annotated[User, Depends(require_group(20))]
 async def get_confirmed_users(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.confirmed_users()
 
+
 @router.get(
     "/dashboard/unconfirmed_users",
     response_model=int,
@@ -52,6 +57,7 @@ async def get_confirmed_users(_: Annotated[User, Depends(require_group(20))]):
 )
 async def get_unconfirmed_users(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.unconfirmed_users()
+
 
 @router.get(
     "/dashboard/weekly-growth",
@@ -62,6 +68,7 @@ async def get_unconfirmed_users(_: Annotated[User, Depends(require_group(20))]):
 async def get_weekly_growth(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.weekly_growth()
 
+
 @router.get(
     "/dashboard/weekly-growth",
     response_model=int,
@@ -71,13 +78,17 @@ async def get_weekly_growth(_: Annotated[User, Depends(require_group(20))]):
 async def get_monthly_growth(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.monthly_growth()
 
+
 @router.get(
     "/dashboard/total-matches",
     response_model=int,
     summary="Get total matches from matches table in database",
     tags=["dashboard"],
 )
-async def get_total_matches(_: Annotated[User, Depends(require_group(20))], session: Annotated[AsyncSession, Depends(get_session)]):
+async def get_total_matches(
+    _: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
     return await DashboardService.get_total_matches(session)
 
 

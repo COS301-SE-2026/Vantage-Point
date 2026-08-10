@@ -186,9 +186,7 @@ class LiveAnalyticsService:
             for field in champion_stats:
                 champion_stats[field].append(stats.get(field, 0))
 
-        return ChampionStats(
-            **champion_stats
-        )
+        return ChampionStats(**champion_stats)
 
     @staticmethod
     def get_damage_stats(frames: Any, participant_id: str) -> DamageStats:

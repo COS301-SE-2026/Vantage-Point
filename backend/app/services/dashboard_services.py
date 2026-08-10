@@ -12,6 +12,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
+
 class DashboardService:
 
     @staticmethod
@@ -83,52 +84,46 @@ class DashboardService:
         )
         return this_week - last_week
 
-
     @staticmethod
-    async def get_total_matches(session: Annotated[AsyncSession, Depends(get_session)]) -> int:
+    async def get_total_matches(
+        session: Annotated[AsyncSession, Depends(get_session)],
+    ) -> int:
         statement = select(func.count()).select_from(Matches)
         result = await session.execute(statement)
         match_count = result.scalar_one()
 
         return match_count
 
-    
     @staticmethod
     async def get_s3_storage_used() -> int:
-        cloudwatch = boto3.client("cloudwatch", region_name=settings.aws_region)#type:ignore
+        cloudwatch = boto3.client("cloudwatch", region_name=settings.aws_region)  # type: ignore
 
         now = datetime.now(timezone.utc)
         start_time = now - timedelta(days=2)
 
         response = cloudwatch.get_metric_data(
             MetricDataQueries=[
-            {
-                'Id': 's3Storage',
-                'MetricStat': {
-                    'Metric': {
-                        'Namespace': 'AWS',
-                        'MetricName': 'BucketSize',
-                        'Dimensions': [
-                            {
-                                'Name': 'BucketName',
-                                'Value': settings.bucket_name
-                            },
-                            {
-                                'Name': 'StorageType',
-                                'Value': 'StandardStorage'
-                            }
-                        ]
+                {
+                    "Id": "s3Storage",
+                    "MetricStat": {
+                        "Metric": {
+                            "Namespace": "AWS",
+                            "MetricName": "BucketSize",
+                            "Dimensions": [
+                                {"Name": "BucketName", "Value": settings.bucket_name},
+                                {"Name": "StorageType", "Value": "StandardStorage"},
+                            ],
+                        },
+                        "Period": 86400,
+                        "Stat": "Average",
                     },
-                    'Period': 86400,
-                    'Stat': 'Average',
+                    "ReturnData": True,
                 },
-                'ReturnData': True,
-            },
-        ],
-        StartTime=start_time,
-        EndTime=now,
-        NextToken='string',
-        ScanBy='TimestampDescending',
+            ],
+            StartTime=start_time,
+            EndTime=now,
+            NextToken="string",
+            ScanBy="TimestampDescending",
         )
 
         results: Any = response["MetricDataResults"]
@@ -142,5 +137,3 @@ class DashboardService:
             return 0
 
         return int(values[0])
-
-    
