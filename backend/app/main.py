@@ -24,6 +24,7 @@ from app.api.router import (
     auth_routes,
     analytics_router,
     riot_api_routes,
+    dashboard_routes,
 )
 from app.routers import matches, users
 from app.database.models import GameAccounts
@@ -169,6 +170,7 @@ app.include_router(admin_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
+app.include_router(dashboard_routes.router)
 # This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
 
