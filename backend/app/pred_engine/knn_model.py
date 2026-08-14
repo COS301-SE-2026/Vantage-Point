@@ -50,5 +50,4 @@ def get_knn(file_name):
     bagging_model = BaggingRegressor(bagged_knn, n_estimators=100, random_state=69420)
     bagging_model.fit(x_train, y_train)
 
-
     return bagging_model

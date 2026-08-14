@@ -161,7 +161,7 @@ def get_train_test_data_knn(file_name):
 
     with f:
         data = csv.DictReader(f)            #lane, role, pos
-        x_data, y_data = format_data_multivar(data, -1, 2, -1)
+        x_data, y_data = format_data_multivar(data, 3, 4, 2)
 
         scaler = StandardScaler()
         x_data = scaler.fit_transform(x_data)  # pyright: ignore[reportArgumentType]
@@ -232,7 +232,7 @@ def format_api_data_knn(obj_data):
     data = convert_to_rows(data)
 
     # run thru format function
-    x_data_rows, y_data_rows = format_data_multivar(data, -1, 2, -1)
+    x_data_rows, y_data_rows = format_data_multivar(data, 3, 4, 2)
 
     scaler = StandardScaler()
     x_data_rows = scaler.fit_transform(
