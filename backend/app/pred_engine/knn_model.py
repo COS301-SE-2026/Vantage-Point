@@ -14,7 +14,7 @@ def test_predict(file_name):
     y_train, y_test, x_train, x_test = converter.get_train_test_data_knn(file_name)
 
     # nullcheck data
-    #if x_train == [] or x_test == [] or y_train == [] or y_test == []:
+    # if x_train == [] or x_test == [] or y_train == [] or y_test == []:
     #    return None
 
     # train model

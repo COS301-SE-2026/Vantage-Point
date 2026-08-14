@@ -23,6 +23,9 @@ psycopg2-binary
 asyncpg
 numpy
 mypy_boto3_cognito_idp
+csv
+math
+json
 
 #logging
 loguru==0.7.3

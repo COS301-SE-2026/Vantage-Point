@@ -1,20 +1,20 @@
-import knn_model as knn # type: ignore
-import rf_model as rf #type: ignore
+import knn_model as knn  # type: ignore
+import rf_model as rf  # type: ignore
 import Converter_Main as converter  # type: ignore
-import json, csv, math
+import json
+import math
 import numpy as np
-from sklearn.metrics import r2_score  # type: ignore
 
 
-#stats function to get distances + deviation
+# stats function to get distances + deviation
 def avg_and_std(y_data):
     dist = []
-    for i in range(0,len(y_data)):
-        for j in range(0,len(y_data)):
+    for i in range(0, len(y_data)):
+        for j in range(0, len(y_data)):
             if i != j:
                 dist.append(abs(math.dist(y_data[i], y_data[j])))
 
-    avg = sum(dist)/len(dist)
+    avg = sum(dist) / len(dist)
     std = np.std(dist, ddof=1)
 
     return avg, std
@@ -38,6 +38,7 @@ def create_rf_models():
 
     return champ_rf, item_rf, role_rf, skill_rf
 
+
 def create_knn_model():
 
     knn_models = knn.get_knn("test100000.csv")
@@ -45,33 +46,34 @@ def create_knn_model():
     return knn_models
 
 
-#run functions will call error correctors
+# run functions will call error correctors
 def correct_knn(y_output, y_data):
-    #get average dist between y_data points
-        avg, std = avg_and_std(y_data)
-        y_corrected = []
-    
-        y_corrected.append(y_data[0])
-        
-        #if more than 1 or 2 standard deviation away for average, 
-        #first item gets a different check
-        for i in range(1,len(y_data)):
-            #check dist between pred next point and given current point 
-            dist = abs(math.dist(y_output[i], y_data[i-1]))
-            if (dist > avg-0.45*std) and (dist < avg+0.45*std):
-                #continue
-                y_corrected. append(y_output[i])
-            else:
-                # take midpoint between predicted and actual
-                coord_fix = [0, 0]
-                coord_fix[0] = (y_output[i][0] + y_data[i][0])/2
-                coord_fix[1] = (y_output[i][1] + y_data[i][1])/2
-                y_corrected.append(coord_fix)
-    
-        return y_corrected
+    # get average dist between y_data points
+    avg, std = avg_and_std(y_data)
+    y_corrected = []
+
+    y_corrected.append(y_data[0])
+
+    # if more than 1 or 2 standard deviation away for average,
+    # first item gets a different check
+    for i in range(1, len(y_data)):
+        # check dist between pred next point and given current point
+        dist = abs(math.dist(y_output[i], y_data[i - 1]))
+        if (dist > avg - 0.45 * std) and (dist < avg + 0.45 * std):
+            # continue
+            y_corrected.append(y_output[i])
+        else:
+            # take midpoint between predicted and actual
+            coord_fix = [0, 0]
+            coord_fix[0] = (y_output[i][0] + y_data[i][0]) / 2
+            coord_fix[1] = (y_output[i][1] + y_data[i][1]) / 2
+            y_corrected.append(coord_fix)
+
+    return y_corrected
+
 
 def correct_role_rf(y_output, y_data, x_data):
-    #check if role is same as current role
+    # check if role is same as current role
     if y_output == y_data:
         return None
     else:
@@ -80,14 +82,17 @@ def correct_role_rf(y_output, y_data, x_data):
             data = json.load(file)
 
         for champ in data:
-            if (data[champ]["id"] == champID) and (y_output in data[champ]["positions"]):
+            if (data[champ]["id"] == champID) and (
+                y_output in data[champ]["positions"]
+            ):
                 return y_output
     return None
-        
-    #check if role is available for champ
+
+    # check if role is available for champ
+
 
 def correct_champion_rf(y_output, y_data):
-    #check if output is same as player current champ
+    # check if output is same as player current champ
     if y_output == y_data:
         return None
     else:
@@ -95,12 +100,13 @@ def correct_champion_rf(y_output, y_data):
 
 
 def run_knn(knn_model, data):
-    #x is what we have, y is what we want
+    # x is what we have, y is what we want
     x_data, y_data = converter.format_api_data_knn(data)
 
     y_output = knn_model.predict(x_data)
 
     return y_output, y_data
+
 
 def run_rf(rf_model, data, cat):
     # data parameter comes from api
@@ -113,7 +119,8 @@ def run_rf(rf_model, data, cat):
             y_output = correct_champion_rf(y_output, y_data)
         case "role":
             y_output = correct_role_rf(y_output, y_data, x_data)
-        
+
     return y_output
 
 
+# knn models now runs on about 75-80%

@@ -1,6 +1,5 @@
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
-import numpy as np
 import csv
 
 file_error_text = "Training file not found"
@@ -160,7 +159,7 @@ def get_train_test_data_knn(file_name):
         exit()
 
     with f:
-        data = csv.DictReader(f)            #lane, role, pos
+        data = csv.DictReader(f)  # lane, role, pos
         x_data, y_data = format_data_multivar(data, 3, 4, 2)
 
         scaler = StandardScaler()
