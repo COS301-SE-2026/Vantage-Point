@@ -127,3 +127,33 @@ def run_rf(rf_model, data, cat):
 
 # knn models now runs on about 75-80%
 
+def get_skill_pred(rf_model, data, champID):
+    #TODO: replace with code to pull from db?
+    with open("datasets/champions.json", "r") as file:
+        data = json.load(file)
+
+    y_output = run_rf(rf_model, data, "skill")
+    #y_output is skillslot
+
+    abilities = data[champID]["abilities"]
+    skill = None
+    #Slots translate to P, Q, W, E, R
+    match y_output:
+        case 1:
+            skill = abilities["P"]["name"]
+        case 2:
+            skill = abilities["Q"]["name"]
+        case 3:
+            skill = abilities["W"]["name"]
+        case 4:
+            skill = abilities["E"]["name"]
+        case 5:
+            skill = abilities["R"]["name"]
+
+    return skill
+    #example output: "Look at upgrading [skill] at this point", "It might be good to level [skill] here"
+
+def get_item_pred():
+    #TODO: replace with code to pull from db?
+    with open("datasets/items.json", "r") as file:
+        data = json.load(file)
