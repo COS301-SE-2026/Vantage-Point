@@ -1,5 +1,10 @@
 # Frontend Development Guide
 
+This guide covers tooling: setup, scripts, testing and code quality. For how the client
+is wired to the API (routes, guards, the `src/api` layer, per-screen data flow and the
+places the two sides currently disagree), see
+[Frontend and Backend Integration](./Frontend-Backend-Integration.md).
+
 ## File Structure
 ```
 frontend/

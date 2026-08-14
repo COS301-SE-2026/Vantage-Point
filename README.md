@@ -173,6 +173,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 - **[Dev Quickstart](.github/docs/Dev-Quickstart.md)** - Seed database, run backend/frontend, sign in as test user
 - **[Backend Development Guide](.github/docs/Backend-Development-Guide.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/Frontend-Development-Guide.md)** - Frontend setup, components, styling, testing
+- **[Frontend and Backend Integration](.github/docs/Frontend-Backend-Integration.md)** - Routes, guards, API layer, per-screen data flow, contract drift
 - **[SCRUM & Sprint Planning](.github/docs/Scrum-Setup.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
 - **[Brand Style Guide](.github/docs/Brand-Style.md)** - Brand style guide for consistent UI/UX across the application
 - **[Wireframes](https://www.figma.com/design/UZerOrkQTck4k6iu552r0L/Vantage-Point?t=1a7DF0iSTmef7bFL-0)** - Wireframes for the application UI
