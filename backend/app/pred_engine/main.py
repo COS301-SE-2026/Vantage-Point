@@ -1,9 +1,23 @@
 import knn_model as knn # type: ignore
 import rf_model as rf #type: ignore
 import Converter_Main as converter  # type: ignore
-import json
-import csv
+import json, csv, math
+import numpy as np
 from sklearn.metrics import r2_score  # type: ignore
+
+
+#stats function to get distances + deviation
+def avg_and_std(y_data):
+    dist = []
+    for i in range(0,len(y_data)):
+        for j in range(0,len(y_data)):
+            if i != j:
+                dist.append(abs(math.dist(y_data[i], y_data[j])))
+
+    avg = sum(dist)/len(dist)
+    std = np.std(dist, ddof=1)
+
+    return avg, std
 
 
 def create_rf_models():
@@ -32,10 +46,29 @@ def create_knn_model():
 
 
 #run functions will call error correctors
-def correct_knn(y_output):
-    #check dist fom prev location
-    #check for obsticles
-    print()
+def correct_knn(y_output, y_data):
+    #get average dist between y_data points
+        avg, std = avg_and_std(y_data)
+        y_corrected = []
+    
+        y_corrected.append(y_data[0])
+        
+        #if more than 1 or 2 standard deviation away for average, 
+        #first item gets a different check
+        for i in range(1,len(y_data)):
+            #check dist between pred next point and given current point 
+            dist = abs(math.dist(y_output[i], y_data[i-1]))
+            if (dist > avg-0.45*std) and (dist < avg+0.45*std):
+                #continue
+                y_corrected. append(y_output[i])
+            else:
+                # take midpoint between predicted and actual
+                coord_fix = [0, 0]
+                coord_fix[0] = (y_output[i][0] + y_data[i][0])/2
+                coord_fix[1] = (y_output[i][1] + y_data[i][1])/2
+                y_corrected.append(coord_fix)
+    
+        return y_corrected
 
 def correct_role_rf(y_output, y_data, x_data):
     #check if role is same as current role
