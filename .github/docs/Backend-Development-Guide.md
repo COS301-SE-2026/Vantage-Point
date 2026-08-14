@@ -3,8 +3,8 @@
 ##  Introduction
 
 This guide provides the neccessary information required to work in on the Vantage Point Backend
-```sh
 Intended for Backend Developers and covers:
+```sh
 - Manual Setup
 - ENV setup
 - Running Backend Locally
@@ -40,7 +40,7 @@ git push origin backend/feature-name
 
 # Dev enviroment setup
 ```sh
-### Required:
+Required:
 - Python
 - PostgreSQL
 - Git
@@ -80,10 +80,10 @@ Windows:
 copy .env.example .env
 ```
 
-Configure the ```sh.env``` with the required fields before rungging
+Configure the ```env``` with the required fields before rungging
 
 ## ENV Configuration
-
+```sh
 # Environment Identifier
 APP_ENV=staging
 
@@ -115,6 +115,7 @@ COGNITO_CLIENT_ID=xxxx
 COGNITO_CLIENT_SECRET=xxxx
 DEBUG=True
 VITE_API_URL=http://localhost:8000/
+```
 
 # Accessing ENV:
 ```sh
@@ -151,12 +152,16 @@ Open Command Palette(Ctrl + Shift + p)
 
 # First Time Setup
 Select:
+```sh
 Dev Container: Rebuild Without Cache and Reopein in Container
+```
 Use this when building the development container for the first time or when a clean build is needed
 
 # Existing Container
 Select:
+```sh
 Dev Container: Rebuild and Reopein in Container
+```
 Rebuilds the existing container and reopens project inside
 
 ### API Documentation:
