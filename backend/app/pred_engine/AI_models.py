@@ -1,6 +1,6 @@
-import knn_model as knn  # type: ignore
-import rf_model as rf  # type: ignore
-import Converter_Main as converter  # type: ignore
+from app.pred_engine import knn_model as knn  # type: ignore
+from app.pred_engine import rf_model as rf  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 import json
 import math
 import numpy as np
@@ -105,6 +105,8 @@ def run_knn(knn_model, data):
 
     y_output = knn_model.predict(x_data)
 
+    y_output = correct_knn(y_output, y_data)
+
     return y_output, y_data
 
 
@@ -124,3 +126,4 @@ def run_rf(rf_model, data, cat):
 
 
 # knn models now runs on about 75-80%
+

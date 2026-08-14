@@ -1,7 +1,8 @@
 from sklearn.ensemble import BaggingRegressor  # type: ignore
 from sklearn.multioutput import MultiOutputClassifier  # type: ignore
 from sklearn.ensemble import RandomForestClassifier  # type: ignore
-from app.pred_engine import knn_model, main, rf_model
+from app.pred_engine import knn_model, rf_model
+from backend.app.pred_engine import AI_models
 
 # =====================================================
 # Helpers for Unit Testing
@@ -11,11 +12,11 @@ from app.pred_engine import knn_model, main, rf_model
 class Test_main:
 
     def test_create_knn(self):
-        result = main.create_knn_model()
+        result = AI_models.create_knn_model()
         assert isinstance(result, BaggingRegressor) or result is None
 
     def test_create_rf(self):
-        r1, r2, r3, r4 = main.create_rf_models()
+        r1, r2, r3, r4 = AI_models.create_rf_models()
         assert (
             isinstance(r1, RandomForestClassifier)
             or isinstance(r1, MultiOutputClassifier)
@@ -38,7 +39,7 @@ class Test_main:
         )
 
     def test_run_knn(self):
-        k_test = main.create_knn_model()
+        k_test = AI_models.create_knn_model()
         data = [
             603,
             611,
@@ -100,11 +101,11 @@ class Test_main:
             14493,
         ]
         if k_test is not None:
-            result = main.run_knn(k_test, data)
+            result = AI_models.run_knn(k_test, data)
             assert len(result) > 0
 
     def test_run_rf(self):
-        r1, r2, r3, r4 = main.create_rf_models()
+        r1, r2, r3, r4 = AI_models.create_rf_models()
         d1 = [
             114,
             "TOP",
@@ -261,16 +262,16 @@ class Test_main:
         ]
 
         if r1 is not None:
-            result1 = main.run_rf(r1, d1, "champion")
+            result1 = AI_models.run_rf(r1, d1, "champion")
             assert result1 is not None
         if r1 is not None:
-            result2 = main.run_rf(r2, d2, "item")
+            result2 = AI_models.run_rf(r2, d2, "item")
             assert result2 is not None
         if r1 is not None:
-            result3 = main.run_rf(r3, d3, "role")
+            result3 = AI_models.run_rf(r3, d3, "role")
             assert hasattr(result3, "__len__")
         if r1 is not None:
-            result4 = main.run_rf(r4, d4, "skill")
+            result4 = AI_models.run_rf(r4, d4, "skill")
             assert hasattr(result4, "__len__")
 
 
