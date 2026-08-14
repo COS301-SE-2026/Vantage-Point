@@ -93,7 +93,7 @@ POSTGRES_USER=xxxx
 POSTGRES_PASSWORD=xxxx
 DATABASE_URL=xxxx
 
-# Required for linking Riot IDs — create at https://developer.riotgames.com/
+# Required for linking Riot IDs
 RIOT_API_KEY=xxxx
 JWT_SECRET=xxxx
 SEED_DEV_PASSWORD=xxxx
