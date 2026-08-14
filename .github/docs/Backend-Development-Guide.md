@@ -1,12 +1,10 @@
 # Backend Development Guide
 
-##  1. Introduction
+##  Introduction
 
 This guide provides the neccessary information required to work in on the Vantage Point Backend
-
+```sh
 Intended for Backend Developers and covers:
-- Technology Stack
-- File Structure
 - Manual Setup
 - ENV setup
 - Running Backend Locally
@@ -18,45 +16,30 @@ Intended for Backend Developers and covers:
 - Debugging and Logging
 - Performance Guidelines
 - Git Workflow
-
+```
 Backend is built using Riot Games v5 match API, PostgreSQL, FastAPI and Python that integrates with AWS services.
 
-# 2. Technology Stack
+## Git Workflow
+```sh
+# 1. Create feature branch
+git checkout -b backend/feature-name
 
-- Python
-- FastAPI                                   RestApi Framework
-- Uvicorn                                   Application Server
-- PostgreSQL                                Database
-- SQLModel                                  ORM
-- AWS Cognito                               Authentication and Authorization
-- AWS S3                                    Object Storage
-- Riot Games API v5 and v1                  League of legends data
-- Pytest                                    Testing
-- Black                                     Code Formatting
-- Ruff                                      Linting
-- Mypy                                      Type Checking
+# 2. Make changes and test locally
+black app && ruff check app --fix && mypy app && pytest
 
+# 3. Commit with descriptive message
+git add .
+git commit -m "feat: Add new endpoint for spatial analysis"
 
+# 4. Push branch
+git push origin backend/feature-name
 
-## 3. File Structure
-```
-backend/
-├── app/
-│   ├── api/              # API routes (v1)
-│   ├── auth/             # Auth dependancy AWS
-│   ├── database/         # SQLModel schemas
-│   ├── services/         # Business logic
-│   ├── models/           # Req/Res schemas
-│   ├── pred_engine/      # AI Logic
-│   ├── tests/            # Unit & integration tests
-│   ├── utils/            # Logging, helpers
-│   └── main.py           # App entry point
-├── requirements-dev.txt
-└── README.md
+# 5. Create PR on GitHub
+# Link related issues and add test coverage info
 ```
 
-# 4. Dev enviroment setup
-
+# Dev enviroment setup
+```sh
 ### Required:
 - Python
 - PostgreSQL
@@ -64,9 +47,8 @@ backend/
 - Docker
 - Access to required AWS
 - Riot Games API Credential
-
-
-## 5. Manual Setup
+```
+## Manual Setup
 ```sh
 cd backend
 
@@ -84,7 +66,23 @@ pip install -r requirements-dev.txt
 cp .env.example .env
 ```
 
-## 6. ENV Configuration
+### Install Depenedencies
+```sh
+pip install -r requirements.txt
+```
+
+###
+```sh
+macOS/Linux:
+cp .env.example .env
+
+Windows:
+copy .env.example .env
+```
+
+Configure the ```sh.env``` with the required fields before rungging
+
+## ENV Configuration
 
 # Environment Identifier
 APP_ENV=staging
@@ -119,12 +117,13 @@ DEBUG=True
 VITE_API_URL=http://localhost:8000/
 
 # Accessing ENV:
-
+```sh
 settings = get_settings()
 settings.x
+```
 
 
-## 7. Running Locally
+## Running Locally
 
 ### Quick start
 
@@ -146,16 +145,21 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 To run backend and frontend together, use `./scripts/start.sh` from the repo root.
 
-# Run devcontainer
-ctrl + shift + P
+# Containers
 
-# First Build Choose
+Open Command Palette(Ctrl + Shift + p)
+
+# First Time Setup
+Select:
 Dev Container: Rebuild Without Cache and Reopein in Container
+Use this when building the development container for the first time or when a clean build is needed
 
-# If built before
+# Existing Container
+Select:
 Dev Container: Rebuild and Reopein in Container
+Rebuilds the existing container and reopens project inside
 
-### 9. API Documentation:
+### API Documentation:
 - API: `http://localhost:8000`
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
@@ -167,7 +171,7 @@ Provides interactive interface for endpoint testing.
 Provides more documentation-focused presentation of the API
 
 
-# 10. Adding new Feature
+# Adding new Feature
 
 1. Create service logic in `app/services/`
 2. Define models in `app/models/`
@@ -177,7 +181,7 @@ Provides more documentation-focused presentation of the API
 6. Run quality checks and tests locally
 7. Open PR with test coverage info
 
-## 11. Testing
+## Testing
 
 ```sh
 # Run all tests
@@ -210,7 +214,7 @@ pytest -m slow
 # Run only async tests
 pytest -m asyncio
 ```
-### 12. Platform Notes
+### Platform Notes
 
 - **Inside the dev container** – use the `.env` file as is (the database host is `db`).
 - **On the Windows host (outside Docker)** – the database is published to `127.0.0.1`.
@@ -219,7 +223,7 @@ pytest -m asyncio
      copy backend\.env.windows.example backend\.env.windows
      # edit backend\.env.windows with your actual values
 
-## 13. Code Quality & Formatting
+## Code Quality & Formatting
 ```bash
 # Format check
 black --check app
@@ -243,7 +247,7 @@ bandit -r app -ll
 pylint app --disable=all --enable=W0511,W0105,W0611
 ```
 
-## 14. Debugging
+## Debugging
 Enable logging in your code:
 
 ```python
@@ -266,29 +270,9 @@ logging.basicConfig(
 )
 ```
 
-## 15. Performance Tips
+## Performance Tips
 - Use `async`/`await` for I/O operations
 - Cache Riot API responses to minimize external requests
 - Paginate large result sets with limit/offset
 - Add database indexes on frequently queried columns
 - Use connection pooling for database connections
-
-
-## 16. Git Workflow
-```sh
-# 1. Create feature branch
-git checkout -b backend/feature-name
-
-# 2. Make changes and test locally
-black app && ruff check app --fix && mypy app && pytest
-
-# 3. Commit with descriptive message
-git add .
-git commit -m "feat: Add new endpoint for spatial analysis"
-
-# 4. Push branch
-git push origin backend/feature-name
-
-# 5. Create PR on GitHub
-# Link related issues and add test coverage info
-```
