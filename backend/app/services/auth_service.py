@@ -162,3 +162,28 @@ async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
         return {"status": "success", "message": "Refresh token revoked."}
     except ClientError as e:
         handle_cognito_error(e)
+
+async def refresh_access_token(username: str, refresh_token: str) -> dict[str, str | None]:
+    try:
+        response = await asyncio.to_thread(
+            client.initiate_auth,
+            ClientId=settings.cognito_client_id,
+            AuthFlow="REFRESH_TOKEN_AUTH",
+            AuthParameters={
+                "REFRESH_TOKEN": refresh_token,
+                "SECRET_HASH": get_secret_hash(username)
+            }
+        )
+
+        auth_result = cast(dict[str, Any], response["AuthenticationResult"])
+
+        access_token = cast(str, auth_result["AccessToken"])
+        id_token = cast(str | None, auth_result.get("IdToken"))
+
+        return {
+            "access_token": access_token,
+            "id_token": id_token,
+        }
+
+    except ClientError as e:
+        handle_cognito_error(e)
