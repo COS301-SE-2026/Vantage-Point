@@ -19,34 +19,47 @@ class DashboardService:
 
     @staticmethod
     async def new_users_today() -> int:
-        users: list[UserResponse] = await admin_service.get_users()
-        today = datetime.now(timezone.utc).date
-        new_today = sum(1 for user in users if user.user_created_date == today) | 0
-        return new_today
+        try:
+            users: list[UserResponse] = await admin_service.get_users(1000)
+            today = datetime.now(timezone.utc).date()
+            new_today = sum(1 for user in users if user.user_created_date.date() == today) | 0
+            return new_today
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def new_users_this_week() -> int:
-        users: list[UserResponse] = await admin_service.get_users()
+        try:
+            users: list[UserResponse] = await admin_service.get_users(1000)
 
-        week_ago = datetime.now(timezone.utc) - timedelta(days=7)
-        new_week = sum(1 for user in users if user.user_created_date >= week_ago) | 0
-        return new_week
+            week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+            new_week = sum(1 for user in users if user.user_created_date.date() >= week_ago) | 0
+            return new_week
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def new_users_this_month() -> int:
-        users: list[UserResponse] = await admin_service.get_users()
+        try:
+            users: list[UserResponse] = await admin_service.get_users(10000)
 
-        month_ago = datetime.now(timezone.utc) - timedelta(days=30)
-        new_month = sum(1 for user in users if user.user_created_date >= month_ago) | 0
-        return new_month
+            month_ago = datetime.now(timezone.utc) - timedelta(days=30)
+            new_month = sum(1 for user in users if user.user_created_date.date() >= month_ago) | 0
+            return new_month
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def confirmed_users() -> int:
         try:
-            users: list[UserResponse] = await admin_service.get_users()
-
-            confirmed_user = sum(1 for user in users if user.user_status == "CONFIRMED") | 0
-            return confirmed_user
+            users = await admin_service.get_users('cognito:user_status = "CONFIRMED"')
+            return len(users)
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -55,7 +68,7 @@ class DashboardService:
     @staticmethod
     async def unconfirmed_users() -> int:
         try:
-            users: list[UserResponse] = await admin_service.get_users()
+            users: list[UserResponse] = await admin_service.get_users(100000)
 
             unconfirmed_user = (
                 sum(1 for user in users if user.user_status == "UNCONFIRMED") | 0
@@ -74,7 +87,7 @@ class DashboardService:
             last_week_end = this_week_start
 
             this_week = await DashboardService.new_users_this_week()
-            users = await admin_service.get_users()
+            users = await admin_service.get_users(100000)
             last_week = sum(
                 1
                 for user in users
@@ -93,14 +106,14 @@ class DashboardService:
             last_month_start = datetime.now(timezone.utc) - timedelta(14)
             last_month_end = this_month_start
 
-            this_week = await DashboardService.new_users_this_week()
-            users = await admin_service.get_users()
-            last_week = sum(
+            this_month = await DashboardService.new_users_this_month()
+            users = await admin_service.get_users(100000)
+            last_month = sum(
                 1
                 for user in users
                 if last_month_start <= user.user_created_date < last_month_end
             )
-            return this_week - last_week
+            return this_month - last_month
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
