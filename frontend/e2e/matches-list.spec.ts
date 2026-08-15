@@ -220,10 +220,9 @@ test.describe("Match history — sync and edge cases", () => {
 
     await page.goto("/dashboard/matches");
 
+    await expect(page.getByText("No matches stored yet")).toBeVisible();
     await expect(
-      page.getByText(
-        "No matches stored yet. Pull your recent games from Riot to fill the dashboard.",
-      ),
+      page.getByText(/Pull your recent games from Riot/),
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Import my matches" }),
@@ -257,7 +256,9 @@ test.describe("Match history — sync and edge cases", () => {
 
     await page.goto("/dashboard/matches");
 
-    await expect(page.getByText("Loading matches…")).toBeVisible();
+    // The text placeholder became skeleton rows; the status text stays for
+    // screen readers.
+    await expect(page.getByRole("status")).toHaveText("Loading matches…");
     await expect(matchRows(page).first()).toBeVisible({ timeout: 10_000 });
   });
 });
