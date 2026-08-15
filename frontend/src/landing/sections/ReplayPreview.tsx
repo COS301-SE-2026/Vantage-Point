@@ -1,0 +1,161 @@
+import { useMemo, useState } from "react";
+import AiCoachingComments from "../../components/AiCoachingComments";
+import MatchReplayControls from "../../components/MatchReplayControls";
+import MatchReplayMapOverlay from "../../components/MatchReplayMapOverlay";
+import MatchReplayMenuRow from "../../components/MatchReplayMenuRow";
+import MatchReplayToolbar, {
+  type ReplayOverlayAction,
+  type ReplayToolbarMode,
+} from "../../components/MatchReplayToolbar";
+import { mapDefault } from "../../assets/images/match-replay";
+import { formatTimelineClock } from "../../lib/timeline";
+import { useReplayClock } from "../../lib/useReplayClock";
+import {
+  SAMPLE_COACHING_NOTES,
+  SAMPLE_MATCH,
+  SAMPLE_PLAYERS,
+  SAMPLE_TEAM_BY_PUUID,
+  SAMPLE_TIMELINE,
+  SAMPLE_VIEWER,
+} from "../replaySample";
+
+/**
+ * The Match Replay screen, running on a fabricated match, so the landing page
+ * shows the product itself instead of a screenshot that goes stale the moment
+ * the dashboard changes. Every part of it is the component the dashboard
+ * renders: the summary row, the tool bar, the map overlay, the transport
+ * controls and the coaching panel.
+ *
+ * The differences are that nothing is fetched, the map is sized by the card it
+ * sits in rather than by the viewport, and "Show Analysis" and "Change Map"
+ * light up without navigating anywhere.
+ */
+export default function ReplayPreview() {
+  const [toolbarMode, setToolbarMode] =
+    useState<ReplayToolbarMode>("collapsed");
+  const [playersOpen, setPlayersOpen] = useState(false);
+  const [activeActions, setActiveActions] = useState<Set<ReplayOverlayAction>>(
+    () => new Set<ReplayOverlayAction>(["deaths", "path"]),
+  );
+  const [selectedPuuids, setSelectedPuuids] = useState<Set<string>>(
+    () => new Set([SAMPLE_VIEWER.puuid]),
+  );
+  const [zoomPercent, setZoomPercent] = useState(0);
+
+  const clock = useReplayClock(SAMPLE_TIMELINE.game_duration_ms, {
+    autoPlay: true,
+  });
+
+  const overlayToggles = useMemo(
+    () => ({
+      kills: activeActions.has("kills"),
+      deaths: activeActions.has("deaths"),
+      path: activeActions.has("path"),
+    }),
+    [activeActions],
+  );
+
+  const handleToggleMode = () => {
+    setToolbarMode((mode) => {
+      if (mode === "expanded") {
+        setPlayersOpen(false);
+        return "collapsed";
+      }
+      return "expanded";
+    });
+  };
+
+  const handleActionClick = (action: ReplayOverlayAction) => {
+    if (action === "players") {
+      setPlayersOpen((open) => !open);
+      return;
+    }
+
+    setActiveActions((prev) => {
+      const next = new Set(prev);
+      if (next.has(action)) next.delete(action);
+      else next.add(action);
+      return next;
+    });
+  };
+
+  const handleTogglePlayer = (puuid: string) => {
+    setSelectedPuuids((prev) => {
+      const next = new Set(prev);
+      if (next.has(puuid)) next.delete(puuid);
+      else next.add(puuid);
+      return next;
+    });
+  };
+
+  return (
+    <div
+      data-name="replay-preview"
+      className="flex h-full w-full flex-col gap-[8px] overflow-hidden rounded-xl bg-vp-canvas p-[8px] text-left"
+    >
+      <MatchReplayMenuRow match={SAMPLE_MATCH} viewer={SAMPLE_VIEWER} />
+
+      <MatchReplayToolbar
+        mode={toolbarMode}
+        playersOpen={playersOpen}
+        activeActions={activeActions}
+        players={SAMPLE_PLAYERS}
+        selectedPuuids={selectedPuuids}
+        onToggleMode={handleToggleMode}
+        onActionClick={handleActionClick}
+        onTogglePlayer={handleTogglePlayer}
+        position="top"
+      />
+
+      {/* The map is square and driven by the height left in the card. The
+          coaching panel keeps the width it has in the dashboard rather than
+          stretching over the slack. */}
+      <div className="flex min-h-0 flex-1 items-stretch justify-center gap-[16px]">
+        <div
+          data-name="Map"
+          className="relative aspect-square h-full shrink-0 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
+        >
+          <div
+            className="absolute inset-0 transition-transform duration-200"
+            style={{ transform: `scale(${1 + zoomPercent / 100})` }}
+          >
+            <img
+              src={mapDefault}
+              alt="Summoner's Rift map"
+              className="size-full object-cover"
+              draggable={false}
+            />
+            <MatchReplayMapOverlay
+              timeline={SAMPLE_TIMELINE}
+              players={SAMPLE_PLAYERS}
+              teamIdByPuuid={SAMPLE_TEAM_BY_PUUID}
+              selectedPuuids={selectedPuuids}
+              elapsedMs={clock.elapsedMs}
+              toggles={overlayToggles}
+            />
+          </div>
+
+          <div className="absolute left-[8px] top-[8px] flex items-center gap-2 rounded-[6px] bg-black/55 px-[8px] py-[3px]">
+            <span className="text-[14px] font-bold tabular-nums text-white">
+              {formatTimelineClock(clock.elapsedMs)}
+            </span>
+          </div>
+
+          <MatchReplayControls
+            playing={clock.playing}
+            progress={clock.progress}
+            zoomPercent={zoomPercent}
+            onTogglePlaying={clock.togglePlaying}
+            onScrub={clock.seekToProgress}
+            onZoomIn={() => setZoomPercent((z) => Math.min(100, z + 10))}
+            onZoomOut={() => setZoomPercent((z) => Math.max(0, z - 10))}
+          />
+        </div>
+
+        <div className="hidden min-w-0 max-w-[380px] flex-1 sm:flex">
+          <AiCoachingComments notes={SAMPLE_COACHING_NOTES} />
+        </div>
+      </div>
+    </div>
+  );
+}

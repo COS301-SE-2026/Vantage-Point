@@ -13,7 +13,7 @@ export default function AiCoachingComments({
     <aside
       data-name="AI Coaching comments"
       data-node-id="55:346"
-      className="vp-scrollbar flex min-h-[320px] w-full flex-col gap-[36px] overflow-y-auto rounded-[15px] bg-[#f0f0f0] device-dark:bg-[#3a3939] px-[15px] pb-[15px] pt-[24px]"
+      className="vp-scrollbar flex max-h-full w-full flex-col gap-3 overflow-y-auto rounded-xl border border-vp-line bg-vp-surface p-4"
       aria-label="AI coaching comments"
     >
       {notes.length > 0 ? (
@@ -30,7 +30,7 @@ export default function AiCoachingComments({
           />
         ))
       ) : (
-        <p className="w-full font-['Beaufort_for_LOL',serif] text-[14px] leading-[18px] text-[#757575] device-dark:text-[#929292]">
+        <p className="w-full text-[14px] leading-[18px] text-vp-dim">
           No coaching notes for this match.
         </p>
       )}

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router";
-import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
+import { useNavigate, useParams } from "react-router";
 import { fetchMatchDetail } from "../api/match";
 import { fetchMatchHistory } from "../api/matches";
 import { fetchMatchTimeline } from "../api/timeline";
@@ -12,23 +11,27 @@ import MatchReplayToolbar, {
   type ReplayOverlayAction,
   type ReplayToolbarMode,
 } from "../components/MatchReplayToolbar";
-import {
-  DASHBOARD_CONTENT_HEIGHT,
-  getDashboardContentStyle,
-} from "../lib/dashboardLayout";
 import { buildReplayCoachingNotes } from "../lib/replayCoaching";
 import { formatTimelineClock } from "../lib/timeline";
 import { useReplayClock } from "../lib/useReplayClock";
 import { mapDefault } from "../assets/images/match-replay";
+import { PageContainer } from "../components/dashboard/primitives";
 import type { MatchDetail, ParticipantDetail } from "../types/match";
 import type { MatchTimeline } from "../types/timeline";
 
 /**
  * Figma "Map view" 26:1008 — 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel.
- * The map now takes the slack in the region instead, capped so its square still
- * fits the viewport height; 516 stays the floor.
+ * The map takes the slack in the region instead; 516 stays the floor.
  */
 const MAP_MIN_SIZE = 516;
+
+/**
+ * The map is square, so its size is whichever runs out first — the column's
+ * width or the viewport's height. This is everything stacked above and below it:
+ * the 64px header, the page's top padding, the match menu row and its gap, and
+ * a little air at the bottom. Keep it honest or the square gets cropped.
+ */
+const MAP_VERTICAL_CHROME = 148;
 
 function allParticipants(match: MatchDetail): ParticipantDetail[] {
   return match.teams.flatMap((team) => [...team.participants]);
@@ -37,9 +40,6 @@ function allParticipants(match: MatchDetail): ParticipantDetail[] {
 export default function MatchReplayView() {
   const navigate = useNavigate();
   const { matchId: matchIdParam } = useParams<{ matchId?: string }>();
-  const outlet = useOutletContext<DashboardOutletContext | undefined>();
-  const sidebarOpen = outlet?.sidebarOpen ?? true;
-  const contentStyle = getDashboardContentStyle(sidebarOpen);
 
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -194,29 +194,19 @@ export default function MatchReplayView() {
   };
 
   return (
-    <div
-      className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
-      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
-      data-name="match-replay-view"
-    >
-      <div className="vp-scrollbar h-full overflow-auto px-4 py-2 sm:px-6">
+    <div data-name="match-replay-view">
+      <PageContainer className="max-w-none pb-6">
         {loading ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-            Loading match replay…
-          </p>
+          <p className="text-[16px] text-vp-dim">Loading match replay…</p>
         ) : null}
-        {error ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#c44a4a] device-dark:text-[#e03b3b]">
-            {error}
-          </p>
-        ) : null}
+        {error ? <p className="text-[16px] text-vp-loss">{error}</p> : null}
 
         {match && viewer && !loading ? (
           /* Figma "Map view" 26:1008 — 820×557, an 11px gutter under MatchMenu. */
           <div
             data-name="Map view"
             data-node-id="26:1008"
-            className="mx-auto flex w-full max-w-[var(--vp-content-max)] flex-col gap-[8px]"
+            className="flex w-full flex-col gap-[8px]"
           >
             <MatchReplayMenuRow match={match} viewer={viewer} />
 
@@ -238,7 +228,7 @@ export default function MatchReplayView() {
                 className="relative ml-[10px] aspect-square min-w-0 flex-1 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
                 style={{
                   minWidth: MAP_MIN_SIZE,
-                  maxWidth: "calc(100vh - 210px)",
+                  maxWidth: `calc(100vh - ${String(MAP_VERTICAL_CHROME)}px)`,
                 }}
               >
                 {/* The overlay shares this transform so markers stay pinned to the
@@ -266,11 +256,11 @@ export default function MatchReplayView() {
                 </div>
 
                 <div className="absolute left-[8px] top-[8px] flex items-center gap-2 rounded-[6px] bg-black/55 px-[8px] py-[3px]">
-                  <span className="font-['Beaufort_for_LOL',serif] text-[14px] font-bold tabular-nums text-white">
+                  <span className="text-[14px] font-bold tabular-nums text-white">
                     {formatTimelineClock(clock.elapsedMs)}
                   </span>
                   {timeline ? null : (
-                    <span className="font-['Beaufort_for_LOL',serif] text-[12px] text-white/70">
+                    <span className="text-[12px] text-white/70">
                       {timelineError ?? "Loading replay data…"}
                     </span>
                   )}
@@ -287,7 +277,7 @@ export default function MatchReplayView() {
                 />
               </div>
 
-              <div className="ml-[24px] flex min-w-[230px] max-w-[320px] flex-1 self-stretch">
+              <div className="ml-[16px] flex min-w-[260px] max-w-[380px] flex-1 self-start">
                 <AiCoachingComments notes={coachingNotes} />
               </div>
             </div>
@@ -295,11 +285,11 @@ export default function MatchReplayView() {
         ) : null}
 
         {!loading && !error && match && !viewer ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
+          <p className="text-[16px] text-vp-dim">
             Match loaded, but no viewer participant was found.
           </p>
         ) : null}
-      </div>
+      </PageContainer>
     </div>
   );
 }

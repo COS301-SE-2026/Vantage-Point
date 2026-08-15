@@ -17,7 +17,12 @@ import {
 } from "./ui/dropdown-menu";
 
 const TOOLBAR_ICON_BUTTON_CLASS =
-  "flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#1e1e1e] device-dark:text-white hover:bg-[#dfdfdf] device-dark:hover:bg-[#3a3939] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4]";
+  "flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-vp-line bg-vp-surface p-0 text-vp-dim transition-colors hover:border-vp-line-strong hover:text-vp-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vp-gold";
+
+const MENU_CLASS = "min-w-[11rem] border-vp-line bg-vp-surface text-vp-ink";
+const MENU_LABEL_CLASS =
+  "text-[10px] uppercase tracking-[0.16em] text-vp-faint";
+const MENU_ITEM_CLASS = "cursor-pointer focus:bg-vp-raised focus:text-vp-ink";
 
 interface MatchesListToolbarMenusProps {
   readonly filterId: MatchFilterId;
@@ -41,21 +46,23 @@ export default function MatchesListToolbarMenus({
             aria-label={`Filter matches: ${matchFilterLabel(filterId)}`}
             className={TOOLBAR_ICON_BUTTON_CLASS}
           >
-            <Filter className="size-[18px]" strokeWidth={1.9} aria-hidden />
+            <Filter className="size-[17px]" strokeWidth={1.8} aria-hidden />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          side="bottom"
-          align="end"
-          className="min-w-[10rem]"
-        >
-          <DropdownMenuLabel>Filter</DropdownMenuLabel>
+        <DropdownMenuContent side="bottom" align="end" className={MENU_CLASS}>
+          <DropdownMenuLabel className={MENU_LABEL_CLASS}>
+            Filter
+          </DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={filterId}
             onValueChange={(value) => onFilterIdChange(value as MatchFilterId)}
           >
             {MATCH_FILTER_OPTIONS.map((option) => (
-              <DropdownMenuRadioItem key={option.id} value={option.id}>
+              <DropdownMenuRadioItem
+                key={option.id}
+                value={option.id}
+                className={MENU_ITEM_CLASS}
+              >
                 {option.label}
               </DropdownMenuRadioItem>
             ))}
@@ -71,24 +78,26 @@ export default function MatchesListToolbarMenus({
             className={TOOLBAR_ICON_BUTTON_CLASS}
           >
             <ArrowUpDown
-              className="size-[18px]"
-              strokeWidth={1.9}
+              className="size-[17px]"
+              strokeWidth={1.8}
               aria-hidden
             />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          side="bottom"
-          align="end"
-          className="min-w-[10rem]"
-        >
-          <DropdownMenuLabel>Sort</DropdownMenuLabel>
+        <DropdownMenuContent side="bottom" align="end" className={MENU_CLASS}>
+          <DropdownMenuLabel className={MENU_LABEL_CLASS}>
+            Sort
+          </DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={sortId}
             onValueChange={(value) => onSortIdChange(value as MatchSortId)}
           >
             {MATCH_SORT_OPTIONS.map((option) => (
-              <DropdownMenuRadioItem key={option.id} value={option.id}>
+              <DropdownMenuRadioItem
+                key={option.id}
+                value={option.id}
+                className={MENU_ITEM_CLASS}
+              >
                 {option.label}
               </DropdownMenuRadioItem>
             ))}

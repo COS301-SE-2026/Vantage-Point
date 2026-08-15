@@ -33,14 +33,14 @@ function ProgressIndicator({
       <div className="absolute inset-x-0 top-[4px] h-[4px]">
         {/* Drawn over the minimap, so Figma keeps the same track in both themes. */}
         <div
-          className="absolute inset-y-0 right-0 rounded-full bg-[#dddddd]"
+          className="absolute inset-y-0 right-0 rounded-full bg-vp-raised"
           style={{ left: `calc(${percent}% + ${INDICATOR_GAP}px)` }}
         />
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-[#676767]"
+          className="absolute inset-y-0 left-0 rounded-full bg-vp-line-strong"
           style={{ width: `${percent}%` }}
         />
-        <div className="absolute right-0 top-0 size-[4px] rounded-full bg-[#676767]" />
+        <div className="absolute right-0 top-0 size-[4px] rounded-full bg-vp-line-strong" />
       </div>
       <input
         type="range"
@@ -102,7 +102,7 @@ export default function MatchReplayControls({
         >
           <img src={iconZoomIn} alt="" width={20.5} height={20.5} />
         </button>
-        <span className="absolute left-[31px] top-0 flex size-[24px] items-center justify-center font-['Beaufort_for_LOL',serif] text-[16px] font-bold leading-[1.4] tabular-nums text-white">
+        <span className="absolute left-[31px] top-0 flex size-[24px] items-center justify-center text-[16px] font-bold leading-[1.4] tabular-nums text-vp-ink">
           {zoomPercent}%
         </span>
         <button

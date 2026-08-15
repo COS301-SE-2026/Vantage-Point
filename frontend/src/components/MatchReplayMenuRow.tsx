@@ -37,27 +37,25 @@ export default function MatchReplayMenuRow({
     <div
       data-name="MatchMenu"
       data-node-id="22:788"
-      className="grid h-[30px] w-[820px] shrink-0 grid-cols-[64px_minmax(0,1fr)_59px_63px_109px_20px] items-center rounded-[8px] bg-white device-dark:bg-[#2c2c2c] px-[8px] shadow-[inset_0_0_0_1px_#d9d9d9] device-dark:shadow-[inset_0_0_0_1px_#2c2c2c]"
+      className="grid h-[34px] w-full shrink-0 grid-cols-[64px_minmax(0,1fr)_59px_63px_109px_20px] items-center rounded-lg border border-vp-line bg-vp-surface px-[10px]"
     >
       <span
-        className={`w-[43px] text-center font-['Beaufort_for_LOL',serif] text-[13px] font-bold leading-[21px] ${
-          viewer.win
-            ? "text-[#1e7e34] device-dark:text-[#18c840]"
-            : "text-[#c44a4a] device-dark:text-[#e03b3b]"
+        className={`w-[43px] text-center text-[13px] font-bold leading-[21px] ${
+          viewer.win ? "text-vp-win" : "text-vp-loss"
         }`}
       >
         {viewer.win ? "Victory" : "Defeat"}
       </span>
-      <span className="truncate font-['Beaufort_for_LOL',serif] text-[12px] font-medium leading-[24px] text-[#1e1e1e] device-dark:text-white">
+      <span className="truncate text-[12px] font-medium leading-[24px] text-vp-ink">
         {viewer.champion_name}
       </span>
-      <span className="font-['Beaufort_for_LOL',serif] text-[12px] uppercase leading-[21px] text-[#1e1e1e] device-dark:text-white">
+      <span className="text-[12px] uppercase leading-[21px] text-vp-ink">
         {roleShort(viewer.position)}
       </span>
-      <span className="font-['Beaufort_for_LOL',serif] text-[12px] font-bold leading-[21px] tabular-nums text-[#1e1e1e] device-dark:text-white">
+      <span className="text-[12px] font-bold leading-[21px] tabular-nums text-vp-ink">
         {viewer.kills}/{viewer.deaths}/{viewer.assists}
       </span>
-      <span className="flex items-center justify-between pr-[2px] font-['Beaufort_for_LOL',serif] text-[12px] leading-[21px] tabular-nums text-[#1e1e1e] device-dark:text-white">
+      <span className="flex items-center justify-between pr-[2px] text-[12px] leading-[21px] tabular-nums text-vp-ink">
         <span>{viewer.cs}</span>
         <span>{formatDurationMinutes(match.game_duration)}</span>
       </span>

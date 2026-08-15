@@ -151,10 +151,8 @@ function PlayerRow({
       onClick={() => onToggle(player.puuid)}
       aria-pressed={selected}
       data-name="Table Cell"
-      className={`flex h-[55px] w-[190px] cursor-pointer items-center justify-center gap-[4px] rounded-[10px] border border-solid border-[#dadada] device-dark:border-[#2a2a2a] p-px text-left transition-colors ${
-        selected
-          ? "bg-[#dfe9ff] device-dark:bg-[#4b5e8b]"
-          : "bg-[#dadada] device-dark:bg-[#2a2a2a] hover:bg-[#d0d0d0] device-dark:hover:bg-[#343434]"
+      className={`flex h-[55px] w-[190px] cursor-pointer items-center justify-center gap-[4px] rounded-[10px] border border-solid border-vp-line p-px text-left transition-colors ${
+        selected ? "bg-vp-gold/15" : "bg-vp-raised hover:bg-vp-raised"
       }`}
     >
       <img
@@ -164,10 +162,10 @@ function PlayerRow({
         data-name="Image"
       />
       <span className="h-[36px] w-[130.317px] shrink-0" data-name="Container">
-        <span className="block h-[20px] overflow-hidden truncate font-['Beaufort_for_LOL',serif] text-[14px] font-medium leading-[20px] text-[#1e1e1e] device-dark:text-white">
+        <span className="block h-[20px] overflow-hidden truncate text-[14px] font-medium leading-[20px] text-vp-ink">
           {player.riot_id ?? player.champion_name}
         </span>
-        <span className="block h-[16px] font-['Beaufort_for_LOL',serif] text-[12px] font-medium leading-[16px] text-[#676767] device-dark:text-[#929292]">
+        <span className="block h-[16px] text-[12px] font-medium leading-[16px] text-vp-dim">
           {roleLabel(player.position)}
         </span>
       </span>
@@ -193,18 +191,16 @@ export default function MatchReplayToolbar({
     : "w-[30px] justify-center";
 
   /** Figma 55:799 vs 55:628 — the collapsed rail's buttons run one shade lighter. */
-  const restClass = expanded
-    ? "bg-[#dadada] device-dark:bg-[#2a2a2a]"
-    : "bg-[#dadada] device-dark:bg-[#2c2c2c]";
+  const restClass = expanded ? "bg-vp-raised" : "bg-vp-raised";
   /** The dark page has no pressed state, so the active step is ours to pick. */
-  const pressedClass = "bg-[#c4c4c4] device-dark:bg-[#404040]";
+  const pressedClass = "bg-vp-raised";
 
   return (
     <div className="relative flex shrink-0 items-start">
       <aside
         data-name={expanded ? "Expanded options" : "Collapsed options"}
         data-node-id={expanded ? "26:867" : "26:860"}
-        className={`flex flex-col rounded-[5px] bg-[#f0f0f0] device-dark:bg-[#3a3939] transition-[width,height] duration-300 ease-out ${
+        className={`flex flex-col rounded-[5px] bg-vp-surface transition-[width,height] duration-300 ease-out ${
           expanded
             ? "h-[313px] w-[160px] items-start px-[20px]"
             : "h-[311px] w-[40px] items-center px-[5px]"
@@ -215,7 +211,7 @@ export default function MatchReplayToolbar({
         <button
           type="button"
           onClick={onToggleMode}
-          className={`flex h-[30px] shrink-0 cursor-pointer items-center rounded-[10px] border-0 ${restClass} p-0 transition-colors hover:bg-[#d0d0d0] ${rowClass}`}
+          className={`flex h-[30px] shrink-0 cursor-pointer items-center rounded-[10px] border-0 ${restClass} p-0 transition-colors hover:bg-vp-raised ${rowClass}`}
           aria-label={
             expanded ? "Collapse replay tools" : "Expand replay tools"
           }
@@ -233,7 +229,7 @@ export default function MatchReplayToolbar({
             />
           </span>
           {expanded ? (
-            <span className="font-['Beaufort_for_LOL',serif] text-[12px] font-medium leading-[1.4] text-[#1e1e1e] device-dark:text-white">
+            <span className="text-[12px] font-medium leading-[1.4] text-vp-ink">
               Collapse
             </span>
           ) : null}
@@ -252,14 +248,14 @@ export default function MatchReplayToolbar({
               title={action.label}
               data-node-id={action.nodeId}
               className={`flex h-[30px] shrink-0 cursor-pointer items-center rounded-[10px] border-0 p-0 transition-colors ${rowClass} ${
-                pressed ? pressedClass : `${restClass} hover:bg-[#d0d0d0]`
+                pressed ? pressedClass : `${restClass} hover:bg-vp-raised`
               }`}
             >
               <span className="flex size-[20px] shrink-0 items-center justify-center">
                 <ActionIcon kind={action.icon} />
               </span>
               {expanded ? (
-                <span className="whitespace-nowrap font-['Beaufort_for_LOL',serif] text-[12px] font-medium leading-[1.4] text-[#1e1e1e] device-dark:text-white">
+                <span className="whitespace-nowrap text-[12px] font-medium leading-[1.4] text-vp-ink">
                   {action.label}
                 </span>
               ) : null}
@@ -273,7 +269,7 @@ export default function MatchReplayToolbar({
         <aside
           data-name="Player list"
           data-node-id="26:1007"
-          className="absolute top-0 z-10 flex h-[312px] w-[204px] flex-col gap-[4px] rounded-[5px] bg-[#f0f0f0] device-dark:bg-[#3a3939] px-[7px] pt-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+          className="absolute top-0 z-10 flex h-[312px] w-[204px] flex-col gap-[4px] rounded-[5px] bg-vp-surface px-[7px] pt-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
           style={{ left: expanded ? 168 : 48 }}
           aria-label="Select players"
         >
