@@ -6,8 +6,8 @@ const COLUMNS = [
     heading: "Product",
     links: [
       { label: "Dashboard tour", href: "#showcase" },
-      { label: "Features", href: "#features" },
       { label: "How it works", href: "#workflow" },
+      { label: "The difference", href: "#positioning" },
       { label: "Pipeline", href: "#pipeline" },
     ],
   },

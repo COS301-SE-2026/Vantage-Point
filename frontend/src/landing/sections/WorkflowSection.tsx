@@ -33,7 +33,10 @@ export default function WorkflowSection() {
   return (
     <section
       id="workflow"
-      className="scroll-mt-24 bg-[#05060a] px-4 py-24 sm:px-6"
+      /* ShowcaseSection's ContainerScroll above reserves a fixed 80rem, which
+         leaves a long tail of empty space once its card has finished rotating
+         in; the negative margin pulls this section back up into it. */
+      className="relative -mt-24 scroll-mt-24 bg-[#05060a] px-4 py-24 sm:px-6 md:-mt-48"
     >
       <SectionHeading
         eyebrow="How it works"

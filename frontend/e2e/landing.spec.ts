@@ -52,11 +52,9 @@ test.describe("Landing page", () => {
   }) => {
     for (const id of [
       "showcase",
-      "features",
       "workflow",
       "positioning",
       "pipeline",
-      "voices",
       "team",
       "start",
     ]) {

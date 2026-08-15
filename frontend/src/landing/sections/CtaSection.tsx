@@ -1,20 +1,17 @@
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { LampContainer } from "@/components/ui/aceternity/lamp";
 import { Button as MovingBorderButton } from "@/components/ui/aceternity/moving-border";
 
 export default function CtaSection() {
   const navigate = useNavigate();
 
   return (
-    <section id="start" className="scroll-mt-24">
-      <LampContainer
-        /* The lamp reads its glow and backdrop from these two variables so it
-           lands on the Vantage Point gold instead of the stock cyan. */
-        className="min-h-[34rem] rounded-none [--lamp-bg:#05060a] [--lamp-color:#e0b46c] md:min-h-[38rem]"
-      >
-        <motion.div
+    <section
+      id="start"
+      className="flex min-h-[26rem] scroll-mt-24 items-center justify-center bg-[#05060a] px-4 py-24 sm:px-6"
+    >
+      <motion.div
           initial={{ opacity: 0.5, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -54,8 +51,7 @@ export default function CtaSection() {
               Log in
             </button>
           </div>
-        </motion.div>
-      </LampContainer>
+      </motion.div>
     </section>
   );
 }

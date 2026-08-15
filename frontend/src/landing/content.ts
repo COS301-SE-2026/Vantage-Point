@@ -7,15 +7,9 @@ import imgNeo from "../assets/images/team/neo.webp";
 import imgOphelia from "../assets/images/team/ophelia.webp";
 import imgShaun from "../assets/images/team/shaun.webp";
 import imgVele from "../assets/images/team/vele.webp";
-import imgAatrox from "../assets/images/champions/aatrox.webp";
-import imgAkali from "../assets/images/champions/akali.webp";
-import imgJinx from "../assets/images/champions/jinx.webp";
-import imgVi from "../assets/images/champions/vi.webp";
-import imgYasuo from "../assets/images/champions/yasuo.webp";
 
 export const NAV_LINKS = [
   { name: "Product", link: "#showcase" },
-  { name: "Features", link: "#features" },
   { name: "Workflow", link: "#workflow" },
   { name: "Pipeline", link: "#pipeline" },
   { name: "Team", link: "#team" },
@@ -111,81 +105,6 @@ export const PIPELINE_STAGES = [
     ],
   },
 ] as const;
-
-/**
- * Illustrative playtest scenarios, not customer quotes — Vantage Point is a
- * capstone project in active development. The section labels them as such.
- */
-export const TESTIMONIALS = [
-  {
-    quote:
-      "I thought I was dying to ganks. The cluster map showed thirty of my deaths inside the same twenty metres of river, always between 8 and 12 minutes.",
-    name: "Mid lane playtester",
-    designation: "Platinum II · 240 matches analysed",
-    src: imgAkali,
-  },
-  {
-    quote:
-      "The ghost overlay is the part that stuck. Seeing where a pro would have stood, one step back, in the exact fight I lost, is worth more than any post-game graph.",
-    name: "ADC playtester",
-    designation: "Gold I · 180 matches analysed",
-    src: imgJinx,
-  },
-  {
-    quote:
-      "Risk prediction changed how I path. Half the jungle I was walking through was scored red before I ever stepped in it.",
-    name: "Jungle playtester",
-    designation: "Diamond IV · 310 matches analysed",
-    src: imgVi,
-  },
-  {
-    quote:
-      "My KDA barely moved for a month, but my average death distance from a turret dropped by a third. That was the number that actually mattered.",
-    name: "Top lane playtester",
-    designation: "Silver II · 95 matches analysed",
-    src: imgAatrox,
-  },
-  {
-    quote:
-      "It stops being about mechanics and starts being about geometry. I lost the same fight in the same place for a season without noticing.",
-    name: "Support playtester",
-    designation: "Platinum IV · 150 matches analysed",
-    src: imgYasuo,
-  },
-];
-
-export const MARQUEE_NOTES = [
-  {
-    quote:
-      "Positioning is the one thing every rank has in common: nobody is coached on it, and everybody loses games to it.",
-    name: "Design brief",
-    title: "Vantage Point",
-  },
-  {
-    quote:
-      "K/D tells you that you died. It never tells you where you were standing when the fight was already lost.",
-    name: "Problem statement",
-    title: "Vantage Point",
-  },
-  {
-    quote:
-      "Every timeline frame is ten coordinates. A 30-minute match is roughly eighteen thousand data points nobody looks at.",
-    name: "Data note",
-    title: "Match-V5",
-  },
-  {
-    quote:
-      "Show the player the map, not the spreadsheet. The correction has to appear where the mistake happened.",
-    name: "Product principle",
-    title: "Vantage Point",
-  },
-  {
-    quote:
-      "Built as a COS 301 capstone with EPI-USE, on FastAPI, PostgreSQL, React and D3.",
-    name: "Engineering",
-    title: "Team F.R.O.S.N",
-  },
-];
 
 export const TEAM = [
   {

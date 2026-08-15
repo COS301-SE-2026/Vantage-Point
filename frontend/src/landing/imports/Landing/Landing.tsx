@@ -1,12 +1,9 @@
 import LandingNav from "../../sections/LandingNav";
 import HeroSection from "../../sections/HeroSection";
 import ShowcaseSection from "../../sections/ShowcaseSection";
-import FeaturesSection from "../../sections/FeaturesSection";
 import WorkflowSection from "../../sections/WorkflowSection";
 import PositioningSection from "../../sections/PositioningSection";
-import ImpactSection from "../../sections/ImpactSection";
 import PipelineSection from "../../sections/PipelineSection";
-import VoicesSection from "../../sections/VoicesSection";
 import TeamSection from "../../sections/TeamSection";
 import CtaSection from "../../sections/CtaSection";
 import LandingFooter from "../../sections/LandingFooter";
@@ -24,12 +21,9 @@ export default function Landing() {
       <main>
         <HeroSection />
         <ShowcaseSection />
-        <FeaturesSection />
         <WorkflowSection />
         <PositioningSection />
-        <ImpactSection />
         <PipelineSection />
-        <VoicesSection />
         <TeamSection />
         <CtaSection />
       </main>
