@@ -64,21 +64,20 @@ async def register_user(username: str, password: str, email: str):
         raise HTTPException(
             status_code=400, detail="Password must be at least 8 characters"
         )
-        
+
     try:
         _email_check: Any = await asyncio.to_thread(
-                client.list_users,
-                UserPoolId=settings.cognito_user_pool_id,
-                Filter=f'email = "{email}"',
-                Limit=1
-            ) 
-        
+            client.list_users,
+            UserPoolId=settings.cognito_user_pool_id,
+            Filter=f'email = "{email}"',
+            Limit=1,
+        )
+
         if _email_check["Users"]:
             raise HTTPException(
-                status_code=409,
-                detail="An account with this email already exists."
+                status_code=409, detail="An account with this email already exists."
             )
-        
+
         response = await asyncio.to_thread(
             client.sign_up,
             ClientId=settings.cognito_client_id,
@@ -163,7 +162,10 @@ async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
     except ClientError as e:
         handle_cognito_error(e)
 
-async def refresh_access_token(username: str, refresh_token: str) -> dict[str, str | None]:
+
+async def refresh_access_token(
+    username: str, refresh_token: str
+) -> dict[str, str | None]:
     try:
         response = await asyncio.to_thread(
             client.initiate_auth,
@@ -171,8 +173,8 @@ async def refresh_access_token(username: str, refresh_token: str) -> dict[str, s
             AuthFlow="REFRESH_TOKEN_AUTH",
             AuthParameters={
                 "REFRESH_TOKEN": refresh_token,
-                "SECRET_HASH": get_secret_hash(username)
-            }
+                "SECRET_HASH": get_secret_hash(username),
+            },
         )
 
         auth_result = cast(dict[str, Any], response["AuthenticationResult"])

@@ -28,12 +28,8 @@ class admin_service:
             users: list[UserResponse] = []
             pagination_token: Any = None
 
-
             while True:
-                params: Any = {
-                    "UserPoolId": settings.cognito_user_pool_id,
-                    "Limit": 60
-                }
+                params: Any = {"UserPoolId": settings.cognito_user_pool_id, "Limit": 60}
 
                 if filter_expression:
                     params["Filter"] = filter_expression
@@ -41,9 +37,7 @@ class admin_service:
                 if pagination_token:
                     params["PaginationToken"] = pagination_token
 
-                response = await asyncio.to_thread(
-                    client.list_users, **params
-                )
+                response = await asyncio.to_thread(client.list_users, **params)
 
                 for user in response["Users"]:
                     attributes: Any = {
@@ -56,7 +50,9 @@ class admin_service:
                             username=user.get("Username", ""),
                             email=attributes.get("email", ""),
                             sub=attributes.get("sub", ""),
-                            user_created_date=user.get("UserCreateDate", datetime.now()),
+                            user_created_date=user.get(
+                                "UserCreateDate", datetime.now()
+                            ),
                             user_last_modified_date=user.get(
                                 "UserLastModifiedDate", datetime.now()
                             ),
@@ -76,7 +72,10 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail=error.get("Message", "Invalid cognito paramater"))
+                raise HTTPException(
+                    status_code=422,
+                    detail=error.get("Message", "Invalid cognito paramater"),
+                )
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod

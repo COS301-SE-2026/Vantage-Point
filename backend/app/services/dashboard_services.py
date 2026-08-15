@@ -24,7 +24,9 @@ class DashboardService:
         try:
             users: list[UserResponse] = await admin_service.get_users()
             today = datetime.now(timezone.utc).date()
-            new_today = sum(1 for user in users if user.user_created_date.date() == today)
+            new_today = sum(
+                1 for user in users if user.user_created_date.date() == today
+            )
             return new_today
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -37,7 +39,9 @@ class DashboardService:
             users: list[UserResponse] = await admin_service.get_users()
 
             week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).date()
-            new_week = sum(1 for user in users if user.user_created_date.date() >= week_ago)
+            new_week = sum(
+                1 for user in users if user.user_created_date.date() >= week_ago
+            )
             return new_week
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -50,7 +54,9 @@ class DashboardService:
             users: list[UserResponse] = await admin_service.get_users()
 
             month_ago = (datetime.now(timezone.utc) - timedelta(days=30)).date()
-            new_month = sum(1 for user in users if user.user_created_date.date() >= month_ago)
+            new_month = sum(
+                1 for user in users if user.user_created_date.date() >= month_ago
+            )
             return new_month
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -86,7 +92,9 @@ class DashboardService:
 
             users = await admin_service.get_users()
 
-            this_week = sum(1 for user in users if user.user_created_date >= this_week_start)
+            this_week = sum(
+                1 for user in users if user.user_created_date >= this_week_start
+            )
             last_week = sum(
                 1
                 for user in users
@@ -106,7 +114,9 @@ class DashboardService:
             last_month_end = this_month_start
 
             users = await admin_service.get_users()
-            this_month = sum(1 for user in users if user.user_created_date >= this_month_start)
+            this_month = sum(
+                1 for user in users if user.user_created_date >= this_month_start
+            )
             last_month = sum(
                 1
                 for user in users
@@ -122,7 +132,7 @@ class DashboardService:
     async def get_total_matches(
         session: Annotated[AsyncSession, Depends(get_session)],
     ) -> int:
-        try: 
+        try:
             statement = select(func.count()).select_from(Matches)
             result = await session.execute(statement)
             match_count = result.scalar_one()
@@ -152,7 +162,10 @@ class DashboardService:
                                 "Namespace": "AWS",
                                 "MetricName": "BucketSize",
                                 "Dimensions": [
-                                    {"Name": "BucketName", "Value": settings.bucket_name},
+                                    {
+                                        "Name": "BucketName",
+                                        "Value": settings.bucket_name,
+                                    },
                                     {"Name": "StorageType", "Value": "StandardStorage"},
                                 ],
                             },
@@ -166,7 +179,6 @@ class DashboardService:
                 EndTime=now,
                 ScanBy="TimestampDescending",
             )
-            
 
             results: Any = response["MetricDataResults"]
 

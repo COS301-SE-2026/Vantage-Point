@@ -1,9 +1,8 @@
 from app.services import auth_service
 from fastapi import APIRouter, Depends
 from app.Models.auth_model import User
-from typing import Any
-from app.api.auth import require_group
 from typing import Any, Annotated
+from app.api.auth import require_group
 
 router = APIRouter()
 
@@ -57,15 +56,18 @@ async def confirm_user(username: str, code: str):
 async def logout(access_token: str):
     return await auth_service.logout_user(access_token)
 
-#trying to make it easier, probably just refresh the token before the expiry date hits otherwise this is going to fail
-#use 10 becuase all people will be apart of the User group, and if not will be higher in the system so wont cause issues
+
+# trying to make it easier, probably just refresh the token before the expiry date hits otherwise this is going to fail
+# use 10 becuase all people will be apart of the User group, and if not will be higher in the system so wont cause issues
 @router.post(
     "/refresh-auth",
     summary="Refresh Access token",
     description="Endpoint to be used by frontend to refresh and get a valid accesstoken to be used again",
-    tags=["Auth"]
+    tags=["Auth"],
 )
-async def refresh_access_token(_: Annotated[User, Depends(require_group(10))] | str, request: str):
+async def refresh_access_token(
+    _: Annotated[User, Depends(require_group(10))] | str, request: str
+):
     if isinstance(_, User):
         username = _.username
     else:
