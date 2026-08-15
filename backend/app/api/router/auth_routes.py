@@ -66,11 +66,6 @@ async def logout(access_token: str):
     tags=["Auth"],
 )
 async def refresh_access_token(
-    _: Annotated[User, Depends(require_group(10))] | str, request: str
+    username: str, request: str
 ):
-    if isinstance(_, User):
-        username = _.username
-    else:
-        username = _
-
     return await auth_service.refresh_access_token(username, request)
