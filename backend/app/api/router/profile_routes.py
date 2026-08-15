@@ -60,5 +60,17 @@ async def undo_account_deletion(
 ):
     return await ProfileService.undo_account_deletion(session, access_token.credentials)
 
+@router.post(
+    "/profile/set_region",
+    summary="Set player region",
+    description="Set the region that the user uses to play league of legends",
+    tags=["profile"],
+)
+async def set_region(
+    _: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    region: str,):
+
+    return await ProfileService.set_region(session, _.sub, region)
 
 #  update email/user in db

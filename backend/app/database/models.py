@@ -48,6 +48,8 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
         ),
         default_factory=datetime.utcnow,
     )
+    region: str | None = None #this is added for dynamic purposes because matches of a player get saved on their region server 
+    # and unable to get on other region servers or won't be the same match
 
     linked_puuids_cache: Optional[str] = Field(
         default="[]",

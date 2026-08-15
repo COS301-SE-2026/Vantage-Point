@@ -16,6 +16,25 @@ BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
 
+async def get_region(session: AsyncSession, cognito_sub: str, region: str) -> None:
+    try:
+        statement = select(Users).where(
+                    Users.cognito_sub == cognito_sub
+                )  # need to change when email gets added to db
+        result: Any = await session.execute(statement)
+        user: Users | None = result.scalar_one_or_none()
+
+        if user is None:  
+            # idea behind this is if not in our db does not exist in cognito. Hence can look for in our db. Due to need to get profile to updatye
+            raise HTTPException(status_code=400, detail="User does not exist.")
+        
+        user.region = region
+        await session.commit()
+        await session.refresh(user)
+    except ClientError as e:
+        print(e.response)
+        raise
+
 def filter_match_for_players(
     match_data: dict[str, Any] | None = None,
     player_ids: list[str] | str | None = None,
