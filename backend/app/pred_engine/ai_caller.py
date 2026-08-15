@@ -2,11 +2,6 @@ import json
 import AI_models as ai  # type: ignore
 
 # make models a global thing for this file or store in db
-champ_rf = None
-item_rf = None
-role_rf = None
-skill_rf = None
-knn_model = None
 
 
 # contains all funtions for frontend to access
@@ -14,7 +9,16 @@ def create_models():
     c, i, r, s = ai.create_rf_models()
     k = ai.create_knn_model()
 
-    return c, i, r, s, k
+    global champ_rf
+    champ_rf = c
+    global item_rf
+    item_rf = i
+    global role_rf
+    role_rf = r
+    global skill_rf
+    skill_rf = s
+    global knn_model
+    knn_model = k
 
 
 def get_skill_pred(data):
@@ -78,8 +82,6 @@ def get_role_pred(data):
     y_output = ai.run_rf(role_rf, data, "role")
     # gives teampos, lane
 
-    print(y_output)  # for testing purposes
-
     pos, lane = None, None
     if y_output is None:
         return None
@@ -99,27 +101,27 @@ def get_champ_pred(data):
     y_output = ai.run_rf(champ_rf, data, "champion")
     # gives champId
 
-    champName = None
+    # returns none if output is same as player champId or is invalid
     if y_output is None:
-        return champName
+        return None
     else:
+        champName = None
         for i in data_file:
             if data_file[i]["id"] == y_output:
                 champName = i
+        # returns none if output is same as player champId
+        return champName
 
-    # returns none if output is same as player champId
-    return champName
 
-
-def get_knn_output(knn_model, data):
+def get_knn_output(data):
     y_output, _ = ai.run_knn(knn_model, data)
 
     # y_output is a list on np arrays right now
     y_list = []
     for i in y_output:
-        y_list.append(list(i))
+        coord = []
+        for j in i:
+            coord.append(getattr(j, "tolist", lambda: j)())
+        y_list.append(coord)
 
     return y_list
-
-
-champ_rf, item_rf, role_rf, skill_rf, knn_model = create_models()

@@ -41,7 +41,9 @@ def create_rf_models():
 
 def create_knn_model():
 
-    knn_models = knn.get_knn("test100000.csv")
+    knn_models = knn.get_knn(
+        "/workspaces/backend/app/pred_engine/Training_csv/knn_training.csv"
+    )
 
     return knn_models
 
