@@ -9,8 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 import boto3
 from botocore.exceptions import ClientError
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
 from app.config import get_settings
+import asyncio
 
 settings = get_settings()
 
@@ -20,9 +22,9 @@ class DashboardService:
     @staticmethod
     async def new_users_today() -> int:
         try:
-            users: list[UserResponse] = await admin_service.get_users(1000)
+            users: list[UserResponse] = await admin_service.get_users()
             today = datetime.now(timezone.utc).date()
-            new_today = sum(1 for user in users if user.user_created_date.date() == today) | 0
+            new_today = sum(1 for user in users if user.user_created_date.date() == today)
             return new_today
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -32,10 +34,10 @@ class DashboardService:
     @staticmethod
     async def new_users_this_week() -> int:
         try:
-            users: list[UserResponse] = await admin_service.get_users(1000)
+            users: list[UserResponse] = await admin_service.get_users()
 
-            week_ago = datetime.now(timezone.utc) - timedelta(days=7)
-            new_week = sum(1 for user in users if user.user_created_date.date() >= week_ago) | 0
+            week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).date()
+            new_week = sum(1 for user in users if user.user_created_date.date() >= week_ago)
             return new_week
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -45,10 +47,10 @@ class DashboardService:
     @staticmethod
     async def new_users_this_month() -> int:
         try:
-            users: list[UserResponse] = await admin_service.get_users(10000)
+            users: list[UserResponse] = await admin_service.get_users()
 
-            month_ago = datetime.now(timezone.utc) - timedelta(days=30)
-            new_month = sum(1 for user in users if user.user_created_date.date() >= month_ago) | 0
+            month_ago = (datetime.now(timezone.utc) - timedelta(days=30)).date()
+            new_month = sum(1 for user in users if user.user_created_date.date() >= month_ago)
             return new_month
         except ClientError as e:
             error = e.response.get("Error", {})
@@ -68,12 +70,8 @@ class DashboardService:
     @staticmethod
     async def unconfirmed_users() -> int:
         try:
-            users: list[UserResponse] = await admin_service.get_users(100000)
-
-            unconfirmed_user = (
-                sum(1 for user in users if user.user_status == "UNCONFIRMED") | 0
-            )
-            return unconfirmed_user
+            users = await admin_service.get_users('cognito:user_status = "UNCONFIRMED"')
+            return len(users)
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -86,8 +84,9 @@ class DashboardService:
             last_week_start = datetime.now(timezone.utc) - timedelta(14)
             last_week_end = this_week_start
 
-            this_week = await DashboardService.new_users_this_week()
-            users = await admin_service.get_users(100000)
+            users = await admin_service.get_users()
+
+            this_week = sum(1 for user in users if user.user_created_date >= this_week_start)
             last_week = sum(
                 1
                 for user in users
@@ -102,12 +101,12 @@ class DashboardService:
     @staticmethod
     async def monthly_growth() -> int:
         try:
-            this_month_start = datetime.now(timezone.utc) - timedelta(7)
-            last_month_start = datetime.now(timezone.utc) - timedelta(14)
+            this_month_start = datetime.now(timezone.utc) - timedelta(30)
+            last_month_start = datetime.now(timezone.utc) - timedelta(60)
             last_month_end = this_month_start
 
-            this_month = await DashboardService.new_users_this_month()
-            users = await admin_service.get_users(100000)
+            users = await admin_service.get_users()
+            this_month = sum(1 for user in users if user.user_created_date >= this_month_start)
             last_month = sum(
                 1
                 for user in users
@@ -129,10 +128,11 @@ class DashboardService:
             match_count = result.scalar_one()
 
             return match_count
-        except ClientError as e:
-            error = e.response.get("Error", {})
-            error_code = error.get("Code", "ClientError")
-            raise HTTPException(status_code=400, detail=error_code)
+        except SQLAlchemyError as e:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to retrieve match count",
+            ) from e
 
     @staticmethod
     async def get_s3_storage_used() -> int:
@@ -142,7 +142,8 @@ class DashboardService:
             now = datetime.now(timezone.utc)
             start_time = now - timedelta(days=2)
 
-            response = cloudwatch.get_metric_data(
+            response = await asyncio.to_thread(
+                cloudwatch.get_metric_data,
                 MetricDataQueries=[
                     {
                         "Id": "s3Storage",
@@ -165,6 +166,7 @@ class DashboardService:
                 EndTime=now,
                 ScanBy="TimestampDescending",
             )
+            
 
             results: Any = response["MetricDataResults"]
 

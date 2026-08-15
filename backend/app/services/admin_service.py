@@ -23,7 +23,7 @@ invalid_username: str = "Invalid username"
 
 class admin_service:
     @staticmethod
-    async def get_users(filter_expression: str | None) -> list[UserResponse]:
+    async def get_users(filter_expression: str | None = None) -> list[UserResponse]:
         try:
             users: list[UserResponse] = []
             pagination_token: Any = None
