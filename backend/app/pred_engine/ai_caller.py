@@ -1,5 +1,5 @@
 import json
-from app.pred_engine import AI_models as ai  # type: ignore
+import AI_models as ai  # type: ignore
 
 #make models a global thing for this file or store in db
 champ_rf = None
@@ -10,43 +10,44 @@ knn_model = None
 
 #contains all funtions for frontend to access
 def create_models():
-    c = ai.create_rf_models()
-    #k = ai.create_knn_model()
+    c, i, r, s = ai.create_rf_models()
+    k = ai.create_knn_model()
 
-    champ_rf = c
-    #item_rf = i
-    #role_rf = r
-    #skill_rf = s
-    #knn_model = k
+    return c, i, r, s, k
 
 def get_skill_pred(data):
     #TODO: replace with code to pull from db?
-    with open("datasets/champions.json", "r") as file:
+    with open("/workspaces/backend/app/pred_engine/datasets/champions.json", "r") as file:
         data_file = json.load(file)
 
     y_output = ai.run_rf(skill_rf, data, "skill")
     #y_output is skillslot, levelUpType
 
     skill_id = None
-    if y_output != None:
-        skill_id = y_output[0]
+    if y_output is None:
+        return y_output
+    else:
+        skill_id = list(y_output)[0][0]
 
-    champID = data[2]
+    champID = data[0][2]
+    for i in data_file:
+        if data_file[i]["id"] == champID:
+                champName = i
 
-    abilities = data_file[champID]["abilities"]
+    abilities = data_file[champName]["abilities"]
     skill = skill_id
     #Slots translate to P, Q, W, E, R
     match skill_id:
         case 1:
-            skill = abilities["P"]["name"]
+            skill = abilities["P"][0]["name"]
         case 2:
-            skill = abilities["Q"]["name"]
+            skill = abilities["Q"][0]["name"]
         case 3:
-            skill = abilities["W"]["name"]
+            skill = abilities["W"][0]["name"]
         case 4:
-            skill = abilities["E"]["name"]
+            skill = abilities["E"][0]["name"]
         case 5:
-            skill = abilities["R"]["name"]
+            skill = abilities["R"][0]["name"]
 
     return skill
     #example output: "Look at upgrading [skill] at this point", "It might be good to level [skill] here"
@@ -54,15 +55,17 @@ def get_skill_pred(data):
 def get_item_pred(data):
     y_output = ai.run_rf(item_rf, data, "item")
     item_id = None
-    if y_output != None:
-        item_id = y_output
+    if y_output is None:
+        return None, None
+    else:
+        item_id = list(y_output)[0]
 
     #TODO: replace with code to pull from db?
-    with open("datasets/items.json", "r") as file:
-        data = json.load(file)
+    with open("/workspaces/backend/app/pred_engine/datasets/items.json", "r") as file:
+        data_file = json.load(file)
 
-    item_name = data[item_id]["name"]
-    item_icon = data[item_id]["icon"]
+    item_name = data_file[str(item_id)]["name"]
+    item_icon = data_file[str(item_id)]["icon"]
 
     return item_name, item_icon
     #name is for AI output, name + icon is for timeline analysis page
@@ -71,44 +74,34 @@ def get_role_pred(data):
     y_output = ai.run_rf(role_rf, data, "role")
     #gives teampos, lane
 
-    #add check if champ allows this position?
-    with open("datasets/champions.json", "r") as file:
-        data_file = json.load(file)
-    champId = data[2]
-
     print(y_output) #for testing purposes
 
     pos, lane = None, None
-    if y_output != None:
+    if y_output is None:
+        return None
+    else:
         pos = y_output[0]
         lane = y_output[1]
 
-    allowed = False
-    for i in data_file:
-        if i["id"] == champId:
-            positions = i["positions"]
-            if pos in positions:
-                allowed = True
-
-    return pos, lane, allowed
+    return pos, lane
     
 def get_champ_pred(data):
     #TODO: replace with code to pull from db?
-    with open("datasets/champions.json", "r") as file:
+    with open("/workspaces/backend/app/pred_engine/datasets/champions.json", "r") as file:
         data_file = json.load(file)
 
-    y_output = ai.run_rf(role_rf, data, "role")
+    y_output = ai.run_rf(champ_rf, data, "champion")
     #gives champId
     
-    print(y_output) #for testing purposes
-    
     champName = None
-    if y_output != None:
+    if y_output is None:
+        return champName
+    else:
         for i in data_file:
-            if i["id"] == y_output:
+            if data_file[i]["id"] == y_output:
                 champName = i
 
-    #returns none if output is invalid
+    #returns none if output is same as player champId
     return champName
 
 def get_knn_output(knn_model, data):
@@ -122,4 +115,5 @@ def get_knn_output(knn_model, data):
     return y_list
 
 
-#TESTING
+champ_rf, item_rf, role_rf, skill_rf, knn_model = create_models()
+

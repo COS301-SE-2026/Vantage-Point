@@ -1,6 +1,6 @@
-from app.pred_engine import knn_model as knn  # type: ignore
-from app.pred_engine import rf_model as rf  # type: ignore
-from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
+import knn_model as knn  # type: ignore
+import rf_model as rf  # type: ignore
+from Data_Converter.src import Converter_Main as converter  # type: ignore
 import json
 import math
 import numpy as np
@@ -26,10 +26,12 @@ def create_rf_models():
         "champion",
     )
     item_rf = rf.final_train(
-        "/workspaces/backend/app/pred_engine/Training_csv/item_rf_training.csv", "item"
+        "/workspaces/backend/app/pred_engine/Training_csv/item_rf_training.csv", 
+        "item"
     )
     role_rf = rf.final_train(
-        "/workspaces/backend/app/pred_engine/Training_csv/role_rf_training.csv", "role"
+        "/workspaces/backend/app/pred_engine/Training_csv/role_rf_training.csv", 
+        "role"
     )
     skill_rf = rf.final_train(
         "/workspaces/backend/app/pred_engine/Training_csv/skill_rf_training.csv",
@@ -74,21 +76,46 @@ def correct_knn(y_output, y_data):
 
 def correct_role_rf(y_output, y_data, x_data):
     # check if role is same as current role
-    if y_output == y_data:
+    if y_output[0,0] == y_data[0][0] and y_output[0,1] == y_data[0][1]:
         return None
     else:
-        champID = x_data[2]
-        with open("datasets/champions.json", "r") as file:
+        champID = x_data[0][0]
+        with open("/workspaces/backend/app/pred_engine/datasets/champions.json", "r") as file:
             data = json.load(file)
+
+        #translate y_output back to text (pos, lane)
+        pos = y_output[0][0]
+        lane = y_output[0][1]
+        out = []
+        match pos:
+            case 1:
+                out.append("TOP")
+            case 2:
+                out.append("JUNGLE")
+            case 3:
+                out.append("MIDDLE")
+            case 4:
+                out.append("BOTTOM")
+            case 5:
+                out.append("UTILITY")
+        match lane:
+            case 1:
+                out.append("TOP")
+            case 2:
+                out.append("MIDDLE")
+            case 3:
+                out.append("BOTTOM")
+            case 4:
+                out.append("JUNGLE")
+            case 5:
+                out.append("NONE")
 
         for champ in data:
             if (data[champ]["id"] == champID) and (
-                y_output in data[champ]["positions"]
+                    out[0] in data[champ]["positions"]
             ):
-                return y_output
+                return out
     return None
-
-    # check if role is available for champ
 
 
 def correct_champion_rf(y_output, y_data):
