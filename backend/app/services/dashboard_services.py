@@ -8,6 +8,8 @@ from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 import boto3
+from botocore.exceptions import ClientError
+from fastapi import HTTPException
 from app.config import get_settings
 
 settings = get_settings()
@@ -40,100 +42,129 @@ class DashboardService:
 
     @staticmethod
     async def confirmed_users() -> int:
-        users: list[UserResponse] = await admin_service.get_users()
+        try:
+            users: list[UserResponse] = await admin_service.get_users()
 
-        confirmed_user = sum(1 for user in users if user.user_status == "CONFIRMED") | 0
-        return confirmed_user
+            confirmed_user = sum(1 for user in users if user.user_status == "CONFIRMED") | 0
+            return confirmed_user
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def unconfirmed_users() -> int:
-        users: list[UserResponse] = await admin_service.get_users()
+        try:
+            users: list[UserResponse] = await admin_service.get_users()
 
-        unconfirmed_user = (
-            sum(1 for user in users if user.user_status == "UNCONFIRMED") | 0
-        )
-        return unconfirmed_user
+            unconfirmed_user = (
+                sum(1 for user in users if user.user_status == "UNCONFIRMED") | 0
+            )
+            return unconfirmed_user
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def weekly_growth() -> int:
-        this_week_start = datetime.now(timezone.utc) - timedelta(7)
-        last_week_start = datetime.now(timezone.utc) - timedelta(14)
-        last_week_end = this_week_start
+        try:
+            this_week_start = datetime.now(timezone.utc) - timedelta(7)
+            last_week_start = datetime.now(timezone.utc) - timedelta(14)
+            last_week_end = this_week_start
 
-        this_week = await DashboardService.new_users_this_week()
-        users = await admin_service.get_users()
-        last_week = sum(
-            1
-            for user in users
-            if last_week_start <= user.user_created_date < last_week_end
-        )
-        return this_week - last_week
+            this_week = await DashboardService.new_users_this_week()
+            users = await admin_service.get_users()
+            last_week = sum(
+                1
+                for user in users
+                if last_week_start <= user.user_created_date < last_week_end
+            )
+            return this_week - last_week
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def monthly_growth() -> int:
-        this_month_start = datetime.now(timezone.utc) - timedelta(7)
-        last_month_start = datetime.now(timezone.utc) - timedelta(14)
-        last_month_end = this_month_start
+        try:
+            this_month_start = datetime.now(timezone.utc) - timedelta(7)
+            last_month_start = datetime.now(timezone.utc) - timedelta(14)
+            last_month_end = this_month_start
 
-        this_week = await DashboardService.new_users_this_week()
-        users = await admin_service.get_users()
-        last_week = sum(
-            1
-            for user in users
-            if last_month_start <= user.user_created_date < last_month_end
-        )
-        return this_week - last_week
+            this_week = await DashboardService.new_users_this_week()
+            users = await admin_service.get_users()
+            last_week = sum(
+                1
+                for user in users
+                if last_month_start <= user.user_created_date < last_month_end
+            )
+            return this_week - last_week
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def get_total_matches(
         session: Annotated[AsyncSession, Depends(get_session)],
     ) -> int:
-        statement = select(func.count()).select_from(Matches)
-        result = await session.execute(statement)
-        match_count = result.scalar_one()
+        try: 
+            statement = select(func.count()).select_from(Matches)
+            result = await session.execute(statement)
+            match_count = result.scalar_one()
 
-        return match_count
+            return match_count
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
     async def get_s3_storage_used() -> int:
-        cloudwatch = boto3.client("cloudwatch", region_name=settings.aws_region)  # type: ignore
+        try:
+            cloudwatch = boto3.client("cloudwatch", region_name=settings.aws_region)  # type: ignore
 
-        now = datetime.now(timezone.utc)
-        start_time = now - timedelta(days=2)
+            now = datetime.now(timezone.utc)
+            start_time = now - timedelta(days=2)
 
-        response = cloudwatch.get_metric_data(
-            MetricDataQueries=[
-                {
-                    "Id": "s3Storage",
-                    "MetricStat": {
-                        "Metric": {
-                            "Namespace": "AWS",
-                            "MetricName": "BucketSize",
-                            "Dimensions": [
-                                {"Name": "BucketName", "Value": settings.bucket_name},
-                                {"Name": "StorageType", "Value": "StandardStorage"},
-                            ],
+            response = cloudwatch.get_metric_data(
+                MetricDataQueries=[
+                    {
+                        "Id": "s3Storage",
+                        "MetricStat": {
+                            "Metric": {
+                                "Namespace": "AWS",
+                                "MetricName": "BucketSize",
+                                "Dimensions": [
+                                    {"Name": "BucketName", "Value": settings.bucket_name},
+                                    {"Name": "StorageType", "Value": "StandardStorage"},
+                                ],
+                            },
+                            "Period": 86400,
+                            "Stat": "Average",
                         },
-                        "Period": 86400,
-                        "Stat": "Average",
+                        "ReturnData": True,
                     },
-                    "ReturnData": True,
-                },
-            ],
-            StartTime=start_time,
-            EndTime=now,
-            NextToken="string",
-            ScanBy="TimestampDescending",
-        )
+                ],
+                StartTime=start_time,
+                EndTime=now,
+                ScanBy="TimestampDescending",
+            )
 
-        results: Any = response["MetricDataResults"]
+            results: Any = response["MetricDataResults"]
 
-        if not results:
-            return 0
+            if not results:
+                return 0
 
-        values: Any = results[0]["Values"]
+            values: Any = results[0]["Values"]
 
-        if not values:
-            return 0
+            if not values:
+                return 0
 
-        return int(values[0])
+            return int(values[0])
+        except ClientError as e:
+            error = e.response.get("Error", {})
+            error_code = error.get("Code", "ClientError")
+            raise HTTPException(status_code=400, detail=error_code)
