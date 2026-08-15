@@ -65,6 +65,19 @@ async def register_user(username: str, password: str, email: str):
             status_code=400, detail="Password must be at least 8 characters"
         )
 
+    _email_check: Any = await asyncio.to_thread(
+        client.list_users,
+        UserPoolId=settings.cognito_client_id,
+        Filter=f'email = "{email}"',
+        Limit=1
+    ) 
+
+    if _email_check["Users"]:
+        raise HTTPException(
+            status_code=409,
+            detail="An account with this email already exists."
+        )
+        
     try:
         response = await asyncio.to_thread(
             client.sign_up,
