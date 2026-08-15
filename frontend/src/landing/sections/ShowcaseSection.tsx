@@ -1,6 +1,6 @@
 import { ContainerScroll } from "@/components/ui/aceternity/container-scroll-animation";
 import { PointerHighlight } from "@/components/ui/aceternity/pointer-highlight";
-import imgShowcase from "../../assets/images/landing/showcase-replay.webp";
+import ReplayPreview from "./ReplayPreview";
 
 export default function ShowcaseSection() {
   return (
@@ -32,12 +32,7 @@ export default function ShowcaseSection() {
           </div>
         }
       >
-        <img
-          src={imgShowcase}
-          alt="Vantage Point match replay: the Summoner's Rift map with kill, death and path overlays alongside the player list"
-          draggable={false}
-          className="mx-auto h-full w-full rounded-2xl object-cover object-left-top"
-        />
+        <ReplayPreview />
       </ContainerScroll>
     </section>
   );

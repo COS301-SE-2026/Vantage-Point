@@ -95,22 +95,22 @@ export default function ReplayPreview() {
     >
       <MatchReplayMenuRow match={SAMPLE_MATCH} viewer={SAMPLE_VIEWER} />
 
-      <MatchReplayToolbar
-        mode={toolbarMode}
-        playersOpen={playersOpen}
-        activeActions={activeActions}
-        players={SAMPLE_PLAYERS}
-        selectedPuuids={selectedPuuids}
-        onToggleMode={handleToggleMode}
-        onActionClick={handleActionClick}
-        onTogglePlayer={handleTogglePlayer}
-        position="top"
-      />
+      {/* Same row the Match Replay screen draws: the tool rail, then the square
+          map, then the coaching panel. The map is driven by the height left in
+          the card rather than by the viewport, so the whole thing fits the
+          fixed-height showcase frame. */}
+      <div className="flex min-h-0 flex-1 items-start justify-center gap-[10px]">
+        <MatchReplayToolbar
+          mode={toolbarMode}
+          playersOpen={playersOpen}
+          activeActions={activeActions}
+          players={SAMPLE_PLAYERS}
+          selectedPuuids={selectedPuuids}
+          onToggleMode={handleToggleMode}
+          onActionClick={handleActionClick}
+          onTogglePlayer={handleTogglePlayer}
+        />
 
-      {/* The map is square and driven by the height left in the card. The
-          coaching panel keeps the width it has in the dashboard rather than
-          stretching over the slack. */}
-      <div className="flex min-h-0 flex-1 items-stretch justify-center gap-[16px]">
         <div
           data-name="Map"
           className="relative aspect-square h-full shrink-0 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
@@ -152,7 +152,7 @@ export default function ReplayPreview() {
           />
         </div>
 
-        <div className="hidden min-w-0 max-w-[380px] flex-1 sm:flex">
+        <div className="ml-[6px] hidden h-full min-w-0 max-w-[380px] flex-1 overflow-hidden sm:flex">
           <AiCoachingComments notes={SAMPLE_COACHING_NOTES} />
         </div>
       </div>

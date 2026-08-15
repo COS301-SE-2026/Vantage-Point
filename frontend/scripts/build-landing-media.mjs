@@ -30,7 +30,54 @@ const ENGAGEMENTS = [
   { actual: [0.24, 0.64], optimal: [0.3, 0.7], label: "Drake" },
 ];
 
+/** The walked route the deaths happen along, blue base outward. */
+const ROUTE = [
+  [0.12, 0.88],
+  [0.3, 0.84],
+  [0.48, 0.8],
+  [0.66, 0.78],
+  [0.78, 0.74],
+  [0.72, 0.62],
+  [0.6, 0.54],
+  [0.55, 0.46],
+  [0.62, 0.36],
+  [0.66, 0.28],
+];
+
+/**
+ * The marker vocabulary is MatchReplayMapOverlay's, scaled from the ~500px map
+ * the replay card draws to this 900px export, so the landing page shows the
+ * same icons the product does rather than a second set invented here:
+ *
+ *   death   size-[10px] rounded-full bg-vp-faint ring-2 ring-white/80
+ *   path    <polyline> stroke=teamColour(100) width 2 opacity 0.7
+ *
+ * Anything with no counterpart in the overlay (the correction vector, the
+ * ghost) is drawn in the same weights so it reads as part of the same set.
+ */
+const SCALE = MAP / 500;
+const DEATH_R = (10 / 2) * SCALE;
+const RING_W = 2 * SCALE;
+const PATH_W = 2 * SCALE;
+const GHOST_R = (26 / 2) * SCALE;
+
+const TEAM_BLUE = "#0077ff"; // teamColour(100)
+const DEATH_FILL = "#6b7079"; // --color-vp-faint
+const RING = "#ffffffcc"; // ring-white/80
+const CORRECTION = "#22d3ee";
+const GHOST = "#e0b46c";
+
 const px = ([x, y]) => [x * MAP, y * MAP];
+
+const routePoints = () =>
+  ROUTE.map((p) => px(p).join(","))
+    .join(" ");
+
+/** size-[10px] rounded-full bg-vp-faint ring-2 ring-white/80 */
+const deathMarker = ([x, y], opacity = 1) => `
+  <circle cx="${x}" cy="${y}" r="${DEATH_R}" fill="${DEATH_FILL}" opacity="${opacity}"/>
+  <circle cx="${x}" cy="${y}" r="${DEATH_R + RING_W / 2}" fill="none"
+          stroke="${RING}" stroke-width="${RING_W}" opacity="${opacity}"/>`;
 
 function svgShell(body) {
   return Buffer.from(
@@ -38,79 +85,46 @@ function svgShell(body) {
   );
 }
 
-/** The "before": where the player actually died, as a risk heatmap. */
+/** The "before": the route walked, and the deaths it ran into. */
 function actualOverlay() {
-  const blobs = ENGAGEMENTS.map((e) => {
-    const [x, y] = px(e.actual);
-    return `<circle cx="${x}" cy="${y}" r="86" fill="url(#risk)"/>`;
-  }).join("");
+  const path = `<polyline points="${routePoints()}" fill="none"
+      stroke="${TEAM_BLUE}" stroke-width="${PATH_W}" stroke-opacity="0.7"
+      stroke-linejoin="round" stroke-linecap="round"/>`;
 
-  const markers = ENGAGEMENTS.map((e) => {
-    const [x, y] = px(e.actual);
-    return `
-      <circle cx="${x}" cy="${y}" r="13" fill="#0b0b0d" stroke="#ff4d4f" stroke-width="2.5"/>
-      <path d="M${x - 5.5} ${y - 5.5} L${x + 5.5} ${y + 5.5} M${x + 5.5} ${y - 5.5} L${x - 5.5} ${y + 5.5}"
-            stroke="#ff4d4f" stroke-width="2.6" stroke-linecap="round"/>`;
-  }).join("");
+  const deaths = ENGAGEMENTS.map((e) => deathMarker(px(e.actual))).join("");
 
-  return svgShell(`
-    <defs>
-      <radialGradient id="risk">
-        <stop offset="0%" stop-color="#ff2d2d" stop-opacity="0.55"/>
-        <stop offset="55%" stop-color="#ff5a3c" stop-opacity="0.22"/>
-        <stop offset="100%" stop-color="#ff5a3c" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-    <rect width="${MAP}" height="${MAP}" fill="#12060a" opacity="0.34"/>
-    ${blobs}${markers}
-    <g font-family="sans-serif" font-size="19" font-weight="700" fill="#ffffff">
-      <rect x="28" y="28" width="196" height="42" rx="10" fill="#0b0b0dcc" stroke="#ff4d4f66"/>
-      <circle cx="48" cy="49" r="5" fill="#ff4d4f"/>
-      <text x="63" y="56">Your deaths</text>
-    </g>`);
+  return svgShell(`${path}${deaths}`);
 }
 
 /** The "after": the positions the model would have held instead. */
 function optimalOverlay() {
+  const path = `<polyline points="${routePoints()}" fill="none"
+      stroke="${TEAM_BLUE}" stroke-width="${PATH_W}" stroke-opacity="0.25"
+      stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  const deaths = ENGAGEMENTS.map((e) => deathMarker(px(e.actual), 0.4)).join("");
+
   const vectors = ENGAGEMENTS.map((e) => {
     const [ax, ay] = px(e.actual);
     const [ox, oy] = px(e.optimal);
     return `<line x1="${ax}" y1="${ay}" x2="${ox}" y2="${oy}"
-              stroke="#67e8f9" stroke-width="2.4" stroke-dasharray="7 6"
-              opacity="0.85" marker-end="url(#tip)"/>`;
+              stroke="${CORRECTION}" stroke-width="${PATH_W}"
+              stroke-dasharray="${PATH_W * 2} ${PATH_W * 1.6}"
+              stroke-linecap="round" opacity="0.9"/>`;
   }).join("");
 
+  // The ghost has no counterpart in the overlay yet, so it borrows the tracked
+  // player's geometry — a 26px disc over a dark fill — ringed in the gold the
+  // rest of the page uses for the coach.
   const ghosts = ENGAGEMENTS.map((e) => {
     const [x, y] = px(e.optimal);
     return `
-      <circle cx="${x}" cy="${y}" r="34" fill="url(#safe)"/>
-      <circle cx="${x}" cy="${y}" r="17" fill="none" stroke="#67e8f9" stroke-width="2" opacity="0.75"/>
-      <circle cx="${x}" cy="${y}" r="7" fill="#e0b46c"/>`;
+      <circle cx="${x}" cy="${y}" r="${GHOST_R}" fill="#000000" fill-opacity="0.4"/>
+      <circle cx="${x}" cy="${y}" r="${GHOST_R}" fill="none"
+              stroke="${GHOST}" stroke-width="${RING_W}"/>`;
   }).join("");
 
-  const faded = ENGAGEMENTS.map((e) => {
-    const [x, y] = px(e.actual);
-    return `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="#ff4d4f" stroke-width="2" opacity="0.5"/>`;
-  }).join("");
-
-  return svgShell(`
-    <defs>
-      <radialGradient id="safe">
-        <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.45"/>
-        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
-      </radialGradient>
-      <marker id="tip" viewBox="0 0 10 10" refX="8" refY="5"
-              markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#67e8f9"/>
-      </marker>
-    </defs>
-    <rect width="${MAP}" height="${MAP}" fill="#04121a" opacity="0.34"/>
-    ${faded}${vectors}${ghosts}
-    <g font-family="sans-serif" font-size="19" font-weight="700" fill="#ffffff">
-      <rect x="28" y="28" width="248" height="42" rx="10" fill="#0b0b0dcc" stroke="#67e8f966"/>
-      <circle cx="48" cy="49" r="5" fill="#e0b46c"/>
-      <text x="63" y="56">Coach&#8217;s position</text>
-    </g>`);
+  return svgShell(`${path}${deaths}${vectors}${ghosts}`);
 }
 
 async function buildPositioningPair() {

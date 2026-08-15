@@ -1,18 +1,22 @@
 import { MoveRight } from "lucide-react";
 import { Compare } from "@/components/ui/aceternity/compare";
+import MatchReplayMenuRow from "../../components/MatchReplayMenuRow";
 import imgActual from "../../assets/images/landing/positioning-actual.webp";
 import imgOptimal from "../../assets/images/landing/positioning-optimal.webp";
+import { SAMPLE_MATCH, SAMPLE_VIEWER } from "../replaySample";
 
+/* The swatches are the marker fills MatchReplayMapOverlay uses, so the key
+   reads against the map rather than against a second palette. */
 const READING = [
   {
-    dot: "bg-red-500",
+    dot: "bg-vp-faint ring-2 ring-white/80",
     label: "Where you died",
     body: "Five deaths, four of them past the river line with no vision behind you.",
   },
   {
-    dot: "bg-cyan-300",
+    dot: "bg-[#22d3ee]",
     label: "The correction",
-    body: "The vector to the nearest winning snapshot — usually one screen back, not a different play.",
+    body: "The vector to the nearest winning snapshot, usually one screen back rather than a different play.",
   },
   {
     dot: "bg-[#e0b46c]",
@@ -69,13 +73,17 @@ export default function PositioningSection() {
         </div>
 
         <div className="flex justify-center">
-          <div className="rounded-3xl border border-white/10 bg-[#0a0b10] p-3 shadow-[0_0_80px_-30px_rgba(224,180,108,0.5)]">
+          {/* The same card the Match Replay screen draws: the summary row above
+              a square map, so the comparison reads as the product rather than a
+              pair of loose screenshots. */}
+          <div className="flex flex-col gap-[8px] rounded-xl bg-vp-canvas p-[8px] shadow-[0_0_80px_-30px_rgba(224,180,108,0.5)]">
+            <MatchReplayMenuRow match={SAMPLE_MATCH} viewer={SAMPLE_VIEWER} />
             <Compare
               firstImage={imgActual}
               secondImage={imgOptimal}
               firstImageClassName="object-cover"
               secondImageClassname="object-cover"
-              className="h-[300px] w-[300px] sm:h-[420px] sm:w-[420px] lg:h-[500px] lg:w-[500px]"
+              className="h-[300px] w-[300px] overflow-hidden rounded-[8px] sm:h-[420px] sm:w-[420px] lg:h-[500px] lg:w-[500px]"
               slideMode="drag"
               autoplay
               autoplayDuration={6000}
