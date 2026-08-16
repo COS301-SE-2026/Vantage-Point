@@ -44,9 +44,7 @@ def create_rf_models():
 
 def create_knn_model():
 
-    knn_models = knn.get_knn(
-        "/backend/app/pred_engine/Training_csv/knn_training.csv"
-    )
+    knn_models = knn.get_knn("/backend/app/pred_engine/Training_csv/knn_training.csv")
 
     return knn_models
 
@@ -86,9 +84,7 @@ def correct_role_rf(y_output, y_data, x_data):
         return None
     else:
         champID = x_data[0][0]
-        with open(
-            "/backend/app/pred_engine/datasets/champions.json", "r"
-        ) as file:
+        with open("/backend/app/pred_engine/datasets/champions.json", "r") as file:
             data = json.load(file)
 
         # translate y_output back to text (pos, lane)
