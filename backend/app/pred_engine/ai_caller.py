@@ -24,7 +24,7 @@ def create_models():
 def get_skill_pred(data):
     global skill_rf
     with open(
-        "/workspaces/backend/app/pred_engine/datasets/champions.json", "r"
+        "/backend/app/pred_engine/datasets/champions.json", "r"
     ) as file:
         data_file = json.load(file)
 
@@ -70,7 +70,7 @@ def get_item_pred(data):
     else:
         item_id = list(y_output)[0]
 
-    with open("/workspaces/backend/app/pred_engine/datasets/items.json", "r") as file:
+    with open("/backend/app/pred_engine/datasets/items.json", "r") as file:
         data_file = json.load(file)
 
     item_name = data_file[str(item_id)]["name"]
@@ -98,7 +98,7 @@ def get_role_pred(data):
 def get_champ_pred(data):
     global champ_rf
     with open(
-        "/workspaces/backend/app/pred_engine/datasets/champions.json", "r"
+        "/backend/app/pred_engine/datasets/champions.json", "r"
     ) as file:
         data_file = json.load(file)
 

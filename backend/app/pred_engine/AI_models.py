@@ -25,17 +25,17 @@ def avg_and_std(y_data):
 
 def create_rf_models():
     champ_rf = rf.final_train(
-        "/workspaces/backend/app/pred_engine/Training_csv/champ_rf_training.csv",
+        "/backend/app/pred_engine/Training_csv/champ_rf_training.csv",
         "champion",
     )
     item_rf = rf.final_train(
-        "/workspaces/backend/app/pred_engine/Training_csv/item_rf_training.csv", "item"
+        "/backend/app/pred_engine/Training_csv/item_rf_training.csv", "item"
     )
     role_rf = rf.final_train(
-        "/workspaces/backend/app/pred_engine/Training_csv/role_rf_training.csv", "role"
+        "/backend/app/pred_engine/Training_csv/role_rf_training.csv", "role"
     )
     skill_rf = rf.final_train(
-        "/workspaces/backend/app/pred_engine/Training_csv/skill_rf_training.csv",
+        "/backend/app/pred_engine/Training_csv/skill_rf_training.csv",
         "skill",
     )
 
@@ -45,7 +45,7 @@ def create_rf_models():
 def create_knn_model():
 
     knn_models = knn.get_knn(
-        "/workspaces/backend/app/pred_engine/Training_csv/knn_training.csv"
+        "/backend/app/pred_engine/Training_csv/knn_training.csv"
     )
 
     return knn_models
@@ -87,7 +87,7 @@ def correct_role_rf(y_output, y_data, x_data):
     else:
         champID = x_data[0][0]
         with open(
-            "/workspaces/backend/app/pred_engine/datasets/champions.json", "r"
+            "/backend/app/pred_engine/datasets/champions.json", "r"
         ) as file:
             data = json.load(file)
 
