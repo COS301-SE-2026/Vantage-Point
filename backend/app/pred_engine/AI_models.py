@@ -16,7 +16,7 @@ def avg_and_std(y_data):
         for j in range(0, len(y_data)):
             if i != j:
                 dist.append(abs(math.dist(y_data[i], y_data[j])))
-    
+
     avg = sum(dist) / len(dist)
     std = np.std(dist, ddof=1)
 

@@ -207,7 +207,7 @@ def convert_to_rows(data):
         else:
             data_arr = data
     else:
-        #dataframe
+        # dataframe
         data_arr = data.convert_to_arr()
 
     return data_arr

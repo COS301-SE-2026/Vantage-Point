@@ -3,6 +3,7 @@ import app.pred_engine.AI_models as ai  # type: ignore
 
 # make models a global thing for this file or store in db
 
+
 # contains all funtions for frontend to access
 def create_models():
     c, i, r, s = ai.create_rf_models()
