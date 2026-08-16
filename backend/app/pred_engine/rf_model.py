@@ -2,7 +2,7 @@ from sklearn.ensemble import RandomForestClassifier  # type: ignore
 from sklearn.metrics import accuracy_score  # type: ignore
 from sklearn.model_selection import GridSearchCV  # type: ignore
 from sklearn.multioutput import MultiOutputClassifier  # type: ignore
-from Data_Converter.src import Converter_Main as converter  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 import warnings
 
 warnings.filterwarnings("ignore")

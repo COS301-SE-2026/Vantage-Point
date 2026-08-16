@@ -1,8 +1,7 @@
 import json
-import AI_models as ai  # type: ignore
+import app.pred_engine.AI_models as ai  # type: ignore
 
 # make models a global thing for this file or store in db
-
 
 # contains all funtions for frontend to access
 def create_models():
@@ -22,6 +21,7 @@ def create_models():
 
 
 def get_skill_pred(data):
+    global skill_rf
     with open(
         "/workspaces/backend/app/pred_engine/datasets/champions.json", "r"
     ) as file:
@@ -61,7 +61,8 @@ def get_skill_pred(data):
 
 
 def get_item_pred(data):
-    y_output = ai.run_rf(item_rf, data, "item")
+    global item_rf
+    y_output = ai.run_rf(item_rf, data=data, cat="item")
     item_id = None
     if y_output is None:
         return None, None
@@ -79,12 +80,13 @@ def get_item_pred(data):
 
 
 def get_role_pred(data):
+    global role_rf
     y_output = ai.run_rf(role_rf, data, "role")
     # gives teampos, lane
 
     pos, lane = None, None
     if y_output is None:
-        return None
+        return None, None
     else:
         pos = y_output[0]
         lane = y_output[1]
@@ -93,6 +95,7 @@ def get_role_pred(data):
 
 
 def get_champ_pred(data):
+    global champ_rf
     with open(
         "/workspaces/backend/app/pred_engine/datasets/champions.json", "r"
     ) as file:
@@ -114,6 +117,7 @@ def get_champ_pred(data):
 
 
 def get_knn_output(data):
+    global knn_model
     y_output, _ = ai.run_knn(knn_model, data)
 
     # y_output is a list on np arrays right now

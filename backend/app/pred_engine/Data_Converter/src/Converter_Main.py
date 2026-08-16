@@ -151,13 +151,8 @@ def format_data_multivar(data, pos, role, lane):
 
 
 def get_train_test_data_knn(file_name):
-    # do file check
-    try:
-        f = open(file_name, "r")
-    except OSError:
-        print(file_error_text)
-        exit()
 
+    f = open(file_name, "r")
     with f:
         data = csv.DictReader(f)  # lane, role, pos
         x_data, y_data = format_data_multivar(data, 3, 4, 2)
@@ -173,12 +168,7 @@ def get_train_test_data_knn(file_name):
 
 
 def get_train_test_data_rf(file_name, category):
-    # do file check
-    try:
-        f = open(file_name, "r")
-    except OSError:
-        print(file_error_text)
-        exit()
+    f = open(file_name, "r")
 
     x_data = []
     y_data = []
@@ -198,7 +188,7 @@ def get_train_test_data_rf(file_name, category):
                 x_data, y_data = format_data_multivar(data, 0, -1, 1)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, random_state=42, stratify=None
+        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42, stratify=None
     )
 
     # X is given, y is target
@@ -217,6 +207,7 @@ def convert_to_rows(data):
         else:
             data_arr = data
     else:
+        #dataframe
         data_arr = data.convert_to_arr()
 
     return data_arr

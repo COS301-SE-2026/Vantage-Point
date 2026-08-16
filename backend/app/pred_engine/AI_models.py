@@ -1,6 +1,6 @@
-import knn_model as knn  # type: ignore
-import rf_model as rf  # type: ignore
-from Data_Converter.src import Converter_Main as converter  # type: ignore
+import app.pred_engine.knn_model as knn  # type: ignore
+import app.pred_engine.rf_model as rf  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 import json
 import math
 import numpy as np
@@ -8,12 +8,15 @@ import numpy as np
 
 # stats function to get distances + deviation
 def avg_and_std(y_data):
+    if len(y_data) == 0:
+        return None, None
+
     dist = []
     for i in range(0, len(y_data)):
         for j in range(0, len(y_data)):
             if i != j:
                 dist.append(abs(math.dist(y_data[i], y_data[j])))
-
+    
     avg = sum(dist) / len(dist)
     std = np.std(dist, ddof=1)
 
@@ -50,8 +53,11 @@ def create_knn_model():
 
 # run functions will call error correctors
 def correct_knn(y_output, y_data):
+
     # get average dist between y_data points
     avg, std = avg_and_std(y_data)
+    if avg is None or std is None:
+        return None
     y_corrected = []
 
     y_corrected.append(y_data[0])
@@ -76,7 +82,7 @@ def correct_knn(y_output, y_data):
 
 def correct_role_rf(y_output, y_data, x_data):
     # check if role is same as current role
-    if y_output[0, 0] == y_data[0][0] and y_output[0, 1] == y_data[0][1]:
+    if y_output[0][0] == y_data[0][0] and y_output[0][1] == y_data[0][1]:
         return None
     else:
         champID = x_data[0][0]
@@ -115,7 +121,7 @@ def correct_role_rf(y_output, y_data, x_data):
         for champ in data:
             if (data[champ]["id"] == champID) and (out[0] in data[champ]["positions"]):
                 return out
-    return None
+        return None
 
 
 def correct_champion_rf(y_output, y_data):

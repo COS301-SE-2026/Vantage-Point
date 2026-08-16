@@ -1,7 +1,7 @@
 from sklearn.neighbors import KNeighborsRegressor  # type: ignore
 from sklearn.metrics import r2_score  # type: ignore
 from sklearn.ensemble import BaggingRegressor  # type: ignore
-from Data_Converter.src import Converter_Main as converter  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 
 
 def test_predict(file_name):
