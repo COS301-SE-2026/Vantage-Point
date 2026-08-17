@@ -84,7 +84,7 @@ def correct_role_rf(y_output, y_data, x_data):
         return None
     else:
         champID = x_data[0][0]
-        with open("/backend/app/pred_engine/datasets/champions.json", "r") as file:
+        with open("/app/pred_engine/datasets/champions.json", "r") as file:
             data = json.load(file)
 
         # translate y_output back to text (pos, lane)
