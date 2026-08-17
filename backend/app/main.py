@@ -48,26 +48,16 @@ load_dotenv()
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
 
-logger.remove(0)
-# logger.add(
-#     db_error_sink,
-#     enqueue=True,
-#     diagnose=False,
-#     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-# )
+logger.remove()
 
 logger.add(
-    "logs/fastapi_logs",
-    level="ERROR",
-    rotation="100 MB",
-    retention="30 days",
-    compression="zip",
+    sink=lambda message: print(message, end=""),
+    level="INFO",
     enqueue=True,
     backtrace=True,
-    diagnose=True,
+    diagnose=False,
 )
 
-# logger.add(db_error_sink, level="INFO", enqueue=True, diagnose=False)
 
 
 def get_error_reason(status_code: int) -> str:

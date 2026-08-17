@@ -1,8 +1,6 @@
 from app.services import auth_service
-from fastapi import APIRouter, Depends
-from app.Models.auth_model import User
-from typing import Any, Annotated
-from app.api.auth import require_group
+from fastapi import APIRouter
+from typing import Any
 
 router = APIRouter()
 
@@ -65,7 +63,5 @@ async def logout(access_token: str):
     description="Endpoint to be used by frontend to refresh and get a valid accesstoken to be used again",
     tags=["Auth"],
 )
-async def refresh_access_token(
-    username: str, request: str
-):
+async def refresh_access_token(username: str, request: str):
     return await auth_service.refresh_access_token(username, request)

@@ -9,7 +9,6 @@ import httpx
 
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Any
 from app.database.models import Users
 from botocore.exceptions import ClientError
 
@@ -25,22 +24,23 @@ settings = get_settings()
 async def get_region(session: AsyncSession, cognito_sub: str) -> str:
     try:
         statement = select(Users).where(
-                    Users.cognito_sub == cognito_sub
-                )  # need to change when email gets added to db
+            Users.cognito_sub == cognito_sub
+        )
         result: Any = await session.execute(statement)
         user: Users | None = result.scalar_one_or_none()
 
-        if user is None:  
+        if user is None:
             # idea behind this is if not in our db does not exist in cognito. Hence can look for in our db. Due to need to get profile to updatye
             raise HTTPException(status_code=400, detail="User does not exist.")
 
-        if user.region is None: 
+        if user.region is None:
             raise HTTPException(status_code=404, detail="User missing play region")
-        
+
         return user.region
     except ClientError as e:
         print(e.response)
         raise
+
 
 def filter_match_for_players(
     match_data: dict[str, Any] | None = None,
