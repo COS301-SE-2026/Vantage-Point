@@ -150,7 +150,7 @@ class TestFormatMultivar:
 
 class TestTrainTestKnn:
     def test_get_tt_knn(self):
-        f = "/pred_engine_test_files/unit_test_tt_data.csv"
+        f = "app/pred_engine_test_files/unit_test_tt_data.csv"
         r1, _, r3, _ = Converter_Main.get_train_test_data_knn(f)
 
         assert len(r1[0]) == 3
@@ -159,14 +159,14 @@ class TestTrainTestKnn:
 
 class TestTrainTestRF:
     def test_get_tt_champ(self):
-        f = "/pred_engine_test_files/unit_test_tt_data.csv"
+        f = "app/pred_engine_test_files/unit_test_tt_data.csv"
         r1, _, r3, _ = Converter_Main.get_train_test_data_rf(f, "champion")
 
         assert len(r1[0]) == 4
         assert len(r3[0]) == 1
 
     def test_get_tt_item(self):
-        f = "/pred_engine_test_files/unit_test_tt_data.csv"
+        f = "app/pred_engine_test_files/unit_test_tt_data.csv"
         r1, r2, r3, _ = Converter_Main.get_train_test_data_rf(f, "item")
 
         assert len(r1[0]) == 4
@@ -175,7 +175,7 @@ class TestTrainTestRF:
         assert len(r1) + len(r2) == 10
 
     def test_get_tt_skill(self):
-        f = "/pred_engine_test_files/unit_test_tt_data.csv"
+        f = "app/pred_engine_test_files/unit_test_tt_data.csv"
         r1, r2, r3, _ = Converter_Main.get_train_test_data_rf(f, "skill")
 
         assert len(r1[0]) == 3
@@ -184,7 +184,7 @@ class TestTrainTestRF:
         assert len(r1) + len(r2) == 11
 
     def test_get_tt_role(self):
-        f = "/pred_engine_test_files/unit_test_tt_data.csv"
+        f = "app/pred_engine_test_files/unit_test_tt_data.csv"
         r1, _, r3, _ = Converter_Main.get_train_test_data_rf(f, "role")
 
         assert len(r1[0]) == 3
