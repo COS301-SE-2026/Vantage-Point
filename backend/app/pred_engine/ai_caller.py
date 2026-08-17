@@ -42,17 +42,15 @@ def get_skill_pred(data):
 
     abilities = data_file[champName]["abilities"]
     skill = skill_id
-    # Slots translate to P, Q, W, E, R
+    # Slots translate to Q, W, E, R
     match skill_id:
         case 1:
-            skill = abilities["P"][0]["name"]
-        case 2:
             skill = abilities["Q"][0]["name"]
-        case 3:
+        case 2:
             skill = abilities["W"][0]["name"]
-        case 4:
+        case 3:
             skill = abilities["E"][0]["name"]
-        case 5:
+        case 4:
             skill = abilities["R"][0]["name"]
 
     return skill
