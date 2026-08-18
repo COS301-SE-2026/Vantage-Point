@@ -34,12 +34,8 @@ def create_rf_models():
         str(TRAINING_CSV_DIR / "champ_rf_training.csv"),
         "champion",
     )
-    item_rf = rf.final_train(
-        str(TRAINING_CSV_DIR / "item_rf_training.csv"), "item"
-    )
-    role_rf = rf.final_train(
-        str(TRAINING_CSV_DIR / "role_rf_training.csv"), "role"
-    )
+    item_rf = rf.final_train(str(TRAINING_CSV_DIR / "item_rf_training.csv"), "item")
+    role_rf = rf.final_train(str(TRAINING_CSV_DIR / "role_rf_training.csv"), "role")
     skill_rf = rf.final_train(
         str(TRAINING_CSV_DIR / "skill_rf_training.csv"),
         "skill",
