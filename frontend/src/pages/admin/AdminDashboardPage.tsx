@@ -57,7 +57,7 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
         <div>
-          <h2 className="mb-2 border-b border-black pb-1 text-lg font-semibold text-[#1e1e1e]">
+          <h2 className="mb-2 border-b border-black pb-1 text-lg font-semibold text-[#1e1e1e] device-dark:border-[#929292] device-dark:text-white">
             Site Traffic
           </h2>
           <div className="h-72 w-full">
@@ -78,8 +78,8 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-[#f0f0f0] p-4 text-sm">
-          <h3 className="mb-2 font-semibold text-[#1e1e1e]">Metrics</h3>
+        <div className="rounded-2xl bg-[#f0f0f0] p-4 text-sm device-dark:bg-[#2a2a2a]">
+          <h3 className="mb-2 font-semibold text-[#1e1e1e] device-dark:text-white">Metrics</h3>
           <dl className="space-y-1 text-[#3b5571]">
             <Row label="Active Users" value={metrics?.active_users} />
             <Row label="Inactive Users" value={metrics?.inactive_users} />
@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
             />
             <Row label="Matches (all time)" value={metrics?.matches_all_time} />
           </dl>
-          <h3 className="mb-2 mt-4 font-semibold text-[#1e1e1e]">
+          <h3 className="mb-2 mt-4 font-semibold text-[#1e1e1e] device-dark:text-white">
             Storage Used
           </h3>
           <dl className="space-y-1 text-[#3b5571]">
@@ -100,15 +100,15 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg bg-white shadow-sm">
+      <div className="mt-6 overflow-x-auto rounded-lg bg-white shadow-sm device-dark:bg-[#2a2a2a]">
         <table className="w-full min-w-[600px] text-xs">
           <thead>
-            <tr className="border-b border-[#d9ebfe]">
+            <tr className="border-b border-[#d9ebfe] device-dark:border-[#3a3939]">
               {["Error Code", "Error Message", "Date", "Reviewed"].map(
                 (col) => (
                   <th
                     key={col}
-                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575] device-dark:text-[#929292]"
                   >
                     {col}
                   </th>
@@ -121,19 +121,19 @@ export default function AdminDashboardPage() {
               <tr>
                 <td
                   colSpan={4}
-                  className="px-3 py-6 text-center text-[#757575]"
+                  className="px-3 py-6 text-center text-[#757575] device-dark:text-[#929292]"
                 >
                   No errors logged.
                 </td>
               </tr>
             ) : null}
             {errors.map((e) => (
-              <tr key={e.id} className="border-b border-gray-100">
+              <tr key={e.id} className="border-b border-gray-100 device-dark:border-[#3a3939]">
                 <td className="px-3 py-2.5 text-[#3b5571]">#{e.error_code}</td>
                 <td className="px-3 py-2.5 text-[#3b5571]">
                   {e.error_message}
                 </td>
-                <td className="px-3 py-2.5 text-[#3b5571]">
+                <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                   {new Date(e.occurred_at).toLocaleString(undefined, {
                     year: "numeric",
                     month: "2-digit",
@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
                     type="checkbox"
                     checked={e.reviewed}
                     onChange={() => void toggleReviewed(e)}
-                    className="size-4 accent-[#2e4258]"
+                    className="size-4 accent-[#2e4258] device-dark:accent-[#f5f5f5]"
                   />
                 </td>
               </tr>
@@ -164,7 +164,7 @@ function Row({
   value,
 }: Readonly<{ label: string; value: number | undefined }>) {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between device-dark:text-[#e5e5e5]">
       <span>{label}</span>
       <span className="font-medium">{value ?? "—"}</span>
     </div>
