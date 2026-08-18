@@ -14,6 +14,7 @@ from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
 from loguru import logger
 
+from app.Enums.riot_enum import RiotRegion
 settings = get_settings()
 client: CognitoIdentityProviderClient = boto3.client(  # type: ignore
     "cognito-idp", region_name=settings.aws_region
@@ -217,7 +218,11 @@ class ProfileService:
 
     @staticmethod
     async def set_region(session: AsyncSession, cognito_sub: str, region: str) -> None:
+        region = region.lower()
         try:
+            if region not in RiotRegion:
+                raise HTTPException(status_code=400, detail="Invalid riot region")
+            
             statement = select(Users).where(
                 Users.cognito_sub == cognito_sub
             )  # need to change when email gets added to db
