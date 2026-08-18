@@ -233,3 +233,5 @@ class DashboardService:
             return activities[:limit]
         except HTTPException as e:
             raise HTTPException(status_code=500, detail=str(e))
+        except ClientError as e:
+            raise HTTPException(status_code=500, detail=str(e))
