@@ -1,3 +1,4 @@
+from pathlib import Path
 from app.pred_engine import AI_models
 from app.pred_engine.Data_Converter.src import Converter_Main
 import numpy as np
@@ -6,6 +7,9 @@ import numpy as np
 # CONVERTER_MAIN.PY
 ####################################################
 
+# Base directory relative to test location
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEST_DATA_FILE = str(BASE_DIR / "pred_engine_test_files" / "unit_test_tt_data.csv")
 
 class TestConvertToInt:
     def test_cti_none_normal(self):
@@ -150,8 +154,7 @@ class TestFormatMultivar:
 
 class TestTrainTestKnn:
     def test_get_tt_knn(self):
-        f = "/app/pred_engine_test_files/unit_test_tt_data.csv"
-        r1, _, r3, _ = Converter_Main.get_train_test_data_knn(f)
+        r1, _, r3, _ = Converter_Main.get_train_test_data_knn(TEST_DATA_FILE)
 
         assert len(r1[0]) == 3
         assert len(r3[0]) == 2
@@ -159,15 +162,13 @@ class TestTrainTestKnn:
 
 class TestTrainTestRF:
     def test_get_tt_champ(self):
-        f = "/app/pred_engine_test_files/unit_test_tt_data.csv"
-        r1, _, r3, _ = Converter_Main.get_train_test_data_rf(f, "champion")
+        r1, _, r3, _ = Converter_Main.get_train_test_data_rf(TEST_DATA_FILE, "champion")
 
         assert len(r1[0]) == 4
         assert len(r3[0]) == 1
 
     def test_get_tt_item(self):
-        f = "/app/pred_engine_test_files/unit_test_tt_data.csv"
-        r1, r2, r3, _ = Converter_Main.get_train_test_data_rf(f, "item")
+        r1, r2, r3, _ = Converter_Main.get_train_test_data_rf(TEST_DATA_FILE, "item")
 
         assert len(r1[0]) == 4
         assert len(r3[0]) == 1
@@ -175,8 +176,7 @@ class TestTrainTestRF:
         assert len(r1) + len(r2) == 10
 
     def test_get_tt_skill(self):
-        f = "/app/pred_engine_test_files/unit_test_tt_data.csv"
-        r1, r2, r3, _ = Converter_Main.get_train_test_data_rf(f, "skill")
+        r1, r2, r3, _ = Converter_Main.get_train_test_data_rf(TEST_DATA_FILE, "skill")
 
         assert len(r1[0]) == 3
         assert len(r3[0]) == 2
@@ -184,8 +184,7 @@ class TestTrainTestRF:
         assert len(r1) + len(r2) == 11
 
     def test_get_tt_role(self):
-        f = "/app/pred_engine_test_files/unit_test_tt_data.csv"
-        r1, _, r3, _ = Converter_Main.get_train_test_data_rf(f, "role")
+        r1, _, r3, _ = Converter_Main.get_train_test_data_rf(TEST_DATA_FILE, "role")
 
         assert len(r1[0]) == 3
         assert len(r3[0]) == 2
