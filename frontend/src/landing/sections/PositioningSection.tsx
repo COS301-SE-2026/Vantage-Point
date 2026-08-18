@@ -1,6 +1,7 @@
 import { MoveRight } from "lucide-react";
 import { Compare } from "@/components/ui/aceternity/compare";
 import MatchReplayMenuRow from "../../components/MatchReplayMenuRow";
+import { menuRowFromDetail } from "../../lib/matchMenuRow";
 import imgActual from "../../assets/images/landing/positioning-actual.webp";
 import imgOptimal from "../../assets/images/landing/positioning-optimal.webp";
 import { SAMPLE_MATCH, SAMPLE_VIEWER } from "../replaySample";
@@ -77,7 +78,9 @@ export default function PositioningSection() {
               a square map, so the comparison reads as the product rather than a
               pair of loose screenshots. */}
           <div className="flex flex-col gap-[8px] rounded-xl bg-vp-canvas p-[8px] shadow-[0_0_80px_-30px_rgba(224,180,108,0.5)]">
-            <MatchReplayMenuRow match={SAMPLE_MATCH} viewer={SAMPLE_VIEWER} />
+            <MatchReplayMenuRow
+              row={menuRowFromDetail(SAMPLE_MATCH, SAMPLE_VIEWER)}
+            />
             <Compare
               firstImage={imgActual}
               secondImage={imgOptimal}

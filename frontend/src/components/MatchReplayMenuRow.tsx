@@ -1,14 +1,13 @@
 import { iconCollapse, iconCollapseDark } from "../assets/images/match-replay";
-import type { MatchDetail, ParticipantDetail } from "../types/match";
+import type { MatchMenuRowData } from "../lib/matchMenuRow";
 import ThemedIcon from "./ThemedIcon";
 
 interface MatchReplayMenuRowProps {
-  readonly match: MatchDetail;
-  readonly viewer: ParticipantDetail;
-}
-
-function formatDurationMinutes(seconds: number): string {
-  return `${Math.max(1, Math.round(seconds / 60))} min`;
+  readonly row: MatchMenuRowData;
+  /** Only meaningful with `onToggle`: rotates the chevron and drives aria. */
+  readonly expanded?: boolean;
+  /** Makes the row the dropdown control for a replay panel below it. */
+  readonly onToggle?: () => void;
 }
 
 function roleShort(position: string): string {
@@ -30,34 +29,31 @@ function roleShort(position: string): string {
  * of the 820px content box and pull every column 2px left of its Figma offset.
  */
 export default function MatchReplayMenuRow({
-  match,
-  viewer,
+  row,
+  expanded = false,
+  onToggle,
 }: Readonly<MatchReplayMenuRowProps>) {
-  return (
-    <div
-      data-name="MatchMenu"
-      data-node-id="22:788"
-      className="grid h-[34px] w-full shrink-0 grid-cols-[64px_minmax(0,1fr)_59px_63px_109px_20px] items-center rounded-lg border border-vp-line bg-vp-surface px-[10px]"
-    >
+  const cells = (
+    <>
       <span
         className={`w-[43px] text-center text-[13px] font-bold leading-[21px] ${
-          viewer.win ? "text-vp-win" : "text-vp-loss"
+          row.win ? "text-vp-win" : "text-vp-loss"
         }`}
       >
-        {viewer.win ? "Victory" : "Defeat"}
+        {row.win ? "Victory" : "Defeat"}
       </span>
-      <span className="truncate text-[12px] font-medium leading-[24px] text-vp-ink">
-        {viewer.champion_name}
+      <span className="truncate text-left text-[12px] font-medium leading-[24px] text-vp-ink">
+        {row.championName}
       </span>
       <span className="text-[12px] uppercase leading-[21px] text-vp-ink">
-        {roleShort(viewer.position)}
+        {roleShort(row.position)}
       </span>
       <span className="text-[12px] font-bold leading-[21px] tabular-nums text-vp-ink">
-        {viewer.kills}/{viewer.deaths}/{viewer.assists}
+        {row.kills}/{row.deaths}/{row.assists}
       </span>
       <span className="flex items-center justify-between pr-[2px] text-[12px] leading-[21px] tabular-nums text-vp-ink">
-        <span>{viewer.cs}</span>
-        <span>{formatDurationMinutes(match.game_duration)}</span>
+        <span>{row.cs}</span>
+        <span>{row.durationMinutes} min</span>
       </span>
       {/* Wrapped so the light/dark pair stays a single grid item. */}
       <span className="flex size-[20px] justify-self-end">
@@ -67,8 +63,36 @@ export default function MatchReplayMenuRow({
           width={20}
           height={20}
           name="Icon"
+          className={`transition-transform duration-200 ${
+            expanded ? "rotate-180" : ""
+          }`}
         />
       </span>
-    </div>
+    </>
+  );
+
+  const layout =
+    "grid h-[34px] w-full shrink-0 grid-cols-[64px_minmax(0,1fr)_59px_63px_109px_20px] items-center rounded-lg border border-vp-line bg-vp-surface px-[10px]";
+
+  if (!onToggle) {
+    return (
+      <div data-name="MatchMenu" data-node-id="22:788" className={layout}>
+        {cells}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      data-name="MatchMenu"
+      data-node-id="22:788"
+      aria-expanded={expanded}
+      aria-label={`${expanded ? "Hide" : "Show"} replay for ${row.championName}`}
+      onClick={onToggle}
+      className={`${layout} text-left transition-colors hover:border-vp-line-strong hover:bg-vp-raised`}
+    >
+      {cells}
+    </button>
   );
 }

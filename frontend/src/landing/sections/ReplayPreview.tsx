@@ -3,6 +3,7 @@ import AiCoachingComments from "../../components/AiCoachingComments";
 import MatchReplayControls from "../../components/MatchReplayControls";
 import MatchReplayMapOverlay from "../../components/MatchReplayMapOverlay";
 import MatchReplayMenuRow from "../../components/MatchReplayMenuRow";
+import { menuRowFromDetail } from "../../lib/matchMenuRow";
 import MatchReplayToolbar, {
   type ReplayOverlayAction,
   type ReplayToolbarMode,
@@ -93,7 +94,9 @@ export default function ReplayPreview() {
       data-name="replay-preview"
       className="flex h-full w-full flex-col gap-[8px] overflow-hidden rounded-xl bg-vp-canvas p-[8px] text-left"
     >
-      <MatchReplayMenuRow match={SAMPLE_MATCH} viewer={SAMPLE_VIEWER} />
+      <MatchReplayMenuRow
+        row={menuRowFromDetail(SAMPLE_MATCH, SAMPLE_VIEWER)}
+      />
 
       {/* Same row the Match Replay screen draws: the tool rail, then the square
           map, then the coaching panel. The map is driven by the height left in
