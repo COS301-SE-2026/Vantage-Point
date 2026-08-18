@@ -1,5 +1,6 @@
 from app.services.admin_service import admin_service
 from app.Models.admin_model import UserResponse
+from app.Models.dashboard_service import ActivityResponse
 from datetime import datetime, timezone, timedelta
 from sqlmodel import select, func
 from app.database.models import Matches
@@ -199,7 +200,7 @@ class DashboardService:
 
 
     @staticmethod #lifetime of 30 days on cloudwatch config
-    async def get_current_activities(limit: int=50) -> list[dict[str, object]]:
+    async def get_current_activities(limit: int=50) -> list[ActivityResponse]:
         logs = boto3.client("logs", region_name=settings.aws_region)#type: ignore
 
         response = logs.filter_log_events(
@@ -207,7 +208,7 @@ class DashboardService:
             limit=limit
         )
 
-        activities: list[dict[str, object]] = []
+        activities: list[ActivityResponse] = []
 
         for event in response.get("events", []):
             message = event.get("message")
@@ -222,15 +223,13 @@ class DashboardService:
                 continue
 
             activities.append(
-                {
-                    "timestamp": timestamp,
-                    "event_type": data.get("event_type"),
-                    "message": data.get("message"),
-                }
+                ActivityResponse(
+                    timestamp=timestamp, event_type=data.get("event_type"), message=data.get("message"),
+                )
             )
 
         activities.sort(
-            key=lambda activity: int(activity["timestamp"]),
+            key=lambda activity: int(activity.timestamp),
             reverse=True
         )
         return activities[:limit]
