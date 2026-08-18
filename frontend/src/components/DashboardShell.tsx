@@ -123,7 +123,7 @@ export default function DashboardShell({
     ? ({ "--vp-dashboard-header": "108px" } as CSSProperties)
     : undefined;
 
-    const isAdmin = userRole?.toLowerCase() === "admin";
+const isAdmin = userRole?.toLowerCase() === "admin" || userRole?.toLowerCase() === "super admin" || userRole?.toLowerCase() === "superadmin";   
 
   return (
     <div
