@@ -11,6 +11,7 @@ import numpy as np
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_DATA_FILE = str(BASE_DIR / "pred_engine_test_files" / "unit_test_tt_data.csv")
 
+
 class TestConvertToInt:
     def test_cti_none_normal(self):
         d = ["0", "NORMAL"]

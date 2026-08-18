@@ -1,5 +1,11 @@
 import json
+from pathlib import Path
+
 import app.pred_engine.AI_models as ai  # type: ignore
+
+# Define directory constants relative to this file
+PRED_ENGINE_DIR = Path(__file__).resolve().parent
+DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
 
 # make models a global thing for this file or store in db
 

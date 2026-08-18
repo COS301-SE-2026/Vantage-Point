@@ -6,6 +6,11 @@ import json
 import math
 import numpy as np
 
+# Define directory constants relative to this file
+PRED_ENGINE_DIR = Path(__file__).resolve().parent
+DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
+TRAINING_CSV_DIR = PRED_ENGINE_DIR / "Training_csv"
+
 
 # stats function to get distances + deviation
 def avg_and_std(y_data):
