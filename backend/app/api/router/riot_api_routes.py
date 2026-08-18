@@ -2,10 +2,11 @@ from app.services.riot_service import RiotServiceDep
 from fastapi import APIRouter
 from typing import Any
 from app.services.riot_api import get_puuid_by_riot_id
+# from app.api.auth import require_group
 
 router = APIRouter()
 
-
+#should endpoint be encrypted/protected
 @router.get(
     "/riot/get-match",
     summary="Gets a match detail",

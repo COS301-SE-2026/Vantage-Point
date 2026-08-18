@@ -1,6 +1,7 @@
 import os
 import re
 from typing import Annotated, Any
+from app.Models.auth_model import User
 from urllib.parse import quote
 
 from dotenv import load_dotenv
@@ -11,9 +12,11 @@ from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import Users
 from app.Enums.riot_enum import RegionPlatforms
-from botocore.exceptions import ClientError
 
+from app.api.auth import require_group
+from app.database.session import get_session
 from app.config import get_settings
+
 
 load_dotenv()
 
@@ -132,6 +135,7 @@ class RiotService:
 
     async def get_summoner_data(self, puuid: str):
         possible_platforms:list[str] = RegionPlatforms[self.server_region]
+
         async with httpx.AsyncClient() as client:
             for server_region in possible_platforms:
                 self.platform_url = f"https://{server_region}.api.riotgames.com"
@@ -141,9 +145,7 @@ class RiotService:
                 if response.status_code == 200:
                     return response.json()
                 elif response.status_code == 404:
-                    raise HTTPException(
-                        status_code=404, detail="Summoner data not found for this PUUID."
-                    )
+                    continue
                 elif response.status_code == 429:
                     raise HTTPException(
                         status_code=429,
@@ -158,14 +160,16 @@ class RiotService:
                         status_code=response.status_code,
                         detail=f"Riot API Error: {response.text}",
                     )
+        raise HTTPException(status_code=404, detail=f"Summoner Puuid: {puuid} was not found in {self.server_region}",)
+                
 
     async def get_match_ids(
         self, server_region: str, puuid: str, count: int = 5
     ) -> list[str]:
-        macro_region = self._get_macro_region(server_region)
-        base_url = f"https://{macro_region}.api.riotgames.com"
+        # macro_region = self._get_macro_region(server_region)
+        self.account_url = f"https://{self.server_region}.api.riotgames.com"
         endpoint = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
-        url = base_url + endpoint
+        url = self.account_url + endpoint
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -191,11 +195,12 @@ class RiotService:
                 detail="Failed to fetch match IDs from Riot",
             )
 
+
     async def get_match_detail(self, match_id: str) -> Any:
-        server_region = match_id.split("_")[0].lower()
-        macro_region = self._get_macro_region(server_region)
+        # server_region = match_id.split("_")[0].lower()
+        # macro_region = self._get_macro_region(server_region)
         url = (
-            f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+            f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         )
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -231,11 +236,11 @@ class RiotService:
                 status_code=400, detail="Invalid match ID format provided."
             )
 
-        server_region = match_id.split("_")[0].lower()
-        macro_region = self._get_macro_region(server_region)
+        # server_region = match_id.split("_")[0].lower()
+        # macro_region = self._get_macro_region(server_region)
 
         safe_match_id = quote(match_id, safe="")
-        url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
+        url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -263,11 +268,14 @@ class RiotService:
                 )
 
 
-riot_service = RiotService()
+riot_service = RiotService("americas")
 
 
-def get_riot_service() -> RiotService:
-    return RiotService()
+async def get_riot_service(_: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)]) -> RiotService:
+    region:str = await get_region(session, _.sub)
+
+    return RiotService(region)
 
 
 RiotServiceDep = Annotated[RiotService, Depends(get_riot_service)]
