@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     cognito_user_pool_id: str = ""
     cognito_client_id: str = ""
     cognito_client_secret: str = ""
+    aws_log_group: str = ""
 
     # ============ S3 Bucket Config ============
     bucket_name: str = ""

@@ -623,7 +623,7 @@ class LiveAnalyticsService:
             log_activity("INGESTION_COMPLETED", "Match ingestion completed", function="analytics/match_data", match_id=match_data.matchId)
 
             return match_data
-        except HTTPException:
+        except HTTPException as e:
             log_activity("INGESTION_FAILED", "Match ingestion failed", function="analytics/match_data", error=str(e))
             raise HTTPException(status_code=500, detail=internal_server_error)
         except KeyError as e:

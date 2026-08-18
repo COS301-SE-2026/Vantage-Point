@@ -30,3 +30,4 @@ loguru==0.7.3
 #mypy type checking
 mypy-boto3-cognito-idp
 boto3-stubs[cloudwatch]
+boto3-stubs[logs]
