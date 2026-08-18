@@ -62,7 +62,7 @@ export default function AssetManagerPage({
 
   return (
     <AdminShell>
-      <h1 className="mb-1 font-['League',sans-serif] text-2xl font-bold uppercase text-black">
+      <h1 className="mb-1 font-['League',sans-serif] text-2xl font-bold uppercase text-black device-dark:text-white">
         {title}
       </h1>
 
@@ -70,46 +70,47 @@ export default function AssetManagerPage({
 
       <form
         onSubmit={(e) => void handleSubmit(e)}
-        className="mb-6 flex flex-wrap items-end gap-3 rounded-lg bg-[#f9fafb] p-3"
+        className="mb-6 flex flex-wrap items-end gap-3 rounded-lg bg-[#f9fafb] p-3 device-dark:bg-[#2a2a2a]"
       >
-        <label className="text-xs text-[#2e4258]">
+        <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           {idLabel}
           <input
             value={id}
             onChange={(e) => setId(e.target.value)}
             placeholder={idPlaceholder}
-            className="mt-1 block rounded-lg border border-gray-300 px-2 py-1 text-xs"
+            className="mt-1 block rounded-lg border border-gray-300 px-2 py-1 text-xs device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-white"
           />
         </label>
-        <label className="text-xs text-[#2e4258]">
+        <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           Display name
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={namePlaceholder}
-            className="mt-1 block rounded-lg border border-gray-300 px-2 py-1 text-xs"
+            className="mt-1 block rounded-lg border border-gray-300 px-2 py-1 text-xs device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-white"
           />
         </label>
-        <label className="text-xs text-[#2e4258]">
+        <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           Image
           <input
             type="file"
             accept="image/png,image/jpeg"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="mt-1 block text-xs"
+            className="mt-1 block text-xs device-dark:text-white"
           />
         </label>
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1.5 text-xs font-medium text-[#f3f8ff] disabled:opacity-60"
+          className="rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1.5 text-xs font-medium text-[#f3f8ff] disabled:opacity-60 
+          device-dark:border-[#929292] device-dark:bg-[#2c2c2c] device-dark:text-[#f5f5f5]"
         >
           {submitting ? "Uploading…" : "Upload"}
         </button>
       </form>
 
       {assets.length === 0 ? (
-        <p className="text-sm text-[#757575]">Nothing uploaded yet.</p>
+        <p className="text-sm text-[#757575] device-dark:text-[#929292]">Nothing uploaded yet.</p>
       ) : (
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 md:grid-cols-8">
           {assets.map((a) => (
@@ -117,7 +118,7 @@ export default function AssetManagerPage({
               <img
                 src={resolveAvatarUrl(a.imageUrl)}
                 alt={a.displayName}
-                className="mx-auto h-16 w-16 rounded-lg border border-gray-200 object-cover"
+                className="mx-auto h-16 w-16 rounded-lg border border-gray-200 object-cover device-dark:border-[#929292]"
               />
               <p className="mt-1 truncate text-[10px] text-[#757575]">
                 {a.displayName}
