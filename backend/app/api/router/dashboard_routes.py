@@ -1,0 +1,112 @@
+from app.services.dashboard_services import DashboardService
+from app.Models.dashboard_service import ActivityResponse
+from fastapi import Depends, APIRouter
+from app.Models.auth_model import User
+from app.api.auth import require_group
+from typing import Annotated
+from app.database.session import get_session
+from sqlalchemy.ext.asyncio import AsyncSession
+
+router = APIRouter()
+
+
+@router.get(
+    "/dashboard/new-users-today",
+    response_model=int,
+    summary="Get newly created users done today",
+    tags=["dashboard"],
+)
+async def get_new_users_today(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.new_users_today()
+
+
+@router.get(
+    "/dashboard/new_users_this_month",
+    response_model=int,
+    summary="Get newly created users done this month",
+    tags=["dashboard"],
+)
+async def get_new_users_this_month(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.new_users_this_month()
+
+
+@router.get(
+    "/dashboard/new_users_this_week",
+    response_model=int,
+    summary="Get newly created users done this week",
+    tags=["dashboard"],
+)
+async def get_new_users_this_week(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.new_users_this_week()
+
+
+@router.get(
+    "/dashboard/confirmed_users",
+    response_model=int,
+    summary="Get confirmed users from cognito pool",
+    tags=["dashboard"],
+)
+async def get_confirmed_users(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.confirmed_users()
+
+
+@router.get(
+    "/dashboard/unconfirmed_users",
+    response_model=int,
+    summary="Get unconfirmed users from cognito pool",
+    tags=["dashboard"],
+)
+async def get_unconfirmed_users(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.unconfirmed_users()
+
+
+@router.get(
+    "/dashboard/weekly-growth",
+    response_model=int,
+    summary="Get the weekly growth of new users registered",
+    tags=["dashboard"],
+)
+async def get_weekly_growth(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.weekly_growth()
+
+
+@router.get(
+    "/dashboard/weekly-growth",
+    response_model=int,
+    summary="Get the monthly growth of new users registered",
+    tags=["dashboard"],
+)
+async def get_monthly_growth(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.monthly_growth()
+
+
+@router.get(
+    "/dashboard/total-matches",
+    response_model=int,
+    summary="Get total matches from matches table in database",
+    tags=["dashboard"],
+)
+async def get_total_matches(
+    _: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+):
+    return await DashboardService.get_total_matches(session)
+
+
+@router.get(
+    "/dashboard/storage_used",
+    response_model=int,
+    summary="Get storage used in aws cognito",
+    tags=["dashboard"],
+)
+async def get_s3_storage(_: Annotated[User, Depends(require_group(20))]):
+    return await DashboardService.get_s3_storage_used()
+
+@router.get(
+    "/dashboard/logs",
+    response_model=list[ActivityResponse],
+    description="Get logs saved to cloudwatch based on limit, default 50",
+    tags=["dashboard"]
+)
+async def get_current_activities(limit: int = 50):
+    return await DashboardService.get_current_activities(limit)

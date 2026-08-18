@@ -59,7 +59,10 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
 @router.get(
     "/me",
     response_model=UserMeResponse,
-    responses={404: {"description": user_not_found}},
+    responses={
+        404: {"description": user_not_found},
+        500: {"description": "Internal server error"},
+    },
 )
 async def get_me(
     current_user: Annotated[User, Depends(require_group(10))],
@@ -69,17 +72,20 @@ async def get_me(
     # Registering only creates the account in Cognito, so the first authenticated call
     # after sign-up has no local row yet. Materialise it from the Cognito profile the
     # same way POST /profile/get does, rather than 404ing a user who just signed in.
-    statement = select(Users).where(Users.cognito_sub == current_user.sub)
-    result: Any = await session.execute(statement)
-    response: Users | None = result.scalar_one_or_none()
+    try:
+        statement = select(Users).where(Users.cognito_sub == current_user.sub)
+        result: Any = await session.execute(statement)
+        response: Users | None = result.scalar_one_or_none()
 
-    if response is None:
-        response = await ProfileService.get_or_create_profile(
-            session, credentials.credentials
-        )
+        if response is None:
+            response = await ProfileService.get_or_create_profile(
+                session, credentials.credentials
+            )
 
-    account = await get_primary_linked_account(session, current_user.sub)
-    return _user_me_response(response, account)
+        account = await get_primary_linked_account(session, current_user.sub)
+        return _user_me_response(response, account)
+    except HTTPException as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.patch(

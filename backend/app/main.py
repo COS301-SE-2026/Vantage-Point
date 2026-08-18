@@ -24,6 +24,7 @@ from app.api.router import (
     auth_routes,
     analytics_router,
     riot_api_routes,
+    dashboard_routes,
 )
 from app.routers import matches, users
 from app.database.models import GameAccounts
@@ -47,14 +48,18 @@ load_dotenv()
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
 
-logger.remove(0)
-# logger.add(
-#     db_error_sink,
-#     enqueue=True,
-#     diagnose=False,
-#     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-# )
+logger.remove()
 
+logger.add(
+    sink=lambda message: print(message, end=""),
+    level="INFO",
+    enqueue=True,
+    backtrace=True,
+    diagnose=False,
+)
+
+# only to be used in development. Remove when going to production. Writing to a txt is unsafe behaviour
+# and can expose sensitive information
 logger.add(
     "logs/fastapi_logs",
     level="ERROR",
@@ -65,8 +70,6 @@ logger.add(
     backtrace=True,
     diagnose=True,
 )
-
-# logger.add(db_error_sink, level="INFO", enqueue=True, diagnose=False)
 
 
 def get_error_reason(status_code: int) -> str:
@@ -169,6 +172,7 @@ app.include_router(admin_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
+app.include_router(dashboard_routes.router)
 # This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
 

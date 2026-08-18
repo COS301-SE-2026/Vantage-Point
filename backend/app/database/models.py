@@ -48,6 +48,10 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
         ),
         default_factory=datetime.utcnow,
     )
+    region: str | None = (
+        None  # this is added for dynamic purposes because matches of a player get saved on their region server
+    )
+    # and unable to get on other region servers or won't be the same match
 
     linked_puuids_cache: Optional[str] = Field(
         default="[]",
@@ -233,18 +237,21 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
 class MapReplayTable(SQLModel, Table=True):
     __tablename__ = "map_replay_table"
 
-    puuid: list[str]
-    participant_id: list[int]
+    match_id: str
+    puuid: str
+    participant_id: int
     frame_interval: int
     timestamp: list[int]
-    position_x: list[int]
-    position_y: list[int]
+    position_x: dict[str, list[int]]
+    position_y: dict[str, list[int]]
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key
 class MatchDataTable(SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
+    puuid: str
+    matchId: str
     end_of_game_result: str
     gameDuration: int
     gameMode: str
@@ -327,6 +334,7 @@ class ProfileDataTable(SQLModel, Table=True):
     endOfGameResult: str
     gameDuration: float
     puuid: str
+    matchId: str
     champExperience: int
     champLevel: int
     goldPerMinute: float

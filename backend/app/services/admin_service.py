@@ -23,32 +23,47 @@ invalid_username: str = "Invalid username"
 
 class admin_service:
     @staticmethod
-    async def get_users(limit: int = 10) -> list[UserResponse]:
+    async def get_users(filter_expression: str | None = None) -> list[UserResponse]:
         try:
-            response = await asyncio.to_thread(
-                client.list_users, UserPoolId=settings.cognito_user_pool_id, Limit=limit
-            )
             users: list[UserResponse] = []
+            pagination_token: Any = None
 
-            for user in response["Users"]:
-                attributes: Any = {
-                    attr["Name"]: attr.get("Value", "")
-                    for attr in user.get("Attributes", [])
-                }
+            while True:
+                params: Any = {"UserPoolId": settings.cognito_user_pool_id, "Limit": 60}
 
-                users.append(
-                    UserResponse(
-                        username=user.get("Username", ""),
-                        email=attributes.get("email", ""),
-                        sub=attributes.get("sub", ""),
-                        user_created_date=user.get("UserCreateDate", datetime.now()),
-                        user_last_modified_date=user.get(
-                            "UserLastModifiedDate", datetime.now()
-                        ),
-                        enabled=user.get("Enabled", True),
-                        user_status=user.get("UserStatus", ""),
+                if filter_expression:
+                    params["Filter"] = filter_expression
+
+                if pagination_token:
+                    params["PaginationToken"] = pagination_token
+
+                response = await asyncio.to_thread(client.list_users, **params)
+
+                for user in response["Users"]:
+                    attributes: Any = {
+                        attr["Name"]: attr.get("Value", "")
+                        for attr in user.get("Attributes", [])
+                    }
+
+                    users.append(
+                        UserResponse(
+                            username=user.get("Username", ""),
+                            email=attributes.get("email", ""),
+                            sub=attributes.get("sub", ""),
+                            user_created_date=user.get(
+                                "UserCreateDate", datetime.now()
+                            ),
+                            user_last_modified_date=user.get(
+                                "UserLastModifiedDate", datetime.now()
+                            ),
+                            enabled=user.get("Enabled", True),
+                            user_status=user.get("UserStatus", ""),
+                        )
                     )
-                )
+
+                pagination_token = response.get("PaginationToken")
+                if not pagination_token:
+                    break
 
             return users
         except ClientError as e:
@@ -57,7 +72,10 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail=invalid_username)
+                raise HTTPException(
+                    status_code=422,
+                    detail=error.get("Message", "Invalid cognito paramater"),
+                )
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
