@@ -59,7 +59,10 @@ def _user_me_response(user: Users, account: Any) -> UserMeResponse:
 @router.get(
     "/me",
     response_model=UserMeResponse,
-    responses={404: {"description": user_not_found}},
+    responses={
+        404: {"description": user_not_found},
+        500: {"description": "Internal server error"},
+    },
 )
 async def get_me(
     current_user: Annotated[User, Depends(require_group(10))],
@@ -83,7 +86,6 @@ async def get_me(
         return _user_me_response(response, account)
     except HTTPException as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @router.patch(

@@ -23,9 +23,7 @@ settings = get_settings()
 
 async def get_region(session: AsyncSession, cognito_sub: str) -> str:
     try:
-        statement = select(Users).where(
-            Users.cognito_sub == cognito_sub
-        )
+        statement = select(Users).where(Users.cognito_sub == cognito_sub)
         result: Any = await session.execute(statement)
         user: Users | None = result.scalar_one_or_none()
 

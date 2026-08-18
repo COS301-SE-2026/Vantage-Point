@@ -58,7 +58,7 @@ logger.add(
     diagnose=False,
 )
 
-#only to be used in development. Remove when going to production. Writing to a txt is unsafe behaviour 
+# only to be used in development. Remove when going to production. Writing to a txt is unsafe behaviour
 # and can expose sensitive information
 logger.add(
     "logs/fastapi_logs",
@@ -70,7 +70,6 @@ logger.add(
     backtrace=True,
     diagnose=True,
 )
-
 
 
 def get_error_reason(status_code: int) -> str:

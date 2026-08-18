@@ -198,14 +198,12 @@ class DashboardService:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
 
-
-    @staticmethod #lifetime of 30 days on cloudwatch config
-    async def get_current_activities(limit: int=50) -> list[ActivityResponse]:
-        logs = boto3.client("logs", region_name=settings.aws_region)#type: ignore
+    @staticmethod  # lifetime of 30 days on cloudwatch config
+    async def get_current_activities(limit: int = 50) -> list[ActivityResponse]:
+        logs = boto3.client("logs", region_name=settings.aws_region)  # type: ignore
 
         response = logs.filter_log_events(
-            logGroupName=settings.aws_log_group,
-            limit=limit
+            logGroupName=settings.aws_log_group, limit=limit
         )
 
         activities: list[ActivityResponse] = []
@@ -224,12 +222,11 @@ class DashboardService:
 
             activities.append(
                 ActivityResponse(
-                    timestamp=timestamp, event_type=data.get("event_type"), message=data.get("message"),
+                    timestamp=timestamp,
+                    event_type=data.get("event_type"),
+                    message=data.get("message"),
                 )
             )
 
-        activities.sort(
-            key=lambda activity: int(activity.timestamp),
-            reverse=True
-        )
+        activities.sort(key=lambda activity: int(activity.timestamp), reverse=True)
         return activities[:limit]

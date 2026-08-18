@@ -18,7 +18,7 @@ from app.services.riot_service import riot_service
 from fastapi import HTTPException
 from sqlmodel import select
 
-#need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
+# need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
 from app.utils.activity_logger import log_activity
 
 internal_server_error: str = "Internal server error"
@@ -452,6 +452,7 @@ class LiveAnalyticsService:
     async def match_data(
         session: AsyncSession, match_id: str, puuid: str
     ) -> MatchDataTable:
+        function_name: str = "/analytics/match_data"
         try:
             statement = select(MatchDataTable).where(
                 MatchDataTable.matchId == match_id, MatchDataTable.puuid == puuid
@@ -620,14 +621,29 @@ class LiveAnalyticsService:
             await session.commit()
             await session.refresh(match_data)
 
-            log_activity("INGESTION_COMPLETED", "Match ingestion completed", function="analytics/match_data", match_id=match_data.matchId)
+            log_activity(
+                "INGESTION_COMPLETED",
+                "Match ingestion completed",
+                function=function_name,
+                match_id=match_data.matchId,
+            )
 
             return match_data
         except HTTPException as e:
-            log_activity("INGESTION_FAILED", "Match ingestion failed", function="analytics/match_data", error=str(e))
+            log_activity(
+                "INGESTION_FAILED",
+                "Match ingestion failed",
+                function=function_name,
+                error=str(e),
+            )
             raise HTTPException(status_code=500, detail=internal_server_error)
         except KeyError as e:
-            log_activity("INGESTION_FAILED", "Match ingestion failed due Missing riot api field", function="analytics/match_data", error=str(e))
+            log_activity(
+                "INGESTION_FAILED",
+                "Match ingestion failed due Missing riot api field",
+                function=function_name,
+                error=str(e),
+            )
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
     @staticmethod

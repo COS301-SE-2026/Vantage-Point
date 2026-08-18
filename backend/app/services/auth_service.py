@@ -10,8 +10,9 @@ from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
 
-#need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
+# need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
 from app.utils.activity_logger import log_activity
+
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
