@@ -80,46 +80,46 @@ export default function AdminMatchesPage() {
 
   return (
     <AdminShell>
-      <h1 className="mb-1 font-['League',sans-serif] text-2xl font-bold uppercase text-black">
+      <h1 className="mb-1 font-['League',sans-serif] text-2xl font-bold uppercase text-black device-dark:text-white">
         Match Data
       </h1>
-      <p className="mb-4 text-xs text-[#757575]">
+      <p className="mb-4 text-xs text-[#757575] device-dark:text-[#929292]">
         No Figma frame exists for this section yet ("Data Ingestion" was still a
         blank shell) — styled to match Users/Dashboard in the meantime.
       </p>
 
-      <div className="mb-3 flex flex-wrap items-end gap-3 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2">
-        <label className="text-xs text-[#2e4258]">
+      <div className="mb-3 flex flex-wrap items-end gap-3 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2device-dark:border-[#929292] device-dark:bg-[#2a2a2a]">
+        <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           Map
           <input
             value={mapName}
             onChange={(e) => setMapName(e.target.value)}
             placeholder="Summoner's Rift"
-            className="mt-1 block rounded-full border border-[#a9b4be] px-2 py-1 text-xs"
+            className="mt-1 block rounded-full border border-[#a9b4be] px-2 py-1 text-xs device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-white"
           />
         </label>
-        <label className="text-xs text-[#2e4258]">
+        <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           From
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block rounded-full border border-[#a9b4be] px-2 py-1 text-xs"
+            className="mt-1 block rounded-full border border-[#a9b4be] px-2 py-1 text-xs device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-white"
           />
         </label>
-        <label className="text-xs text-[#2e4258]">
+        <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           To
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block rounded-full border border-[#a9b4be] px-2 py-1 text-xs"
+            className="mt-1 block rounded-full border border-[#a9b4be] px-2 py-1 text-xs device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-white"
           />
         </label>
         <button
           type="button"
           onClick={() => void load()}
-          className="rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1 text-xs font-medium text-[#f3f8ff]"
+          className="rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1 text-xs font-medium text-[#f3f8ff] device-dark:border-[#929292] device-dark:bg-[#2c2c2c] device-dark:text-[#f5f5f5]"
         >
           Apply filters
         </button>
@@ -128,14 +128,14 @@ export default function AdminMatchesPage() {
       {error ? <p className="mb-2 text-sm text-red-600">{error}</p> : null}
 
       <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm">
-        <table className="w-full min-w-[700px] text-xs">
+        <table className="w-full min-w-[700px] text-xs device-dark:bg-[#2a2a2a]">
           <thead>
-            <tr className="border-b border-[#d9ebfe]">
+            <tr className="border-b border-[#d9ebfe] device-dark:border-[#3a3939]">
               {["Match", "Map", "Players", "Played", "Status", "Actions"].map(
                 (col) => (
                   <th
                     key={col}
-                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                    className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575] device-dark:text-[#929292]"
                   >
                     {col}
                   </th>
@@ -148,7 +148,7 @@ export default function AdminMatchesPage() {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-3 py-6 text-center text-[#757575]"
+                  className="px-3 py-6 text-center text-[#757575] device-dark:text-[#929292]"
                 >
                   Loading sessions…
                 </td>
@@ -158,7 +158,7 @@ export default function AdminMatchesPage() {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-3 py-6 text-center text-[#757575]"
+                  className="px-3 py-6 text-center text-[#757575] device-dark:text-[#929292]"
                 >
                   No match sessions found.
                 </td>
@@ -168,15 +168,15 @@ export default function AdminMatchesPage() {
               const isBusy = busyId === s.id;
               const isFlagged = s.deletion_status === "flagged";
               return (
-                <tr key={s.id} className="border-b border-gray-100">
+                <tr key={s.id} className="border-b border-gray-100 device-dark:border-[#3a3939]">
                   <td className="px-3 py-2.5 font-mono text-[#3b5571]">
                     {s.match_id}
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{s.map_name}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">{s.map_name}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {s.player_count}
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {new Date(s.played_at).toLocaleDateString()}
                   </td>
                   <td className="px-3 py-2.5">
@@ -193,7 +193,7 @@ export default function AdminMatchesPage() {
                       type="button"
                       disabled={isBusy}
                       onClick={() => void handleFlag(s)}
-                      className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50"
+                      className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50 device-dark:border-[#929292] device-dark:text-[#e5e5e5]"
                     >
                       {isFlagged ? "Unmark" : "Mark for deletion"}
                     </button>
