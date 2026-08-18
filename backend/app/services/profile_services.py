@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException  # , status
+from fastapi import HTTPException # , status
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
@@ -14,7 +14,7 @@ from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
 from loguru import logger
 
-from app.Enums.riot_enum import RiotRegion
+# from app.Enums.riot_enum import RiotRegion
 settings = get_settings()
 client: CognitoIdentityProviderClient = boto3.client(  # type: ignore
     "cognito-idp", region_name=settings.aws_region

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, Annotated
 from app.schemas.profile import LiveAdvancedMetrics
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.Models.riot_schemas import (
@@ -15,7 +15,7 @@ from app.Models.riot_schemas import (
 )
 from app.database.models import MapReplayTable, MatchDataTable, ProfileDataTable
 from app.services.riot_service import RiotService, RiotServiceDep
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlmodel import select
 
 # need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
@@ -1070,3 +1070,8 @@ class LiveAnalyticsService:
             raise HTTPException(
                 status_code=500, detail=f"Internal server error {str(e)}"
             )
+
+async def get_analytics_service(riot_service: RiotServiceDep) -> LiveAnalyticsService:
+    return LiveAnalyticsService(riot_service)
+
+LiveAnalyticsServiceDep = Annotated[LiveAnalyticsService, Depends(get_analytics_service)]
