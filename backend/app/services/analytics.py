@@ -14,7 +14,7 @@ from app.Models.riot_schemas import (
     Participant,
 )
 from app.database.models import MapReplayTable, MatchDataTable, ProfileDataTable
-from app.services.riot_service import riot_service
+from app.services.riot_service import RiotService, RiotServiceDep
 from fastapi import HTTPException
 from sqlmodel import select
 
@@ -26,6 +26,10 @@ player_not_found: str = "PLayer not found in match"
 
 
 class LiveAnalyticsService:
+
+    def __init__(self, riot_service: RiotService):
+        self.riot_service: RiotService = riot_service
+
     @staticmethod
     def _empty_live_metrics() -> LiveAdvancedMetrics:
         return LiveAdvancedMetrics(
@@ -69,14 +73,14 @@ class LiveAnalyticsService:
 
         return player, team_kills
 
-    @staticmethod
+
     async def get_live_metrics_from_api(
-        server_region: str, puuid: str, count: int = 20
+            self, server_region: str, puuid: str, count: int = 20
     ) -> LiveAdvancedMetrics:
         """
         Queries live match details through RiotService and returns aggregated performance metrics.
         """
-        match_ids = await riot_service.get_match_ids(
+        match_ids = await self.riot_service.get_match_ids(
             server_region=server_region,
             puuid=puuid,
             count=count,
@@ -85,7 +89,7 @@ class LiveAnalyticsService:
         if not match_ids:
             return LiveAnalyticsService._empty_live_metrics()
 
-        tasks = [riot_service.get_match_detail(match_id) for match_id in match_ids]
+        tasks = [self.riot_service.get_match_detail(match_id) for match_id in match_ids]
         matches_data: list[dict[str, Any]] = await asyncio.gather(*tasks)
 
         # Explicitly typing the accumulator dictionary fixes type inference errors
@@ -222,8 +226,8 @@ class LiveAnalyticsService:
     # at the moment only the user hence we need the puuid in the the method call as paramater, otherwise no way to know which user you are. Might add it
     # to a env and then just update it when the user changes his/her puuid they are using. Don't have to call/put it in each time
     # added data param for incase I do not have to do the call again only once pass it in and then check and use it if possible
-    @staticmethod
     async def map_replay(
+        self,
         match_id: str,
         session: AsyncSession,
         puuid: str,
@@ -240,7 +244,7 @@ class LiveAnalyticsService:
             if response is not None:
                 return response
 
-            _data: Any = await riot_service.get_match_timeline(match_id)
+            _data: Any = await self.riot_service.get_match_timeline(match_id)
         else:
             _data = data
 
@@ -280,14 +284,14 @@ class LiveAnalyticsService:
 
         return replay
 
-    @staticmethod
+
     async def map_suggest_data(
-        match_id: str, puuid: str, session: AsyncSession
+        self, match_id: str, puuid: str, session: AsyncSession
     ) -> MapSuggestData:
-        timeline = await riot_service.get_match_timeline(match_id)
-        match = await riot_service.get_match_detail(match_id)
+        timeline = await self.riot_service.get_match_timeline(match_id)
+        match = await self.riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplayTable = await LiveAnalyticsService.map_replay(
+        map_replay: MapReplayTable = await self.map_replay(
             match_id, session, puuid
         )
 
@@ -353,9 +357,9 @@ class LiveAnalyticsService:
             powerMax=champion_stats.powerMax,
         )
 
-    @staticmethod
+
     async def profile_data(
-        match_id: str, puuid: str, session: AsyncSession
+        self, match_id: str, puuid: str, session: AsyncSession
     ) -> ProfileData | ProfileDataTable:
         try:
 
@@ -368,7 +372,7 @@ class LiveAnalyticsService:
             if response is not None:
                 return response
 
-            match = await riot_service.get_match_detail(match_id)
+            match = await self.riot_service.get_match_detail(match_id)
 
             # cast
             info = match["info"]
@@ -448,9 +452,9 @@ class LiveAnalyticsService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
 
-    @staticmethod
+
     async def match_data(
-        session: AsyncSession, match_id: str, puuid: str
+        self, session: AsyncSession, match_id: str, puuid: str
     ) -> MatchDataTable:
         function_name: str = "/analytics/match_data"
         try:
@@ -463,7 +467,7 @@ class LiveAnalyticsService:
             if response is not None:
                 return response
 
-            match = await riot_service.get_match_detail(match_id)
+            match = await self.riot_service.get_match_detail(match_id)
             # cast
             info = match["info"]
             # paticipants filter by puuid
@@ -646,11 +650,11 @@ class LiveAnalyticsService:
             )
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    @staticmethod
-    async def champion_data(match_id: str, puuid: str) -> ChampionData:
+
+    async def champion_data(self, match_id: str, puuid: str) -> ChampionData:
         try:
-            match = await riot_service.get_match_detail(match_id)
-            timeline = await riot_service.get_match_timeline(match_id)
+            match = await self.riot_service.get_match_detail(match_id)
+            timeline = await self.riot_service.get_match_timeline(match_id)
             info = match["info"]
 
             participants = info["participants"]
@@ -748,11 +752,11 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-    @staticmethod
-    async def item_data(match_id: str, puuid: str, session: AsyncSession) -> ItemData:
+
+    async def item_data(self, match_id: str, puuid: str, session: AsyncSession) -> ItemData:
         try:
-            timeline = await riot_service.get_match_timeline(match_id)
-            match = await riot_service.get_match_detail(match_id)
+            timeline = await self.riot_service.get_match_timeline(match_id)
+            match = await self.riot_service.get_match_detail(match_id)
 
             frames = timeline["info"]["frames"]
 
@@ -792,7 +796,7 @@ class LiveAnalyticsService:
             participant_data = LiveAnalyticsService.get_participants_data(
                 frames, participant_id
             )
-            map_replay = await LiveAnalyticsService.map_replay(
+            map_replay = await self.map_replay(
                 match_id, session, puuid=puuid
             )
 
@@ -852,11 +856,11 @@ class LiveAnalyticsService:
                 status_code=500, detail=f"{internal_server_error}: {str(e)}"
             )
 
-    @staticmethod
-    async def skill_data(match_id: str, puuid: str, session: AsyncSession) -> SkillData:
+
+    async def skill_data(self, match_id: str, puuid: str, session: AsyncSession) -> SkillData:
         try:
-            timeline = await riot_service.get_match_timeline(match_id)
-            match = await riot_service.get_match_detail(match_id)
+            timeline = await self.riot_service.get_match_timeline(match_id)
+            match = await self.riot_service.get_match_detail(match_id)
 
             frames = timeline["info"]["frames"]
 
@@ -950,7 +954,7 @@ class LiveAnalyticsService:
             damage_stats_data = LiveAnalyticsService.get_damage_stats(
                 frames, (participant_id)
             )
-            map_replay: MapReplayTable = await LiveAnalyticsService.map_replay(
+            map_replay: MapReplayTable = await self.map_replay(
                 match_id, session, puuid=puuid
             )
             response = SkillData(
@@ -993,11 +997,11 @@ class LiveAnalyticsService:
                 status_code=500, detail=f"{internal_server_error}: {str(e)}"
             )
 
-    @staticmethod
-    async def role_data(match_id: str, puuid: str) -> RoleData:
+
+    async def role_data(self, match_id: str, puuid: str) -> RoleData:
         try:
-            timeline = await riot_service.get_match_timeline(match_id)
-            match = await riot_service.get_match_detail(match_id)
+            timeline = await self.riot_service.get_match_timeline(match_id)
+            match = await self.riot_service.get_match_detail(match_id)
 
             frames = timeline["info"]["frames"]
 

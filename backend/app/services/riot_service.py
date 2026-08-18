@@ -268,7 +268,7 @@ class RiotService:
                 )
 
 
-riot_service = RiotService("americas")
+# riot_service = RiotService("americas")
 
 
 async def get_riot_service(_: Annotated[User, Depends(require_group(20))],
