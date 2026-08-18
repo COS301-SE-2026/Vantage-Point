@@ -58,6 +58,19 @@ logger.add(
     diagnose=False,
 )
 
+#only to be used in development. Remove when going to production. Writing to a txt is unsafe behaviour 
+# and can expose sensitive information
+logger.add(
+    "logs/fastapi_logs",
+    level="ERROR",
+    rotation="100 MB",
+    retention="30 days",
+    compression="zip",
+    enqueue=True,
+    backtrace=True,
+    diagnose=True,
+)
+
 
 
 def get_error_reason(status_code: int) -> str:

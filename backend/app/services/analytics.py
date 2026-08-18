@@ -18,6 +18,9 @@ from app.services.riot_service import riot_service
 from fastapi import HTTPException
 from sqlmodel import select
 
+#need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
+from app.utils.activity_logger import log_activity
+
 internal_server_error: str = "Internal server error"
 player_not_found: str = "PLayer not found in match"
 
@@ -617,10 +620,14 @@ class LiveAnalyticsService:
             await session.commit()
             await session.refresh(match_data)
 
+            log_activity("INGESTION_COMPLETED", "Match ingestion completed", function="analytics/match_data", match_id=match_data.matchId)
+
             return match_data
         except HTTPException:
+            log_activity("INGESTION_FAILED", "Match ingestion failed", function="analytics/match_data", error=str(e))
             raise HTTPException(status_code=500, detail=internal_server_error)
         except KeyError as e:
+            log_activity("INGESTION_FAILED", "Match ingestion failed due Missing riot api field", function="analytics/match_data", error=str(e))
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
     @staticmethod

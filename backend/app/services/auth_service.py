@@ -10,6 +10,8 @@ from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
 
+#need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
+from app.utils.activity_logger import log_activity
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
@@ -108,6 +110,7 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
             },
         )
         auth_result = cast(dict[str, Any], response["AuthenticationResult"])
+        log_activity("LOGIN", "User successfully logged in", username=username)
         return {
             "access_token": auth_result["AccessToken"],
             "id_token": auth_result["IdToken"],
