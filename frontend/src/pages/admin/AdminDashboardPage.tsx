@@ -60,12 +60,12 @@ export default function AdminDashboardPage() {
           <h2 className="mb-2 border-b border-black pb-1 text-lg font-semibold text-[#1e1e1e] device-dark:border-[#929292] device-dark:text-white">
             Site Traffic
           </h2>
-          <div className="h-72 w-full">
+          <div className="h-72 w-full text-[#757575] device-dark:text-[#929292]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={[...traffic]}>
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} />
                 <YAxis
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "currentColor"  }}
                   tickFormatter={(v: number) => `${v}x`}
                 />
                 <Bar
@@ -129,8 +129,9 @@ export default function AdminDashboardPage() {
             ) : null}
             {errors.map((e) => (
               <tr key={e.id} className="border-b border-gray-100 device-dark:border-[#3a3939]">
-                <td className="px-3 py-2.5 text-[#3b5571]">#{e.error_code}</td>
-                <td className="px-3 py-2.5 text-[#3b5571]">
+                <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
+                  #{e.error_code}</td>
+                <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                   {e.error_message}
                 </td>
                 <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">

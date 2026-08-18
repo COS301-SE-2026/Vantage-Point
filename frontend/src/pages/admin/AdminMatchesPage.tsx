@@ -88,7 +88,7 @@ export default function AdminMatchesPage() {
         blank shell) — styled to match Users/Dashboard in the meantime.
       </p>
 
-      <div className="mb-3 flex flex-wrap items-end gap-3 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2device-dark:border-[#929292] device-dark:bg-[#2a2a2a]">
+      <div className="mb-3 flex flex-wrap items-end gap-3 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2 device-dark:border-[#929292] device-dark:bg-[#2a2a2a]">
         <label className="text-xs text-[#2e4258] device-dark:text-[#e5e5e5]">
           Map
           <input
@@ -127,7 +127,7 @@ export default function AdminMatchesPage() {
 
       {error ? <p className="mb-2 text-sm text-red-600">{error}</p> : null}
 
-      <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm device-dark:bg-[#2a2a2a]">
         <table className="w-full min-w-[700px] text-xs device-dark:bg-[#2a2a2a]">
           <thead>
             <tr className="border-b border-[#d9ebfe] device-dark:border-[#3a3939]">
@@ -169,7 +169,7 @@ export default function AdminMatchesPage() {
               const isFlagged = s.deletion_status === "flagged";
               return (
                 <tr key={s.id} className="border-b border-gray-100 device-dark:border-[#3a3939]">
-                  <td className="px-3 py-2.5 font-mono text-[#3b5571]">
+                  <td className="px-3 py-2.5 font-mono text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {s.match_id}
                   </td>
                   <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">{s.map_name}</td>

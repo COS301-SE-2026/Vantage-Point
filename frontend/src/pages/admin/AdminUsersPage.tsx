@@ -297,7 +297,7 @@ export default function AdminUsersPage() {
                       {status}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {canEditRole ? (
                       <select
                         value={u.role ?? ""}
@@ -335,7 +335,7 @@ export default function AdminUsersPage() {
                         type="button"
                         disabled={isBusy}
                         onClick={() => void handleToggleEnabled(u)}
-                        className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50"
+                        className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50 device-dark:border-[#929292] device-dark:text-[#e5e5e5]"
                       >
                         {u.enabled ? "Disable" : "Enable"}
                       </button>

@@ -120,7 +120,7 @@ export default function AssetManagerPage({
                 alt={a.displayName}
                 className="mx-auto h-16 w-16 rounded-lg border border-gray-200 object-cover device-dark:border-[#929292]"
               />
-              <p className="mt-1 truncate text-[10px] text-[#757575]">
+              <p className="mt-1 truncate text-[10px] text-[#757575] device-dark:text-[#929292]">
                 {a.displayName}
               </p>
             </div>
