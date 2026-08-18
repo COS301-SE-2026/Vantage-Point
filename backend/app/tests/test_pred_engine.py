@@ -8,7 +8,7 @@ import numpy as np
 ####################################################
 
 # Base directory relative to test location
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 TEST_DATA_FILE = str(BASE_DIR / "pred_engine_test_files" / "unit_test_tt_data.csv")
 
 
