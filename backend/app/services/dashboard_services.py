@@ -200,33 +200,36 @@ class DashboardService:
 
     @staticmethod  # lifetime of 30 days on cloudwatch config
     async def get_current_activities(limit: int = 50) -> list[ActivityResponse]:
-        logs = boto3.client("logs", region_name=settings.aws_region)  # type: ignore
+        try:
+            logs = boto3.client("logs", region_name=settings.aws_region)  # type: ignore
 
-        response = logs.filter_log_events(
-            logGroupName=settings.aws_log_group, limit=limit
-        )
-
-        activities: list[ActivityResponse] = []
-
-        for event in response.get("events", []):
-            message = event.get("message")
-            timestamp = event.get("timestamp")
-
-            if message is None or timestamp is None:
-                continue
-
-            try:
-                data = json.loads(message)
-            except (TypeError, json.JSONDecodeError):
-                continue
-
-            activities.append(
-                ActivityResponse(
-                    timestamp=timestamp,
-                    event_type=data.get("event_type"),
-                    message=data.get("message"),
-                )
+            response = logs.filter_log_events(
+                logGroupName=settings.aws_log_group, limit=limit
             )
 
-        activities.sort(key=lambda activity: int(activity.timestamp), reverse=True)
-        return activities[:limit]
+            activities: list[ActivityResponse] = []
+
+            for event in response.get("events", []):
+                message = event.get("message")
+                timestamp = event.get("timestamp")
+
+                if message is None or timestamp is None:
+                    continue
+
+                try:
+                    data = json.loads(message)
+                except (TypeError, json.JSONDecodeError):
+                    continue
+
+                activities.append(
+                    ActivityResponse(
+                        timestamp=timestamp,
+                        event_type=data.get("event_type"),
+                        message=data.get("message"),
+                    )
+                )
+
+            activities.sort(key=lambda activity: int(activity.timestamp), reverse=True)
+            return activities[:limit]
+        except HTTPException as e:
+            raise HTTPException(status_code=500, detail=str(e))
