@@ -10,6 +10,7 @@ import httpx
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import Users
+from app.Enums.riot_enum import RegionPlatforms
 from botocore.exceptions import ClientError
 
 from app.config import get_settings
@@ -17,7 +18,7 @@ from app.config import get_settings
 load_dotenv()
 
 API_KEY = os.getenv("RIOT_API_KEY")
-BASE_URL = "https://americas.api.riotgames.com"
+# BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
 
@@ -35,8 +36,8 @@ async def get_region(session: AsyncSession, cognito_sub: str) -> str:
             raise HTTPException(status_code=404, detail="User missing play region")
 
         return user.region
-    except ClientError as e:
-        print(e.response)
+    except HTTPException as e:
+        print(str(e))
         raise
 
 
@@ -102,10 +103,12 @@ def get_macro_region(server_region: str) -> str:
 
 
 class RiotService:
-    def __init__(self):
+    def __init__(self, region: str):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
-        self.account_url = "https://europe.api.riotgames.com"
-        self.platform_url = "https://euw1.api.riotgames.com"
+        self.account_url = f"https://{region}.api.riotgames.com"
+        # self.platform_url = "https://euw1.api.riotgames.com"
+        self.server_region:str = region
+        self.platform_url: str | None = None
 
     def _get_macro_region(self, server_region: str) -> str:
         return get_macro_region(server_region)
@@ -128,29 +131,33 @@ class RiotService:
             return puuid
 
     async def get_summoner_data(self, puuid: str):
-        url = f"{self.platform_url}/lol/summoner/v4/summoners/by-puuid/{puuid}"
+        possible_platforms:list[str] = RegionPlatforms[self.server_region]
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 404:
-                raise HTTPException(
-                    status_code=404, detail="Summoner data not found for this PUUID."
-                )
-            elif response.status_code == 429:
-                raise HTTPException(
-                    status_code=429,
-                    detail="Rate limit exceeded: Riot is throttling requests.",
-                )
-            elif response.status_code in (401, 403):
-                raise HTTPException(
-                    status_code=401, detail="Unauthorized: Check your Riot API Key."
-                )
-            else:
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=f"Riot API Error: {response.text}",
-                )
+            for server_region in possible_platforms:
+                self.platform_url = f"https://{server_region}.api.riotgames.com"
+
+                url = f"{self.platform_url}/lol/summoner/v4/summoners/by-puuid/{puuid}"
+                response = await client.get(url, headers=self.headers)
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 404:
+                    raise HTTPException(
+                        status_code=404, detail="Summoner data not found for this PUUID."
+                    )
+                elif response.status_code == 429:
+                    raise HTTPException(
+                        status_code=429,
+                        detail="Rate limit exceeded: Riot is throttling requests.",
+                    )
+                elif response.status_code in (401, 403):
+                    raise HTTPException(
+                        status_code=401, detail="Unauthorized: Check your Riot API Key."
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Riot API Error: {response.text}",
+                    )
 
     async def get_match_ids(
         self, server_region: str, puuid: str, count: int = 5
