@@ -1,6 +1,7 @@
 import app.pred_engine.knn_model as knn  # type: ignore
 import app.pred_engine.rf_model as rf  # type: ignore
 from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
+from pathlib import Path
 import json
 import math
 import numpy as np
@@ -25,17 +26,17 @@ def avg_and_std(y_data):
 
 def create_rf_models():
     champ_rf = rf.final_train(
-        "/app/pred_engine/Training_csv/champ_rf_training.csv",
+        str(TRAINING_CSV_DIR / "champ_rf_training.csv"),
         "champion",
     )
     item_rf = rf.final_train(
-        "/app/pred_engine/Training_csv/item_rf_training.csv", "item"
+        str(TRAINING_CSV_DIR / "item_rf_training.csv"), "item"
     )
     role_rf = rf.final_train(
-        "/app/pred_engine/Training_csv/role_rf_training.csv", "role"
+        str(TRAINING_CSV_DIR / "role_rf_training.csv"), "role"
     )
     skill_rf = rf.final_train(
-        "/app/pred_engine/Training_csv/skill_rf_training.csv",
+        str(TRAINING_CSV_DIR / "skill_rf_training.csv"),
         "skill",
     )
 
@@ -43,9 +44,7 @@ def create_rf_models():
 
 
 def create_knn_model():
-
-    knn_models = knn.get_knn("/app/pred_engine/Training_csv/knn_training.csv")
-
+    knn_models = knn.get_knn(str(TRAINING_CSV_DIR / "knn_training.csv"))
     return knn_models
 
 
@@ -84,7 +83,8 @@ def correct_role_rf(y_output, y_data, x_data):
         return None
     else:
         champID = x_data[0][0]
-        with open("/app/pred_engine/datasets/champions.json", "r") as file:
+        champions_path = DATASETS_DIR / "champions.json"
+        with open(champions_path, "r") as file:
             data = json.load(file)
 
         # translate y_output back to text (pos, lane)
