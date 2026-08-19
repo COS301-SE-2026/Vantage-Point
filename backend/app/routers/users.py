@@ -23,7 +23,7 @@ from app.schemas.user import (
     UpdateUserMeRequest,
     UserMeResponse,
 )
-from app.services.analytics import LiveAnalyticsService
+from app.services.analytics import LiveAnalyticsServiceDep
 from app.services.avatar_storage import delete_avatar_files, save_avatar
 from app.services.match_ingest import resolve_platform, sync_matches_best_effort
 from app.services.player_profile import build_player_profile
@@ -51,6 +51,29 @@ def _user_me_response(user: Users, account: Any, role: str | None) -> UserMeResp
         has_linked_riot=account is not None,
         role=role,
     )
+
+async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:
+        statement = select(Users).where(Users.cognito_sub == cognito_sub)
+        result: Any = await session.execute(statement)
+        user: Users | None = result.scalar_one_or_none()
+
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return user.platformId    
+
+async def _set_platform(cognito_sub: str, session: AsyncSession, platform: str) -> bool:
+        statement = select(Users).where(Users.cognito_sub == cognito_sub)
+        result: Any = await session.execute(statement)
+        user: Users | None = result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user.platformId = platform
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return True
 
 
 async def _get_users(sub: str, session: AsyncSession) -> Users:
@@ -153,6 +176,7 @@ async def get_my_profile(
     ),
 )
 async def get_my_live_metrics(
+    service: LiveAnalyticsServiceDep,
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
     count: Annotated[int, Query(ge=1, le=20, description="Matches to analyse")] = 10,
@@ -162,7 +186,7 @@ async def get_my_live_metrics(
             description="Riot platform, e.g. euw1. Inferred from match history if omitted",
         ),
     ] = None,
-):
+) -> Any:
     puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
         raise HTTPException(
@@ -171,7 +195,7 @@ async def get_my_live_metrics(
         )
 
     platform = server_region or await resolve_platform(session, puuid) or "euw1"
-    return await LiveAnalyticsService.get_live_metrics_from_api(
+    return await service.get_live_metrics_from_api(
         server_region=platform,
         puuid=puuid,
         count=count,
@@ -196,7 +220,7 @@ async def _link_game_account_impl(
     # round trip and the user is waiting on this response — the "Sync with Riot" button
     # on the match list pulls a deeper window. A Riot outage must not undo a successful
     # link, so failures here only get logged.
-    imported = await sync_matches_best_effort(session, puuid, count=5)
+    imported = await sync_matches_best_effort(session, puuid, count=5, cognito_sub=current_user.sub)
     message = f"Successfully linked {tag}"
     if imported and imported["imported"]:
         message = f"{message} — imported {imported['imported']} recent matches"
