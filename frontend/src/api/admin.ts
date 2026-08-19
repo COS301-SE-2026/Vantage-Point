@@ -284,7 +284,7 @@ export async function registerUserManually(
 
 export async function getPlatformSettings(): Promise<PlatformSettings> {
   if (USE_MOCKS) return MOCK_SETTINGS;
-  return apiFetch<PlatformSettings>("/admin/settings");
+  return apiFetch<PlatformSettings>("/api/v1/admin/platform-settings");
 }
 
 export async function setRegistrationsOpen(
@@ -294,10 +294,10 @@ export async function setRegistrationsOpen(
     console.log("[mock] setRegistrationsOpen", open);
     return { registrations_open: open };
   }
-  return apiFetch<PlatformSettings>("/admin/settings", {
-    method: "PATCH",
-    body: JSON.stringify({ registrations_open: open }),
-  });
+  return apiFetch<PlatformSettings>(
+    `/api/v1/admin/platform-settings/registrations-open?open_=${open}`,
+    { method: "PUT" },
+  );
 }
 
 // Match Data/ Data Ingestion (Matches view) Functional Requirements
