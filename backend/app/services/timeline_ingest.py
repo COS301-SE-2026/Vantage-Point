@@ -67,16 +67,14 @@ class TimelineNotAvailableError(Exception):
 
 # error message if wrong region how would I tell them this.
 async def fetch_timeline(
-    match_id: str, cognito_sub: str, session: AsyncSession
+    client: httpx.AsyncClient, region: str, headers: dict[str, str], match_id: str
 ) -> dict[str, Any]:
-    region = get_region(session=session, cognito_sub=cognito_sub)
     url = (
         f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
         f"{match_id}/timeline"
     )
 
-    async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
-        response = await client.get(url, headers={"X-Riot-Token": riot_api_key()})
+    response = await client.get(url, headers={"X-Riot-Token": riot_api_key()})
     raise_for_riot_status(response)
     if response.status_code == 404:
         raise TimelineNotAvailableError(f"Riot has no timeline for match {match_id}.")
@@ -356,7 +354,10 @@ async def get_or_fetch_timeline(
     if not match:
         raise TimelineNotAvailableError(f"Match {match_id} is not stored locally.")
 
-    payload = await fetch_timeline(match_id, cognito_sub, session)
+    headers = {"X-Riot-Token": riot_api_key()}
+    region = await get_region(session, cognito_sub)
+    async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
+        payload = await fetch_timeline(client, region, headers, match_id)
     row = await store_timeline(
         session,
         match_id,

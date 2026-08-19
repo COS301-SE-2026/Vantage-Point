@@ -240,6 +240,7 @@ Backend coverage is generated with --cov-report=json, producing backend/coverage
 Check .github/docs/coverage-summary.md before opening a PR if you touched an area that was already under the threshold.
 
 ```
+
 ### Platform Notes
 
 - **Inside the dev container** – use the `.env` file as is (the database host is `db`).
@@ -301,4 +302,4 @@ logging.basicConfig(
 - Cache Riot API responses to minimize external requests
 - Paginate large result sets with limit/offset
 - Add database indexes on frequently queried columns
-- Use connection pooling for database connections
+- Use connection pooling for database connect
