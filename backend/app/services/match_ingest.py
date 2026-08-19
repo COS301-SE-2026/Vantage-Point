@@ -76,7 +76,11 @@ def raise_for_riot_status(response: httpx.Response) -> None:
 
 
 async def fetch_recent_match_ids(
-    client: httpx.AsyncClient, region: str, headers: dict[str, str], puuid: str, count: int
+    client: httpx.AsyncClient,
+    region: str,
+    headers: dict[str, str],
+    puuid: str,
+    count: int,
 ) -> list[str]:
     """Recent Match-V5 ids for a PUUID, probing routing clusters until one answers."""
     headers = {"X-Riot-Token": riot_api_key()}
@@ -562,9 +566,10 @@ async def sync_matches_for_puuid(
         async def _bounded_fetch(match_id: str) -> dict[str, Any] | None:
             async with sem:
                 return await fetch_match(client, region, headers, match_id)
-        results = await asyncio.gather(*(_bounded_fetch(mid) for mid in match_ids))
 
-    for match_id in match_ids:
+        results = await asyncio.gather(*(_bounded_fetch(mid) for mid in match_ids))  # type: ignore
+
+    for match_id, match in zip(match_ids, results):
         match = await fetch_match(client, region, headers, match_id)
         if match is None:
             continue
