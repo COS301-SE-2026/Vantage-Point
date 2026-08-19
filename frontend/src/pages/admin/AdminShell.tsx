@@ -46,7 +46,10 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
       <div className="flex items-center justify-between px-6 pt-6">
         <div className="flex items-center gap-2">
           <picture>
-            <source srcSet="/src/assets/images/logos/logo-mark-white.webp" media="(prefers-color-scheme: dark)" />
+            <source
+              srcSet="/src/assets/images/logos/logo-mark-white.webp"
+              media="(prefers-color-scheme: dark)"
+            />
             <img src={imgLogo} alt="" className="h-10 w-10 object-cover" />
           </picture>
           <span className="font-sarina text-[clamp(18px,1.6vw,24px)] not-italic text-black device-dark:text-white">
@@ -64,8 +67,7 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
       <div className="flex gap-6 p-6">
         <aside
           className={`flex flex-col rounded-[15px] bg-[rgba(117,117,117,0.12)] device-dark:bg-[#2a2a2a] p-5 transition-[width] duration-200 
-            ${sidebarOpen ? "w-64" : "w-16 px-2"
-          }`}
+            ${sidebarOpen ? "w-64" : "w-16 px-2"}`}
         >
           <button
             type="button"
@@ -100,15 +102,15 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                  `rounded-[10px] bg-white device-dark:bg-[#2a2a2a] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
-                    isActive
-                      ? "font-bold text-[#1e1e1e] device-dark:text-white"
-                      : "text-[#1e1e1e] device-dark:text-[#e5e5e5] hover:opacity-80"
-                  } ${sidebarOpen ? "" : "hidden"}`
-                }
-              >
-                Player Dashboard
-              </NavLink>
+                `rounded-[10px] bg-white device-dark:bg-[#2a2a2a] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
+                  isActive
+                    ? "font-bold text-[#1e1e1e] device-dark:text-white"
+                    : "text-[#1e1e1e] device-dark:text-[#e5e5e5] hover:opacity-80"
+                } ${sidebarOpen ? "" : "hidden"}`
+              }
+            >
+              Player Dashboard
+            </NavLink>
           </nav>
 
           <button

@@ -63,9 +63,12 @@ export default function AdminDashboardPage() {
           <div className="h-72 w-full text-[#757575] device-dark:text-[#929292]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={[...traffic]}>
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 11, fill: "currentColor" }}
+                />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "currentColor"  }}
+                  tick={{ fontSize: 11, fill: "currentColor" }}
                   tickFormatter={(v: number) => `${v}x`}
                 />
                 <Bar
@@ -79,7 +82,9 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="rounded-2xl bg-[#f0f0f0] p-4 text-sm device-dark:bg-[#2a2a2a]">
-          <h3 className="mb-2 font-semibold text-[#1e1e1e] device-dark:text-white">Metrics</h3>
+          <h3 className="mb-2 font-semibold text-[#1e1e1e] device-dark:text-white">
+            Metrics
+          </h3>
           <dl className="space-y-1 text-[#3b5571]">
             <Row label="Active Users" value={metrics?.active_users} />
             <Row label="Inactive Users" value={metrics?.inactive_users} />
@@ -128,9 +133,13 @@ export default function AdminDashboardPage() {
               </tr>
             ) : null}
             {errors.map((e) => (
-              <tr key={e.id} className="border-b border-gray-100 device-dark:border-[#3a3939]">
+              <tr
+                key={e.id}
+                className="border-b border-gray-100 device-dark:border-[#3a3939]"
+              >
                 <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
-                  #{e.error_code}</td>
+                  #{e.error_code}
+                </td>
                 <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                   {e.error_message}
                 </td>

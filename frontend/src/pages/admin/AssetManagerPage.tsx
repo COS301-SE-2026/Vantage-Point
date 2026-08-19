@@ -49,7 +49,10 @@ export default function AssetManagerPage({
     setError(null);
     try {
       const created = await upload(id, name, file);
-      setAssets((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
+      setAssets((prev) => [
+        created,
+        ...prev.filter((a) => a.id !== created.id),
+      ]);
       setId("");
       setName("");
       setFile(null);
@@ -110,7 +113,9 @@ export default function AssetManagerPage({
       </form>
 
       {assets.length === 0 ? (
-        <p className="text-sm text-[#757575] device-dark:text-[#929292]">Nothing uploaded yet.</p>
+        <p className="text-sm text-[#757575] device-dark:text-[#929292]">
+          Nothing uploaded yet.
+        </p>
       ) : (
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 md:grid-cols-8">
           {assets.map((a) => (

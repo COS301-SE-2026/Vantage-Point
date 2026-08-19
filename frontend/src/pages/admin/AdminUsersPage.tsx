@@ -288,8 +288,12 @@ export default function AdminUsersPage() {
                   key={u.username}
                   className="border-b border-gray-200 hover:bg-gray-50 device-dark:border-[#3a3939] device-dark:hover:bg-[#3a3939]"
                 >
-                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">{u.username}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">{u.email}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
+                    {u.username}
+                  </td>
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
+                    {u.email}
+                  </td>
                   <td className="px-3 py-2.5">
                     <span
                       className={`inline-block rounded-full px-2 py-0.5 text-[9px] text-white ${STATUS_COLORS[status]}`}
@@ -359,7 +363,9 @@ export default function AdminUsersPage() {
 
       <div className="mt-3 flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[#2e4258] device-dark:text-[#e5e5e5]">Rows per page</span>
+          <span className="font-medium text-[#2e4258] device-dark:text-[#e5e5e5]">
+            Rows per page
+          </span>
           <select
             value={pageSize}
             onChange={(e) => {
@@ -374,7 +380,9 @@ export default function AdminUsersPage() {
               </option>
             ))}
           </select>
-          <span className="font-medium text-[#2e4258] device-dark:text-[#e5e5e5]">of {total} rows</span>
+          <span className="font-medium text-[#2e4258] device-dark:text-[#e5e5e5]">
+            of {total} rows
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <button

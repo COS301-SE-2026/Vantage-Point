@@ -168,11 +168,16 @@ export default function AdminMatchesPage() {
               const isBusy = busyId === s.id;
               const isFlagged = s.deletion_status === "flagged";
               return (
-                <tr key={s.id} className="border-b border-gray-100 device-dark:border-[#3a3939]">
+                <tr
+                  key={s.id}
+                  className="border-b border-gray-100 device-dark:border-[#3a3939]"
+                >
                   <td className="px-3 py-2.5 font-mono text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {s.match_id}
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">{s.map_name}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
+                    {s.map_name}
+                  </td>
                   <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {s.player_count}
                   </td>
