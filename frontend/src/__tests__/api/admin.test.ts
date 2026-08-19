@@ -6,10 +6,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 type AdminApi = typeof import("../../api/admin");
 
 // Constants + Mocks
-const ogDev = import.meta.env.DEV; // save original DEV env value
+// const ogDev = import.meta.env.DEV; // save original DEV env value
 
 afterEach(() => {
-  (import.meta.env as { DEV: boolean }).DEV = ogDev; // restore original DEV env value
+  vi.unstubAllEnvs();
   vi.doUnmock("../../api/client");
   vi.resetModules();
 });
@@ -22,8 +22,9 @@ describe("admin API (mock mode)", () => {
   let admin: AdminApi;
 
   beforeEach(async () => {
-    (import.meta.env as { DEV: boolean }).DEV = true; // set DEV env to true for mock mode
+    vi.stubEnv("VITE_USE_MOCKS", "true");
     vi.resetAllMocks();
+    vi.resetModules(); // ensure a fresh module is loaded
 
     admin = await import("../../api/admin");
   });
@@ -187,7 +188,7 @@ describe("admin API (real mode)", () => {
         }
       },
     }));
-    (import.meta.env as { DEV: boolean }).DEV = false;
+    vi.stubEnv("VITE_USE_MOCKS", "false");
     vi.resetModules();
     admin = await import("../../api/admin");
   });
@@ -273,12 +274,12 @@ describe("admin API (real mode)", () => {
     });
   });
 
-  it("setRegistrationsOpen patches /admin/settings", async () => {
+  it("setRegistrationsOpen uses the new PUT endpoint", async () => {
     await admin.setRegistrationsOpen(false);
-    expect(apiFetch).toHaveBeenCalledWith("/admin/settings", {
-      method: "PATCH",
-      body: JSON.stringify({ registrations_open: false }),
-    });
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/admin/platform-settings/registrations-open?open_=false",
+      { method: "PUT" },
+    );
   });
 
   // Map & Champion Assests Functional Requirements
@@ -341,17 +342,17 @@ describe("admin API (real mode)", () => {
     expect(created.role).toBeNull();
   });
 
-  it("getPlatformSettings/setRegistrationsOpen hit /admin/settings", async () => {
+  it("getPlatformSettings/setRegistrationsOpen hit the new endpoints", async () => {
     apiFetch.mockResolvedValueOnce({ registrations_open: true });
     await admin.getPlatformSettings();
-    expect(apiFetch).toHaveBeenCalledWith("/admin/settings");
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/admin/platform-settings");
 
     apiFetch.mockResolvedValueOnce({ registrations_open: false });
     await admin.setRegistrationsOpen(false);
-    expect(apiFetch).toHaveBeenCalledWith("/admin/settings", {
-      method: "PATCH",
-      body: JSON.stringify({ registrations_open: false }),
-    });
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/admin/platform-settings/registrations-open?open_=false",
+      { method: "PUT" },
+    );
   });
 
   it("listMatchSessions builds query params from filters and defaults page to 1", async () => {
