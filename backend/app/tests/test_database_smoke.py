@@ -20,6 +20,9 @@ EXPECTED_TABLES = {
     "achievement_definitions",
     "user_achievements",
     "user_featured_games",
+    "map_replay_table",
+    "match_data_table",
+    "profile_data_table"
 }
 
 
