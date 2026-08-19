@@ -15,6 +15,22 @@ router = APIRouter(tags=["ai"])
 router.get(
     "knn-model",
 )
-async def get_knn_model(match_id: str, puuid: str, session: Annotated[AsyncSession, get_session()], live_analytics: LiveAnalyticsServiceDep) -> Any:
+async def get_knn_output_model(match_id: str, puuid: str, session: Annotated[AsyncSession, get_session()], live_analytics: LiveAnalyticsServiceDep) -> Any:
     data: Any = await live_analytics.map_suggest_data(match_id=match_id, puuid=puuid, session=session)
     return await get_knn_output(data)
+
+router.get(
+    "knn-model",
+)
+async def get_champ_pred_model(match_id: str, puuid: str, session: Annotated[AsyncSession, get_session()], live_analytics: LiveAnalyticsServiceDep) -> Any:
+    data: Any = await live_analytics.champion_data(match_id=match_id, puuid=puuid)
+    return await get_knn_output(data)
+
+router.get(
+    "knn-model",
+)
+async def get_item_pred_model(match_id: str, puuid: str, session: Annotated[AsyncSession, get_session()], live_analytics: LiveAnalyticsServiceDep) -> Any:
+    data: Any = await live_analytics.item_data(match_id=match_id, puuid=puuid, session=session)
+    return await get_knn_output(data)
+
+
