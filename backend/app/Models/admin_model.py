@@ -27,6 +27,7 @@ class CreateGroupResponse(BaseModel):
     last_modified_date: datetime
     creation_date: datetime
 
+
 class MapAssetResponse(BaseModel):
     map_id: int
     display_name: str
@@ -37,6 +38,7 @@ class ChampionAssetResponse(BaseModel):
     champion_id: int
     display_name: str
     image_url: str
+
 
 class PlatformSettingsResponse(BaseModel):
     registrations_open: bool

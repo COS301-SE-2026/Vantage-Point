@@ -19,27 +19,30 @@ class Champions(SQLModel, table=True):  # type: ignore[call-arg]
     champion_id: int = Field(primary_key=True)
     name: str
     tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
-    image_path: Optional[str] = None  # admin-uploaded display asset, e.g. "/uploads/assets/champions/103.png"
+    image_path: Optional[str] = (
+        None  # admin-uploaded display asset, e.g. "/uploads/assets/champions/103.png"
+    )
 
     participants: List["Participants"] = Relationship(back_populates="champion")
+
 
 # MapAssets
 # Admin-uploaded display assets (icons/art) for the Map Assets admin page.
 # map_id is Riot's own numeric map ID (11 = Summoner's Rift, 12 = Howling Abyss, etc. —
-# see MAP_LABELS in app/utils/game_labels.py), 
-# same id space as Matches.map_id, so we won't change that, 
-# rather make it a fk similiar with how champion is working. 
+# see MAP_LABELS in app/utils/game_labels.py),
+# same id space as Matches.map_id, so we won't change that,
+# rather make it a fk similiar with how champion is working.
 # There's no foreign key to Matches currently:
-    # Riot's map catalog is static
-    # and external, so an admin can upload a map's display asset independently of any match
-    # data existing;  
+# Riot's map catalog is static
+# and external, so an admin can upload a map's display asset independently of any match
+# data existing;
 # Keeping the same id type avoids two competing identities for the
 # same map, even if We don't make the key a Foreign Key.
 class MapAssets(SQLModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "map_assets"
 
     map_id: int = Field(primary_key=True)
-    name: str # "Summoner's Rift", "Howling Abyss"
+    name: str  # "Summoner's Rift", "Howling Abyss"
     image_path: Optional[str] = None
     updated_at: datetime = Field(
         sa_column=Column(
@@ -50,6 +53,7 @@ class MapAssets(SQLModel, table=True):  # type: ignore[call-arg]
         ),
         default_factory=datetime.utcnow,
     )
+
 
 # Users
 # Represents a registered Vantage Point account.
@@ -151,8 +155,8 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
 
     deletion_status: str = Field(default="active")
-    deletion_flagged_at: Optional[datetime] = None 
-    #these 2 are for soft deletion of matches. we will use this to flag matches for deletion and then delete them in a batch process later. This is to avoid deleting matches that are still being processed or viewed by users.
+    deletion_flagged_at: Optional[datetime] = None
+    # these 2 are for soft deletion of matches. we will use this to flag matches for deletion and then delete them in a batch process later. This is to avoid deleting matches that are still being processed or viewed by users.
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -275,7 +279,7 @@ class MapReplayTable(SQLModel, Table=True):
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key
-class   MatchDataTable(SQLModel, Table=True):
+class MatchDataTable(SQLModel, Table=True):
     __tablename__ = "match_data_table"
 
     end_of_game_result: str

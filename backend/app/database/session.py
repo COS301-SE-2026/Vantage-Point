@@ -29,7 +29,6 @@ ADDITIVE_MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE matches ADD COLUMN IF NOT EXISTS deletion_status VARCHAR NOT NULL DEFAULT 'active'",
     "ALTER TABLE matches ADD COLUMN IF NOT EXISTS deletion_flagged_at TIMESTAMP",
     "ALTER TABLE champions ADD COLUMN IF NOT EXISTS image_path VARCHAR",
-
     # Seed map_assets (it's now the FK target for Matches/MatchTimelines.map_id)
     # before adding the constraints below: this runs top to bottom in one transaction.
     "INSERT INTO map_assets (map_id, name) VALUES (11, 'Summoner''s Rift') ON CONFLICT (map_id) DO NOTHING",

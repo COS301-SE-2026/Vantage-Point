@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, cast
 
 import boto3
 from botocore.exceptions import ClientError
@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.Models.admin_model import (
-    CreateGroupResponse,
     PlatformSettingsResponse,
     Response,
     UserResponse,
@@ -21,8 +20,8 @@ from app.database.models import Users
 settings = get_settings()
 
 # App-level toggle for (public registration on/off).
-# get_platform_settings at the end or near end for why this isn't a DB table. 
-# Having a new table would be easier for me to make this file but long term it would be problematic to handle for multiple instances of the backend. 
+# get_platform_settings at the end or near end for why this isn't a DB table.
+# Having a new table would be easier for me to make this file but long term it would be problematic to handle for multiple instances of the backend.
 # So I am going to keep it in memory for now. Hopefully when discussing with dev ops we can come up with a better solution for the deployment
 _registrations_open: bool = True
 
@@ -45,7 +44,7 @@ INVALID_USERNAME = "Invalid username"
 
 
 def _highest_priority_group(groups: list[str] | None) -> str | None:
-    #Return the group with the highest priority from a list of groups
+    # Return the group with the highest priority from a list of groups
     if not groups:
         return None
     recognized = [g for g in groups if g in GROUP_PRIORITY]
@@ -55,8 +54,8 @@ def _highest_priority_group(groups: list[str] | None) -> str | None:
 
 
 async def _list_all_users() -> list[dict[str, Any]]:
-    #Fetch all users from Cognito with pagination
-    users: list[dict[str, Any]] = []
+    # Fetch all users from Cognito with pagination
+    users: list[Any] = []
     pagination_token: str | None = None
 
     while True:
@@ -65,7 +64,7 @@ async def _list_all_users() -> list[dict[str, Any]]:
                 client.list_users,
                 UserPoolId=settings.cognito_user_pool_id,
                 Limit=60,
-                PaginationToken=pagination_token,
+                PaginationToken=pagination_token,  # type: ignore[call-arg]
             )
         else:
             response = await asyncio.to_thread(
@@ -75,7 +74,7 @@ async def _list_all_users() -> list[dict[str, Any]]:
             )
 
         users.extend(response.get("Users", []))
-        pagination_token = response.get("PaginationToken")
+        pagination_token = cast(str | None, response.get("PaginationToken"))
         if not pagination_token:
             break
 
@@ -83,8 +82,8 @@ async def _list_all_users() -> list[dict[str, Any]]:
 
 
 async def _list_users_in_group(group_name: str) -> list[dict[str, Any]]:
-    #Fetch all users in a group with pagination
-    users: list[dict[str, Any]] = []
+    # Fetch all users in a group with pagination
+    users: list[Any] = []
     pagination_token: str | None = None
 
     while True:
@@ -94,7 +93,7 @@ async def _list_users_in_group(group_name: str) -> list[dict[str, Any]]:
                 UserPoolId=settings.cognito_user_pool_id,
                 GroupName=group_name,
                 Limit=60,
-                PaginationToken=pagination_token,
+                PaginationToken=pagination_token,  # type: ignore[call-arg]
             )
         else:
             response = await asyncio.to_thread(
@@ -105,7 +104,7 @@ async def _list_users_in_group(group_name: str) -> list[dict[str, Any]]:
             )
 
         users.extend(response.get("Users", []))
-        pagination_token = response.get("PaginationToken")
+        pagination_token = cast(str | None, response.get("PaginationToken"))
         if not pagination_token:
             break
 
@@ -120,7 +119,7 @@ class admin_service:
         # The limit parameter is ignored, we fetch all users.
 
         try:
-            #First Fetch all users
+            # First Fetch all users
             users_data = await _list_all_users()
 
             # Then Build username, highest-priority group map
@@ -178,7 +177,7 @@ class admin_service:
     async def get_user(username: str) -> UserResponse:
         # Fetch a single user and include their role
         try:
-            #First Get user
+            # First Get user
             response = await asyncio.to_thread(
                 client.admin_get_user,
                 UserPoolId=settings.cognito_user_pool_id,
@@ -283,7 +282,6 @@ class admin_service:
             error_code = error.get("Code", "ClientError")
             raise HTTPException(status_code=400, detail=error_code)
 
-
     @staticmethod
     async def user_global_sign_out(username: str) -> Response:
         try:
@@ -292,9 +290,7 @@ class admin_service:
                 UserPoolId=settings.cognito_user_pool_id,
                 Username=username,
             )
-            return Response(
-                success=True, message=f"Signed out {username} globally"
-            )
+            return Response(success=True, message=f"Signed out {username} globally")
         except ClientError as e:
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
@@ -315,15 +311,13 @@ class admin_service:
                 Username=username,
             )
 
-            # 3. based on the first and previous search and delete, we then delete from DB. 
+            # 3. based on the first and previous search and delete, we then delete from DB.
             # We do this after the Cognito is deleted before we might accidently lose in during the await earlier not be able to see it in time for it to complete the delete.
             if db_user is not None:
                 await session.delete(db_user)
                 await session.commit()
 
-            return Response(
-                success=True, message=f"Deleted {username} permanently"
-            )
+            return Response(success=True, message=f"Deleted {username} permanently")
         except ClientError as e:
             logger.exception("Admin delete user profile")
             error = e.response.get("Error", {})

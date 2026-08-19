@@ -12,7 +12,7 @@ from app.services.admin_matches_service import admin_service
 router = APIRouter(tags=["admin"])
 
 
-#User management routes
+# User management routes
 @router.get(
     "/admin/users",
     response_model=list[UserResponse],
@@ -137,7 +137,7 @@ async def delete_user(
     return await admin_service.delete_user(session, username, sub)
 
 
-#Platform settings routes
+# Platform settings routes
 @router.get(
     "/admin/platform-settings",
     response_model=PlatformSettingsResponse,

@@ -43,7 +43,6 @@ async def register_handler(body: RegisterRequest, session: AsyncSession) -> Auth
             detail="Passwords do not match.",
         )
 
-
     if not await admin_service.is_registration_open():
         raise HTTPException(
             status_code=403,

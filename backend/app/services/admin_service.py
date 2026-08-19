@@ -62,8 +62,6 @@ class admin_service:
                     # If a user has multiple roles, it is chaai. Praying that isnt the case. I am too tired to think about that now but hjere is comment for reference.
                     user_role_map[username] = group_name
 
-
-
             # Adjusting the existance response now to include the role of the user based on the mapping we created above
             users: list[UserResponse] = []
 
@@ -370,7 +368,7 @@ class admin_service:
             return_value = CreateGroupResponse(
                 group_name=group.get("GroupName", group_name),
                 user_pool_id=group.get("UserPoolId", ""),
-                descriptipn=group.get("Description", description),
+                description=group.get("Description", description),
                 precedence=group.get("Precedence", precedence),
                 last_modified_date=group.get(
                     "LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)

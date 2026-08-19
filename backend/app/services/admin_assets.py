@@ -48,9 +48,7 @@ class admin_assets_service:
             row.name = display_name
             row.image_path = image_path
         else:
-            row = MapAssets(
-                map_id=map_id, name=display_name, image_path=image_path
-            )
+            row = MapAssets(map_id=map_id, name=display_name, image_path=image_path)
         session.add(row)
         await session.commit()
         await session.refresh(row)

@@ -550,7 +550,7 @@ class TestAdminServicePost:
 
         assert response.group_name == "test"
         assert response.user_pool_id == "test-12"
-        assert response.descriptipn == "Test group User"
+        assert response.description == "Test group User"
         assert response.precedence == 12
         assert response.last_modified_date == created
         assert response.creation_date == created
