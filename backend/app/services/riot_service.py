@@ -20,7 +20,6 @@ from app.config import get_settings
 load_dotenv()
 
 API_KEY = os.getenv("RIOT_API_KEY")
-# BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
 
 
@@ -108,7 +107,6 @@ class RiotService:
     def __init__(self, region: str):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
         self.account_url = f"https://{region}.api.riotgames.com"
-        # self.platform_url = "https://euw1.api.riotgames.com"
         self.server_region: str = region
         self.platform_url: str | None = None
 
@@ -167,8 +165,8 @@ class RiotService:
     async def get_match_ids(
         self, server_region: str, puuid: str, count: int = 5
     ) -> list[str]:
-        # macro_region = self._get_macro_region(server_region)
-        self.account_url = f"https://{self.server_region}.api.riotgames.com"
+        server_region = self.server_region
+        self.account_url = f"https://{server_region}.api.riotgames.com"
         endpoint = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
         url = self.account_url + endpoint
 
@@ -197,8 +195,6 @@ class RiotService:
             )
 
     async def get_match_detail(self, match_id: str) -> Any:
-        # server_region = match_id.split("_")[0].lower()
-        # macro_region = self._get_macro_region(server_region)
         url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -234,9 +230,6 @@ class RiotService:
                 status_code=400, detail="Invalid match ID format provided."
             )
 
-        # server_region = match_id.split("_")[0].lower()
-        # macro_region = self._get_macro_region(server_region)
-
         safe_match_id = quote(match_id, safe="")
         url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
 
@@ -264,9 +257,6 @@ class RiotService:
                     status_code=response.status_code,
                     detail=f"Riot API Error: {error_text}",
                 )
-
-
-# riot_service = RiotService("americas")
 
 
 async def get_riot_service(

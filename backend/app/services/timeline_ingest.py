@@ -74,7 +74,7 @@ async def fetch_timeline(
         f"{match_id}/timeline"
     )
 
-    response = await client.get(url, headers={"X-Riot-Token": riot_api_key()})
+    response = await client.get(url, headers=headers)
     raise_for_riot_status(response)
     if response.status_code == 404:
         raise TimelineNotAvailableError(f"Riot has no timeline for match {match_id}.")

@@ -83,7 +83,6 @@ async def fetch_recent_match_ids(
     count: int,
 ) -> list[str]:
     """Recent Match-V5 ids for a PUUID, probing routing clusters until one answers."""
-    headers = {"X-Riot-Token": riot_api_key()}
 
     url = (
         f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
@@ -105,10 +104,9 @@ async def fetch_match(
     client: httpx.AsyncClient, region: str, headers: dict[str, str], match_id: str
 ) -> dict[str, Any] | None:
     url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
-    headers = {"X-Riot-Token": riot_api_key()}
 
-    async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
-        response = await client.get(url, headers=headers)
+    
+    response = await client.get(url, headers=headers)
 
     raise_for_riot_status(response)
     if response.status_code != 200:

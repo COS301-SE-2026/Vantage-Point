@@ -86,7 +86,11 @@ async def get_me(
     return _user_me_response(response, account, get_user_role(current_user))
 
 
-@router.patch("/me", response_model=UserMeResponse)
+@router.patch(
+    "/me",
+    response_model=UserMeResponse,
+    responses={404: {"description": "User not found"}},
+)
 async def update_me(
     body: UpdateUserMeRequest,
     current_user: Annotated[User, Depends(require_group(10))],
@@ -101,7 +105,11 @@ async def update_me(
     return _user_me_response(response, account, get_user_role(current_user))
 
 
-@router.post("/me/avatar", response_model=AvatarUploadResponse)
+@router.post(
+    "/me/avatar",
+    response_model=AvatarUploadResponse,
+    responses={404: {"description": "User not found"}},
+)
 async def upload_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -116,7 +124,11 @@ async def upload_avatar(
     return AvatarUploadResponse(avatar_url=avatar_path)
 
 
-@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/me/avatar",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": "User not found"}},
+)
 async def delete_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -129,7 +141,11 @@ async def delete_avatar(
     await session.commit()
 
 
-@router.get("/me/profile", response_model=PlayerProfileResponse)
+@router.get(
+    "/me/profile",
+    response_model=PlayerProfileResponse,
+    responses={404: {"description": "User not found"}},
+)
 async def get_my_profile(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],

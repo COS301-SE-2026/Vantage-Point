@@ -1064,7 +1064,7 @@ class LiveAnalyticsService:
             )
 
 
-async def get_analytics_service(riot_service: RiotServiceDep) -> LiveAnalyticsService:
+def get_analytics_service(riot_service: RiotServiceDep) -> LiveAnalyticsService:
     return LiveAnalyticsService(riot_service)
 
 
