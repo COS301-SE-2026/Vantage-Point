@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
+from app.pred_engine.ai_caller import create_models
 
 from app.api.router import (
     admin_routes,
@@ -128,6 +129,8 @@ def should_skip_startup_db_init() -> bool:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    create_models()
+    
     if should_skip_startup_db_init():
         print("Database initialization skipped: database host is unavailable here")
         yield

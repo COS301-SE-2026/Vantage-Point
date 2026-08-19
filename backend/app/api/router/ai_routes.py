@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, HTTPException, FastAPI
+from fastapi import Depends, APIRouter, HTTPException
 from app.Models.auth_model import User
 from app.api.auth import require_group
 from typing import Any, Annotated
@@ -9,9 +9,7 @@ from app.Models.riot_schemas import (MapReplay, MapSuggestData, MatchData, ItemD
 from app.pred_engine.ai_caller import (get_knn_output, get_champ_pred, get_item_pred, get_role_pred, get_skill_pred, create_models)
 from app.services.analytics import LiveAnalyticsServiceDep
 
-router = APIRouter(tags=["ai"])
-
-
+router = APIRouter()
 
 @router.get(
     "/knn-model",
