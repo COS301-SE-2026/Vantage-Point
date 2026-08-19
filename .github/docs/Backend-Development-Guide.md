@@ -195,6 +195,9 @@ pytest
 # Run with coverage
 pytest --cov=app
 
+# Run with coverage and generate JSON report
+pytest --cov=app --cov-report=json --cov-report=term
+
 # Run with coverage and generate HTML report
 pytest --cov=app --cov-report=html
 
@@ -225,22 +228,32 @@ pytest --cov=app --cov-report=term-missing
 #Run tests and hides files that are 100% covered
 pytest --cov=app --cov-report=term-missing:skip-covered
 ```
+
+### Combined Coverage Summary
+
+The repo has a script that runs both backend and frontend coverage and merges
+them into a single dated report, so anyone can check test coverage without
+running both suites separately.
+
 ```sh
-## Checking test coverage
-Both suites' coverage can be checked at once from the repo root:
-
+# from repo root
 node scripts/generate-coverage-summary.js
-
-This runs pytest --cov=app --cov-report=json in backend/ and Vitest's coverage run in frontend/, then writes a combined, timestamped report to .github/docs/coverage-summary.md — overall totals for each side, plus a table listing any individual file under 90% coverage. Pass THRESHOLD=<n> to change that cutoff for a single run, e.g. THRESHOLD=80 node scripts/generate-coverage-summary.js.
-
-One-time setup this depends on (already in the repo, just noting why it works):
-
-frontend's Vitest config includes the json-summary coverage reporter
-frontend/package.json's test:coverage uses vitest run --coverage (not watch mode)
-Backend coverage is generated with --cov-report=json, producing backend/coverage.json
-Check .github/docs/coverage-summary.md before opening a PR if you touched an area that was already under the threshold.
-
 ```
+
+This runs `pytest --cov=app --cov-report=json` here in `backend/`, runs the
+frontend's Vitest coverage, and writes the combined result to
+`.github/docs/coverage-summary.md` — including a table of any file below 90%
+coverage (`## Files below 90%` under each side). Lower or raise that bar for a
+single run with:
+
+```sh
+THRESHOLD=80 node scripts/generate-coverage-summary.js
+```
+
+Check `.github/docs/coverage-summary.md` before opening a PR if your change
+touches an area that was already under 90% — it's the fastest way to see
+which files still need tests. See
+[Dev-Quickstart.md](./Dev-Quickstart.md) for the full script setup.
 
 ### Platform Notes
 
@@ -303,4 +316,32 @@ logging.basicConfig(
 - Cache Riot API responses to minimize external requests
 - Paginate large result sets with limit/offset
 - Add database indexes on frequently queried columns
-- Use connection pooling for database connect
+- Use connection pooling for database connections
+
+## Adding New Features
+1. Create service logic in `app/services/`
+2. Define models in `app/models/`
+3. Create endpoints in `app/api/v1/`
+4. Write tests in `app/tests/`
+5. Include router in `app/main.py`
+6. Run quality checks and tests locally
+7. Open PR with test coverage info
+
+## Git Workflow
+```sh
+# 1. Create feature branch
+git checkout -b backend/feature-name
+
+# 2. Make changes and test locally
+black app && ruff check app --fix && mypy app && pytest
+
+# 3. Commit with descriptive message
+git add .
+git commit -m "feat: Add new endpoint for spatial analysis"
+
+# 4. Push branch
+git push origin backend/feature-name
+
+# 5. Create PR on GitHub
+# Link related issues and add test coverage info
+```

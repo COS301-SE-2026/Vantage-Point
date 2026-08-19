@@ -40,7 +40,7 @@ def get_knn(file_name):
     except OSError:
         return None
 
-    x_train, _, y_train, _ = converter.get_train_test_data_knn(file_name)
+    x_train, x_test, y_train, y_test = converter.get_train_test_data_knn(file_name)
 
     # nullcheck data
     if len(x_train) == 0 or len(y_train) == 0:
