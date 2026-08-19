@@ -44,5 +44,7 @@ else
     # Re-deploy the containers
     podman-compose up -d --remove-orphans
     echo "Rollback execution completed."
+    # TODO: add full copy over of old files if build fails (purge new problem files)
+    # (in the case that rysnc is not sufficient for rollback)
     exit 1
 fi
