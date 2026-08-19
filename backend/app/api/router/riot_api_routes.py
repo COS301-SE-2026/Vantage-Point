@@ -9,7 +9,8 @@ from app.api.auth import require_group
 
 router = APIRouter()
 
-#should endpoint be encrypted/protected
+
+# should endpoint be encrypted/protected
 @router.get(
     "/riot/get-match",
     summary="Gets a match detail",
@@ -48,8 +49,12 @@ async def get_match_ids(
     summary="Gets the player id using his riot id",
     tags=["riot"],
 )
-async def get_puuid(game_name: str, tag_line: str,  current_user: Annotated[User, Depends(require_group(10))],
-    session: Annotated[AsyncSession, Depends(get_session)]) -> str | None:
+async def get_puuid(
+    game_name: str,
+    tag_line: str,
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> str | None:
     return await get_puuid_by_riot_id(game_name, tag_line, session, current_user.sub)
 
 

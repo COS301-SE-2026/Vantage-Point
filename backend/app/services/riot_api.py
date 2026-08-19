@@ -15,28 +15,30 @@ load_dotenv()
 
 # Account API routing clusters (try in order — EU accounts need `europe`, not `americas`)
 
-async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:
-        statement = select(Users).where(Users.cognito_sub == cognito_sub)
-        result: Any = await session.execute(statement)
-        user: Users | None = result.scalar_one_or_none()
 
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        return user.platform_id    
+async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:
+    statement = select(Users).where(Users.cognito_sub == cognito_sub)
+    result: Any = await session.execute(statement)
+    user: Users | None = result.scalar_one_or_none()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user.platform_id
+
 
 async def _set_platform(cognito_sub: str, session: AsyncSession, platform: str) -> bool:
-        statement = select(Users).where(Users.cognito_sub == cognito_sub)
-        result: Any = await session.execute(statement)
-        user: Users | None = result.scalar_one_or_none()
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+    statement = select(Users).where(Users.cognito_sub == cognito_sub)
+    result: Any = await session.execute(statement)
+    user: Users | None = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
 
-        user.platform_id = platform
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return True
+    user.platform_id = platform
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return True
 
 
 class RiotApiNotConfiguredError(Exception):
@@ -51,7 +53,9 @@ def _normalize_tag_line(tag_line: str) -> str:
     return tag_line.strip().lstrip("#")
 
 
-async def get_puuid_by_riot_id(game_name: str, tag_line: str, session: AsyncSession, cognito_sub: str) -> str | None:
+async def get_puuid_by_riot_id(
+    game_name: str, tag_line: str, session: AsyncSession, cognito_sub: str
+) -> str | None:
     """Get PUUID by Riot ID (game name + tag), trying all regional routing clusters."""
     load_dotenv(override=True)
     api_key = os.getenv("RIOT_API_KEY", "").strip()
@@ -83,7 +87,7 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str, session: AsyncSess
             if response.status_code == 200:
                 puuid = response.json().get("puuid")
                 if puuid:
-                    await _set_platform(cognito_sub, session, pl)                 
+                    await _set_platform(cognito_sub, session, pl)
                     return str(puuid) if puuid else None
                 return None
 

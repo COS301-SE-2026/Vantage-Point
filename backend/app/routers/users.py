@@ -25,7 +25,7 @@ from app.schemas.user import (
 )
 from app.services.analytics import LiveAnalyticsServiceDep
 from app.services.avatar_storage import delete_avatar_files, save_avatar
-from app.services.match_ingest import sync_matches_best_effort ,resolve_platform
+from app.services.match_ingest import sync_matches_best_effort, resolve_platform
 from app.services.player_profile import build_player_profile
 from app.services.profile_services import ProfileService
 from app.services.user_accounts import (
@@ -172,7 +172,7 @@ async def get_my_live_metrics(
         )
 
     platform = server_region or await resolve_platform(session, puuid) or "euw1"
-    
+
     return await service.get_live_metrics_from_api(
         server_region=platform,
         puuid=puuid,
@@ -198,7 +198,9 @@ async def _link_game_account_impl(
     # round trip and the user is waiting on this response — the "Sync with Riot" button
     # on the match list pulls a deeper window. A Riot outage must not undo a successful
     # link, so failures here only get logged.
-    imported = await sync_matches_best_effort(session, puuid, count=5, cognito_sub=current_user.sub)
+    imported = await sync_matches_best_effort(
+        session, puuid, count=5, cognito_sub=current_user.sub
+    )
     message = f"Successfully linked {tag}"
     if imported and imported["imported"]:
         message = f"{message} — imported {imported['imported']} recent matches"

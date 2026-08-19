@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException # , status
+from fastapi import HTTPException  # , status
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
@@ -214,6 +214,7 @@ class ProfileService:
 
     "this is to be used to make it more dynamic, use the region the user chosen when login/registering"
     "get cognito_sub then update in db"
+
     @staticmethod
     async def set_region(session: AsyncSession, cognito_sub: str, region: str) -> bool:
         try:

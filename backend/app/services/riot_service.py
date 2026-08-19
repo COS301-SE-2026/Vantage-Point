@@ -17,7 +17,6 @@ from app.api.auth import require_group
 from app.database.session import get_session
 from app.config import get_settings
 
-
 load_dotenv()
 
 API_KEY = os.getenv("RIOT_API_KEY")
@@ -110,7 +109,7 @@ class RiotService:
         self.headers = {"X-Riot-Token": settings.riot_api_key}
         self.account_url = f"https://{region}.api.riotgames.com"
         # self.platform_url = "https://euw1.api.riotgames.com"
-        self.server_region:str = region
+        self.server_region: str = region
         self.platform_url: str | None = None
 
     def _get_macro_region(self, server_region: str) -> str:
@@ -134,7 +133,7 @@ class RiotService:
             return puuid
 
     async def get_summoner_data(self, puuid: str):
-        possible_platforms:list[str] = RegionPlatforms[self.server_region]
+        possible_platforms: list[str] = RegionPlatforms[self.server_region]
 
         async with httpx.AsyncClient() as client:
             for server_region in possible_platforms:
@@ -160,8 +159,10 @@ class RiotService:
                         status_code=response.status_code,
                         detail=f"Riot API Error: {response.text}",
                     )
-        raise HTTPException(status_code=404, detail=f"Summoner Puuid: {puuid} was not found in {self.server_region}",)
-                
+        raise HTTPException(
+            status_code=404,
+            detail=f"Summoner Puuid: {puuid} was not found in {self.server_region}",
+        )
 
     async def get_match_ids(
         self, server_region: str, puuid: str, count: int = 5
@@ -195,13 +196,10 @@ class RiotService:
                 detail="Failed to fetch match IDs from Riot",
             )
 
-
     async def get_match_detail(self, match_id: str) -> Any:
         # server_region = match_id.split("_")[0].lower()
         # macro_region = self._get_macro_region(server_region)
-        url = (
-            f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
-        )
+        url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
 
@@ -271,9 +269,11 @@ class RiotService:
 # riot_service = RiotService("americas")
 
 
-async def get_riot_service(_: Annotated[User, Depends(require_group(20))],
-    session: Annotated[AsyncSession, Depends(get_session)]) -> RiotService:
-    region:str = await get_region(session, _.sub)
+async def get_riot_service(
+    _: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> RiotService:
+    region: str = await get_region(session, _.sub)
 
     return RiotService(region)
 

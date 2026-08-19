@@ -73,9 +73,8 @@ class LiveAnalyticsService:
 
         return player, team_kills
 
-
     async def get_live_metrics_from_api(
-            self, server_region: str, puuid: str, count: int = 20
+        self, server_region: str, puuid: str, count: int = 20
     ) -> LiveAdvancedMetrics:
         """
         Queries live match details through RiotService and returns aggregated performance metrics.
@@ -284,16 +283,13 @@ class LiveAnalyticsService:
 
         return replay
 
-
     async def map_suggest_data(
         self, match_id: str, puuid: str, session: AsyncSession
     ) -> MapSuggestData:
         timeline = await self.riot_service.get_match_timeline(match_id)
         match = await self.riot_service.get_match_detail(match_id)
         # cover part of knn required data
-        map_replay: MapReplayTable = await self.map_replay(
-            match_id, session, puuid
-        )
+        map_replay: MapReplayTable = await self.map_replay(match_id, session, puuid)
 
         paritcipants: Any = match["info"]["participants"]
         player = next((p for p in paritcipants if p["puuid"] == puuid))
@@ -356,7 +352,6 @@ class LiveAnalyticsService:
             power=champion_stats.power,
             powerMax=champion_stats.powerMax,
         )
-
 
     async def profile_data(
         self, match_id: str, puuid: str, session: AsyncSession
@@ -451,7 +446,6 @@ class LiveAnalyticsService:
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
-
 
     async def match_data(
         self, session: AsyncSession, match_id: str, puuid: str
@@ -650,7 +644,6 @@ class LiveAnalyticsService:
             )
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-
     async def champion_data(self, match_id: str, puuid: str) -> ChampionData:
         try:
             match = await self.riot_service.get_match_detail(match_id)
@@ -752,8 +745,9 @@ class LiveAnalyticsService:
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing Riot API field: {e}")
 
-
-    async def item_data(self, match_id: str, puuid: str, session: AsyncSession) -> ItemData:
+    async def item_data(
+        self, match_id: str, puuid: str, session: AsyncSession
+    ) -> ItemData:
         try:
             timeline = await self.riot_service.get_match_timeline(match_id)
             match = await self.riot_service.get_match_detail(match_id)
@@ -796,9 +790,7 @@ class LiveAnalyticsService:
             participant_data = LiveAnalyticsService.get_participants_data(
                 frames, participant_id
             )
-            map_replay = await self.map_replay(
-                match_id, session, puuid=puuid
-            )
+            map_replay = await self.map_replay(match_id, session, puuid=puuid)
 
             response = ItemData(
                 itemId=item_id,
@@ -856,8 +848,9 @@ class LiveAnalyticsService:
                 status_code=500, detail=f"{internal_server_error}: {str(e)}"
             )
 
-
-    async def skill_data(self, match_id: str, puuid: str, session: AsyncSession) -> SkillData:
+    async def skill_data(
+        self, match_id: str, puuid: str, session: AsyncSession
+    ) -> SkillData:
         try:
             timeline = await self.riot_service.get_match_timeline(match_id)
             match = await self.riot_service.get_match_detail(match_id)
@@ -997,7 +990,6 @@ class LiveAnalyticsService:
                 status_code=500, detail=f"{internal_server_error}: {str(e)}"
             )
 
-
     async def role_data(self, match_id: str, puuid: str) -> RoleData:
         try:
             timeline = await self.riot_service.get_match_timeline(match_id)
@@ -1071,7 +1063,11 @@ class LiveAnalyticsService:
                 status_code=500, detail=f"Internal server error {str(e)}"
             )
 
+
 async def get_analytics_service(riot_service: RiotServiceDep) -> LiveAnalyticsService:
     return LiveAnalyticsService(riot_service)
 
-LiveAnalyticsServiceDep = Annotated[LiveAnalyticsService, Depends(get_analytics_service)]
+
+LiveAnalyticsServiceDep = Annotated[
+    LiveAnalyticsService, Depends(get_analytics_service)
+]

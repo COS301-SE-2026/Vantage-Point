@@ -280,7 +280,9 @@ async def register_summoner(
     current_user: Annotated[User, Depends(require_group(20))],
 ) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
-    puuid = await get_puuid_by_riot_id(game_name, tag_line, session=session,cognito_sub=current_user.sub)
+    puuid = await get_puuid_by_riot_id(
+        game_name, tag_line, session=session, cognito_sub=current_user.sub
+    )
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 

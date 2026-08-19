@@ -39,7 +39,7 @@ from app.services.riot_api import (
     RiotApiNotConfiguredError,
     RiotApiUnauthorizedError,
 )
-from app.services.riot_service import  get_region
+from app.services.riot_service import get_region
 
 logger = logging.getLogger("app.match_ingest")
 
@@ -74,29 +74,33 @@ def raise_for_riot_status(response: httpx.Response) -> None:
         )
 
 
-async def fetch_recent_match_ids(puuid: str, count: int, cognito_sub: str, session: AsyncSession) -> list[str]:
+async def fetch_recent_match_ids(
+    puuid: str, count: int, cognito_sub: str, session: AsyncSession
+) -> list[str]:
     """Recent Match-V5 ids for a PUUID, probing routing clusters until one answers."""
     headers = {"X-Riot-Token": riot_api_key()}
 
     async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
-            region = get_region(session, cognito_sub)
-            url = (
-                f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
-                f"by-puuid/{puuid}/ids?start=0&count={count}"
-            )
-            response = await client.get(url, headers=headers)
-            raise_for_riot_status(response)
+        region = get_region(session, cognito_sub)
+        url = (
+            f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
+            f"by-puuid/{puuid}/ids?start=0&count={count}"
+        )
+        response = await client.get(url, headers=headers)
+        raise_for_riot_status(response)
 
-            if response.status_code == 200:
-                ids = [str(match_id) for match_id in response.json()]
-                if ids:
-                    return ids
-            # 404 or an empty list means this cluster does not host the account.
+        if response.status_code == 200:
+            ids = [str(match_id) for match_id in response.json()]
+            if ids:
+                return ids
+        # 404 or an empty list means this cluster does not host the account.
 
     return []
 
 
-async def fetch_match(match_id: str, session: AsyncSession, cognito_sub: str) -> dict[str, Any] | None:
+async def fetch_match(
+    match_id: str, session: AsyncSession, cognito_sub: str
+) -> dict[str, Any] | None:
     region = get_region(session, cognito_sub)
     url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
     headers = {"X-Riot-Token": riot_api_key()}
@@ -604,11 +608,17 @@ async def resolve_platform(session: AsyncSession, puuid: str) -> str | None:
 
 
 async def sync_matches_best_effort(
-    session: AsyncSession, puuid: str, *, count: int = DEFAULT_SYNC_COUNT, cognito_sub: str
+    session: AsyncSession,
+    puuid: str,
+    *,
+    count: int = DEFAULT_SYNC_COUNT,
+    cognito_sub: str,
 ) -> dict[str, int] | None:
     """Sync without letting a Riot outage fail the request that triggered it."""
     try:
-        return await sync_matches_for_puuid(session, puuid, count=count, cognito_sub=cognito_sub)
+        return await sync_matches_for_puuid(
+            session, puuid, count=count, cognito_sub=cognito_sub
+        )
     except (RiotApiNotConfiguredError, RiotApiUnauthorizedError) as exc:
         logger.warning("Match sync skipped for %s: %s", puuid, exc)
     except Exception as exc:  # noqa: BLE001 - background best-effort import

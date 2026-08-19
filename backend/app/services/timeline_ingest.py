@@ -36,7 +36,7 @@ from app.services.match_ingest import (
     raise_for_riot_status,
     riot_api_key,
 )
-from app.services.riot_service import  get_region
+from app.services.riot_service import get_region
 from app.services.spatial_service import map_bounds_for, path_distance
 
 logger = logging.getLogger("app.timeline")
@@ -64,9 +64,12 @@ DEFAULT_FRAME_INTERVAL_MS = 60_000
 class TimelineNotAvailableError(Exception):
     """Riot has no timeline for this match (too old, or it never existed)."""
 
-#error message if wrong region how would I tell them this. 
-async def fetch_timeline(match_id: str, cognito_sub: str, session: AsyncSession) -> dict[str, Any]:
-    region =  get_region(session=session, cognito_sub=cognito_sub)
+
+# error message if wrong region how would I tell them this.
+async def fetch_timeline(
+    match_id: str, cognito_sub: str, session: AsyncSession
+) -> dict[str, Any]:
+    region = get_region(session=session, cognito_sub=cognito_sub)
     url = (
         f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
         f"{match_id}/timeline"
@@ -81,7 +84,7 @@ async def fetch_timeline(match_id: str, cognito_sub: str, session: AsyncSession)
         raise TimelineNotAvailableError(
             f"Riot returned {response.status_code} for the {match_id} timeline."
         )
-    #add maybe region is wrong needs to be changed
+    # add maybe region is wrong needs to be changed
     payload: dict[str, Any] = response.json()
     return payload
 
@@ -339,7 +342,7 @@ async def store_timeline(
 
 
 async def get_or_fetch_timeline(
-    session: AsyncSession, cognito_sub: str ,match_id: str
+    session: AsyncSession, cognito_sub: str, match_id: str
 ) -> MatchTimelineResponse:
     """Return the stored timeline, pulling it from Riot the first time it is asked for."""
     stored = await _stored_timeline(session, match_id)

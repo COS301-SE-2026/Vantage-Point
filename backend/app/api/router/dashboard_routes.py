@@ -102,11 +102,12 @@ async def get_total_matches(
 async def get_s3_storage(_: Annotated[User, Depends(require_group(20))]):
     return await DashboardService.get_s3_storage_used()
 
+
 @router.get(
     "/dashboard/logs",
     response_model=list[ActivityResponse],
     description="Get logs saved to cloudwatch based on limit, default 50",
-    tags=["dashboard"]
+    tags=["dashboard"],
 )
 async def get_current_activities(limit: int = 50):
     return await DashboardService.get_current_activities(limit)
