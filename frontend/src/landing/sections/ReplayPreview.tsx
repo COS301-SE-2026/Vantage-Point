@@ -52,6 +52,8 @@ export default function ReplayPreview() {
       kills: activeActions.has("kills"),
       deaths: activeActions.has("deaths"),
       path: activeActions.has("path"),
+      // The recommended route is offered on the replay screen only.
+      suggestedPath: false,
     }),
     [activeActions],
   );

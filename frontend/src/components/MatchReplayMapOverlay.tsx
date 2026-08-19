@@ -6,13 +6,16 @@ import {
   pathUpTo,
   projectPosition,
 } from "../lib/timeline";
+import { suggestedPathUpTo } from "../lib/suggestedPath";
 import type { ParticipantDetail } from "../types/match";
+import type { SuggestedPath } from "../types/suggestedPath";
 import type { MatchTimeline } from "../types/timeline";
 
 export interface ReplayOverlayToggles {
   readonly kills: boolean;
   readonly deaths: boolean;
   readonly path: boolean;
+  readonly suggestedPath: boolean;
 }
 
 interface MatchReplayMapOverlayProps {
@@ -23,7 +26,16 @@ interface MatchReplayMapOverlayProps {
   readonly selectedPuuids: ReadonlySet<string>;
   readonly elapsedMs: number;
   readonly toggles: ReplayOverlayToggles;
+  /**
+   * The AI's recommended route for one player. Null until it has loaded, when the
+   * backend has nothing to say about this match, or on the screens that draw the map
+   * without ever offering the recommendation.
+   */
+  readonly suggestedPath?: SuggestedPath | null;
 }
+
+/** The recommended route reads gold so neither team colour can be mistaken for it. */
+const SUGGESTED_PATH_COLOUR = "#e0b46c";
 
 /** Blue side reads #07f across the app; red side is the defeat red. */
 function teamColour(teamId: number | undefined): string {
@@ -44,6 +56,7 @@ export default function MatchReplayMapOverlay({
   selectedPuuids,
   elapsedMs,
   toggles,
+  suggestedPath = null,
 }: Readonly<MatchReplayMapOverlayProps>) {
   const bounds = timeline.map_bounds;
 
@@ -72,6 +85,14 @@ export default function MatchReplayMapOverlay({
         .join(" "),
     }));
   }, [toggles.path, tracked, teamIdByPuuid, timeline, elapsedMs, bounds]);
+
+  const suggestedPoints = useMemo(() => {
+    if (!toggles.suggestedPath || !suggestedPath) return "";
+    return suggestedPathUpTo(suggestedPath, elapsedMs)
+      .map((point) => projectPosition(point.position, bounds))
+      .map((point) => `${point.leftPct},${point.topPct}`)
+      .join(" ");
+  }, [toggles.suggestedPath, suggestedPath, elapsedMs, bounds]);
 
   const killMarkers = useMemo(() => {
     if (!toggles.kills && !toggles.deaths) return [];
@@ -153,6 +174,22 @@ export default function MatchReplayMapOverlay({
             vectorEffect="non-scaling-stroke"
           />
         ))}
+
+        {/* Dashed so it still reads as the recommendation on a greyscale print or for
+            anyone who cannot separate the gold from a team colour. */}
+        {suggestedPoints ? (
+          <polyline
+            data-name="suggested-path"
+            points={suggestedPoints}
+            fill="none"
+            stroke={SUGGESTED_PATH_COLOUR}
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : null}
       </svg>
 
       {killMarkers.map((marker) => (
