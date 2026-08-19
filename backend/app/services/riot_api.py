@@ -8,6 +8,8 @@ from sqlmodel import select
 from app.database.models import Users
 from typing import Any
 from fastapi import HTTPException
+from app.services.riot_service import get_region
+from app.Enums.riot_enum import RegionPlatforms
 
 load_dotenv()
 
@@ -62,17 +64,28 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str, session: AsyncSess
     safe_tag_line = quote(_normalize_tag_line(tag_line), safe="")
     headers: dict[str, str] = {"X-Riot-Token": api_key}
 
+    platform = await _get_platform(session=session, cognito_sub=cognito_sub)
+
+    if platform is not None:
+        platforms = [platform]
+    else:
+        region = await get_region(session, cognito_sub)
+        platforms = RegionPlatforms[region]
+
     async with httpx.AsyncClient(timeout=15.0) as client:
-            region = get_platform(session, cognito_sub=cognito_sub)
+        for pl in platforms:
             url = (
-                f"https://{region}.api.riotgames.com/riot/account/v1/"
+                f"https://{pl}.api.riotgames.com/riot/account/v1/"
                 f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
             )
             response = await client.get(url, headers=headers)
 
             if response.status_code == 200:
                 puuid = response.json().get("puuid")
-                return str(puuid) if puuid else None
+                if puuid:
+                    await _set_platform(cognito_sub, session, pl)                 
+                    return str(puuid) if puuid else None
+                return None
 
             if response.status_code == 401:
                 raise RiotApiUnauthorizedError(
