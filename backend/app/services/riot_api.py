@@ -4,12 +4,38 @@ from urllib.parse import quote
 import httpx
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
+from app.database.models import Users
+from typing import Any
+from fastapi import HTTPException
 
 load_dotenv()
 
 # Account API routing clusters (try in order — EU accounts need `europe`, not `americas`)
 
-from app.services.riot_service import  get_region
+async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:
+        statement = select(Users).where(Users.cognito_sub == cognito_sub)
+        result: Any = await session.execute(statement)
+        user: Users | None = result.scalar_one_or_none()
+
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return user.platform_id    
+
+async def _set_platform(cognito_sub: str, session: AsyncSession, platform: str) -> bool:
+        statement = select(Users).where(Users.cognito_sub == cognito_sub)
+        result: Any = await session.execute(statement)
+        user: Users | None = result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user.platform_id = platform
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return True
+
 
 class RiotApiNotConfiguredError(Exception):
     """Raised when RIOT_API_KEY is missing from the environment."""
@@ -37,7 +63,7 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str, session: AsyncSess
     headers: dict[str, str] = {"X-Riot-Token": api_key}
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-            region = get_region(session, cognito_sub=cognito_sub)
+            region = get_platform(session, cognito_sub=cognito_sub)
             url = (
                 f"https://{region}.api.riotgames.com/riot/account/v1/"
                 f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"

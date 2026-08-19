@@ -51,7 +51,7 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     region: str | None = (
         None  # this is added for dynamic purposes because matches of a player get saved on their region server
     )
-    platformId: str | None = None
+    platform_id: str | None = None
     # and unable to get on other region servers or won't be the same match
 
     linked_puuids_cache: Optional[str] = Field(

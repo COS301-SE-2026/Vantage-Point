@@ -27,6 +27,8 @@ from app.api.router import (
     dashboard_routes,
 )
 from app.routers import matches, users
+from app.Models.auth_model import User
+from app.api.auth import require_group
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
@@ -275,9 +277,10 @@ async def register_summoner(
     game_name: str,
     tag_line: str,
     session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_group(20))],
 ) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
-    puuid = await get_puuid_by_riot_id(game_name, tag_line)
+    puuid = await get_puuid_by_riot_id(game_name, tag_line, session=session,cognito_sub=current_user.sub)
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 
