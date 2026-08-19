@@ -9,6 +9,7 @@ from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
+from app.services.admin_matches_service import admin_service
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
@@ -56,6 +57,11 @@ def handle_cognito_error(e: ClientError) -> NoReturn:
 
 
 async def register_user(username: str, password: str, email: str):
+    if not await admin_service.is_registration_open():
+        raise HTTPException(
+            status_code=403,
+            detail="Public registration is currently closed.",
+        )
     if len(username) == 0:
         raise HTTPException(status_code=400, detail="Username is required")
     if "@" not in email:

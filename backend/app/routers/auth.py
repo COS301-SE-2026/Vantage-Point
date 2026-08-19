@@ -15,6 +15,7 @@ from app.schemas.auth_schemas import (
 )
 from app.schemas.generic_schemas import ErrorResponse
 from app.services import identity
+from backend.app.services.admin_service import admin_service
 
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -40,6 +41,13 @@ async def register_handler(body: RegisterRequest, session: AsyncSession) -> Auth
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Passwords do not match.",
+        )
+
+
+    if not await admin_service.is_registration_open():
+        raise HTTPException(
+            status_code=403,
+            detail="Public registration is currently closed.",
         )
 
     return await identity.register_account(
