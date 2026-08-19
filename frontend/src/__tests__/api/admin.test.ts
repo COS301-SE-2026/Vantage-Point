@@ -147,24 +147,26 @@ describe("admin API (mock mode)", () => {
   it("listMapAssets/ uploadMapAsset returns mock maps and an object URL", async () => {
     expect(await admin.listMapAssets()).toEqual([
       {
-        map_id: "summoners_rift",
+        map_id: 11 ,
         display_name: "Summoner's Rift",
         image_url: "",
       },
     ]);
     const file = new File(["x"], "rift.png", { type: "image/png" });
-    const created = await admin.uploadMapAsset("rift", "Rift", file);
-    expect(created.map_id).toBe("rift");
+    const created = await admin.uploadMapAsset(11, "Rift", file);
+    expect(created.map_id).toBe(11);
     expect(created.display_name).toBe("Rift");
   });
 
   it("listChampionAssest/ uploadChampionAsset returns mock data and an object URL", async () => {
     expect(await admin.listChampionAssets()).toEqual([
-      { champion_id: "ahri", display_name: "Ahri", image_url: "" },
+      { champion_id: 103,
+        display_name: "Ahri",
+        image_url: "" },
     ]);
     const file = new File(["x"], "ahri.png", { type: "image/png" });
-    const created = await admin.uploadChampionAsset("ahri", "Ahri", file);
-    expect(created.champion_id).toBe("ahri");
+    const created = await admin.uploadChampionAsset(103, "Ahri", file);
+    expect(created.champion_id).toBe(103);
   });
 });
 
