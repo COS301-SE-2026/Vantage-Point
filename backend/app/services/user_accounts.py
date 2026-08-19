@@ -89,7 +89,7 @@ async def link_riot_account_for_user(
     game_name, tag_line = _parse_link_request(riot_id, game_name, tag_line)
 
     try:
-        puuid = await get_puuid_by_riot_id(game_name, tag_line)
+        puuid = await get_puuid_by_riot_id(game_name, tag_line, session, user_id)
     except RiotApiNotConfiguredError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

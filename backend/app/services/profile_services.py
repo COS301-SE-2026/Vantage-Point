@@ -211,3 +211,27 @@ class ProfileService:
 
     # update pswd and confirm update
     # build player
+
+    "this is to be used to make it more dynamic, use the region the user chosen when login/registering"
+    "get cognito_sub then update in db"
+
+    @staticmethod
+    async def set_region(session: AsyncSession, cognito_sub: str, region: str) -> bool:
+        try:
+            statement = select(Users).where(
+                Users.cognito_sub == cognito_sub
+            )  # need to change when email gets added to db
+            result: Any = await session.execute(statement)
+            user: Users | None = result.scalar_one_or_none()
+
+            if user is None:
+                # idea behind this is if not in our db does not exist in cognito. Hence can look for in our db. Due to need to get profile to updatye
+                raise HTTPException(status_code=400, detail="User does not exist.")
+
+            user.region = region
+            await session.commit()
+            await session.refresh(user)
+            return True
+        except ClientError as e:
+            print(e.response)
+            raise

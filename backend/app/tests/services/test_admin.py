@@ -78,7 +78,7 @@ class TestAdminGet:
         mock_admin_get_user.side_effect = ClientError(
             {
                 "Error": {
-                    "Code": "InvalidParamaterException",
+                    "Code": "InvalidParameterException",
                     "Message": "Invalid username",
                 }
             },
@@ -88,8 +88,8 @@ class TestAdminGet:
         with pytest.raises(HTTPException) as exec:
             await admin_service.get_user("shaun")
 
-        assert exec.value.status_code == 400
-        assert exec.value.detail == "InvalidParamaterException"
+        assert exec.value.status_code == 422
+        assert exec.value.detail == "Invalid username"
 
     @staticmethod
     @patch("app.services.admin_service.client.admin_get_user")
@@ -178,7 +178,7 @@ class TestAdminGet:
         mock_admin_get_users.side_effect = ClientError(
             {
                 "Error": {
-                    "Code": "InvalidParamaterException",
+                    "Code": "InvalidParameterException",
                     "Message": "Invalid username",
                 }
             },
@@ -188,8 +188,8 @@ class TestAdminGet:
         with pytest.raises(HTTPException) as exec:
             await admin_service.get_users()
 
-        assert exec.value.status_code == 400
-        assert exec.value.detail == "InvalidParamaterException"
+        assert exec.value.status_code == 422
+        assert exec.value.detail == "Invalid username"
 
     @staticmethod
     @patch("app.services.admin_service.client.list_users")
