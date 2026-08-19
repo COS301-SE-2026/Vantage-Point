@@ -32,6 +32,7 @@ from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
 from app.services.asset_storage import ensure_asset_dirs
 from app.services.riot_api import get_puuid_by_riot_id
+from app.routers.admin_matches_routes import router as admin_router
 
 from loguru import logger
 import logging
@@ -174,6 +175,7 @@ app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
 # This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
 
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
 # "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.

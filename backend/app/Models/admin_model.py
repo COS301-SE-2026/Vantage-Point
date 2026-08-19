@@ -37,3 +37,6 @@ class ChampionAssetResponse(BaseModel):
     champion_id: int
     display_name: str
     image_url: str
+
+class PlatformSettingsResponse(BaseModel):
+    registrations_open: bool
