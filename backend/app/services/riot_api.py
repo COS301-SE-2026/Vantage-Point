@@ -3,12 +3,13 @@ from urllib.parse import quote
 
 import httpx
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession
 
 load_dotenv()
 
 # Account API routing clusters (try in order — EU accounts need `europe`, not `americas`)
-ROUTING_CLUSTERS = ("europe", "americas", "asia", "sea")
 
+from app.services.riot_service import  get_region
 
 class RiotApiNotConfiguredError(Exception):
     """Raised when RIOT_API_KEY is missing from the environment."""
@@ -22,7 +23,7 @@ def _normalize_tag_line(tag_line: str) -> str:
     return tag_line.strip().lstrip("#")
 
 
-async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
+async def get_puuid_by_riot_id(game_name: str, tag_line: str, session: AsyncSession, cognito_sub: str) -> str | None:
     """Get PUUID by Riot ID (game name + tag), trying all regional routing clusters."""
     load_dotenv(override=True)
     api_key = os.getenv("RIOT_API_KEY", "").strip()
@@ -36,9 +37,9 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
     headers: dict[str, str] = {"X-Riot-Token": api_key}
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        for cluster in ROUTING_CLUSTERS:
+            region = get_region(session, cognito_sub=cognito_sub)
             url = (
-                f"https://{cluster}.api.riotgames.com/riot/account/v1/"
+                f"https://{region}.api.riotgames.com/riot/account/v1/"
                 f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
             )
             response = await client.get(url, headers=headers)

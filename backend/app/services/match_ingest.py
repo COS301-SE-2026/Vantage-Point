@@ -39,14 +39,13 @@ from app.services.riot_api import (
     RiotApiNotConfiguredError,
     RiotApiUnauthorizedError,
 )
-from app.services.riot_service import get_macro_region
 from app.services.riot_service import  get_region
 
 logger = logging.getLogger("app.match_ingest")
 
 # Account-V1 has no region, but Match-V5 does, and we only know the player's PUUID.
 # Probing in this order finds the right cluster in one call for most accounts.
-ROUTING_CLUSTERS = ("europe", "americas", "asia", "sea")
+
 
 DEFAULT_SYNC_COUNT = 10
 MAX_SYNC_COUNT = 40
@@ -97,9 +96,9 @@ async def fetch_recent_match_ids(puuid: str, count: int, cognito_sub: str, sessi
     return []
 
 
-async def fetch_match(match_id: str) -> dict[str, Any] | None:
-    macro_region = get_macro_region(match_id.split("_")[0].lower())
-    url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+async def fetch_match(match_id: str, session: AsyncSession, cognito_sub: str) -> dict[str, Any] | None:
+    region = get_region(session, cognito_sub)
+    url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
     headers = {"X-Riot-Token": riot_api_key()}
 
     async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
@@ -553,7 +552,7 @@ async def sync_matches_for_puuid(
     fetched_matches: list[dict[str, Any]] = []
 
     for match_id in match_ids:
-        match = await fetch_match(match_id)
+        match = await fetch_match(match_id, session, cognito_sub)
         if match is None:
             continue
         fetched_matches.append(match)

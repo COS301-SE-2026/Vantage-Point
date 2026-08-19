@@ -14,7 +14,6 @@ from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 from app.config import get_settings
 from loguru import logger
 
-# from app.Enums.riot_enum import RiotRegion
 settings = get_settings()
 client: CognitoIdentityProviderClient = boto3.client(  # type: ignore
     "cognito-idp", region_name=settings.aws_region
