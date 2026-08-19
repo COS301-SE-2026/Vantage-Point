@@ -230,6 +230,7 @@ pytest --cov=app --cov-report=term-missing:skip-covered
 Both suites' coverage can be checked at once from the repo root:
 
 node scripts/generate-coverage-summary.js
+
 This runs pytest --cov=app --cov-report=json in backend/ and Vitest's coverage run in frontend/, then writes a combined, timestamped report to .github/docs/coverage-summary.md — overall totals for each side, plus a table listing any individual file under 90% coverage. Pass THRESHOLD=<n> to change that cutoff for a single run, e.g. THRESHOLD=80 node scripts/generate-coverage-summary.js.
 
 One-time setup this depends on (already in the repo, just noting why it works):

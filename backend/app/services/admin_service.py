@@ -322,7 +322,8 @@ class admin_service:
             logger.exception("Admin create user")
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
-            if error_code == "UserNameExistException":
+            error_message = error.get("Message", "An AWS error occurred")
+            if error_code == "UsernameExistsException":
                 raise HTTPException(
                     status_code=400, detail="Username or email already exist."
                 )
@@ -331,8 +332,10 @@ class admin_service:
                     status_code=400, detail="Password does not meet format"
                 )
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid username")
-            raise HTTPException(status_code=400, detail=error_code)
+                raise HTTPException(status_code=422, detail="Invalid parameter")
+            raise HTTPException(status_code=400, detail=error_message)
+        except HTTPException as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     @staticmethod
     async def create_group(

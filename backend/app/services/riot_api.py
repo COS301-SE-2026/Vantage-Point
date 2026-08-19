@@ -68,38 +68,31 @@ async def get_puuid_by_riot_id(
     safe_tag_line = quote(_normalize_tag_line(tag_line), safe="")
     headers: dict[str, str] = {"X-Riot-Token": api_key}
 
-    platform = await _get_platform(session=session, cognito_sub=cognito_sub)
-
-    if platform is not None:
-        platforms = [platform]
-    else:
-        region = await get_region(session, cognito_sub)
-        platforms = RegionPlatforms[region]
+    region = await get_region(session, cognito_sub)
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        for pl in platforms:
-            url = (
-                f"https://{pl}.api.riotgames.com/riot/account/v1/"
-                f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
+        url = (
+            f"https://{region}.api.riotgames.com/riot/account/v1/"
+            f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
+        )
+        response = await client.get(url, headers=headers)
+
+        if response.status_code == 200:
+            puuid = response.json().get("puuid")
+            if puuid:
+                await _set_platform(cognito_sub, session, pl)
+                return str(puuid) if puuid else None
+            return None
+
+        if response.status_code == 401:
+            raise RiotApiUnauthorizedError(
+                "Riot API key is invalid or expired. Regenerate it at "
+                "https://developer.riotgames.com/ and update backend/.env"
             )
-            response = await client.get(url, headers=headers)
 
-            if response.status_code == 200:
-                puuid = response.json().get("puuid")
-                if puuid:
-                    await _set_platform(cognito_sub, session, pl)
-                    return str(puuid) if puuid else None
-                return None
-
-            if response.status_code == 401:
-                raise RiotApiUnauthorizedError(
-                    "Riot API key is invalid or expired. Regenerate it at "
-                    "https://developer.riotgames.com/ and update backend/.env"
-                )
-
-            if response.status_code == 429:
-                raise RiotApiUnauthorizedError(
-                    "Riot API rate limit reached. Wait a minute and try again."
-                )
+        if response.status_code == 429:
+            raise RiotApiUnauthorizedError(
+                "Riot API rate limit reached. Wait a minute and try again."
+            )
 
     return None
