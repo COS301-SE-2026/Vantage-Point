@@ -66,6 +66,7 @@ class admin_service:
             users: list[UserResponse] = []
 
             for user in users_Data:
+                username = user.get("Username", "")
                 attributes: Any = {
                     attr["Name"]: attr.get("Value", "")
                     for attr in user.get("Attributes", [])
@@ -73,7 +74,7 @@ class admin_service:
 
                 users.append(
                     UserResponse(
-                        username=user.get("Username", ""),
+                        username=username,
                         email=attributes.get("email", ""),
                         sub=attributes.get("sub", ""),
                         user_created_date=user.get("UserCreateDate", datetime.now()),

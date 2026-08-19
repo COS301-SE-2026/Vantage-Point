@@ -113,8 +113,14 @@ class TestAdminGet:
     # get users unit test
 
     @staticmethod
+    @patch("app.services.admin_service.client.list_users_in_group")
+    @patch("app.services.admin_service.client.list_groups")
     @patch("app.services.admin_service.client.list_users")
-    async def test_get_users_success(mock_admin_get_users: MagicMock):
+    async def test_get_users_success(
+        mock_admin_get_users: MagicMock,
+        mock_list_groups: MagicMock,
+        mock_list_users_in_group: MagicMock,
+    ):
         mock_admin_get_users.return_value = {
             "Users": [
                 {
@@ -141,11 +147,12 @@ class TestAdminGet:
                 },
             ]
         }
+        mock_list_groups.return_value = {"Groups": []}  # No groups → no role map calls
+        mock_list_users_in_group.return_value = {"Users": []}
 
         users = await admin_service.get_users()
 
         assert len(users) == 2
-
         assert users[0].username == "shaun"
         assert users[0].email == "shaun@gmail.com"
         assert users[0].sub == "12345"
