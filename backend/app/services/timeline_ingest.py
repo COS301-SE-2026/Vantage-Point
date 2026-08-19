@@ -14,7 +14,7 @@ imported, and most imported matches are never opened.
 
 import json
 import logging
-from typing import Any, Annotated
+from typing import Any
 
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,12 +36,8 @@ from app.services.match_ingest import (
     raise_for_riot_status,
     riot_api_key,
 )
-from app.services.riot_service import get_macro_region, get_region
+from app.services.riot_service import  get_region
 from app.services.spatial_service import map_bounds_for, path_distance
-
-from app.Models.auth_model import User
-from app.api.auth import require_group
-from app.database.session import get_session
 
 logger = logging.getLogger("app.timeline")
 
