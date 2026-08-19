@@ -332,7 +332,7 @@ class admin_service:
                     status_code=400, detail="Password does not meet format"
                 )
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid parameter")
+                raise HTTPException(status_code=422, detail="Invalid parameter. Is name lowercase.")
             raise HTTPException(status_code=400, detail=error_message)
         except HTTPException as e:
             raise HTTPException(status_code=400, detail=str(e))
