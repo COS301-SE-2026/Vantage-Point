@@ -3,6 +3,8 @@ from pathlib import Path
 
 import app.pred_engine.AI_models as ai  # type: ignore
 
+from typing import Any
+
 # Define directory constants relative to this file
 PRED_ENGINE_DIR = Path(__file__).resolve().parent
 DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
@@ -27,7 +29,7 @@ def create_models():
     knn_model = k
 
 
-def get_skill_pred(data):
+def get_skill_pred(data) -> Any:
     global skill_rf
     champions_path = DATASETS_DIR / "champions.json"
     with open(champions_path, "r") as file:
@@ -68,7 +70,7 @@ def get_skill_pred(data):
     # example output: "Look at upgrading [skill] at this point", "It might be good to level [skill] here"
 
 
-def get_item_pred(data):
+def get_item_pred(data) -> Any:
     global item_rf
     y_output = ai.run_rf(item_rf, data=data, cat="item")
     item_id = None
@@ -88,7 +90,7 @@ def get_item_pred(data):
     # name is for AI output, name + icon is for timeline analysis page
 
 
-def get_role_pred(data):
+def get_role_pred(data) -> Any:
     global role_rf
     y_output = ai.run_rf(role_rf, data, "role")
     # gives teampos, lane
@@ -103,7 +105,7 @@ def get_role_pred(data):
     return pos, lane
 
 
-def get_champ_pred(data):
+def get_champ_pred(data) -> Any:
     global champ_rf
     champions_path = DATASETS_DIR / "champions.json"
     with open(champions_path, "r") as file:
@@ -124,7 +126,7 @@ def get_champ_pred(data):
         return champName
 
 
-def get_knn_output(data):
+def get_knn_output(data) -> Any:
     global knn_model
     y_output, _ = ai.run_knn(knn_model, data)
 
