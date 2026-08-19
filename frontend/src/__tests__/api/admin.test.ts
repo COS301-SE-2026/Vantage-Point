@@ -147,7 +147,7 @@ describe("admin API (mock mode)", () => {
   it("listMapAssets/ uploadMapAsset returns mock maps and an object URL", async () => {
     expect(await admin.listMapAssets()).toEqual([
       {
-        map_id: 11 ,
+        map_id: 11,
         display_name: "Summoner's Rift",
         image_url: "",
       },
@@ -160,9 +160,7 @@ describe("admin API (mock mode)", () => {
 
   it("listChampionAssest/ uploadChampionAsset returns mock data and an object URL", async () => {
     expect(await admin.listChampionAssets()).toEqual([
-      { champion_id: 103,
-        display_name: "Ahri",
-        image_url: "" },
+      { champion_id: 103, display_name: "Ahri", image_url: "" },
     ]);
     const file = new File(["x"], "ahri.png", { type: "image/png" });
     const created = await admin.uploadChampionAsset(103, "Ahri", file);
