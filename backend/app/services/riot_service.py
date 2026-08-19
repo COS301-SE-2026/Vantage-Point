@@ -41,7 +41,7 @@ async def get_region(session: AsyncSession, cognito_sub: str) -> str:
         return user.region
     except HTTPException as e:
         print(str(e))
-        raise
+        raise HTTPException(status_code=404, detail="Region not set")
 
 
 def filter_match_for_players(

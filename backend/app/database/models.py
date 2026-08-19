@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Dict
 
-from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func
+from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func, JSON
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
@@ -51,6 +51,7 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
     region: str | None = (
         None  # this is added for dynamic purposes because matches of a player get saved on their region server
     )
+    platfromId: str | None = None
     # and unable to get on other region servers or won't be the same match
 
     linked_puuids_cache: Optional[str] = Field(
@@ -234,24 +235,24 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
     game_account: "GameAccounts" = Relationship(back_populates="featured_games")
 
 
-class MapReplayTable(SQLModel, Table=True):
+class MapReplayTable(SQLModel, table=True):
     __tablename__ = "map_replay_table"
 
-    match_id: str
-    puuid: str
+    match_id: str = Field(primary_key=True, index=True)
+    puuid: str = Field(primary_key=True, index=True)
     participant_id: int
     frame_interval: int
-    timestamp: list[int]
-    position_x: dict[str, list[int]]
-    position_y: dict[str, list[int]]
+    timestamp: list[int] = Field(sa_column=Column(JSON))
+    position_x: Dict[str, list[int]] = Field(sa_column=Column(JSON))
+    position_y: Dict[str, list[int]] = Field(sa_column=Column(JSON))
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key
-class MatchDataTable(SQLModel, Table=True):
+class MatchDataTable(SQLModel, table=True):
     __tablename__ = "match_data_table"
 
-    puuid: str
-    matchId: str
+    puuid: str = Field(primary_key=True, index=True)
+    matchId: str = Field(primary_key=True, index=True)
     end_of_game_result: str
     gameDuration: int
     gameMode: str
@@ -308,8 +309,8 @@ class MatchDataTable(SQLModel, Table=True):
     visionScorePerMinute: float
     wardTakedowns: int
     platformId: str
-    championId: list[int]
-    pickTurn: list[int]
+    championId: list[int] = Field(sa_column=Column(JSON))
+    pickTurn: list[int] = Field(sa_column=Column(JSON))
     baron_first: bool
     baron_kills: int
     champion_first: bool
@@ -328,13 +329,13 @@ class MatchDataTable(SQLModel, Table=True):
     teams_win: bool
 
 
-class ProfileDataTable(SQLModel, Table=True):
+class ProfileDataTable(SQLModel, table=True):
     __tablename__ = "profile_data_table"
 
     endOfGameResult: str
     gameDuration: float
-    puuid: str
-    matchId: str
+    puuid: str = Field(primary_key=True, index=True)
+    matchId: str = Field(primary_key=True, index=True)
     champExperience: int
     champLevel: int
     goldPerMinute: float

@@ -157,7 +157,7 @@ async def get_match_timeline(
     await _assert_match_access(session, current_user.sub, match_id)
 
     try:
-        return await get_or_fetch_timeline(session, match_id)
+        return await get_or_fetch_timeline(session, current_user.sub, match_id)
     except TimelineNotAvailableError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
