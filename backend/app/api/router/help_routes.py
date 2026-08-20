@@ -13,7 +13,7 @@ from app.schemas.help_schemas import (
     HelpArticleVote,
 )
 
-router = APIRouter(prefix="/help", tags=["help"])
+router = APIRouter(prefix="/api/help", tags=["help"])
 
 
 async def _get_article_by_id(
