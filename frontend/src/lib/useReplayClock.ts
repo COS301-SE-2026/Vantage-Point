@@ -5,6 +5,9 @@ export const DEFAULT_REPLAY_SPEED = 60;
 
 const TICK_MS = 100;
 
+/** How far one press of the step buttons moves the clock, in game time. */
+export const REPLAY_STEP_MS = 30_000;
+
 export interface ReplayClock {
   /** Position in the match, in milliseconds of game time. */
   readonly elapsedMs: number;
@@ -13,6 +16,9 @@ export interface ReplayClock {
   readonly progress: number;
   readonly togglePlaying: () => void;
   readonly seekToProgress: (progress: number) => void;
+  /** Jump one `REPLAY_STEP_MS` either way, without disturbing play/pause. */
+  readonly stepBackward: () => void;
+  readonly stepForward: () => void;
   readonly rewind: () => void;
 }
 
@@ -70,6 +76,25 @@ export function useReplayClock(
     [durationMs],
   );
 
+  // Stepping leaves `playing` alone: nudging the clock while it runs should move the
+  // replay on, not stop it, and nudging it while paused should leave it paused.
+  const stepBy = useCallback(
+    (deltaMs: number) => {
+      setElapsedMs((current) =>
+        Math.min(durationMs, Math.max(0, current + deltaMs)),
+      );
+    },
+    [durationMs],
+  );
+
+  const stepBackward = useCallback(() => {
+    stepBy(-REPLAY_STEP_MS);
+  }, [stepBy]);
+
+  const stepForward = useCallback(() => {
+    stepBy(REPLAY_STEP_MS);
+  }, [stepBy]);
+
   const rewind = useCallback(() => {
     setElapsedMs(0);
     setPlaying(false);
@@ -84,8 +109,19 @@ export function useReplayClock(
       progress,
       togglePlaying,
       seekToProgress,
+      stepBackward,
+      stepForward,
       rewind,
     }),
-    [elapsedMs, playing, progress, togglePlaying, seekToProgress, rewind],
+    [
+      elapsedMs,
+      playing,
+      progress,
+      togglePlaying,
+      seekToProgress,
+      stepBackward,
+      stepForward,
+      rewind,
+    ],
   );
 }
