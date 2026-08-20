@@ -48,9 +48,7 @@ export default function HelpPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(
-    null,
-  );
+  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -225,49 +223,51 @@ export default function HelpPage() {
     <div
       className={
         isInsideDashboard
-          ? "dark min-w-0"
+          ? "dark min-w-0 h-full w-full"
           : "dark min-h-screen w-full bg-vp-canvas py-6"
       }
       data-name="help-page"
     >
-      <div className="h-full overflow-y-auto px-8 py-6">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      {/* Scroll container with explicit side padding */}
+      <div className="h-full w-full overflow-y-auto px-6 py-6">
+        {/* Full-width container with no max-width cap */}
+        <div className="flex w-full max-w-none flex-col gap-6">
           {/* Controls Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <Button
               onClick={handleOpenAddModal}
-              className="flex items-center gap-2 rounded-full bg-[#C8AA6E] px-5 font-semibold text-[#091428] shadow-md transition-all hover:bg-[#D8BA7E] hover:shadow-lg hover:shadow-[#C8AA6E]/20 active:bg-[#B89A5E]"
+              className="flex items-center gap-2 rounded-full bg-[#C8AA6E] px-5 py-2 font-semibold text-[#091428] shadow-md transition-all hover:bg-[#D8BA7E] hover:shadow-lg hover:shadow-[#C8AA6E]/20 active:bg-[#B89A5E] self-start sm:self-auto"
             >
               <Plus className="h-4 w-4 stroke-[2.5]" />
               <span>Add Article</span>
             </Button>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setSortAsc((prev) => !prev)}
-                className="p-2 text-zinc-400 transition-colors hover:text-[#C8AA6E]"
+                className="p-2 text-zinc-400 transition-colors hover:text-[#C8AA6E] shrink-0"
                 title="Toggle Sort Order"
                 aria-label="Sort"
               >
                 <ArrowUpDown className="h-5 w-5" />
               </button>
 
-              <div className="relative w-full max-w-xs">
+              <div className="relative w-full sm:w-72 md:w-80 lg:w-96">
                 <Input
                   type="text"
                   placeholder="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="rounded-full border-zinc-800 bg-vp-surface pr-9 text-zinc-100 placeholder:text-zinc-500 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
+                  className="w-full rounded-full border-zinc-800 bg-vp-surface pr-9 text-zinc-100 placeholder:text-zinc-500 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
                 <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none text-zinc-500" />
               </div>
             </div>
           </div>
 
-          {/* --- Dropdown for filters by tags and a pillbar for the selected filters --- */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800/80 pb-4">
+          {/* Dropdown for filters by tags and a pillbar for the selected filters */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800/80 pb-4 w-full">
             {/* Filter Dropdown Button */}
             <div className="relative" ref={tagDropdownRef}>
               <Button
@@ -358,17 +358,17 @@ export default function HelpPage() {
             <Accordion
               type="single"
               collapsible
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 w-full"
             >
               {filteredArticles.map((article) => (
                 <AccordionItem
                   key={article.id}
                   value={`article-${article.id}`}
-                  className="rounded-2xl border border-zinc-800/80 bg-vp-surface px-6 py-4 shadow-sm transition-all hover:border-[#C8AA6E]/50 [&[data-state=open]]:border-[#C8AA6E] [&[data-state=open]]:shadow-lg [&[data-state=open]]:shadow-[#C8AA6E]/5"
+                  className="w-full rounded-2xl border border-zinc-800/80 bg-vp-surface px-6 py-4 shadow-sm transition-all hover:border-[#C8AA6E]/50 [&[data-state=open]]:border-[#C8AA6E] [&[data-state=open]]:shadow-lg [&[data-state=open]]:shadow-[#C8AA6E]/5"
                 >
                   <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180 [&[data-state=open]>div>div>.chevron]:text-[#C8AA6E]">
-                    <div className="flex w-full flex-col gap-4 text-left">
-                      <div className="flex items-center justify-between gap-4">
+                    <div className="flex w-full flex-col gap-3 text-left">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                         <h3 className="text-base font-semibold text-zinc-100 group-hover:text-[#F0E6D2]">
                           {article.title}
                         </h3>
@@ -381,7 +381,7 @@ export default function HelpPage() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                             TAGS
                           </span>
@@ -414,7 +414,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleVote(article.id, "up", e)}
-                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-[#C8AA6E]"
+                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-emerald-400"
                         >
                           <ThumbsUp className="h-4 w-4" />
                           <span>{article.upvotes}</span>
@@ -459,7 +459,7 @@ export default function HelpPage() {
       {/* Add / Edit Article Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-[#C8AA6E]/30 bg-vp-surface p-6 shadow-2xl shadow-black/80">
+          <div className="w-full max-w-2xl rounded-2xl border border-[#C8AA6E]/30 bg-vp-surface p-6 shadow-2xl shadow-black/80">
             <div className="mb-4 flex items-center justify-between border-b border-zinc-800 pb-3">
               <h2 className="text-lg font-bold text-[#F0E6D2]">
                 {editingArticle
@@ -487,7 +487,7 @@ export default function HelpPage() {
                     setFormData({ ...formData, title: e.target.value })
                   }
                   placeholder="e.g. How to link Riot ID"
-                  className="border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
+                  className="w-full border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
               </div>
 
@@ -497,13 +497,13 @@ export default function HelpPage() {
                 </label>
                 <textarea
                   required
-                  rows={4}
+                  rows={5}
                   value={formData.content}
                   onChange={(e) =>
                     setFormData({ ...formData, content: e.target.value })
                   }
                   placeholder="Article details and troubleshooting steps..."
-                  className="w-full rounded-md border border-zinc-700 bg-vp-surface p-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-[#C8AA6E] focus:outline-none focus:ring-1 focus:ring-[#C8AA6E]"
+                  className="w-full rounded-md border border-zinc-700 bg-vp-surface p-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-[#C8AA6E] focus:outline-none focus:ring-1 focus:ring-[#C8AA6E]"
                 />
               </div>
 
@@ -517,7 +517,7 @@ export default function HelpPage() {
                     setFormData({ ...formData, tags: e.target.value })
                   }
                   placeholder="AI, INFO, ACCOUNT"
-                  className="border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
+                  className="w-full border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
               </div>
 
