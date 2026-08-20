@@ -1,11 +1,17 @@
 from typing import Annotated, Sequence
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, select
 
 from datetime import datetime, timezone
 from app.database.session import get_session
-from app.Models.help_models import HelpArticleModel
+
+# Ensure VoteType enum is imported from help_models
+from app.Models.help_models import (
+    HelpArticleModel,
+    HelpArticleVoteModel,
+    VoteType,
+)
 from app.schemas.help_schemas import (
     HelpArticleCreate,
     HelpArticleResponse,
@@ -53,10 +59,13 @@ async def create_help_article(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> HelpArticleModel:
     """Create a new help article."""
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     article = HelpArticleModel(
         title=body.title,
         content=body.content,
         tags=body.tags,
+        created_at=now,
+        updated_at=now,
     )
     session.add(article)
     await session.commit()
@@ -81,6 +90,7 @@ async def update_help_article(
     for field, value in update_data.items():
         setattr(article, field, value)
 
+    # Explicitly update modified time only on content/title updates
     article.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     session.add(article)
@@ -112,16 +122,64 @@ async def delete_help_article(
 async def vote_help_article(
     article_id: int,
     body: HelpArticleVote,
+    request: Request,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> HelpArticleModel:
     """Cast an upvote or downvote on an article."""
     article = await _get_article_by_id(article_id, session)
 
-    if body.vote_type == "up":
-        article.upvotes += 1
-    elif body.vote_type == "down":
-        article.downvotes += 1
+    # Clean IP extraction (handles potential comma-separated proxy header lists)
+    forwarded = request.headers.get("x-forwarded-for")
+    user_identifier = (
+        forwarded.split(",")[0].strip()
+        if forwarded
+        else (request.client.host if request.client else "anonymous")
+    )
 
+    # Convert string literal from schema body to VoteType Enum
+    vote_type = VoteType(body.vote_type)
+
+    # Check for existing vote by user identifier
+    stmt = select(HelpArticleVoteModel).where(
+        HelpArticleVoteModel.article_id == article_id,
+        HelpArticleVoteModel.user_identifier == user_identifier,
+    )
+    result = await session.execute(stmt)
+    existing_vote = result.scalar_one_or_none()
+
+    if existing_vote:
+        if existing_vote.vote_type == vote_type:
+            # Re-clicking same vote option toggles it off
+            if vote_type == VoteType.UP or vote_type == "up":
+                article.upvotes = max(0, article.upvotes - 1)
+            else:
+                article.downvotes = max(0, article.downvotes - 1)
+            await session.delete(existing_vote)
+        else:
+            # Switching vote (e.g., up to down)
+            if vote_type == VoteType.UP or vote_type == "up":
+                article.upvotes += 1
+                article.downvotes = max(0, article.downvotes - 1)
+            else:
+                article.downvotes += 1
+                article.upvotes = max(0, article.upvotes - 1)
+            existing_vote.vote_type = vote_type
+            session.add(existing_vote)
+    else:
+        # First time voting on this article
+        if vote_type == VoteType.UP or vote_type == "up":
+            article.upvotes += 1
+        else:
+            article.downvotes += 1
+
+        new_vote = HelpArticleVoteModel(
+            article_id=article_id,
+            user_identifier=user_identifier,
+            vote_type=vote_type,
+        )
+        session.add(new_vote)
+
+    # Save article without modifying updated_at
     session.add(article)
     await session.commit()
     await session.refresh(article)

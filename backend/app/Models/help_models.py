@@ -1,6 +1,12 @@
 from datetime import datetime, timezone
+from enum import Enum
 from typing import Optional
 from sqlmodel import JSON, Field, SQLModel
+
+
+class VoteType(str, Enum):
+    UP = "up"
+    DOWN = "down"
 
 
 def get_utc_now() -> datetime:
@@ -18,7 +24,14 @@ class HelpArticleModel(SQLModel, table=True):
     upvotes: int = Field(default=0)
     downvotes: int = Field(default=0)
     created_at: datetime = Field(default_factory=get_utc_now)
-    updated_at: datetime = Field(
-        default_factory=get_utc_now,
-        sa_column_kwargs={"onupdate": get_utc_now},
-    )
+    updated_at: datetime = Field(default_factory=get_utc_now)
+
+
+class HelpArticleVoteModel(SQLModel, table=True):
+    __tablename__ = "help_article_votes"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    article_id: int = Field(foreign_key="help_articles.id", index=True)
+    user_identifier: str = Field(index=True)
+    vote_type: VoteType = Field()
+    created_at: datetime = Field(default_factory=get_utc_now)

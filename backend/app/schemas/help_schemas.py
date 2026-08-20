@@ -23,6 +23,9 @@ class HelpArticleUpdate(BaseModel):
 class HelpArticleVote(BaseModel):
     vote_type: Literal["up", "down"] = Field(..., alias="type")
 
+    class Config:
+        populate_by_name = True
+
 
 class HelpArticleResponse(HelpArticleBase):
     id: int
