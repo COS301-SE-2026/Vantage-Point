@@ -12,6 +12,10 @@ function analysisTable(page: Page) {
   return page.getByRole("table");
 }
 
+function transport(page: Page) {
+  return page.getByRole("group", { name: "Replay transport" });
+}
+
 test.describe("Metrics / map analysis", () => {
   test.beforeEach(async ({ app, page }) => {
     await app.signIn();
@@ -70,21 +74,48 @@ test.describe("Metrics / map analysis", () => {
     await expect(table).toContainText("Rift Herald");
   });
 
-  test("plays and rewinds the analysis clock", async ({ page }) => {
+  test("names the ability and the item in every slot", async ({ page }) => {
     const table = analysisTable(page);
-    await expect(table.getByText("0:00")).toBeVisible();
 
-    await page.getByRole("button", { name: "Play replay" }).click();
-    await expect(
-      page.getByRole("button", { name: "Pause replay" }),
-    ).toBeVisible();
-    await expect(table.getByText("0:00")).toBeHidden();
+    // Riot reports slot numbers and item ids; the names come from Data Dragon.
+    await expect(table).toContainText("Q · Switcheroo!");
+    await expect(table).toContainText("W · Zap!");
+    await expect(table).toContainText("E · Flame Chompers!");
+    await expect(table).toContainText("R · Super Mega Death Rocket!");
+    await expect(table).toContainText("Passive · Get Excited!");
 
-    await page.getByRole("button", { name: "Rewind replay" }).click();
-    await expect(table.getByText("0:00")).toBeVisible();
+    await expect(table).not.toContainText("SkillSlot_");
+    await expect(table).not.toContainText("Item_");
+  });
+
+  test("plays, steps and rewinds the analysis clock", async ({ page }) => {
+    const bar = transport(page);
+    await expect(bar.getByText("0:00")).toBeVisible();
+
+    await bar.getByRole("button", { name: "Forward 30 seconds" }).click();
+    await expect(bar.getByText("0:30")).toBeVisible();
+
+    await bar.getByRole("button", { name: "Back 30 seconds" }).click();
+    await expect(bar.getByText("0:00")).toBeVisible();
+
+    await bar.getByRole("button", { name: "Play replay" }).click();
     await expect(
-      page.getByRole("button", { name: "Play replay" }),
+      bar.getByRole("button", { name: "Pause replay" }),
     ).toBeVisible();
+    await expect(bar.getByText("0:00")).toBeHidden();
+
+    await bar.getByRole("button", { name: "Rewind replay" }).click();
+    await expect(bar.getByText("0:00")).toBeVisible();
+    await expect(
+      bar.getByRole("button", { name: "Play replay" }),
+    ).toBeVisible();
+  });
+
+  test("goes back to the replay of the same match", async ({ page }) => {
+    await page.getByRole("button", { name: "Back to match replay" }).click();
+    await expect(page).toHaveURL(
+      new RegExp(`/dashboard/replay/${PRIMARY_MATCH_ID}$`),
+    );
   });
 
   test("shows the minimap with live champion markers", async ({ page }) => {

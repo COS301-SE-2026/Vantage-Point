@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { fetchMatchDetail } from "../api/match";
 import { fetchMatchHistory } from "../api/matches";
@@ -7,17 +8,19 @@ import { fetchMatchTimeline } from "../api/timeline";
 import AiCoachingBar from "../components/AiCoachingBar";
 import LiveMetricsPanel from "../components/LiveMetricsPanel";
 import MapAnalysisTable from "../components/MapAnalysisTable";
+import MapReplayTransport from "../components/MapReplayTransport";
 import MatchReplayMapOverlay from "../components/MatchReplayMapOverlay";
 import MatchReplayToolbar, {
   type ReplayOverlayAction,
   type ReplayToolbarMode,
 } from "../components/MatchReplayToolbar";
 import { PageContainer } from "../components/dashboard/primitives";
+import { useChampionAbilities, useItemNames } from "../lib/ddragonData";
 import { buildMapAnalysisRows } from "../lib/mapAnalysisRows";
 import { buildMapAnalysisTips } from "../lib/replayCoaching";
 import { buildAnalysisSnapshot, formatTimelineClock } from "../lib/timeline";
 import { useReplayClock } from "../lib/useReplayClock";
-import { mapMini } from "../assets/images/metrics";
+import { mapMinimap } from "../assets/images/metrics";
 import type {
   MatchDetail,
   ParticipantDetail,
@@ -173,9 +176,19 @@ export default function MetricsView() {
     );
   }, [timeline, viewer, team, clock.elapsedMs]);
 
+  // Riot names neither the abilities nor the items it reports, so both come from
+  // Data Dragon. Neither request blocks the table: until they land the slots read
+  // "Q"/"W"/"E"/"R" and the bare item ids, and the numbers beside them are unaffected.
+  const abilities = useChampionAbilities(viewer?.champion_name);
+  const itemNames = useItemNames();
+
   const rows = useMemo(
-    () => buildMapAnalysisRows(viewer, team, snapshot),
-    [viewer, team, snapshot],
+    () =>
+      buildMapAnalysisRows(viewer, team, snapshot, {
+        abilities,
+        items: itemNames,
+      }),
+    [viewer, team, snapshot, abilities, itemNames],
   );
 
   const overlayToggles = useMemo(
@@ -226,9 +239,33 @@ export default function MetricsView() {
     });
   };
 
+  const replayMatchId = match?.match_id ?? matchIdParam ?? "";
+
   return (
     <div data-name="metrics-view">
       <PageContainer>
+        {/* Analysis is opened from "Show Analysis" on the replay screen, so the way
+            back out of it is the replay of the same match, not the match list. */}
+        {replayMatchId ? (
+          <button
+            type="button"
+            onClick={() => {
+              navigate(
+                `/dashboard/replay/${encodeURIComponent(replayMatchId)}`,
+              );
+            }}
+            aria-label="Back to match replay"
+            className="mb-4 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[13px] text-vp-dim transition-colors hover:text-vp-ink"
+          >
+            <ArrowLeft
+              className="size-4 shrink-0"
+              strokeWidth={1.9}
+              aria-hidden
+            />
+            Back to match replay
+          </button>
+        ) : null}
+
         {loading ? (
           <p className="text-[16px] text-vp-dim">Loading metrics…</p>
         ) : null}
@@ -247,14 +284,17 @@ export default function MetricsView() {
                 error={metricsError}
               />
 
-              <div className="flex items-start gap-[24px]">
+              <div className="flex flex-wrap items-start gap-[24px]">
+                {/* Figma drew this 180 square on a crop of the painted terrain. The
+                    art is the whole Rift now (46:463), which the markers are placed
+                    against, and 180px of it left ten champions on top of each other. */}
                 <div
                   data-name="map_mini"
                   data-node-id="32:422"
-                  className="relative size-[180px] shrink-0 overflow-hidden rounded-[5px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.5)]"
+                  className="relative size-[300px] shrink-0 overflow-hidden rounded-[5px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.5)]"
                 >
                   <img
-                    src={mapMini}
+                    src={mapMinimap}
                     alt="Match minimap"
                     className="size-full object-cover"
                   />
@@ -272,13 +312,18 @@ export default function MetricsView() {
                 <AiCoachingBar tips={tips} />
               </div>
 
-              <MapAnalysisTable
-                rows={rows}
+              <MapReplayTransport
                 clock={formatTimelineClock(clock.elapsedMs)}
                 playing={clock.playing}
+                progress={clock.progress}
                 onTogglePlaying={clock.togglePlaying}
+                onStepBackward={clock.stepBackward}
+                onStepForward={clock.stepForward}
                 onRewind={clock.rewind}
+                onScrub={clock.seekToProgress}
               />
+
+              <MapAnalysisTable rows={rows} />
             </div>
 
             <MatchReplayToolbar
