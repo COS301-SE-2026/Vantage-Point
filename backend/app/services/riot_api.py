@@ -3,11 +3,41 @@ from urllib.parse import quote
 
 import httpx
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
+from app.database.models import Users
+from typing import Any
+from fastapi import HTTPException
+from app.services.riot_service import get_region
 
 load_dotenv()
 
 # Account API routing clusters (try in order — EU accounts need `europe`, not `americas`)
-ROUTING_CLUSTERS = ("europe", "americas", "asia", "sea")
+
+
+async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:
+    statement = select(Users).where(Users.cognito_sub == cognito_sub)
+    result: Any = await session.execute(statement)
+    user: Users | None = result.scalar_one_or_none()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user.platform_id
+
+
+async def _set_platform(cognito_sub: str, session: AsyncSession, platform: str) -> bool:
+    statement = select(Users).where(Users.cognito_sub == cognito_sub)
+    result: Any = await session.execute(statement)
+    user: Users | None = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.platform_id = platform
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return True
 
 
 class RiotApiNotConfiguredError(Exception):
@@ -22,7 +52,9 @@ def _normalize_tag_line(tag_line: str) -> str:
     return tag_line.strip().lstrip("#")
 
 
-async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
+async def get_puuid_by_riot_id(
+    game_name: str, tag_line: str, session: AsyncSession, cognito_sub: str
+) -> str | None:
     """Get PUUID by Riot ID (game name + tag), trying all regional routing clusters."""
     load_dotenv(override=True)
     api_key = os.getenv("RIOT_API_KEY", "").strip()
@@ -35,27 +67,31 @@ async def get_puuid_by_riot_id(game_name: str, tag_line: str) -> str | None:
     safe_tag_line = quote(_normalize_tag_line(tag_line), safe="")
     headers: dict[str, str] = {"X-Riot-Token": api_key}
 
+    region = await get_region(session, cognito_sub)
+
     async with httpx.AsyncClient(timeout=15.0) as client:
-        for cluster in ROUTING_CLUSTERS:
-            url = (
-                f"https://{cluster}.api.riotgames.com/riot/account/v1/"
-                f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
-            )
-            response = await client.get(url, headers=headers)
+        url = (
+            f"https://{region}.api.riotgames.com/riot/account/v1/"
+            f"accounts/by-riot-id/{safe_game_name}/{safe_tag_line}"
+        )
+        response = await client.get(url, headers=headers)
 
-            if response.status_code == 200:
-                puuid = response.json().get("puuid")
+        if response.status_code == 200:
+            puuid = response.json().get("puuid")
+            if puuid:
+                await _set_platform(cognito_sub, session, region)
                 return str(puuid) if puuid else None
+            return None
 
-            if response.status_code == 401:
-                raise RiotApiUnauthorizedError(
-                    "Riot API key is invalid or expired. Regenerate it at "
-                    "https://developer.riotgames.com/ and update backend/.env"
-                )
+        if response.status_code == 401:
+            raise RiotApiUnauthorizedError(
+                "Riot API key is invalid or expired. Regenerate it at "
+                "https://developer.riotgames.com/ and update backend/.env"
+            )
 
-            if response.status_code == 429:
-                raise RiotApiUnauthorizedError(
-                    "Riot API rate limit reached. Wait a minute and try again."
-                )
+        if response.status_code == 429:
+            raise RiotApiUnauthorizedError(
+                "Riot API rate limit reached. Wait a minute and try again."
+            )
 
     return None

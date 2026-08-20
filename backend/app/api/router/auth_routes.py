@@ -53,3 +53,15 @@ async def confirm_user(username: str, code: str):
 )
 async def logout(access_token: str):
     return await auth_service.logout_user(access_token)
+
+
+# trying to make it easier, probably just refresh the token before the expiry date hits otherwise this is going to fail
+# use 10 becuase all people will be apart of the User group, and if not will be higher in the system so wont cause issues
+@router.post(
+    "/refresh-auth",
+    summary="Refresh Access token",
+    description="Endpoint to be used by frontend to refresh and get a valid accesstoken to be used again",
+    tags=["Auth"],
+)
+async def refresh_access_token(username: str, request: str):
+    return await auth_service.refresh_access_token(username, request)

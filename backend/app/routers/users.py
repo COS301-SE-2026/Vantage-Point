@@ -23,9 +23,9 @@ from app.schemas.user import (
     UpdateUserMeRequest,
     UserMeResponse,
 )
-from app.services.analytics import LiveAnalyticsService
+from app.services.analytics import LiveAnalyticsServiceDep
 from app.services.avatar_storage import delete_avatar_files, save_avatar
-from app.services.match_ingest import resolve_platform, sync_matches_best_effort
+from app.services.match_ingest import sync_matches_best_effort, resolve_platform
 from app.services.player_profile import build_player_profile
 from app.services.profile_services import ProfileService
 from app.services.user_accounts import (
@@ -86,7 +86,11 @@ async def get_me(
     return _user_me_response(response, account, get_user_role(current_user))
 
 
-@router.patch("/me", response_model=UserMeResponse)
+@router.patch(
+    "/me",
+    response_model=UserMeResponse,
+    responses={404: {"description": "User not found"}},
+)
 async def update_me(
     body: UpdateUserMeRequest,
     current_user: Annotated[User, Depends(require_group(10))],
@@ -101,7 +105,11 @@ async def update_me(
     return _user_me_response(response, account, get_user_role(current_user))
 
 
-@router.post("/me/avatar", response_model=AvatarUploadResponse)
+@router.post(
+    "/me/avatar",
+    response_model=AvatarUploadResponse,
+    responses={404: {"description": "User not found"}},
+)
 async def upload_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -116,7 +124,11 @@ async def upload_avatar(
     return AvatarUploadResponse(avatar_url=avatar_path)
 
 
-@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/me/avatar",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": "User not found"}},
+)
 async def delete_avatar(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -129,7 +141,11 @@ async def delete_avatar(
     await session.commit()
 
 
-@router.get("/me/profile", response_model=PlayerProfileResponse)
+@router.get(
+    "/me/profile",
+    response_model=PlayerProfileResponse,
+    responses={404: {"description": "User not found"}},
+)
 async def get_my_profile(
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -153,6 +169,7 @@ async def get_my_profile(
     ),
 )
 async def get_my_live_metrics(
+    service: LiveAnalyticsServiceDep,
     current_user: Annotated[User, Depends(require_group(10))],
     session: Annotated[AsyncSession, Depends(get_session)],
     count: Annotated[int, Query(ge=1, le=20, description="Matches to analyse")] = 10,
@@ -162,7 +179,7 @@ async def get_my_live_metrics(
             description="Riot platform, e.g. euw1. Inferred from match history if omitted",
         ),
     ] = None,
-):
+) -> Any:
     puuid = await get_primary_linked_puuid(session, current_user.sub)
     if not puuid:
         raise HTTPException(
@@ -171,7 +188,8 @@ async def get_my_live_metrics(
         )
 
     platform = server_region or await resolve_platform(session, puuid) or "euw1"
-    return await LiveAnalyticsService.get_live_metrics_from_api(
+
+    return await service.get_live_metrics_from_api(
         server_region=platform,
         puuid=puuid,
         count=count,
@@ -196,7 +214,9 @@ async def _link_game_account_impl(
     # round trip and the user is waiting on this response — the "Sync with Riot" button
     # on the match list pulls a deeper window. A Riot outage must not undo a successful
     # link, so failures here only get logged.
-    imported = await sync_matches_best_effort(session, puuid, count=5)
+    imported = await sync_matches_best_effort(
+        session, puuid, count=5, cognito_sub=current_user.sub
+    )
     message = f"Successfully linked {tag}"
     if imported and imported["imported"]:
         message = f"{message} — imported {imported['imported']} recent matches"

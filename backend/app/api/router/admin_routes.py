@@ -18,7 +18,7 @@ router = APIRouter()
     tags=["admin"],
 )
 async def get_users(_: Annotated[User, Depends(require_group(20))], limit: int = 10):
-    return await admin_service.get_users(limit)
+    return await admin_service.get_users()
 
 
 @router.get(
