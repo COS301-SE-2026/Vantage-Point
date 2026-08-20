@@ -18,4 +18,7 @@ class HelpArticleModel(SQLModel, table=True):
     upvotes: int = Field(default=0)
     downvotes: int = Field(default=0)
     created_at: datetime = Field(default_factory=get_utc_now)
-    updated_at: datetime = Field(default_factory=get_utc_now)
+    updated_at: datetime = Field(
+        default_factory=get_utc_now,
+        sa_column_kwargs={"onupdate": get_utc_now},
+    )
