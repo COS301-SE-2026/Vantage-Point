@@ -14,7 +14,7 @@ export default mergeConfig(
       exclude: ["node_modules/**", "dist/**", "e2e/**"],
       coverage: {
         provider: "v8",
-        reporter: ["text", "json", "html"],
+        reporter: ["text", "json", "html", "json-summary"],
         exclude: [
           "src/assets/**", //all static images (these cannot be tested and take up space in reports)
           "src/components/**/*.svg", //all inline SVG components (these cannot be tested and take up space in reports)
