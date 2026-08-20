@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router";
-import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
+import { useNavigate, useParams } from "react-router";
 import { fetchMatchDetail } from "../api/match";
 import { fetchMatchHistory } from "../api/matches";
 import { fetchLiveMetrics } from "../api/user";
@@ -13,10 +12,7 @@ import MatchReplayToolbar, {
   type ReplayOverlayAction,
   type ReplayToolbarMode,
 } from "../components/MatchReplayToolbar";
-import {
-  DASHBOARD_CONTENT_HEIGHT,
-  getDashboardContentStyle,
-} from "../lib/dashboardLayout";
+import { PageContainer } from "../components/dashboard/primitives";
 import { buildMapAnalysisRows } from "../lib/mapAnalysisRows";
 import { buildMapAnalysisTips } from "../lib/replayCoaching";
 import { buildAnalysisSnapshot, formatTimelineClock } from "../lib/timeline";
@@ -44,9 +40,6 @@ function viewerAndTeam(match: MatchDetail): {
 export default function MetricsView() {
   const navigate = useNavigate();
   const { matchId: matchIdParam } = useParams<{ matchId?: string }>();
-  const outlet = useOutletContext<DashboardOutletContext | undefined>();
-  const sidebarOpen = outlet?.sidebarOpen ?? true;
-  const contentStyle = getDashboardContentStyle(sidebarOpen);
 
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -232,22 +225,12 @@ export default function MetricsView() {
   };
 
   return (
-    <div
-      className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
-      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
-      data-name="metrics-view"
-    >
-      <div className="vp-scrollbar h-full overflow-auto px-4 py-2 sm:px-6">
+    <div data-name="metrics-view">
+      <PageContainer>
         {loading ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-            Loading metrics…
-          </p>
+          <p className="text-[16px] text-vp-dim">Loading metrics…</p>
         ) : null}
-        {error ? (
-          <p className="font-['Beaufort_for_LOL',serif] text-[16px] text-[#c44a4a] device-dark:text-[#e03b3b]">
-            {error}
-          </p>
-        ) : null}
+        {error ? <p className="text-[16px] text-vp-loss">{error}</p> : null}
 
         {match && !loading ? (
           <div
@@ -308,7 +291,7 @@ export default function MetricsView() {
             />
           </div>
         ) : null}
-      </div>
+      </PageContainer>
     </div>
   );
 }

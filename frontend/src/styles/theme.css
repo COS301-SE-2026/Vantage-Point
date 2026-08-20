@@ -56,6 +56,8 @@
   /* Header band. DashboardShell raises this on screens that show the 88px
      account avatar, which needs more room than the logo/48px avatar do. */
   --vp-dashboard-header: 72px;
+  /* Dashboard tabs run wider than the marketing column. */
+  --vp-dash-max: 1440px;
   --vp-sidebar-width: 220px;
   --vp-sidebar-left: 28px;
   --vp-content-gap: 51px;
@@ -139,6 +141,32 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --font-sarina: "Sarina", ui-sans-serif, system-ui, sans-serif;
+
+  /* The two brand faces, as real utilities (`font-beaufort`, `font-spartan`)
+     rather than arbitrary values — Tailwind then knows they belong to the
+     font-family group, so `cn()` can override a component's built-in
+     `font-sans` instead of stacking with it. */
+  --font-beaufort: "Beaufort for LOL", ui-serif, Georgia, serif;
+  --font-spartan: "League Spartan", ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Dashboard surface -------------------------------------------------
+     The dashboard is a dark, always-dark data UI. Three greys carry the
+     depth (canvas → surface → raised), two hairlines carry the structure,
+     and gold is the only accent; win/loss are the sole semantic colours.
+     Anything that needs more emphasis than this earns it with type or
+     spacing, not another hue. */
+  --color-vp-canvas: #0b0c0f;
+  --color-vp-surface: #131519;
+  --color-vp-raised: #1b1e25;
+  --color-vp-line: rgba(255, 255, 255, 0.09);
+  --color-vp-line-strong: rgba(255, 255, 255, 0.18);
+  --color-vp-ink: #eceef2;
+  --color-vp-dim: #9ba0a9;
+  --color-vp-faint: #6b7079;
+  --color-vp-gold: #e0b46c;
+  --color-vp-gold-dim: #a97f3e;
+  --color-vp-win: #46c97e;
+  --color-vp-loss: #e2565c;
 }
 
 @layer base {
@@ -157,6 +185,15 @@
 
   html {
     font-size: var(--font-size);
+    /* The landing page navigates by in-page anchors; the padding keeps the
+       floating navbar from covering the section it just jumped to. */
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   h1 {
@@ -214,6 +251,41 @@
 
   .animate-scroll {
     animation: scroll 20s linear infinite;
+  }
+
+  /* --- Animations the vendored Aceternity components expect ---------------
+     Upstream ships these as tailwind.config.js `extend.animation` entries.
+     Tailwind v4 has no JS config, so they live here instead. The scroller is
+     named `marquee-x` rather than upstream's `scroll` because this project
+     already owns `.animate-scroll` (the hero band above). */
+
+  @keyframes marquee-x {
+    to {
+      transform: translate(calc(-50% - 0.5rem));
+    }
+  }
+
+  .animate-marquee-x {
+    animation: marquee-x var(--animation-duration, 40s)
+      var(--animation-direction, forwards) linear infinite;
+  }
+
+  @keyframes meteor-effect {
+    0% {
+      transform: rotate(215deg) translateX(0);
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(215deg) translateX(-500px);
+      opacity: 0;
+    }
+  }
+
+  .animate-meteor-effect {
+    animation: meteor-effect var(--meteor-duration, 5s) linear infinite;
   }
 
   @keyframes vantage-pulse {
@@ -347,7 +419,9 @@
     .animate-vantage-breathe,
     .animate-vantage-dot-fill,
     .animate-vantage-progress,
-    .animate-scroll {
+    .animate-scroll,
+    .animate-marquee-x,
+    .animate-meteor-effect {
       animation: none;
     }
   }

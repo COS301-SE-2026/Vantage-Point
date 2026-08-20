@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import AuthScreen, {
   AuthFormError,
   AuthInputField,
   AuthSubmitButton,
+  AuthSwitchPrompt,
   PasswordVisibilityToggle,
 } from "./AuthScreen";
 
@@ -23,27 +23,6 @@ interface LoginProps {
   backgroundImage?: string; // Optional: If passed, overrides the automatic slide rotation loop
 }
 
-function RegistrationLink() {
-  const navigate = useNavigate();
-  return (
-    <div
-      className="flex items-center justify-center w-full"
-      data-name="Sign up option"
-    >
-      <p className="font-['Inter:Regular',sans-serif] font-normal text-[#b3b3b3] device-dark:text-[#929292] text-[16px] leading-[1.4] text-center">
-        {`Don't have an account? `}
-        <button
-          type="button"
-          onClick={() => navigate("/register")}
-          className="inline border-0 bg-transparent p-0 font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#0b0b0b] device-dark:text-white cursor-pointer hover:underline"
-        >
-          Sign Up
-        </button>
-      </p>
-    </div>
-  );
-}
-
 export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -52,13 +31,16 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
       onSocialClick={form.onSocialClick}
       socialVerb="Sign in"
       backgroundImage={backgroundImage}
+      eyebrow="Welcome back"
+      title="Sign in to Vantage Point"
+      subtitle="Pick up where your last match left off."
     >
       <form
         onSubmit={(e) => {
           e.preventDefault();
           form.onSubmit();
         }}
-        className="flex w-full flex-col gap-6"
+        className="flex w-full flex-col gap-5"
       >
         <AuthFormError message={form.error} />
 
@@ -93,7 +75,12 @@ export default function Login({ form, backgroundImage }: Readonly<LoginProps>) {
           loading={form.loading}
         />
 
-        <RegistrationLink />
+        <AuthSwitchPrompt
+          prompt="Don't have an account? "
+          actionLabel="Sign Up"
+          to="/register"
+          dataName="Sign up option"
+        />
       </form>
     </AuthScreen>
   );

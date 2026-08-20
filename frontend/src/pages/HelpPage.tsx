@@ -22,11 +22,6 @@ import {
   AccordionTrigger,
 } from "../components/ui/accordion";
 import {
-  DASHBOARD_CONTENT_HEIGHT,
-  getDashboardContentStyle,
-} from "../lib/dashboardLayout";
-import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
-import {
   fetchHelpArticles,
   createHelpArticle,
   updateHelpArticle,
@@ -36,12 +31,9 @@ import {
 } from "../api/help";
 
 export default function HelpPage() {
-  const outlet = useOutletContext<DashboardOutletContext | undefined>();
-  const isInsideDashboard = Boolean(outlet);
-  const sidebarOpen = outlet?.sidebarOpen ?? true;
-  const contentStyle = isInsideDashboard
-    ? getDashboardContentStyle(sidebarOpen)
-    : {};
+  // Help is reachable both as a dashboard tab and as a standalone page; only
+  // the standalone one paints its own canvas.
+  const isInsideDashboard = Boolean(useOutletContext());
 
   const [articles, setArticles] = useState<HelpArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -173,15 +165,9 @@ export default function HelpPage() {
   return (
     <div
       className={
-        isInsideDashboard
-          ? "absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out bg-white"
-          : "min-h-screen w-full bg-white py-6"
+        isInsideDashboard ? "min-w-0" : "min-h-screen w-full bg-vp-canvas py-6"
       }
-      style={
-        isInsideDashboard
-          ? { ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }
-          : {}
-      }
+      style={isInsideDashboard ? {} : {}}
       data-name="help-page"
     >
       <div className="h-full overflow-y-auto px-8 py-6">
@@ -190,7 +176,7 @@ export default function HelpPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Button
               onClick={handleOpenAddModal}
-              className="flex items-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 rounded-full px-4"
+              className="flex items-center gap-2 bg-zinc-900 text-vp-ink hover:bg-zinc-800 rounded-full px-4"
             >
               <Plus className="h-4 w-4" />
               <span>Add Article</span>
@@ -213,7 +199,7 @@ export default function HelpPage() {
                   placeholder="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-9 rounded-full border-zinc-300 bg-white placeholder:text-zinc-400 focus-visible:ring-zinc-400"
+                  className="pr-9 rounded-full border-zinc-300 bg-vp-surface placeholder:text-zinc-400 focus-visible:ring-zinc-400"
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
               </div>
@@ -239,7 +225,7 @@ export default function HelpPage() {
                 <AccordionItem
                   key={article.id}
                   value={`article-${article.id}`}
-                  className="rounded-2xl border border-zinc-200 bg-white px-6 py-4 shadow-sm transition-all hover:border-zinc-300 [&[data-state=open]]:shadow-md"
+                  className="rounded-2xl border border-zinc-200 bg-vp-surface px-6 py-4 shadow-sm transition-all hover:border-zinc-300 [&[data-state=open]]:shadow-md"
                 >
                   <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180">
                     <div className="flex w-full flex-col gap-4 text-left">
@@ -331,7 +317,7 @@ export default function HelpPage() {
       {/* Add / Edit Article Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-2xl bg-vp-surface p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
               <h2 className="text-lg font-bold text-zinc-900">
                 {editingArticle
@@ -401,7 +387,7 @@ export default function HelpPage() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="bg-zinc-900 text-white hover:bg-zinc-800"
+                  className="bg-zinc-900 text-vp-ink hover:bg-zinc-800"
                 >
                   {submitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

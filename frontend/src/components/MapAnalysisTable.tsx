@@ -52,14 +52,13 @@ const HEADINGS = [
   "Objectives",
 ] as const;
 
-const CELL_TEXT =
-  "font-['Beaufort_for_LOL',serif] text-[16px] leading-[1.4] text-[#1e1e1e] device-dark:text-white";
+const CELL_TEXT = "text-[16px] leading-[1.4] text-vp-ink";
 
 function LabelCell({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div
       data-name="Table Cell"
-      className={`flex h-full min-w-0 items-center border-l border-solid border-[#f0f0f0] device-dark:border-[#3a3939] pl-[6px] pr-[5px] ${LABEL_CELL_FLEX}`}
+      className={`flex h-full min-w-0 items-center border-l border-solid border-vp-line pl-[6px] pr-[5px] ${LABEL_CELL_FLEX}`}
     >
       <span className={CELL_TEXT}>{children}</span>
     </div>
@@ -115,7 +114,7 @@ function TransportCell({
     <div
       data-name="Table Cell"
       data-node-id="32:822"
-      className="flex h-[54px] min-w-[153px] flex-[3_1_0%] items-center justify-center gap-[8px] border-l border-solid border-[#f0f0f0] device-dark:border-[#3a3939] bg-[#b7b7b7] device-dark:bg-[#404040] pl-[6px] pr-[5px]"
+      className="flex h-[54px] min-w-[153px] flex-[3_1_0%] items-center justify-center gap-[8px] border-l border-solid border-vp-line bg-vp-raised pl-[6px] pr-[5px]"
     >
       <button
         type="button"
@@ -130,7 +129,7 @@ function TransportCell({
           height={24.1}
         />
       </button>
-      <span className="font-['Beaufort_for_LOL',serif] text-[24px] leading-[1.4] tabular-nums text-[#1e1e1e] device-dark:text-white">
+      <span className="text-[24px] leading-[1.4] tabular-nums text-vp-ink">
         {clock}
       </span>
       <button
@@ -165,7 +164,7 @@ export default function MapAnalysisTable({
     <section
       data-name="MapReplayStats"
       data-node-id="32:426"
-      className="h-[345px] w-full min-w-0 rounded-[5px] bg-[#f0f0f0] device-dark:bg-[#3a3939] p-[10px]"
+      className="h-[345px] w-full min-w-0 rounded-[5px] bg-vp-surface p-[10px]"
     >
       <div
         data-name="Table Body"
@@ -176,7 +175,7 @@ export default function MapAnalysisTable({
         <div
           data-name="HeaderRow"
           data-node-id="32:693"
-          className="flex h-[30px] shrink-0 border-b border-solid border-[#dadada] device-dark:border-[#2c2c2c]"
+          className="flex h-[30px] shrink-0 border-b border-solid border-vp-line"
           role="row"
         >
           {HEADINGS.map((heading) => (
@@ -186,7 +185,7 @@ export default function MapAnalysisTable({
               role="columnheader"
               className="flex h-full min-w-0 flex-[3_1_0%] items-center px-[10px]"
             >
-              <span className="whitespace-nowrap font-['Beaufort_for_LOL',serif] text-[16px] font-medium leading-[1.4] text-[#1e1e1e] device-dark:text-white">
+              <span className="whitespace-nowrap text-[16px] font-medium leading-[1.4] text-vp-ink">
                 {heading}
               </span>
             </div>
@@ -200,7 +199,7 @@ export default function MapAnalysisTable({
               key={row.id}
               data-name="ParticipantRow"
               role="row"
-              className="flex h-[55px] shrink-0 rounded-[5px] border-b border-solid border-[#dadada] device-dark:border-[#2c2c2c] bg-[#ddd] device-dark:bg-[#2a2a2a]"
+              className="flex h-[55px] shrink-0 rounded-[5px] border-b border-solid border-vp-line bg-vp-raised"
             >
               <LabelCell>{row.teamLabel}</LabelCell>
               <ValueCell>{row.teamValue}</ValueCell>
