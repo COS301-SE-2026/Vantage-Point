@@ -177,9 +177,9 @@ export default function HelpPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Button
               onClick={handleOpenAddModal}
-              className="flex items-center gap-2 rounded-full bg-zinc-900 px-4 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+              className="flex items-center gap-2 rounded-full bg-[#C8AA6E] px-5 font-semibold text-[#091428] shadow-md transition-all hover:bg-[#D8BA7E] hover:shadow-lg hover:shadow-[#C8AA6E]/20 active:bg-[#B89A5E]"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 stroke-[2.5]" />
               <span>Add Article</span>
             </Button>
 
@@ -187,7 +187,7 @@ export default function HelpPage() {
               <button
                 type="button"
                 onClick={() => setSortAsc((prev) => !prev)}
-                className="p-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                className="p-2 text-zinc-400 transition-colors hover:text-[#C8AA6E]"
                 title="Toggle Sort Order"
                 aria-label="Sort"
               >
@@ -200,9 +200,9 @@ export default function HelpPage() {
                   placeholder="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="rounded-full border-zinc-300 bg-vp-surface pr-9 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-400 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                  className="rounded-full border-zinc-800 bg-vp-surface pr-9 text-zinc-100 placeholder:text-zinc-500 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
-                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none text-zinc-400 dark:text-zinc-500" />
+                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none text-zinc-500" />
               </div>
             </div>
           </div>
@@ -210,10 +210,10 @@ export default function HelpPage() {
           {/* Article List */}
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-zinc-400 dark:text-zinc-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#C8AA6E]" />
             </div>
           ) : filteredArticles.length === 0 ? (
-            <div className="py-12 text-center text-zinc-500 dark:text-zinc-400">
+            <div className="py-12 text-center text-zinc-400">
               No help articles found.
             </div>
           ) : (
@@ -226,17 +226,17 @@ export default function HelpPage() {
                 <AccordionItem
                   key={article.id}
                   value={`article-${article.id}`}
-                  className="rounded-2xl border border-zinc-200 bg-vp-surface px-6 py-4 shadow-sm transition-all hover:border-zinc-300 dark:border-zinc-800 dark:hover:border-zinc-700 [&[data-state=open]]:shadow-md"
+                  className="rounded-2xl border border-zinc-800/80 bg-vp-surface px-6 py-4 shadow-sm transition-all hover:border-[#C8AA6E]/50 [&[data-state=open]]:border-[#C8AA6E] [&[data-state=open]]:shadow-lg [&[data-state=open]]:shadow-[#C8AA6E]/5"
                 >
-                  <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180">
+                  <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180 [&[data-state=open]>div>div>.chevron]:text-[#C8AA6E]">
                     <div className="flex w-full flex-col gap-4 text-left">
                       <div className="flex items-center justify-between gap-4">
-                        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                        <h3 className="text-base font-semibold text-zinc-100 group-hover:text-[#F0E6D2]">
                           {article.title}
                         </h3>
-                        <span className="whitespace-nowrap text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                        <span className="whitespace-nowrap text-xs font-semibold text-zinc-400">
                           Last Updated:{" "}
-                          <span className="text-zinc-900 dark:text-zinc-200">
+                          <span className="text-[#C8AA6E]">
                             {new Date(article.updated_at).toLocaleDateString()}
                           </span>
                         </span>
@@ -244,25 +244,25 @@ export default function HelpPage() {
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                             TAGS
                           </span>
                           {article.tags.map((tag) => (
                             <Badge
                               key={tag}
                               variant="secondary"
-                              className="rounded-full bg-zinc-100 px-3 py-0.5 text-xs font-bold text-zinc-800 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                              className="rounded-full border border-[#C8AA6E]/30 bg-[#C8AA6E]/10 px-3 py-0.5 text-xs font-bold text-[#C8AA6E] transition-colors hover:bg-[#C8AA6E]/20"
                             >
                               {tag}
                             </Badge>
                           ))}
                         </div>
-                        <ChevronDown className="chevron h-5 w-5 text-zinc-600 transition-transform duration-200 dark:text-zinc-400" />
+                        <ChevronDown className="chevron h-5 w-5 text-zinc-400 transition-transform duration-200" />
                       </div>
                     </div>
                   </AccordionTrigger>
 
-                  <AccordionContent className="mt-4 border-t border-zinc-100 pt-4 text-sm leading-relaxed text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                  <AccordionContent className="mt-4 border-t border-zinc-800/60 pt-4 text-sm leading-relaxed text-zinc-300">
                     <p className="mb-4 whitespace-pre-line">
                       {article.content}
                     </p>
@@ -273,7 +273,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleVote(article.id, "up", e)}
-                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 transition-colors hover:text-green-600 dark:text-zinc-400 dark:hover:text-green-400"
+                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-[#C8AA6E]"
                         >
                           <ThumbsUp className="h-4 w-4" />
                           <span>{article.upvotes}</span>
@@ -281,7 +281,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleVote(article.id, "down", e)}
-                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 transition-colors hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
+                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-red-400"
                         >
                           <ThumbsDown className="h-4 w-4" />
                           <span>{article.downvotes}</span>
@@ -292,7 +292,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleOpenEditModal(article, e)}
-                          className="p-1.5 text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                          className="p-1.5 text-zinc-400 transition-colors hover:text-[#C8AA6E]"
                           title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
@@ -300,7 +300,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleDeleteArticle(article.id, e)}
-                          className="p-1.5 text-zinc-500 transition-colors hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
+                          className="p-1.5 text-zinc-400 transition-colors hover:text-red-400"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -317,17 +317,18 @@ export default function HelpPage() {
 
       {/* Add / Edit Article Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl bg-vp-surface p-6 shadow-xl border border-zinc-200 dark:border-zinc-800">
-            <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3 dark:border-zinc-800">
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-[#C8AA6E]/30 bg-vp-surface p-6 shadow-2xl shadow-black/80">
+            <div className="mb-4 flex items-center justify-between border-b border-zinc-800 pb-3">
+              <h2 className="text-lg font-bold text-[#F0E6D2]">
                 {editingArticle
                   ? "Edit Help Article"
                   : "Create New Help Article"}
               </h2>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                className="text-zinc-500 hover:text-[#C8AA6E]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -335,7 +336,7 @@ export default function HelpPage() {
 
             <form onSubmit={handleSubmitModal} className="flex flex-col gap-4">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                <label className="mb-1 block text-xs font-semibold text-zinc-300">
                   Title
                 </label>
                 <Input
@@ -345,12 +346,12 @@ export default function HelpPage() {
                     setFormData({ ...formData, title: e.target.value })
                   }
                   placeholder="e.g. How to link Riot ID"
-                  className="bg-vp-surface text-zinc-900 dark:text-zinc-100 dark:border-zinc-700"
+                  className="border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                <label className="mb-1 block text-xs font-semibold text-zinc-300">
                   Content / Description
                 </label>
                 <textarea
@@ -361,12 +362,12 @@ export default function HelpPage() {
                     setFormData({ ...formData, content: e.target.value })
                   }
                   placeholder="Article details and troubleshooting steps..."
-                  className="w-full rounded-md border border-zinc-300 bg-vp-surface p-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-zinc-600"
+                  className="w-full rounded-md border border-zinc-700 bg-vp-surface p-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-[#C8AA6E] focus:outline-none focus:ring-1 focus:ring-[#C8AA6E]"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                <label className="mb-1 block text-xs font-semibold text-zinc-300">
                   Tags (comma separated)
                 </label>
                 <Input
@@ -375,7 +376,7 @@ export default function HelpPage() {
                     setFormData({ ...formData, tags: e.target.value })
                   }
                   placeholder="AI, INFO, ACCOUNT"
-                  className="bg-vp-surface text-zinc-900 dark:text-zinc-100 dark:border-zinc-700"
+                  className="border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
               </div>
 
@@ -384,14 +385,14 @@ export default function HelpPage() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
-                  className="dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                  className="bg-[#C8AA6E] font-bold text-[#091428] transition-all hover:bg-[#D8BA7E] hover:shadow-lg hover:shadow-[#C8AA6E]/20 active:bg-[#B89A5E]"
                 >
                   {submitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
