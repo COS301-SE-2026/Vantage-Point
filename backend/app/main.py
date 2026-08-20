@@ -341,4 +341,3 @@ async def register_summoner(
         "message": f"Successfully registered {game_name}#{tag_line}",
         "puuid": puuid,
     }
-

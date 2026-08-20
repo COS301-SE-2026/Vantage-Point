@@ -22,9 +22,7 @@ class TestUnhandledErrorIsReadable:
 
     def test_cors_wraps_the_catch_all_middleware(self):
         """CORS must stay outermost, or its headers never reach an error response."""
-        names = [
-            getattr(m.cls, "__name__", str(m.cls)) for m in app.user_middleware
-        ]
+        names = [getattr(m.cls, "__name__", str(m.cls)) for m in app.user_middleware]
         assert names, "no user middleware registered"
         # user_middleware is ordered outermost first.
         assert names[0] == CORSMiddleware.__name__, (
