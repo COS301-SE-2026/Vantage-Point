@@ -30,6 +30,7 @@ def avg_and_std(y_data):
 
 
 def create_rf_models():
+    print(">>> Skill RF Started")
     champ_rf = rf.final_train(
         str(TRAINING_CSV_DIR / "champ_rf_training.csv"),
         "champion",
@@ -40,6 +41,7 @@ def create_rf_models():
         str(TRAINING_CSV_DIR / "skill_rf_training.csv"),
         "skill",
     )
+    print(">>> Skill RF finished", flush=True)
 
     return champ_rf, item_rf, role_rf, skill_rf
 
@@ -47,7 +49,6 @@ def create_rf_models():
 def create_knn_model():
     knn_models = knn.get_knn(str(TRAINING_CSV_DIR / "knn_training.csv"))
     return knn_models
-
 
 # run functions will call error correctors
 def correct_knn(y_output, y_data):

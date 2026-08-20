@@ -388,8 +388,16 @@ class ItemData(BaseModel):
     powerMax: list[int]
 
     def convert_to_arr(self):
+        FRAME_INTERVAL_MS = 60000
         out_arr = []
+
+        def safe_idx(lst: list, idx: int)-> int:
+            return lst[max(0, min(idx, len(lst) - 1))]
+
+        
         for i in range(0, len(self.itemId)):
+            frame_idx: Any = int(self.timestamp[i]) // FRAME_INTERVAL_MS
+
             row = [
                 self.itemId[i],
                 self.timestamp[i],
@@ -397,43 +405,43 @@ class ItemData(BaseModel):
                 self.champExperience,
                 self.champLevel,
                 self.championId,
-                self.currentGold[i],
-                self.level[i],
-                self.minionsKilled[i],
-                self.timeEnemySpentControlled[i],
-                self.totalGold[i],
-                self.position_x[i],
-                self.position_y[i],
-                self.xp[i],
-                self.magicDamageDone[i],
-                self.magicDamageDoneToChampions[i],
-                self.magicDamageTaken[i],
-                self.physicalDamageDone[i],
-                self.physicalDamageDoneToChampions[i],
-                self.physicalDamageTaken[i],
-                self.totalDamageDone[i],
-                self.totalDamageDoneToChampions[i],
-                self.totalDamageTaken[i],
-                self.trueDamageDone[i],
-                self.trueDamageDoneToChampions[i],
-                self.trueDamageTaken[i],
-                self.abilityPower[i],
-                self.armor[i],
-                self.armorPenPercent[i],
-                self.attackDamage[i],
-                self.attackSpeed[i],
-                self.ccReduction[i],
-                self.health[i],
-                self.healthMax[i],
-                self.healthRegen[i],
-                self.lifesteal[i],
-                self.magicPen[i],
-                self.magicPenPercent[i],
-                self.magicResist[i],
-                self.movementSpeed[i],
-                self.omnivamp[i],
-                self.power[i],
-                self.powerMax[i],
+                safe_idx(self.currentGold, frame_idx),
+                safe_idx(self.level, frame_idx),
+                safe_idx(self.minionsKilled, frame_idx),
+                safe_idx(self.timeEnemySpentControlled, frame_idx),
+                safe_idx(self.totalGold, frame_idx),
+                safe_idx(self.position_x, frame_idx),
+                safe_idx(self.position_y, frame_idx),
+                safe_idx(self.xp, frame_idx),
+                safe_idx(self.magicDamageDone, frame_idx),
+                safe_idx(self.magicDamageDoneToChampions, frame_idx),
+                safe_idx(self.magicDamageTaken, frame_idx),
+                safe_idx(self.physicalDamageDone, frame_idx),
+                safe_idx(self.physicalDamageDoneToChampions, frame_idx),
+                safe_idx(self.physicalDamageTaken, frame_idx),
+                safe_idx(self.totalDamageDone, frame_idx),
+                safe_idx(self.totalDamageDoneToChampions, frame_idx),
+                safe_idx(self.totalDamageTaken, frame_idx),
+                safe_idx(self.trueDamageDone, frame_idx),
+                safe_idx(self.trueDamageDoneToChampions, frame_idx),
+                safe_idx(self.trueDamageTaken, frame_idx),
+                safe_idx(self.abilityPower, frame_idx),
+                safe_idx(self.armor, frame_idx),
+                safe_idx(self.armorPenPercent, frame_idx),
+                safe_idx(self.attackDamage, frame_idx),
+                safe_idx(self.attackSpeed, frame_idx),
+                safe_idx(self.ccReduction, frame_idx),
+                safe_idx(self.health, frame_idx),
+                safe_idx(self.healthMax, frame_idx),
+                safe_idx(self.healthRegen, frame_idx),
+                safe_idx(self.lifesteal, frame_idx),
+                safe_idx(self.magicPen, frame_idx),
+                safe_idx(self.magicPenPercent, frame_idx),
+                safe_idx(self.magicResist, frame_idx),
+                safe_idx(self.movementSpeed, frame_idx),
+                safe_idx(self.omnivamp, frame_idx),
+                safe_idx(self.power, frame_idx),
+                safe_idx(self.powerMax, frame_idx),
             ]
             out_arr.append(row)
         return out_arr

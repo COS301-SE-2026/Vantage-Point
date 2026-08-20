@@ -252,7 +252,7 @@ class LiveAnalyticsService:
         frames = _data["info"]["frames"]
         timestamps: list[int] = [frame["timestamp"] for frame in frames]
 
-        for i in range(1, 10):
+        for i in range(1, 11):
             x_values[str(i)] = [
                 frame["participantFrames"][str(i)]["position"]["x"] for frame in frames
             ]
@@ -775,7 +775,7 @@ class LiveAnalyticsService:
                 event
                 for frame in frames
                 for event in frame["events"]
-                if event.get("participantId") == (participant_id)
+                if event.get("participantId") == int(participant_id)
             ]
 
             event_timestamp = [event["timestamp"] for event in item_events]

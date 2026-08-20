@@ -35,11 +35,8 @@ async def get_champ_pred_model(_: Annotated[User, Depends(require_group(10))], m
     "/item-model",
 )
 async def get_item_pred_model(_: Annotated[User, Depends(require_group(10))], match_id: str, puuid: str, session: Annotated[AsyncSession, Depends(get_session)], live_analytics: LiveAnalyticsServiceDep) -> Any:
-    try:
         data: Any = await live_analytics.item_data(match_id=match_id, puuid=puuid, session=session)
         return get_item_pred(data)
-    except HTTPException as e:
-            raise HTTPException(status_code=500, detail=str(e))
 
 @router.get(
     "/role-model",

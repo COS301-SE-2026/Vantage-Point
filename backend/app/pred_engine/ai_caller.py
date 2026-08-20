@@ -15,7 +15,7 @@ DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
 # contains all funtions for frontend to access
 def create_models():
     c, i, r, s = ai.create_rf_models()
-    k = ai.create_knn_model()
+    # k = ai.create_knn_model()
 
     global champ_rf
     champ_rf = c
@@ -25,8 +25,8 @@ def create_models():
     role_rf = r
     global skill_rf
     skill_rf = s
-    global knn_model
-    knn_model = k
+    # global knn_model
+    # knn_model = k
 
 
 def get_skill_pred(data) -> Any:
@@ -72,6 +72,9 @@ def get_skill_pred(data) -> Any:
 
 def get_item_pred(data) -> Any:
     global item_rf
+    if not data.itemId:
+        return None, None
+    
     y_output = ai.run_rf(item_rf, data=data, cat="item")
     item_id = None
     if y_output is None:
@@ -126,7 +129,7 @@ def get_champ_pred(data) -> Any:
         return champName
 
 
-def get_knn_output(data) -> Any:
+def get_knn_output(data):
     global knn_model
     y_output, _ = ai.run_knn(knn_model, data)
 
