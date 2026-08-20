@@ -15,7 +15,7 @@ DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
 # contains all funtions for frontend to access
 def create_models():
     c, i, r, s = ai.create_rf_models()
-    k = ai.create_knn_model()
+    # k = ai.create_knn_model()
 
     global champ_rf
     champ_rf = c
@@ -25,8 +25,8 @@ def create_models():
     role_rf = r
     global skill_rf
     skill_rf = s
-    global knn_model
-    knn_model = k
+    # global knn_model
+    # knn_model = k
 
 
 def get_skill_pred(data) -> Any:

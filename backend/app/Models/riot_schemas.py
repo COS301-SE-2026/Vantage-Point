@@ -482,7 +482,6 @@ class SkillData(BaseModel):
             row = [
                 self.skillslot[i],
                 self.levelUpType[i],
-                self.timestamp[i],
                 self.championId,
                 self.damageSelfMitigated,
                 self.deaths,
