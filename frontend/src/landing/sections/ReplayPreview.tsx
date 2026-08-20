@@ -10,6 +10,7 @@ import MatchReplayToolbar, {
 } from "../../components/MatchReplayToolbar";
 import { mapDefault } from "../../assets/images/match-replay";
 import { formatTimelineClock } from "../../lib/timeline";
+import { useMapPan } from "../../lib/useMapPan";
 import { useReplayClock } from "../../lib/useReplayClock";
 import {
   SAMPLE_COACHING_NOTES,
@@ -46,12 +47,21 @@ export default function ReplayPreview() {
   const clock = useReplayClock(SAMPLE_TIMELINE.game_duration_ms, {
     autoPlay: true,
   });
+  const {
+    attach: attachMap,
+    transform: mapTransform,
+    dragging,
+    pannable,
+    handlers: panHandlers,
+  } = useMapPan(1 + zoomPercent / 100);
 
   const overlayToggles = useMemo(
     () => ({
       kills: activeActions.has("kills"),
       deaths: activeActions.has("deaths"),
       path: activeActions.has("path"),
+      // The recommended route is offered on the replay screen only.
+      suggestedPath: false,
     }),
     [activeActions],
   );
@@ -119,8 +129,14 @@ export default function ReplayPreview() {
           className="relative aspect-square h-full shrink-0 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
         >
           <div
-            className="absolute inset-0 transition-transform duration-200"
-            style={{ transform: `scale(${1 + zoomPercent / 100})` }}
+            ref={attachMap}
+            {...panHandlers}
+            /* `touch-none` only once there is something to pan to: at 1x it would
+               swallow the vertical swipe that scrolls the page. */
+            className={`absolute inset-0 ${pannable ? "touch-none" : ""} ${
+              dragging ? "cursor-grabbing" : "transition-transform duration-200"
+            } ${pannable && !dragging ? "cursor-grab" : ""}`}
+            style={{ transform: mapTransform }}
           >
             <img
               src={mapDefault}
@@ -150,12 +166,14 @@ export default function ReplayPreview() {
             zoomPercent={zoomPercent}
             onTogglePlaying={clock.togglePlaying}
             onScrub={clock.seekToProgress}
+            onStepBackward={clock.stepBackward}
+            onStepForward={clock.stepForward}
             onZoomIn={() => setZoomPercent((z) => Math.min(100, z + 10))}
             onZoomOut={() => setZoomPercent((z) => Math.max(0, z - 10))}
           />
         </div>
 
-        <div className="ml-[6px] hidden h-full min-w-0 max-w-[380px] flex-1 overflow-hidden sm:flex">
+        <div className="ml-[6px] hidden h-full min-w-0 max-w-[288px] flex-1 overflow-hidden sm:flex">
           <AiCoachingComments notes={SAMPLE_COACHING_NOTES} />
         </div>
       </div>

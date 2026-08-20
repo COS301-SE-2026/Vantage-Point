@@ -106,6 +106,59 @@ const ONE_PIXEL_PNG = Buffer.from(
   "base64",
 );
 
+/**
+ * Data Dragon's static name files, cut down to what the fixtures reference.
+ *
+ * The analysis table names the ability and item in every slot, and Riot's match
+ * data carries neither — only the slot number and the item id — so a spec that
+ * asserts on those names needs the CDN to answer with JSON, not with a pixel.
+ */
+const DDRAGON_ITEM_NAMES: Record<string, string> = {
+  "3006": "Berserker's Greaves",
+  "3031": "Infinity Edge",
+  "3036": "Lord Dominik's Regards",
+  "3094": "Rapid Firecannon",
+  "3363": "Farsight Alteration",
+  "6676": "The Collector",
+};
+
+const DDRAGON_CHAMPION_ABILITIES: Record<
+  string,
+  { passive: string; spells: string[] }
+> = {
+  Jinx: {
+    passive: "Get Excited!",
+    spells: [
+      "Switcheroo!",
+      "Zap!",
+      "Flame Chompers!",
+      "Super Mega Death Rocket!",
+    ],
+  },
+};
+
+const DDRAGON_JSON: { pattern: RegExp; body: unknown }[] = [
+  {
+    pattern: /\/data\/[^/]+\/item\.json$/,
+    body: {
+      data: Object.fromEntries(
+        Object.entries(DDRAGON_ITEM_NAMES).map(([id, name]) => [id, { name }]),
+      ),
+    },
+  },
+  ...Object.entries(DDRAGON_CHAMPION_ABILITIES).map(([key, entry]) => ({
+    pattern: new RegExp(`/data/[^/]+/champion/${key}\\.json$`),
+    body: {
+      data: {
+        [key]: {
+          passive: { name: entry.passive },
+          spells: entry.spells.map((name) => ({ name })),
+        },
+      },
+    },
+  })),
+];
+
 function unauthorised(): MockReply {
   return { status: 401, json: { detail: "Not authenticated" } };
 }
@@ -186,13 +239,23 @@ export class ApiMock {
 
   async install(context: BrowserContext): Promise<void> {
     // Riot's CDN: answer locally so the suite works offline and stays fast.
-    await context.route("https://ddragon.leagueoflegends.com/**", (route) =>
-      route.fulfill({
+    // The name files are JSON, everything else under /cdn is an image.
+    await context.route("https://ddragon.leagueoflegends.com/**", (route) => {
+      const path = new URL(route.request().url()).pathname;
+      const json = DDRAGON_JSON.find((entry) => entry.pattern.test(path));
+      if (json) {
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(json.body),
+        });
+      }
+      return route.fulfill({
         status: 200,
         contentType: "image/png",
         body: ONE_PIXEL_PNG,
-      }),
-    );
+      });
+    });
     // Everything aimed at the backend origin, and nothing aimed at Vite.
     await context.route(
       (url) => url.origin === API_ORIGIN,

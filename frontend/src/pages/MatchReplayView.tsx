@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { fetchMatchHistory } from "../api/matches";
 import MatchReplayMenuRow from "../components/MatchReplayMenuRow";
@@ -9,16 +9,6 @@ import type { MatchHistorySummary } from "../types/match";
 
 /** How many recent games the replay screen lists at once. */
 const REPLAY_MATCH_COUNT = 5;
-
-/**
- * Everything stacked above and below an open map that is not a match row: the
- * 64px header, the page's top padding, and a little air at the bottom. The rows
- * themselves are added per row so the square never gets cropped.
- */
-const MAP_VERTICAL_CHROME = 148;
-
-/** Row height plus the gap under it. */
-const MENU_ROW_STRIDE = 42;
 
 export default function MatchReplayView() {
   const navigate = useNavigate();
@@ -87,11 +77,6 @@ export default function MatchReplayView() {
     });
   }, [matchIdParam]);
 
-  const verticalChrome = useMemo(
-    () => MAP_VERTICAL_CHROME + matches.length * MENU_ROW_STRIDE,
-    [matches.length],
-  );
-
   const handleToggle = (matchId: string) => {
     setOpenIds((prev) => {
       const next = new Set(prev);
@@ -132,12 +117,7 @@ export default function MatchReplayView() {
                       handleToggle(summary.matchId);
                     }}
                   />
-                  {open ? (
-                    <MatchReplayPanel
-                      matchId={summary.matchId}
-                      verticalChrome={verticalChrome}
-                    />
-                  ) : null}
+                  {open ? <MatchReplayPanel matchId={summary.matchId} /> : null}
                 </div>
               );
             })}

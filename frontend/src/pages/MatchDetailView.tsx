@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { fetchMatchDetail } from "../api/match";
 import { itemIconUrl, summonerSpellIconUrl } from "../lib/ddragon";
@@ -430,15 +430,37 @@ export default function MatchDetailView({
 
   return (
     <PageContainer>
-      <button
-        type="button"
-        onClick={onBack}
-        aria-label="Back to matches"
-        className="mb-5 flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[13px] text-vp-dim transition-colors hover:text-vp-ink"
-      >
-        <ArrowLeft className="size-4 shrink-0" strokeWidth={1.9} aria-hidden />
-        Back to matches
-      </button>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Back to matches"
+          className="flex cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent p-0 text-[13px] text-vp-dim transition-colors hover:text-vp-ink"
+        >
+          <ArrowLeft
+            className="size-4 shrink-0"
+            strokeWidth={1.9}
+            aria-hidden
+          />
+          Back to matches
+        </button>
+
+        {/* The replay of the game being read about was only reachable from the
+            sidebar, which lands on the most recent match rather than this one. */}
+        {matchId ? (
+          <button
+            type="button"
+            onClick={() => {
+              navigate(`/dashboard/replay/${encodeURIComponent(matchId)}`);
+            }}
+            aria-label="View match replay"
+            className="flex cursor-pointer items-center gap-2 rounded-md border border-solid border-vp-line bg-vp-raised px-3 py-1.5 text-[13px] font-medium text-vp-ink transition-colors hover:border-vp-gold hover:text-vp-gold"
+          >
+            <Play className="size-4 shrink-0" strokeWidth={1.9} aria-hidden />
+            View match replay
+          </button>
+        ) : null}
+      </div>
 
       {loading ? <LoadingSkeleton /> : null}
 

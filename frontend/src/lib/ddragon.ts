@@ -1,5 +1,5 @@
-const DDRAGON_VERSION = "14.24.1";
-const DDRAGON_BASE = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}`;
+export const DDRAGON_VERSION = "14.24.1";
+export const DDRAGON_BASE = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}`;
 
 /** Riot Data Dragon file keys differ from in-game display names. */
 const CHAMPION_DDRAGON_KEY_OVERRIDES: Record<string, string> = {

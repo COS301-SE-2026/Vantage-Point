@@ -155,6 +155,34 @@ app = FastAPI(
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 # app.add_middleware(SlowAPIMiddleware)
+
+
+# Registered BEFORE the CORS middleware on purpose, and the order is load-bearing.
+# `add_middleware` inserts at the front of the stack, so whatever is added last ends up
+# outermost — this has to be added first to sit *inside* CORS.
+#
+# Why it exists at all: an unhandled exception would otherwise be caught by Starlette's
+# ServerErrorMiddleware, which wraps the whole stack including CORS. Its 500 never passes
+# back through the CORS layer, so it carries no Access-Control-Allow-Origin header, and a
+# browser reports "CORS header missing" instead of the error that actually occurred. The
+# same goes for the `@app.exception_handler(Exception)` below, which is installed *as*
+# that outermost handler. Turning the exception into a response here, inside CORS, means
+# the client sees a real 500 with a readable body and the true cause is one log away.
+@app.middleware("http")
+async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
+    try:
+        return await call_next(request)
+    except Exception:
+        logger.bind(url=str(request.url), method=request.method).exception(
+            f"Bug detected in {request.method}{request.url.path}"
+        )
+        # The detail stays generic: the traceback above is for us, not for the caller.
+        return JSONResponse(
+            status_code=500,
+            content=error_response(500, "Unexpected server error"),
+        )
+
+
 # CORS for frontend
 # 3000 = React default, 5173 = Vite default.
 app.add_middleware(
@@ -214,6 +242,10 @@ async def validation_exception_handler(
     )
 
 
+# A backstop only. `log_errors_middleware` turns almost everything into a response before
+# it reaches here; this catches the rest — anything raised outside the middleware stack.
+# Starlette installs it on ServerErrorMiddleware, above CORS, so a response it produces
+# reaches the browser without CORS headers.
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
@@ -309,14 +341,3 @@ async def register_summoner(
         "message": f"Successfully registered {game_name}#{tag_line}",
         "puuid": puuid,
     }
-
-
-@app.middleware("http")
-async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
-    try:
-        return await call_next(request)
-    except Exception as e:
-        logger.bind(url=str(request.url), method=request.method).exception(
-            f"Bug detected in {request.method}{request.url.path}"
-        )
-        raise e

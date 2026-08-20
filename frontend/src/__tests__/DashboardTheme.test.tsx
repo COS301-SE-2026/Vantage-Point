@@ -33,9 +33,9 @@ function row(id: string): MapAnalysisRow {
     teamValue: "50",
     playerLabel: "Health",
     playerValue: "50",
-    skillLabel: "SkillSlot_1",
-    skillValue: "Lvl 1",
-    itemLabel: "Item_1",
+    skillLabel: "Q · Switcheroo!",
+    skillValue: "3",
+    itemLabel: "Berserker's Greaves",
     itemId: 3006,
     objectiveLabel: "Towers",
     objectiveValue: "50",
@@ -90,13 +90,7 @@ describe("Dashboard surface", () => {
 
   it("stacks the map analysis rows on the raised surface", () => {
     const { container } = render(
-      <MapAnalysisTable
-        rows={[row("a"), row("b")]}
-        clock="15:36"
-        playing
-        onTogglePlaying={() => {}}
-        onRewind={() => {}}
-      />,
+      <MapAnalysisTable rows={[row("a"), row("b")]} />,
     );
 
     expect(container.firstElementChild?.className).toContain(SURFACE);

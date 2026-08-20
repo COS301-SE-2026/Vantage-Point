@@ -7,30 +7,38 @@ import MatchReplayControls from "./MatchReplayControls";
 import MatchReplayMapOverlay from "./MatchReplayMapOverlay";
 import MatchReplayToolbar, {
   type ReplayOverlayAction,
-  type ReplayToolbarMode,
 } from "./MatchReplayToolbar";
 import { buildReplayCoachingNotes } from "../lib/replayCoaching";
 import { formatTimelineClock } from "../lib/timeline";
+import { useMapPan } from "../lib/useMapPan";
 import { useReplayClock } from "../lib/useReplayClock";
+import { useSuggestedPath } from "../lib/useSuggestedPath";
 import { mapDefault } from "../assets/images/match-replay";
 import type { MatchDetail, ParticipantDetail } from "../types/match";
 import type { MatchTimeline } from "../types/timeline";
 
 /**
  * Figma "Map view" 26:1008 — 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel.
- * The map takes the slack in the region instead; 516 stays the floor.
+ * The toolbar is no longer part of that width: it runs across the top now, so the map
+ * starts at the left edge and the whole 40 + 10 the rail used to hold goes back into
+ * the square. 516 stays the floor, below which the coaching column wraps under the map
+ * rather than squeezing it further.
  */
 const MAP_MIN_SIZE = 516;
 
+/** Gap between the tool bar and the map under it. */
+const TOOLBAR_GAP = 10;
+
+/**
+ * The map and the coaching column split the row evenly, so the square is as wide as
+ * half of whatever the screen gives it. Past this the halves stop growing: a map much
+ * larger than the frame Figma drew reads as a zoomed image rather than as a minimap,
+ * and there is no more detail in it to see.
+ */
+const ROW_MAX_WIDTH = 1656;
+
 interface MatchReplayPanelProps {
   readonly matchId: string;
-  /**
-   * Everything stacked above and below the map — the header, the page padding,
-   * the match rows and their gaps. The map is square, so its size is whichever
-   * runs out first, the column's width or the viewport's height, and this is
-   * what the caller has already spent of that height.
-   */
-  readonly verticalChrome: number;
 }
 
 function allParticipants(match: MatchDetail): ParticipantDetail[] {
@@ -45,15 +53,12 @@ function allParticipants(match: MatchDetail): ParticipantDetail[] {
  */
 export default function MatchReplayPanel({
   matchId,
-  verticalChrome,
 }: Readonly<MatchReplayPanelProps>) {
   const navigate = useNavigate();
 
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [toolbarMode, setToolbarMode] =
-    useState<ReplayToolbarMode>("collapsed");
   const [playersOpen, setPlayersOpen] = useState(false);
   const [activeActions, setActiveActions] = useState<Set<ReplayOverlayAction>>(
     () => new Set(),
@@ -66,6 +71,13 @@ export default function MatchReplayPanel({
   const [timelineError, setTimelineError] = useState<string | null>(null);
 
   const clock = useReplayClock(timeline?.game_duration_ms ?? 0);
+  const {
+    attach: attachMap,
+    transform: mapTransform,
+    dragging,
+    pannable,
+    handlers: panHandlers,
+  } = useMapPan(1 + zoomPercent / 100);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,26 +145,22 @@ export default function MatchReplayPanel({
       kills: activeActions.has("kills"),
       deaths: activeActions.has("deaths"),
       path: activeActions.has("path"),
+      suggestedPath: activeActions.has("suggested-path"),
     }),
     [activeActions],
   );
 
   const viewer = players.find((p) => p.is_viewer);
 
+  // The recommendation is about one player, and the replay is opened from that player's
+  // own history, so it follows the viewer rather than the toolbar's selection.
+  const suggested = useSuggestedPath(matchId, viewer?.puuid, timeline);
+  const showingSuggestedPath = activeActions.has("suggested-path");
+
   const coachingNotes = useMemo(
     () => (match && viewer ? buildReplayCoachingNotes(match, viewer) : []),
     [match, viewer],
   );
-
-  const handleToggleMode = () => {
-    setToolbarMode((mode) => {
-      if (mode === "expanded") {
-        setPlayersOpen(false);
-        return "collapsed";
-      }
-      return "expanded";
-    });
-  };
 
   const handleActionClick = (action: ReplayOverlayAction) => {
     if (action === "players") {
@@ -203,75 +211,121 @@ export default function MatchReplayPanel({
   }
 
   return (
-    <div className="flex items-start">
+    <div className="flex flex-col">
       <MatchReplayToolbar
-        mode={toolbarMode}
         playersOpen={playersOpen}
         activeActions={activeActions}
         players={players}
         selectedPuuids={selectedPuuids}
-        onToggleMode={handleToggleMode}
         onActionClick={handleActionClick}
         onTogglePlayer={handleTogglePlayer}
+        orientation="horizontal"
       />
 
       <div
-        data-name="Map"
-        data-node-id="55:314"
-        className="relative ml-[10px] aspect-square min-w-0 flex-1 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
-        style={{
-          minWidth: MAP_MIN_SIZE,
-          maxWidth: `calc(100vh - ${String(verticalChrome)}px)`,
-        }}
+        className="flex flex-wrap items-start gap-[16px]"
+        style={{ marginTop: TOOLBAR_GAP, maxWidth: ROW_MAX_WIDTH }}
       >
-        {/* The overlay shares this transform so markers stay pinned to the
-            terrain under them as the map is zoomed. */}
         <div
-          className="absolute inset-0 transition-transform duration-200"
-          style={{ transform: `scale(${1 + zoomPercent / 100})` }}
+          data-name="Map"
+          data-node-id="55:314"
+          className="relative aspect-square min-w-0 flex-1 basis-0 overflow-hidden rounded-[8px] bg-[#1a1a1a]"
+          style={{ minWidth: MAP_MIN_SIZE }}
         >
-          <img
-            src={mapDefault}
-            alt="Summoner's Rift map"
-            className="size-full object-cover"
-            data-name="map_default 1"
-          />
-          {timeline ? (
-            <MatchReplayMapOverlay
-              timeline={timeline}
-              players={players}
-              teamIdByPuuid={teamIdByPuuid}
-              selectedPuuids={selectedPuuids}
-              elapsedMs={clock.elapsedMs}
-              toggles={overlayToggles}
+          {/* The overlay shares this transform so markers stay pinned to the
+            terrain under them as the map is zoomed, and travel with it as it is
+            dragged. The transition is dropped mid-drag: easing every pointer move
+            would make the map trail the cursor. */}
+          <div
+            ref={attachMap}
+            {...panHandlers}
+            /* `touch-none` only once there is something to pan to: at 1x it would
+               swallow the vertical swipe that scrolls the page. */
+            className={`absolute inset-0 ${pannable ? "touch-none" : ""} ${
+              dragging ? "cursor-grabbing" : "transition-transform duration-200"
+            } ${pannable && !dragging ? "cursor-grab" : ""}`}
+            style={{ transform: mapTransform }}
+          >
+            <img
+              src={mapDefault}
+              alt="Summoner's Rift map"
+              className="size-full object-cover"
+              data-name="map_default 1"
             />
-          ) : null}
-        </div>
+            {timeline ? (
+              <MatchReplayMapOverlay
+                timeline={timeline}
+                players={players}
+                teamIdByPuuid={teamIdByPuuid}
+                selectedPuuids={selectedPuuids}
+                elapsedMs={clock.elapsedMs}
+                toggles={overlayToggles}
+                suggestedPath={suggested.path}
+              />
+            ) : null}
+          </div>
 
-        <div className="absolute left-[8px] top-[8px] flex items-center gap-2 rounded-[6px] bg-black/55 px-[8px] py-[3px]">
-          <span className="text-[14px] font-bold tabular-nums text-white">
-            {formatTimelineClock(clock.elapsedMs)}
-          </span>
-          {timeline ? null : (
-            <span className="text-[12px] text-white/70">
-              {timelineError ?? "Loading replay data…"}
+          <div className="absolute left-[8px] top-[8px] flex items-center gap-2 rounded-[6px] bg-black/55 px-[8px] py-[3px]">
+            <span className="text-[14px] font-bold tabular-nums text-white">
+              {formatTimelineClock(clock.elapsedMs)}
             </span>
-          )}
+            {timeline ? null : (
+              <span className="text-[12px] text-white/70">
+                {timelineError ?? "Loading replay data…"}
+              </span>
+            )}
+          </div>
+
+          {showingSuggestedPath ? (
+            <div className="absolute right-[8px] top-[8px] flex max-w-[230px] flex-col items-end gap-1">
+              <span className="flex items-center gap-2 rounded-[6px] bg-black/55 px-[8px] py-[3px] text-[12px] text-white">
+                <span
+                  aria-hidden
+                  className="h-0 w-[18px] border-t-2 border-dashed border-vp-gold"
+                />
+                AI path
+              </span>
+              {suggested.preview ? (
+                <span className="rounded-[6px] bg-black/55 px-[8px] py-[3px] text-right text-[11px] leading-[14px] text-vp-gold">
+                  Preview shape only, not a model prediction
+                </span>
+              ) : null}
+              {suggested.loading ? (
+                <span className="rounded-[6px] bg-black/55 px-[8px] py-[3px] text-[11px] text-white/70">
+                  Loading recommended path…
+                </span>
+              ) : null}
+              {suggested.error ? (
+                <span className="rounded-[6px] bg-black/55 px-[8px] py-[3px] text-right text-[11px] leading-[14px] text-white/70">
+                  {suggested.error}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          <MatchReplayControls
+            playing={clock.playing}
+            progress={clock.progress}
+            zoomPercent={zoomPercent}
+            onTogglePlaying={clock.togglePlaying}
+            onScrub={clock.seekToProgress}
+            onStepBackward={clock.stepBackward}
+            onStepForward={clock.stepForward}
+            onZoomIn={() => {
+              setZoomPercent((z) => Math.min(100, z + 10));
+            }}
+            onZoomOut={() => {
+              setZoomPercent((z) => Math.max(0, z - 10));
+            }}
+          />
         </div>
 
-        <MatchReplayControls
-          playing={clock.playing}
-          progress={clock.progress}
-          zoomPercent={zoomPercent}
-          onTogglePlaying={clock.togglePlaying}
-          onScrub={clock.seekToProgress}
-          onZoomIn={() => setZoomPercent((z) => Math.min(100, z + 10))}
-          onZoomOut={() => setZoomPercent((z) => Math.max(0, z - 10))}
-        />
-      </div>
-
-      <div className="ml-[16px] flex min-w-[260px] max-w-[380px] flex-1 self-start">
-        <AiCoachingComments notes={coachingNotes} />
+        {/* Half the row each, and the coaching column runs down to the bottom edge
+            of the square. The panel used to stop at 380px wide and at the height of
+            its last note, which left the right third of the screen empty. */}
+        <div className="flex min-w-[300px] flex-1 basis-0 self-stretch">
+          <AiCoachingComments notes={coachingNotes} />
+        </div>
       </div>
     </div>
   );

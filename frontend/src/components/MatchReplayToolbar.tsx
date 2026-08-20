@@ -8,8 +8,6 @@ import {
   iconPerson,
   iconPersonDark,
   iconPoison,
-  iconSettings,
-  iconSettingsDark,
 } from "../assets/images/match-replay";
 import { championIconUrl } from "../lib/ddragon";
 import type { ParticipantDetail } from "../types/match";
@@ -17,31 +15,78 @@ import ThemedIcon from "./ThemedIcon";
 
 export type ReplayToolbarMode = "collapsed" | "expanded";
 
+/**
+ * Which way the tools run. The replay screen puts them across the top of the map;
+ * the analysis screen keeps the rail down the side of its column, where a full-width
+ * bar would take the space its table needs.
+ */
+export type ReplayToolbarOrientation = "vertical" | "horizontal";
+
 export type ReplayOverlayAction =
   | "kills"
   | "deaths"
   | "path"
+  | "suggested-path"
   | "players"
-  | "analysis"
-  | "map";
+  | "analysis";
 
 interface MatchReplayToolbarProps {
-  readonly mode: ReplayToolbarMode;
+  /** Rail only. The bar is always expanded, so it ignores this and never asks for it. */
+  readonly mode?: ReplayToolbarMode;
   readonly playersOpen: boolean;
   readonly activeActions: ReadonlySet<ReplayOverlayAction>;
   readonly players: readonly ParticipantDetail[];
   readonly selectedPuuids: ReadonlySet<string>;
-  readonly onToggleMode: () => void;
+  /** Rail only, for the same reason as `mode`. */
+  readonly onToggleMode?: () => void;
   readonly onActionClick: (action: ReplayOverlayAction) => void;
   readonly onTogglePlayer: (puuid: string) => void;
+  /** Defaults to the vertical rail Figma drew. */
+  readonly orientation?: ReplayToolbarOrientation;
 }
 
 /**
  * Figma "Collapsed options" 26:860 / "Expanded options" 26:867.
  * Panel 40×311 / 160×313, rounded 5, 30px rows on a 13px rhythm starting 11px in.
+ *
+ * The height is computed from the row count rather than kept at its measured 311/313,
+ * so the rail follows the action list up or down instead of spilling or leaving a gap.
  */
 const PANEL_PAD_TOP = 11;
 const ROW_GAP = 13;
+const ROW_HEIGHT = 30;
+/** 311 - 11 top - (7 rows * 30) - (6 gaps * 13) = 12 left under the last row. */
+const PANEL_PAD_BOTTOM = 12;
+
+/** Collapse button plus one row per action. */
+function panelHeight(rowCount: number): number {
+  return (
+    PANEL_PAD_TOP +
+    rowCount * ROW_HEIGHT +
+    (rowCount - 1) * ROW_GAP +
+    PANEL_PAD_BOTTOM
+  );
+}
+
+/**
+ * Laid across the top instead, the six actions read better as a row than as a column,
+ * and the map gets back the width the rail was taking.
+ *
+ * Every button is `flex-1` there, so they share the bar's width evenly and stay spread
+ * across it at any size rather than bunching at one end. Below the width where the
+ * labels fit, the row wraps and each new row divides itself the same way. The bar never
+ * collapses, so every button keeps its label.
+ */
+const BAR_BUTTON_HEIGHT = 34;
+const BAR_PAD_Y = 10;
+const BAR_COLUMN_GAP = 12;
+const BAR_ROW_GAP = 8;
+
+/** What one row of the bar occupies, for a caller sizing whatever sits under it. */
+export const TOOLBAR_BAR_HEIGHT = BAR_BUTTON_HEIGHT + BAR_PAD_Y * 2;
+
+/** Six of the ten player rows, then the list scrolls rather than covering the map. */
+const PLAYER_LIST_DROP_HEIGHT = 354;
 
 function roleLabel(position: string): string {
   const normalized = position.trim().toUpperCase();
@@ -54,9 +99,9 @@ type ActionIconKind =
   | "poison"
   | "coffin"
   | "path"
+  | "ai-path"
   | "person"
-  | "help"
-  | "settings";
+  | "help";
 
 const ACTIONS: ReadonlyArray<{
   id: ReplayOverlayAction;
@@ -67,9 +112,17 @@ const ACTIONS: ReadonlyArray<{
   { id: "kills", label: "Show Kills", icon: "poison", nodeId: "26:870" },
   { id: "deaths", label: "Show Deaths", icon: "coffin", nodeId: "26:871" },
   { id: "path", label: "Show Path", icon: "path", nodeId: "26:872" },
+  // No Figma node yet. It used to borrow the Show Path glyph, which left the two route
+  // toggles identical apart from their labels; it gets the gold dashed route below
+  // instead, which is the line the overlay actually draws on the map.
+  {
+    id: "suggested-path",
+    label: "Show AI Path",
+    icon: "ai-path",
+    nodeId: "",
+  },
   { id: "players", label: "Select Players", icon: "person", nodeId: "26:879" },
   { id: "analysis", label: "Show Analysis", icon: "help", nodeId: "32:371" },
-  { id: "map", label: "Change Map", icon: "settings", nodeId: "46:476" },
 ];
 
 /**
@@ -99,6 +152,30 @@ function ActionIcon({ kind }: Readonly<{ kind: ActionIconKind }>) {
       <img src={iconPath} alt="" width={20} height={20} data-name="Show Path" />
     );
   }
+  if (kind === "ai-path") {
+    /* The walked route is three straight arrows, so the recommended one is a single
+       curving one, in the gold the overlay draws its line in. Drawn here rather than
+       exported, since it is one stroke and a head and needs no light/dark pair. */
+    return (
+      <svg
+        viewBox="0 0 20 20"
+        width={20}
+        height={20}
+        fill="none"
+        aria-hidden
+        className="text-vp-gold"
+        data-name="Show AI Path"
+      >
+        <path
+          d="M4 17.5 C4 12 11.5 13.5 11.5 8.2"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+        <path d="M11.5 2.6 L14.8 8.6 H8.2 Z" fill="currentColor" />
+      </svg>
+    );
+  }
   if (kind === "person") {
     return (
       <ThemedIcon
@@ -110,24 +187,13 @@ function ActionIcon({ kind }: Readonly<{ kind: ActionIconKind }>) {
       />
     );
   }
-  if (kind === "help") {
-    return (
-      <ThemedIcon
-        light={iconHelpCircle}
-        dark={iconHelpCircleDark}
-        width={16}
-        height={16}
-        name="Help circle"
-      />
-    );
-  }
   return (
     <ThemedIcon
-      light={iconSettings}
-      dark={iconSettingsDark}
-      width={16.2667}
-      height={16.2667}
-      name="Settings"
+      light={iconHelpCircle}
+      dark={iconHelpCircleDark}
+      width={16}
+      height={16}
+      name="Help circle"
     />
   );
 }
@@ -182,58 +248,98 @@ export default function MatchReplayToolbar({
   onToggleMode,
   onActionClick,
   onTogglePlayer,
+  orientation = "vertical",
 }: Readonly<MatchReplayToolbarProps>) {
-  const expanded = mode === "expanded";
+  const horizontal = orientation === "horizontal";
 
-  // Expanded rows indent 8px, then a 20px icon slot, then the label at 35px.
-  const rowClass = expanded
-    ? "w-[120px] justify-start gap-[7px] pl-[8px]"
-    : "w-[30px] justify-center";
+  /**
+   * The bar has the width to show every label, so collapsing it only ever hid what
+   * the buttons do behind seven near-identical glyphs. Collapsing stays a rail
+   * concern, where the column genuinely has no room for the labels.
+   */
+  const expanded = horizontal || mode === "expanded";
+
+  /**
+   * Across the bar the label decides the floor — wide enough to read at 12px when it is
+   * shown, a comfortable target around the 20px glyph when it is not — and `flex-1`
+   * grows every button from there so they divide the width between them. Down the rail
+   * the widths are fixed, because there is no spare width to divide.
+   */
+  const buttonClass = horizontal
+    ? "min-w-[128px] flex-1 justify-center gap-[7px] px-[12px]"
+    : `shrink-0 ${
+        expanded
+          ? "w-[120px] justify-start gap-[7px] pl-[8px]"
+          : "w-[30px] justify-center"
+      }`;
+  const buttonHeight = horizontal ? BAR_BUTTON_HEIGHT : ROW_HEIGHT;
 
   /** Figma 55:799 vs 55:628 — the collapsed rail's buttons run one shade lighter. */
-  const restClass = expanded ? "bg-vp-raised" : "bg-vp-raised";
+  const restClass = "bg-vp-raised";
   /** The dark page has no pressed state, so the active step is ours to pick. */
-  const pressedClass = "bg-vp-raised";
+  const pressedClass = horizontal ? "bg-vp-gold/15" : "bg-vp-raised";
+
+  const railHeight = panelHeight(ACTIONS.length + 1);
 
   return (
-    <div className="relative flex shrink-0 items-start">
+    <div
+      className={
+        horizontal ? "relative w-full" : "relative flex shrink-0 items-start"
+      }
+    >
       <aside
         data-name={expanded ? "Expanded options" : "Collapsed options"}
         data-node-id={expanded ? "26:867" : "26:860"}
-        className={`flex flex-col rounded-[5px] bg-vp-surface transition-[width,height] duration-300 ease-out ${
-          expanded
-            ? "h-[313px] w-[160px] items-start px-[20px]"
-            : "h-[311px] w-[40px] items-center px-[5px]"
-        }`}
-        style={{ paddingTop: PANEL_PAD_TOP, rowGap: ROW_GAP }}
+        className={
+          horizontal
+            ? "flex w-full flex-wrap items-center justify-between rounded-[5px] bg-vp-surface px-[16px]"
+            : `flex flex-col rounded-[5px] bg-vp-surface transition-[width,height] duration-300 ease-out ${
+                expanded
+                  ? "w-[160px] items-start px-[20px]"
+                  : "w-[40px] items-center px-[5px]"
+              }`
+        }
+        style={
+          horizontal
+            ? {
+                paddingTop: BAR_PAD_Y,
+                paddingBottom: BAR_PAD_Y,
+                columnGap: BAR_COLUMN_GAP,
+                rowGap: BAR_ROW_GAP,
+              }
+            : { height: railHeight, paddingTop: PANEL_PAD_TOP, rowGap: ROW_GAP }
+        }
         aria-label="Match replay tools"
       >
-        <button
-          type="button"
-          onClick={onToggleMode}
-          className={`flex h-[30px] shrink-0 cursor-pointer items-center rounded-[10px] border-0 ${restClass} p-0 transition-colors hover:bg-vp-raised ${rowClass}`}
-          aria-label={
-            expanded ? "Collapse replay tools" : "Expand replay tools"
-          }
-          aria-expanded={expanded}
-          data-node-id={expanded ? "26:869" : "25:809"}
-        >
-          <span className="flex size-[20px] shrink-0 items-center justify-center">
-            <ThemedIcon
-              light={iconCollapse}
-              dark={iconCollapseDark}
-              width={20}
-              height={20}
-              className={expanded ? "-rotate-90" : "rotate-90"}
-              name="Icon"
-            />
-          </span>
-          {expanded ? (
-            <span className="text-[12px] font-medium leading-[1.4] text-vp-ink">
-              Collapse
+        {horizontal ? null : (
+          <button
+            type="button"
+            onClick={onToggleMode}
+            className={`flex cursor-pointer items-center rounded-[10px] border-0 ${restClass} p-0 transition-colors hover:bg-vp-line ${buttonClass}`}
+            style={{ height: buttonHeight }}
+            aria-label={
+              expanded ? "Collapse replay tools" : "Expand replay tools"
+            }
+            aria-expanded={expanded}
+            data-node-id={expanded ? "26:869" : "25:809"}
+          >
+            <span className="flex size-[20px] shrink-0 items-center justify-center">
+              <ThemedIcon
+                light={iconCollapse}
+                dark={iconCollapseDark}
+                width={20}
+                height={20}
+                className={expanded ? "-rotate-90" : "rotate-90"}
+                name="Icon"
+              />
             </span>
-          ) : null}
-        </button>
+            {expanded ? (
+              <span className="text-[12px] font-medium leading-[1.4] text-vp-ink">
+                Collapse
+              </span>
+            ) : null}
+          </button>
+        )}
 
         {ACTIONS.map((action) => {
           const pressed =
@@ -247,9 +353,10 @@ export default function MatchReplayToolbar({
               aria-pressed={pressed}
               title={action.label}
               data-node-id={action.nodeId}
-              className={`flex h-[30px] shrink-0 cursor-pointer items-center rounded-[10px] border-0 p-0 transition-colors ${rowClass} ${
-                pressed ? pressedClass : `${restClass} hover:bg-vp-raised`
+              className={`flex cursor-pointer items-center rounded-[10px] border-0 p-0 transition-colors ${buttonClass} ${
+                pressed ? pressedClass : `${restClass} hover:bg-vp-line`
               }`}
+              style={{ height: buttonHeight }}
             >
               <span className="flex size-[20px] shrink-0 items-center justify-center">
                 <ActionIcon kind={action.icon} />
@@ -265,12 +372,20 @@ export default function MatchReplayToolbar({
       </aside>
 
       {playersOpen ? (
-        /* Figma "Player list" 26:1007 — floats beside the options panel, over the map. */
+        /* Figma "Player list" 26:1007 — floats beside the rail, over the map. From a top
+           bar it drops out of the bar's left edge instead; anchoring it to the bar
+           rather than to the button keeps it put when the row wraps. */
         <aside
           data-name="Player list"
           data-node-id="26:1007"
-          className="absolute top-0 z-10 flex h-[312px] w-[204px] flex-col gap-[4px] rounded-[5px] bg-vp-surface px-[7px] pt-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
-          style={{ left: expanded ? 168 : 48 }}
+          className={`absolute z-10 flex w-[204px] flex-col gap-[4px] rounded-[5px] bg-vp-surface px-[7px] pt-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.12)] ${
+            horizontal ? "left-0 top-full mt-[8px]" : "top-0"
+          }`}
+          style={
+            horizontal
+              ? { height: PLAYER_LIST_DROP_HEIGHT }
+              : { height: railHeight - 1, left: expanded ? 168 : 48 }
+          }
           aria-label="Select players"
         >
           <ul className="flex flex-col gap-[4px] overflow-y-auto pb-[11px]">
