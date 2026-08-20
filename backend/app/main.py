@@ -24,8 +24,11 @@ from app.api.router import (
     auth_routes,
     analytics_router,
     riot_api_routes,
+    dashboard_routes,
 )
 from app.routers import matches, users
+from app.Models.auth_model import User
+from app.api.auth import require_group
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
@@ -47,14 +50,18 @@ load_dotenv()
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
 
-logger.remove(0)
-# logger.add(
-#     db_error_sink,
-#     enqueue=True,
-#     diagnose=False,
-#     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-# )
+logger.remove()
 
+logger.add(
+    sink=lambda message: print(message, end=""),
+    level="INFO",
+    enqueue=True,
+    backtrace=True,
+    diagnose=False,
+)
+
+# only to be used in development. Remove when going to production. Writing to a txt is unsafe behaviour
+# and can expose sensitive information
 logger.add(
     "logs/fastapi_logs",
     level="ERROR",
@@ -65,8 +72,6 @@ logger.add(
     backtrace=True,
     diagnose=True,
 )
-
-# logger.add(db_error_sink, level="INFO", enqueue=True, diagnose=False)
 
 
 def get_error_reason(status_code: int) -> str:
@@ -169,6 +174,7 @@ app.include_router(admin_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
+app.include_router(dashboard_routes.router)
 # This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
 
@@ -271,9 +277,12 @@ async def register_summoner(
     game_name: str,
     tag_line: str,
     session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_group(20))],
 ) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
-    puuid = await get_puuid_by_riot_id(game_name, tag_line)
+    puuid = await get_puuid_by_riot_id(
+        game_name, tag_line, session=session, cognito_sub=current_user.sub
+    )
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 

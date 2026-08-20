@@ -160,7 +160,7 @@ export default function MatchReplayMapOverlay({
           key={marker.key}
           title={`${marker.minute}′`}
           className={`absolute size-[10px] -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white/80 ${
-            marker.isDeath ? "bg-[#525252]" : "bg-[#e11d2e]"
+            marker.isDeath ? "bg-vp-faint" : "bg-[#e11d2e]"
           }`}
           style={{
             left: `${marker.point.leftPct}%`,
@@ -184,7 +184,7 @@ export default function MatchReplayMapOverlay({
             alt=""
             className="size-full rounded-full object-cover"
           />
-          <span className="absolute -bottom-1 -right-1 rounded-full bg-black/80 px-[3px] font-['Beaufort_for_LOL',serif] text-[9px] leading-[12px] tabular-nums text-white">
+          <span className="absolute -bottom-1 -right-1 rounded-full bg-black/80 px-[3px] text-[9px] leading-[12px] tabular-nums text-vp-ink">
             {marker.level}
           </span>
         </span>

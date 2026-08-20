@@ -1,14 +1,15 @@
-from typing import List, Any
+from typing import Any
 from pydantic import BaseModel
 
 
 class MapReplay(BaseModel):
-    puuid: List[str]
-    participant_id: List[int]
+    match_id: str
+    puuid: str
+    participant_id: int
     frame_interval: int
     timestamp: list[int]
-    position_x: Any
-    position_y: Any
+    position_x: dict[str, list[int]]
+    position_y: dict[str, list[int]]
 
 
 class MapSuggestData(BaseModel):
@@ -262,8 +263,8 @@ class ChampionData(BaseModel):
     ccReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -376,8 +377,8 @@ class ItemData(BaseModel):
     ccReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -562,16 +563,18 @@ class RoleData(BaseModel):
 
 
 class ChampionStats(BaseModel):
+    abilityHaste: list[int]
     abilityPower: list[int]
     armor: list[int]
     armorPenPercent: list[int]
     attackDamage: list[int]
     attackSpeed: list[int]
     ccReduction: list[int]
+    cooldownReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -604,7 +607,7 @@ class Participant(BaseModel):
     jungleMinionsKilled: list[int]
     level: list[int]
     minionsKilled: list[int]
-    participantId: str
+    participantId: int
     timeEnemySpentControlled: list[int]
     totalGold: list[int]
     xp: list[int]

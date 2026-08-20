@@ -51,7 +51,7 @@ export default function AiRecommendationCard({
   return (
     <article
       data-name="AI Reccomendation"
-      className="relative shrink-0 rounded-[15px] bg-[#dadada] device-dark:bg-[#2a2a2a]"
+      className="relative shrink-0 rounded-xl border border-vp-line bg-vp-raised"
       style={{ width, height: open ? height : collapsedHeight }}
     >
       <div
@@ -63,14 +63,14 @@ export default function AiRecommendationCard({
         }}
       >
         <h3
-          className="text-center font-['Beaufort_for_LOL',serif] text-[16px] font-bold text-[#1d1b20] device-dark:text-white"
+          className="text-center text-[15px] font-bold text-vp-ink"
           style={{ lineHeight: `${HEADING_HEIGHT}px` }}
         >
           {heading}
         </h3>
         {open ? (
           <p
-            className="overflow-hidden font-['Beaufort_for_LOL',serif] text-[14px] text-[#757575] device-dark:text-white"
+            className="overflow-hidden text-[14px] text-vp-dim"
             style={{ height: bodyHeight, lineHeight: `${BODY_LINE_HEIGHT}px` }}
           >
             {body}
@@ -84,7 +84,7 @@ export default function AiRecommendationCard({
         aria-expanded={open}
         aria-label={`${open ? "Collapse" : "Expand"} ${heading}`}
         data-name="arrow_drop_down"
-        className="absolute flex cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 transition-colors hover:bg-[#cfcfcf] device-dark:hover:bg-[#404040]"
+        className="absolute flex cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 transition-colors hover:bg-vp-line"
         style={{ width: arrowBox, height: arrowBox, top: arrowTop, right: 1 }}
       >
         <ThemedIcon

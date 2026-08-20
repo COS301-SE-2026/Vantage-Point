@@ -97,7 +97,7 @@ backend routes the frontend calls.
 
 | Spec                      | Area                                                                     |
 | ------------------------- | ------------------------------------------------------------------------ |
-| `landing.spec.ts`         | Marketing page and its two auth entry points                             |
+| `landing.spec.ts`         | Marketing page: hero, section coverage, anchors, auth entry points       |
 | `auth-login.spec.ts`      | Sign in: success, wrong password, API down, pending state, toggles       |
 | `auth-register.spec.ts`   | Sign up: client validation, duplicate email, FastAPI detail lists        |
 | `link-riot.spec.ts`       | Riot ID linking: format check, Riot 404, success, gating                 |

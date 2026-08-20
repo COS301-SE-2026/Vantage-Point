@@ -147,6 +147,34 @@ Newly registered accounts without seeded rows will have empty match history unti
 
 ---
 
+## Checking test coverage
+
+Both suites' coverage can be checked at once from the repo root:
+
+```bash
+node scripts/generate-coverage-summary.js
+```
+
+This runs `pytest --cov=app --cov-report=json` in `backend/` and Vitest's
+coverage run in `frontend/`, then writes a combined, timestamped report to
+`.github/docs/coverage-summary.md` — overall totals for each side, plus a
+table listing any individual file under 90% coverage. Pass `THRESHOLD=<n>` to
+change that cutoff for a single run, e.g. `THRESHOLD=80 node
+scripts/generate-coverage-summary.js`.
+
+One-time setup this depends on (already in the repo, just noting why it
+works):
+- `frontend`'s Vitest config includes the `json-summary` coverage reporter
+- `frontend/package.json`'s `test:coverage` uses `vitest run --coverage` (not
+  watch mode)
+- Backend coverage is generated with `--cov-report=json`, producing
+  `backend/coverage.json`
+
+Check `.github/docs/coverage-summary.md` before opening a PR if you touched
+an area that was already under the threshold.
+
+---
+
 ## Troubleshooting
 
 | Problem | What to do |

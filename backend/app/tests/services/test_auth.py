@@ -115,6 +115,7 @@ class TestRegisterUser:
     @patch("app.services.auth_service.client")
     async def test_register_user_success(self, mock_client: MagicMock) -> Any:
         # Mock Cognito behavior
+        mock_client.list_users.return_value = {"Users": []}
         mock_client.sign_up.return_value = {
             "UserSub": "test-sub-123",
             "UserConfirmed": False,
@@ -127,10 +128,12 @@ class TestRegisterUser:
 
         assert result["UserSub"] == "test-sub-123"
         assert result["UserConfirmed"] is False
+        mock_client.list_users.assert_called_once()
         mock_client.sign_up.assert_called_once()
 
     @patch("app.services.auth_service.client")
     async def test_register_user_cognito_error(self, mock_client: MagicMock):
+        mock_client.list_users.return_value = {"Users": []}
         mock_client.sign_up.side_effect = make_client_error(
             "UsernameExistsException", "User already Exists", "sign_up", 409
         )
