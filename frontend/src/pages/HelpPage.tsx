@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useOutletContext } from "react-router";
 import {
   ArrowUpDown,
@@ -11,6 +11,8 @@ import {
   Trash2,
   X,
   Loader2,
+  Tag as TagIcon,
+  Check,
 } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -38,7 +40,11 @@ export default function HelpPage() {
   const [articles, setArticles] = useState<HelpArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
   const [sortAsc, setSortAsc] = useState(false);
+
+  const tagDropdownRef = useRef<HTMLDivElement>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,6 +73,48 @@ export default function HelpPage() {
   useEffect(() => {
     void loadArticles();
   }, [loadArticles]);
+
+  // Handle clicking outside the Tag Dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        tagDropdownRef.current &&
+        !tagDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsTagDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Compute unique list of tags across all articles
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    articles.forEach((a) => {
+      a.tags?.forEach((t) => set.add(t));
+    });
+    return Array.from(set).sort();
+  }, [articles]);
+
+  // Tag Pill Handlers
+  const handleAddTag = (tag: string) => {
+    if (!selectedTags.includes(tag)) {
+      setSelectedTags((prev) => [...prev, tag]);
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setSelectedTags((prev) => prev.filter((t) => t !== tagToRemove));
+  };
+
+  const handleToggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      handleRemoveTag(tag);
+    } else {
+      handleAddTag(tag);
+    }
+  };
 
   // Handlers for Add/Edit Modal
   const handleOpenAddModal = () => {
@@ -152,12 +200,21 @@ export default function HelpPage() {
     }
   };
 
+  // Pure frontend search & tag filtering
   const filteredArticles = articles
-    .filter(
-      (article) =>
+    .filter((article) => {
+      const matchesSearch =
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+        article.content.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.every((st) =>
+          article.tags.some((t) => t.toLowerCase() === st.toLowerCase()),
+        );
+
+      return matchesSearch && matchesTags;
+    })
     .sort((a, b) => {
       const dateA = new Date(a.updated_at).getTime();
       const dateB = new Date(b.updated_at).getTime();
@@ -209,6 +266,85 @@ export default function HelpPage() {
             </div>
           </div>
 
+          {/* --- Dropdown for filters by tags and a pillbar for the selected filters --- */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800/80 pb-4">
+            {/* Filter Dropdown Button */}
+            <div className="relative" ref={tagDropdownRef}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsTagDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 rounded-full border-zinc-800 bg-vp-surface px-3.5 py-1.5 text-xs font-semibold text-zinc-300 hover:border-[#C8AA6E]/50 hover:bg-zinc-800 hover:text-[#C8AA6E]"
+              >
+                <TagIcon className="h-3.5 w-3.5" />
+                <span>Filter Tags</span>
+                <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+              </Button>
+
+              {/* Tag Selection Dropdown */}
+              {isTagDropdownOpen && (
+                <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-xl border border-zinc-800 bg-vp-surface py-2 shadow-2xl backdrop-blur-md">
+                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Available Tags
+                  </div>
+                  {allTags.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-zinc-500">
+                      No tags available
+                    </div>
+                  ) : (
+                    allTags.map((tag) => {
+                      const isSelected = selectedTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleTag(tag)}
+                          className="flex w-full items-center justify-between px-3 py-1.5 text-left text-xs font-medium text-zinc-200 hover:bg-[#C8AA6E]/10 hover:text-[#C8AA6E]"
+                        >
+                          <span>{tag}</span>
+                          {isSelected && (
+                            <Check className="h-3.5 w-3.5 text-[#C8AA6E]" />
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* All Reset Pill */}
+            <button
+              type="button"
+              onClick={() => setSelectedTags([])}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                selectedTags.length === 0
+                  ? "bg-[#C8AA6E] text-[#091428] shadow-sm"
+                  : "border border-zinc-800 bg-vp-surface text-zinc-400 hover:border-[#C8AA6E]/30 hover:text-zinc-200"
+              }`}
+            >
+              All ({articles.length})
+            </button>
+
+            {/* Active Selected Tag Pills */}
+            {selectedTags.map((tag) => (
+              <Badge
+                key={tag}
+                className="flex items-center gap-1.5 rounded-full border border-[#C8AA6E]/50 bg-[#C8AA6E]/20 px-3 py-1 text-xs font-bold text-[#C8AA6E] shadow-sm transition-all"
+              >
+                <span>{tag}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="rounded-full p-0.5 text-[#C8AA6E] hover:bg-[#C8AA6E]/30 hover:text-white"
+                  title={`Remove ${tag} filter`}
+                >
+                  <X className="h-3 w-3 stroke-[2.5]" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+
           {/* Article List */}
           {loading ? (
             <div className="flex justify-center py-12">
@@ -216,7 +352,7 @@ export default function HelpPage() {
             </div>
           ) : filteredArticles.length === 0 ? (
             <div className="py-12 text-center text-zinc-400">
-              No help articles found.
+              No help articles match your active filter.
             </div>
           ) : (
             <Accordion
@@ -253,13 +389,16 @@ export default function HelpPage() {
                             <Badge
                               key={tag}
                               variant="secondary"
-                              className="rounded-full border border-[#C8AA6E]/30 bg-[#C8AA6E]/10 px-3 py-0.5 text-xs font-bold text-[#C8AA6E] transition-colors hover:bg-[#C8AA6E]/20"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddTag(tag);
+                              }}
+                              className="cursor-pointer rounded-full border border-[#C8AA6E]/30 bg-[#C8AA6E]/10 px-3 py-0.5 text-xs font-bold text-[#C8AA6E] transition-colors hover:bg-[#C8AA6E]/30"
                             >
                               {tag}
                             </Badge>
                           ))}
                         </div>
-                        <ChevronDown className="chevron h-5 w-5 text-zinc-400 transition-transform duration-200" />
                       </div>
                     </div>
                   </AccordionTrigger>
