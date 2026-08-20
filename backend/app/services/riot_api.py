@@ -9,7 +9,6 @@ from app.database.models import Users
 from typing import Any
 from fastapi import HTTPException
 from app.services.riot_service import get_region
-from app.Enums.riot_enum import RegionPlatforms
 
 load_dotenv()
 
@@ -80,7 +79,7 @@ async def get_puuid_by_riot_id(
         if response.status_code == 200:
             puuid = response.json().get("puuid")
             if puuid:
-                await _set_platform(cognito_sub, session, pl)
+                await _set_platform(cognito_sub, session, region)
                 return str(puuid) if puuid else None
             return None
 

@@ -105,7 +105,6 @@ async def fetch_match(
 ) -> dict[str, Any] | None:
     url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
 
-    
     response = await client.get(url, headers=headers)
 
     raise_for_riot_status(response)
