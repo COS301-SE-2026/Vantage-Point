@@ -77,6 +77,7 @@ export default function HelpPage() {
 
   const handleOpenEditModal = (article: HelpArticle, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setEditingArticle(article);
     setFormData({
       title: article.title,
@@ -122,6 +123,7 @@ export default function HelpPage() {
 
   const handleDeleteArticle = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!window.confirm("Are you sure you want to delete this article?"))
       return;
 
@@ -139,6 +141,7 @@ export default function HelpPage() {
     e: React.MouseEvent,
   ) => {
     e.stopPropagation();
+    e.preventDefault();
     try {
       const updated = await voteHelpArticle(id, type);
       setArticles((prev) =>
@@ -149,7 +152,6 @@ export default function HelpPage() {
     }
   };
 
-  // Search & Filter
   const filteredArticles = articles
     .filter(
       (article) =>

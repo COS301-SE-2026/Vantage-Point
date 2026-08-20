@@ -7,13 +7,19 @@ import type {
 // Re-export type for convenience in components
 export type { HelpArticle };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const BASE_URL = `${API_BASE_URL}/api/help`;
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `HTTP Error ${response.status}`);
+    const errorMessage =
+      typeof errorData.detail === "object"
+        ? JSON.stringify(errorData.detail)
+        : errorData.detail || `HTTP Error ${response.status}`;
+
+    throw new Error(errorMessage);
   }
   return response.json() as Promise<T>;
 }
@@ -35,7 +41,7 @@ export async function fetchHelpArticles(): Promise<HelpArticle[]> {
  * Create a new help article.
  */
 export async function createHelpArticle(
-  payload: HelpArticleCreatePayload
+  payload: HelpArticleCreatePayload,
 ): Promise<HelpArticle> {
   const response = await fetch(BASE_URL, {
     method: "POST",
@@ -53,7 +59,7 @@ export async function createHelpArticle(
  */
 export async function updateHelpArticle(
   articleId: number,
-  payload: HelpArticleUpdatePayload
+  payload: HelpArticleUpdatePayload,
 ): Promise<HelpArticle> {
   const response = await fetch(`${BASE_URL}/${articleId}`, {
     method: "PUT",
@@ -83,7 +89,7 @@ export async function deleteHelpArticle(articleId: number): Promise<void> {
  */
 export async function voteHelpArticle(
   articleId: number,
-  voteType: "up" | "down"
+  voteType: "up" | "down",
 ): Promise<HelpArticle> {
   const response = await fetch(`${BASE_URL}/${articleId}/vote`, {
     method: "POST",
@@ -91,7 +97,7 @@ export async function voteHelpArticle(
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify({ vote_type: voteType }),
+    body: JSON.stringify({ type: voteType }),
   });
   return handleResponse<HelpArticle>(response);
 }
