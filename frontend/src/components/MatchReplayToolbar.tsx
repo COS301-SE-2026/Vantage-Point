@@ -8,8 +8,6 @@ import {
   iconPerson,
   iconPersonDark,
   iconPoison,
-  iconSettings,
-  iconSettingsDark,
 } from "../assets/images/match-replay";
 import { championIconUrl } from "../lib/ddragon";
 import type { ParticipantDetail } from "../types/match";
@@ -30,16 +28,17 @@ export type ReplayOverlayAction =
   | "path"
   | "suggested-path"
   | "players"
-  | "analysis"
-  | "map";
+  | "analysis";
 
 interface MatchReplayToolbarProps {
-  readonly mode: ReplayToolbarMode;
+  /** Rail only. The bar is always expanded, so it ignores this and never asks for it. */
+  readonly mode?: ReplayToolbarMode;
   readonly playersOpen: boolean;
   readonly activeActions: ReadonlySet<ReplayOverlayAction>;
   readonly players: readonly ParticipantDetail[];
   readonly selectedPuuids: ReadonlySet<string>;
-  readonly onToggleMode: () => void;
+  /** Rail only, for the same reason as `mode`. */
+  readonly onToggleMode?: () => void;
   readonly onActionClick: (action: ReplayOverlayAction) => void;
   readonly onTogglePlayer: (puuid: string) => void;
   /** Defaults to the vertical rail Figma drew. */
@@ -50,9 +49,8 @@ interface MatchReplayToolbarProps {
  * Figma "Collapsed options" 26:860 / "Expanded options" 26:867.
  * Panel 40×311 / 160×313, rounded 5, 30px rows on a 13px rhythm starting 11px in.
  *
- * Figma drew six actions; the height is computed from the row count rather than kept at
- * its measured 311/313 so adding a seventh (Show AI Path) does not spill out of the
- * panel, and so the next one added does not either.
+ * The height is computed from the row count rather than kept at its measured 311/313,
+ * so the rail follows the action list up or down instead of spilling or leaving a gap.
  */
 const PANEL_PAD_TOP = 11;
 const ROW_GAP = 13;
@@ -71,12 +69,13 @@ function panelHeight(rowCount: number): number {
 }
 
 /**
- * Laid across the top instead, seven actions plus the toggle read better as a row than
- * as a column, and the map gets back the width the rail was taking.
+ * Laid across the top instead, the six actions read better as a row than as a column,
+ * and the map gets back the width the rail was taking.
  *
  * Every button is `flex-1` there, so they share the bar's width evenly and stay spread
  * across it at any size rather than bunching at one end. Below the width where the
- * labels fit, the row wraps and each new row divides itself the same way.
+ * labels fit, the row wraps and each new row divides itself the same way. The bar never
+ * collapses, so every button keeps its label.
  */
 const BAR_BUTTON_HEIGHT = 34;
 const BAR_PAD_Y = 10;
@@ -100,9 +99,9 @@ type ActionIconKind =
   | "poison"
   | "coffin"
   | "path"
+  | "ai-path"
   | "person"
-  | "help"
-  | "settings";
+  | "help";
 
 const ACTIONS: ReadonlyArray<{
   id: ReplayOverlayAction;
@@ -113,17 +112,17 @@ const ACTIONS: ReadonlyArray<{
   { id: "kills", label: "Show Kills", icon: "poison", nodeId: "26:870" },
   { id: "deaths", label: "Show Deaths", icon: "coffin", nodeId: "26:871" },
   { id: "path", label: "Show Path", icon: "path", nodeId: "26:872" },
-  // No Figma node yet: the AI route reuses the Show Path glyph, since it marks the same
-  // kind of overlay, and is told apart by its label and by the gold dashes on the map.
+  // No Figma node yet. It used to borrow the Show Path glyph, which left the two route
+  // toggles identical apart from their labels; it gets the gold dashed route below
+  // instead, which is the line the overlay actually draws on the map.
   {
     id: "suggested-path",
     label: "Show AI Path",
-    icon: "path",
+    icon: "ai-path",
     nodeId: "",
   },
   { id: "players", label: "Select Players", icon: "person", nodeId: "26:879" },
   { id: "analysis", label: "Show Analysis", icon: "help", nodeId: "32:371" },
-  { id: "map", label: "Change Map", icon: "settings", nodeId: "46:476" },
 ];
 
 /**
@@ -153,6 +152,30 @@ function ActionIcon({ kind }: Readonly<{ kind: ActionIconKind }>) {
       <img src={iconPath} alt="" width={20} height={20} data-name="Show Path" />
     );
   }
+  if (kind === "ai-path") {
+    /* The walked route is three straight arrows, so the recommended one is a single
+       curving one, in the gold the overlay draws its line in. Drawn here rather than
+       exported, since it is one stroke and a head and needs no light/dark pair. */
+    return (
+      <svg
+        viewBox="0 0 20 20"
+        width={20}
+        height={20}
+        fill="none"
+        aria-hidden
+        className="text-vp-gold"
+        data-name="Show AI Path"
+      >
+        <path
+          d="M4 17.5 C4 12 11.5 13.5 11.5 8.2"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+        <path d="M11.5 2.6 L14.8 8.6 H8.2 Z" fill="currentColor" />
+      </svg>
+    );
+  }
   if (kind === "person") {
     return (
       <ThemedIcon
@@ -164,24 +187,13 @@ function ActionIcon({ kind }: Readonly<{ kind: ActionIconKind }>) {
       />
     );
   }
-  if (kind === "help") {
-    return (
-      <ThemedIcon
-        light={iconHelpCircle}
-        dark={iconHelpCircleDark}
-        width={16}
-        height={16}
-        name="Help circle"
-      />
-    );
-  }
   return (
     <ThemedIcon
-      light={iconSettings}
-      dark={iconSettingsDark}
-      width={16.2667}
-      height={16.2667}
-      name="Settings"
+      light={iconHelpCircle}
+      dark={iconHelpCircleDark}
+      width={16}
+      height={16}
+      name="Help circle"
     />
   );
 }
@@ -238,8 +250,14 @@ export default function MatchReplayToolbar({
   onTogglePlayer,
   orientation = "vertical",
 }: Readonly<MatchReplayToolbarProps>) {
-  const expanded = mode === "expanded";
   const horizontal = orientation === "horizontal";
+
+  /**
+   * The bar has the width to show every label, so collapsing it only ever hid what
+   * the buttons do behind seven near-identical glyphs. Collapsing stays a rail
+   * concern, where the column genuinely has no room for the labels.
+   */
+  const expanded = horizontal || mode === "expanded";
 
   /**
    * Across the bar the label decides the floor — wide enough to read at 12px when it is
@@ -248,13 +266,7 @@ export default function MatchReplayToolbar({
    * the widths are fixed, because there is no spare width to divide.
    */
   const buttonClass = horizontal
-    ? `flex-1 justify-center ${
-        expanded
-          ? "min-w-[128px] gap-[7px] px-[12px]"
-          : // Capped, or a lone 20px glyph floats in a button the width of a label and
-            // the row reads as unfinished. The leftover goes between them instead.
-            "min-w-[44px] max-w-[56px]"
-      }`
+    ? "min-w-[128px] flex-1 justify-center gap-[7px] px-[12px]"
     : `shrink-0 ${
         expanded
           ? "w-[120px] justify-start gap-[7px] pl-[8px]"
@@ -299,41 +311,35 @@ export default function MatchReplayToolbar({
         }
         aria-label="Match replay tools"
       >
-        <button
-          type="button"
-          onClick={onToggleMode}
-          className={`flex cursor-pointer items-center rounded-[10px] border-0 ${restClass} p-0 transition-colors hover:bg-vp-line ${buttonClass}`}
-          style={{ height: buttonHeight }}
-          aria-label={
-            expanded ? "Collapse replay tools" : "Expand replay tools"
-          }
-          aria-expanded={expanded}
-          data-node-id={expanded ? "26:869" : "25:809"}
-        >
-          <span className="flex size-[20px] shrink-0 items-center justify-center">
-            <ThemedIcon
-              light={iconCollapse}
-              dark={iconCollapseDark}
-              width={20}
-              height={20}
-              className={
-                horizontal
-                  ? expanded
-                    ? "rotate-90"
-                    : "-rotate-90"
-                  : expanded
-                    ? "-rotate-90"
-                    : "rotate-90"
-              }
-              name="Icon"
-            />
-          </span>
-          {expanded ? (
-            <span className="text-[12px] font-medium leading-[1.4] text-vp-ink">
-              Collapse
+        {horizontal ? null : (
+          <button
+            type="button"
+            onClick={onToggleMode}
+            className={`flex cursor-pointer items-center rounded-[10px] border-0 ${restClass} p-0 transition-colors hover:bg-vp-line ${buttonClass}`}
+            style={{ height: buttonHeight }}
+            aria-label={
+              expanded ? "Collapse replay tools" : "Expand replay tools"
+            }
+            aria-expanded={expanded}
+            data-node-id={expanded ? "26:869" : "25:809"}
+          >
+            <span className="flex size-[20px] shrink-0 items-center justify-center">
+              <ThemedIcon
+                light={iconCollapse}
+                dark={iconCollapseDark}
+                width={20}
+                height={20}
+                className={expanded ? "-rotate-90" : "rotate-90"}
+                name="Icon"
+              />
             </span>
-          ) : null}
-        </button>
+            {expanded ? (
+              <span className="text-[12px] font-medium leading-[1.4] text-vp-ink">
+                Collapse
+              </span>
+            ) : null}
+          </button>
+        )}
 
         {ACTIONS.map((action) => {
           const pressed =
