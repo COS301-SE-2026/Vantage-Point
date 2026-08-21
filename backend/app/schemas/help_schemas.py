@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Literal
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class HelpArticleBase(BaseModel):
     title: str = Field(..., min_length=3, max_length=255)
     content: str = Field(..., min_length=5)
-    tags: list[str] = Field(default_factory=list)
+    tags: list[str] = []
 
 
 class HelpArticleCreate(HelpArticleBase):
@@ -14,13 +14,15 @@ class HelpArticleCreate(HelpArticleBase):
 
 
 class HelpArticleUpdate(BaseModel):
-    title: Optional[str] = Field(None, min_length=3, max_length=255)
-    content: Optional[str] = Field(None, min_length=5)
-    tags: Optional[list[str]] = None
+    title: str | None = Field(None, min_length=3, max_length=255)
+    content: str | None = Field(None, min_length=5)
+    tags: list[str] | None = None
 
 
 class HelpArticleVote(BaseModel):
-    vote_type: Literal["up", "down"]
+    vote_type: Literal["up", "down"] = Field(..., alias="type")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class HelpArticleResponse(HelpArticleBase):
@@ -29,6 +31,3 @@ class HelpArticleResponse(HelpArticleBase):
     downvotes: int
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
