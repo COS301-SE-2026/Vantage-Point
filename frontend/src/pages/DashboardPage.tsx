@@ -25,6 +25,7 @@ function sectionFromPathname(pathname: string): DashboardSection {
   if (pathname.includes("/dashboard/profile")) return "profile";
   if (pathname.includes("/dashboard/replay")) return "replay";
   if (pathname.includes("/dashboard/metrics")) return "metrics";
+  if (pathname.includes("/dashboard/help")) return "help";
   return "matches";
 }
 
@@ -109,6 +110,7 @@ export default function DashboardPage() {
         onMatchesClick={() => navigate("/dashboard/matches")}
         onReplayClick={() => navigate("/dashboard/replay")}
         onProfileClick={() => navigate("/dashboard/profile")}
+        onHelpClick={() => navigate("/dashboard/help")}
         onLogout={handleLogout}
         accountInitials={accountInitials}
         accountAvatarUrl={accountAvatarUrl}

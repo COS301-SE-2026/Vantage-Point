@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
-import { PanelLeft, History, Clapperboard, LogOut } from "lucide-react";
+import { PanelLeft, History, Clapperboard, LogOut, HelpCircle } from "lucide-react";
 import { Sidebar, DesktopSidebar, useSidebar } from "./ui/aceternity/sidebar";
 import { cn } from "./ui/utils";
 import UserAccountMenu from "./UserAccountMenu";
@@ -10,7 +10,7 @@ import {
 } from "../lib/dashboardLayout";
 import imgLogoWhite from "../assets/images/logos/logo-mark-white.webp";
 
-export type DashboardSection = "matches" | "replay" | "metrics" | "profile";
+export type DashboardSection = "matches" | "replay" | "metrics" | "profile" | "help";
 
 interface DashboardShellProps {
   readonly children: ReactNode;
@@ -21,6 +21,7 @@ interface DashboardShellProps {
   readonly onMatchesClick?: () => void;
   readonly onReplayClick?: () => void;
   readonly onProfileClick?: () => void;
+  readonly onHelpClick?: () => void;
   readonly accountInitials?: string;
   readonly accountAvatarUrl?: string | null;
   /** Shown beside the avatar on the Profile section only. */
@@ -35,6 +36,7 @@ const SECTION_TITLES: Record<DashboardSection, string> = {
   replay: "Match replay",
   metrics: "Map analysis",
   profile: "Profile",
+  help: "Help & Support",
 };
 
 /**
@@ -132,6 +134,7 @@ export default function DashboardShell({
   onMatchesClick,
   onReplayClick,
   onProfileClick,
+  onHelpClick,
   accountInitials = "UN",
   accountAvatarUrl = null,
   accountName,
@@ -175,7 +178,15 @@ export default function DashboardShell({
 
             {/* Log out sits in the same landmark as the destinations: it is how
                 you leave the dashboard, and the rail is where you look for it. */}
-            <div className="mt-auto pt-4">
+            <div className="mt-auto flex flex-col gap-1 pt-4">
+              {/* Help Page Button */}
+              <RailButton
+                label="Help"
+                icon={<HelpCircle className={RAIL_ICON} strokeWidth={1.7} />}
+                active={activeSection === "help"}
+                onClick={onHelpClick}
+                tone="quiet"
+              />
               <RailButton
                 label="Log out"
                 icon={<LogOut className={RAIL_ICON} strokeWidth={1.7} />}
