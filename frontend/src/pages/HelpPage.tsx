@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useOutletContext } from "react-router";
 import {
   ArrowUpDown,
@@ -11,6 +11,9 @@ import {
   Trash2,
   X,
   Loader2,
+  Tag as TagIcon,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -22,11 +25,6 @@ import {
   AccordionTrigger,
 } from "../components/ui/accordion";
 import {
-  DASHBOARD_CONTENT_HEIGHT,
-  getDashboardContentStyle,
-} from "../lib/dashboardLayout";
-import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
-import {
   fetchHelpArticles,
   createHelpArticle,
   updateHelpArticle,
@@ -36,17 +34,18 @@ import {
 } from "../api/help";
 
 export default function HelpPage() {
-  const outlet = useOutletContext<DashboardOutletContext | undefined>();
-  const isInsideDashboard = Boolean(outlet);
-  const sidebarOpen = outlet?.sidebarOpen ?? true;
-  const contentStyle = isInsideDashboard
-    ? getDashboardContentStyle(sidebarOpen)
-    : {};
+  // Help is reachable both as a dashboard tab and as a standalone page; only
+  // the standalone one paints its own canvas.
+  const isInsideDashboard = Boolean(useOutletContext());
 
   const [articles, setArticles] = useState<HelpArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
   const [sortAsc, setSortAsc] = useState(false);
+
+  const tagDropdownRef = useRef<HTMLDivElement>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +58,13 @@ export default function HelpPage() {
     tags: "",
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Modal State for Deletion
+  const [articleToDelete, setArticleToDelete] = useState<HelpArticle | null>(
+    null,
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const loadArticles = useCallback(async () => {
     try {
@@ -76,6 +82,48 @@ export default function HelpPage() {
     void loadArticles();
   }, [loadArticles]);
 
+  // Handle clicking outside the Tag Dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        tagDropdownRef.current &&
+        !tagDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsTagDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Compute unique list of tags across all articles
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    articles.forEach((a) => {
+      a.tags?.forEach((t) => set.add(t));
+    });
+    return Array.from(set).sort();
+  }, [articles]);
+
+  // Tag Pill Handlers
+  const handleAddTag = (tag: string) => {
+    if (!selectedTags.includes(tag)) {
+      setSelectedTags((prev) => [...prev, tag]);
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setSelectedTags((prev) => prev.filter((t) => t !== tagToRemove));
+  };
+
+  const handleToggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      handleRemoveTag(tag);
+    } else {
+      handleAddTag(tag);
+    }
+  };
+
   // Handlers for Add/Edit Modal
   const handleOpenAddModal = () => {
     setEditingArticle(null);
@@ -85,6 +133,7 @@ export default function HelpPage() {
 
   const handleOpenEditModal = (article: HelpArticle, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setEditingArticle(article);
     setFormData({
       title: article.title,
@@ -128,16 +177,32 @@ export default function HelpPage() {
     }
   };
 
-  const handleDeleteArticle = async (id: number, e: React.MouseEvent) => {
+  // Handlers for Delete Modal
+  const handleOpenDeleteModal = (article: HelpArticle, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure you want to delete this article?"))
-      return;
+    e.preventDefault();
+    setDeleteError(null);
+    setArticleToDelete(article);
+  };
+
+  const handleConfirmDelete = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!articleToDelete) return;
 
     try {
-      await deleteHelpArticle(id);
-      setArticles((prev) => prev.filter((a) => a.id !== id));
+      setIsDeleting(true);
+      setDeleteError(null);
+      await deleteHelpArticle(articleToDelete.id);
+      setArticles((prev) => prev.filter((a) => a.id !== articleToDelete.id));
+      setArticleToDelete(null);
     } catch (err) {
       console.error("Failed to delete article:", err);
+      setDeleteError("Failed to delete article. Check permissions or network.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -147,6 +212,7 @@ export default function HelpPage() {
     e: React.MouseEvent,
   ) => {
     e.stopPropagation();
+    e.preventDefault();
     try {
       const updated = await voteHelpArticle(id, type);
       setArticles((prev) =>
@@ -157,13 +223,21 @@ export default function HelpPage() {
     }
   };
 
-  // Search & Filter
+  // Pure frontend search & tag filtering
   const filteredArticles = articles
-    .filter(
-      (article) =>
+    .filter((article) => {
+      const matchesSearch =
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+        article.content.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.every((st) =>
+          article.tags.some((t) => t.toLowerCase() === st.toLowerCase()),
+        );
+
+      return matchesSearch && matchesTags;
+    })
     .sort((a, b) => {
       const dateA = new Date(a.updated_at).getTime();
       const dateB = new Date(b.updated_at).getTime();
@@ -174,108 +248,184 @@ export default function HelpPage() {
     <div
       className={
         isInsideDashboard
-          ? "absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out bg-white"
-          : "min-h-screen w-full bg-white py-6"
-      }
-      style={
-        isInsideDashboard
-          ? { ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }
-          : {}
+          ? "dark min-w-0 h-full w-full"
+          : "dark min-h-screen w-full bg-vp-canvas py-6"
       }
       data-name="help-page"
     >
-      <div className="h-full overflow-y-auto px-8 py-6">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-          {/* Controls Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="h-full w-full overflow-y-auto px-6 py-6">
+        <div className="flex w-full max-w-none flex-col gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <Button
               onClick={handleOpenAddModal}
-              className="flex items-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 rounded-full px-4"
+              className="flex items-center gap-2 rounded-full bg-[#C8AA6E] px-5 py-2 font-semibold text-[#091428] shadow-md transition-all hover:bg-[#D8BA7E] hover:shadow-lg hover:shadow-[#C8AA6E]/20 active:bg-[#B89A5E] self-start sm:self-auto"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 stroke-[2.5]" />
               <span>Add Article</span>
             </Button>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setSortAsc((prev) => !prev)}
-                className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors"
+                className="p-2 text-zinc-400 transition-colors hover:text-[#C8AA6E] shrink-0"
                 title="Toggle Sort Order"
                 aria-label="Sort"
               >
                 <ArrowUpDown className="h-5 w-5" />
               </button>
 
-              <div className="relative w-full max-w-xs">
+              <div className="relative w-full sm:w-72 md:w-80 lg:w-96">
                 <Input
                   type="text"
                   placeholder="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-9 rounded-full border-zinc-300 bg-white placeholder:text-zinc-400 focus-visible:ring-zinc-400"
+                  className="w-full rounded-full border-zinc-800 bg-vp-surface pr-9 text-zinc-100 placeholder:text-zinc-500 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
+                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none text-zinc-500" />
               </div>
             </div>
+          </div>
+
+          {/* Dropdown for filters by tags and a pillbar for the selected filters */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800/80 pb-4 w-full">
+            {/* Filter Dropdown Button */}
+            <div className="relative" ref={tagDropdownRef}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsTagDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 rounded-full border-zinc-800 bg-vp-surface px-3.5 py-1.5 text-xs font-semibold text-zinc-300 hover:border-[#C8AA6E]/50 hover:bg-zinc-800 hover:text-[#C8AA6E]"
+              >
+                <TagIcon className="h-3.5 w-3.5" />
+                <span>Filter Tags</span>
+                <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+              </Button>
+
+              {/* Tag Selection Dropdown */}
+              {isTagDropdownOpen && (
+                <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-xl border border-zinc-800 bg-vp-surface py-2 shadow-2xl backdrop-blur-md">
+                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Available Tags
+                  </div>
+                  {allTags.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-zinc-500">
+                      No tags available
+                    </div>
+                  ) : (
+                    allTags.map((tag) => {
+                      const isSelected = selectedTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleTag(tag)}
+                          className="flex w-full items-center justify-between px-3 py-1.5 text-left text-xs font-medium text-zinc-200 hover:bg-[#C8AA6E]/10 hover:text-[#C8AA6E]"
+                        >
+                          <span>{tag}</span>
+                          {isSelected && (
+                            <Check className="h-3.5 w-3.5 text-[#C8AA6E]" />
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* All Reset Pill */}
+            <button
+              type="button"
+              onClick={() => setSelectedTags([])}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                selectedTags.length === 0
+                  ? "bg-[#C8AA6E] text-[#091428] shadow-sm"
+                  : "border border-zinc-800 bg-vp-surface text-zinc-400 hover:border-[#C8AA6E]/30 hover:text-zinc-200"
+              }`}
+            >
+              All ({articles.length})
+            </button>
+
+            {/* Active Selected Tag Pills */}
+            {selectedTags.map((tag) => (
+              <Badge
+                key={tag}
+                className="flex items-center gap-1.5 rounded-full border border-[#C8AA6E]/50 bg-[#C8AA6E]/20 px-3 py-1 text-xs font-bold text-[#C8AA6E] shadow-sm transition-all"
+              >
+                <span>{tag}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="rounded-full p-0.5 text-[#C8AA6E] hover:bg-[#C8AA6E]/30 hover:text-white"
+                  title={`Remove ${tag} filter`}
+                >
+                  <X className="h-3 w-3 stroke-[2.5]" />
+                </button>
+              </Badge>
+            ))}
           </div>
 
           {/* Article List */}
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#C8AA6E]" />
             </div>
           ) : filteredArticles.length === 0 ? (
-            <div className="text-center py-12 text-zinc-500">
-              No help articles found.
+            <div className="py-12 text-center text-zinc-400">
+              No help articles match your active filter.
             </div>
           ) : (
             <Accordion
               type="single"
               collapsible
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 w-full"
             >
               {filteredArticles.map((article) => (
                 <AccordionItem
                   key={article.id}
                   value={`article-${article.id}`}
-                  className="rounded-2xl border border-zinc-200 bg-white px-6 py-4 shadow-sm transition-all hover:border-zinc-300 [&[data-state=open]]:shadow-md"
+                  className="w-full rounded-2xl border border-zinc-800/80 bg-vp-surface px-6 py-4 shadow-sm transition-all hover:border-[#C8AA6E]/50 [&[data-state=open]]:border-[#C8AA6E] [&[data-state=open]]:shadow-lg [&[data-state=open]]:shadow-[#C8AA6E]/5"
                 >
-                  <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180">
-                    <div className="flex w-full flex-col gap-4 text-left">
-                      <div className="flex items-center justify-between gap-4">
-                        <h3 className="text-base font-semibold text-zinc-900">
+                  <AccordionTrigger className="p-0 hover:no-underline [&[data-state=open]>div>div>.chevron]:rotate-180 [&[data-state=open]>div>div>.chevron]:text-[#C8AA6E]">
+                    <div className="flex w-full flex-col gap-3 text-left">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                        <h3 className="text-base font-semibold text-zinc-100 group-hover:text-[#F0E6D2]">
                           {article.title}
                         </h3>
-                        <span className="text-xs font-semibold text-zinc-500 whitespace-nowrap">
+                        <span className="whitespace-nowrap text-xs font-semibold text-zinc-400">
                           Last Updated:{" "}
-                          <span className="text-zinc-900">
+                          <span className="text-[#C8AA6E]">
                             {new Date(article.updated_at).toLocaleDateString()}
                           </span>
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                             TAGS
                           </span>
                           {article.tags.map((tag) => (
                             <Badge
                               key={tag}
                               variant="secondary"
-                              className="rounded-full bg-zinc-100 px-3 py-0.5 text-xs font-bold text-zinc-800 hover:bg-zinc-200"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddTag(tag);
+                              }}
+                              className="cursor-pointer rounded-full border border-[#C8AA6E]/30 bg-[#C8AA6E]/10 px-3 py-0.5 text-xs font-bold text-[#C8AA6E] transition-colors hover:bg-[#C8AA6E]/30"
                             >
                               {tag}
                             </Badge>
                           ))}
                         </div>
-                        <ChevronDown className="chevron h-5 w-5 text-zinc-600 transition-transform duration-200" />
                       </div>
                     </div>
                   </AccordionTrigger>
 
-                  <AccordionContent className="pt-4 text-sm leading-relaxed text-zinc-600 border-t border-zinc-100 mt-4">
+                  <AccordionContent className="mt-4 border-t border-zinc-800/60 pt-4 text-sm leading-relaxed text-zinc-300">
                     <p className="mb-4 whitespace-pre-line">
                       {article.content}
                     </p>
@@ -286,7 +436,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleVote(article.id, "up", e)}
-                          className="flex items-center gap-1.5 text-zinc-600 hover:text-green-600 transition-colors text-xs font-medium"
+                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-emerald-400"
                         >
                           <ThumbsUp className="h-4 w-4" />
                           <span>{article.upvotes}</span>
@@ -294,7 +444,7 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleVote(article.id, "down", e)}
-                          className="flex items-center gap-1.5 text-zinc-600 hover:text-red-600 transition-colors text-xs font-medium"
+                          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-red-400"
                         >
                           <ThumbsDown className="h-4 w-4" />
                           <span>{article.downvotes}</span>
@@ -305,15 +455,15 @@ export default function HelpPage() {
                         <button
                           type="button"
                           onClick={(e) => handleOpenEditModal(article, e)}
-                          className="p-1.5 text-zinc-500 hover:text-zinc-900 transition-colors"
+                          className="p-1.5 text-zinc-400 transition-colors hover:text-[#C8AA6E]"
                           title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => handleDeleteArticle(article.id, e)}
-                          className="p-1.5 text-zinc-500 hover:text-red-600 transition-colors"
+                          onClick={(e) => handleOpenDeleteModal(article, e)}
+                          className="p-1.5 text-zinc-400 transition-colors hover:text-red-400"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -330,17 +480,18 @@ export default function HelpPage() {
 
       {/* Add / Edit Article Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
-              <h2 className="text-lg font-bold text-zinc-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-[#C8AA6E]/30 bg-vp-surface p-6 shadow-2xl shadow-black/80">
+            <div className="mb-4 flex items-center justify-between border-b border-zinc-800 pb-3">
+              <h2 className="text-lg font-bold text-[#F0E6D2]">
                 {editingArticle
                   ? "Edit Help Article"
                   : "Create New Help Article"}
               </h2>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-zinc-600"
+                className="text-zinc-500 hover:text-[#C8AA6E]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -348,7 +499,7 @@ export default function HelpPage() {
 
             <form onSubmit={handleSubmitModal} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-zinc-300">
                   Title
                 </label>
                 <Input
@@ -358,27 +509,28 @@ export default function HelpPage() {
                     setFormData({ ...formData, title: e.target.value })
                   }
                   placeholder="e.g. How to link Riot ID"
+                  className="w-full border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-zinc-300">
                   Content / Description
                 </label>
                 <textarea
                   required
-                  rows={4}
+                  rows={5}
                   value={formData.content}
                   onChange={(e) =>
                     setFormData({ ...formData, content: e.target.value })
                   }
                   placeholder="Article details and troubleshooting steps..."
-                  className="w-full rounded-md border border-zinc-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+                  className="w-full rounded-md border border-zinc-700 bg-vp-surface p-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-[#C8AA6E] focus:outline-none focus:ring-1 focus:ring-[#C8AA6E]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold text-zinc-300">
                   Tags (comma separated)
                 </label>
                 <Input
@@ -387,6 +539,7 @@ export default function HelpPage() {
                     setFormData({ ...formData, tags: e.target.value })
                   }
                   placeholder="AI, INFO, ACCOUNT"
+                  className="w-full border-zinc-700 bg-vp-surface text-zinc-100 focus-visible:border-[#C8AA6E] focus-visible:ring-1 focus-visible:ring-[#C8AA6E]"
                 />
               </div>
 
@@ -395,13 +548,14 @@ export default function HelpPage() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="bg-zinc-900 text-white hover:bg-zinc-800"
+                  className="bg-[#C8AA6E] font-bold text-[#091428] transition-all hover:bg-[#D8BA7E] hover:shadow-lg hover:shadow-[#C8AA6E]/20 active:bg-[#B89A5E]"
                 >
                   {submitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -410,6 +564,59 @@ export default function HelpPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {articleToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-red-500/30 bg-vp-surface p-6 shadow-2xl shadow-black/80">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-zinc-100">
+                  Delete Help Article
+                </h3>
+                <p className="mt-2 text-sm text-zinc-400">
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold text-zinc-200">
+                    "{articleToDelete.title}"
+                  </span>
+                  ? This action cannot be undone.
+                </p>
+                {deleteError && (
+                  <p className="mt-2 text-xs font-semibold text-red-400">
+                    {deleteError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isDeleting}
+                onClick={() => setArticleToDelete(null)}
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="bg-red-600 font-semibold text-white transition-all hover:bg-red-500 active:bg-red-700"
+              >
+                {isDeleting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Delete Article
+              </Button>
+            </div>
           </div>
         </div>
       )}

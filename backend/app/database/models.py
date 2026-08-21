@@ -14,12 +14,45 @@ from sqlmodel import SQLModel, Field, Relationship
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
 # we can cross reference api responses directly without a lookup step making it easier to confirm data integrity.
+# image_path is the admin-uploaded display asset for the Champion Assets admin page.
 class Champions(SQLModel, table=True):  # type: ignore[call-arg]
     champion_id: int = Field(primary_key=True)
     name: str
     tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
+    image_path: Optional[str] = (
+        None  # admin-uploaded display asset, e.g. "/uploads/assets/champions/103.png"
+    )
 
     participants: List["Participants"] = Relationship(back_populates="champion")
+
+
+# MapAssets
+# Admin-uploaded display assets (icons/art) for the Map Assets admin page.
+# map_id is Riot's own numeric map ID (11 = Summoner's Rift, 12 = Howling Abyss, etc. —
+# see MAP_LABELS in app/utils/game_labels.py),
+# same id space as Matches.map_id, so we won't change that,
+# rather make it a fk similiar with how champion is working.
+# There's no foreign key to Matches currently:
+# Riot's map catalog is static
+# and external, so an admin can upload a map's display asset independently of any match
+# data existing;
+# Keeping the same id type avoids two competing identities for the
+# same map, even if We don't make the key a Foreign Key.
+class MapAssets(SQLModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "map_assets"
+
+    map_id: int = Field(primary_key=True)
+    name: str  # "Summoner's Rift", "Howling Abyss"
+    image_path: Optional[str] = None
+    updated_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+        default_factory=datetime.utcnow,
+    )
 
 
 # Users
@@ -58,7 +91,7 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
         default="[]",
         # JSON array of PUUIDs linked to this account e.g. ["puuid1", "puuid2"].
         # Denormalized cache of UserGameAccounts for fast autocomplete lookups.
-        # Source of truth is still UserGameAccounts — update this whenever a
+        # Source of truth is still UserGameAccounts, so update this whenever a
         # link is added or removed, or invalidate and rebuild from UserGameAccounts.
     )
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
@@ -122,9 +155,13 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     game_duration: int  # in seconds;
     queue_id: int
     game_creation: int = Field(default=0, sa_column=Column(BigInteger()))  # epoch ms
-    map_id: int = 11
+    map_id: int = Field(default=11, foreign_key="map_assets.map_id")
     played_on: date = Field(default_factory=lambda: date.today())
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
+
+    deletion_status: str = Field(default="active")
+    deletion_flagged_at: Optional[datetime] = None
+    # these 2 are for soft deletion of matches. we will use this to flag matches for deletion and then delete them in a batch process later. This is to avoid deleting matches that are still being processed or viewed by users.
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -142,7 +179,7 @@ class MatchTimelines(SQLModel, table=True):  # type: ignore[call-arg]
     match_id: str = Field(primary_key=True, foreign_key="matches.match_id")
     frame_interval_ms: int
     game_duration_ms: int
-    map_id: int = 11
+    map_id: int = Field(default=11, foreign_key="map_assets.map_id")
     # JSON: {"frames": [...], "events": [...], "participants": [...]}
     # See app/schemas/timeline.py for the shape; app/services/timeline_ingest.py writes it.
     timeline_json: str

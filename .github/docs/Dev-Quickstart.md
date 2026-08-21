@@ -1,4 +1,4 @@
-# Dev Quickstart — Seed, Backend, Login
+# Dev Quickstart: Seed, Backend, Login
 test7    
 Short runbook for getting a local dev environment with seeded test data and signing in as the demo user.
 
@@ -9,8 +9,8 @@ For full infrastructure setup (Dev Container, database schema, troubleshooting),
 ## Prerequisites
 
 - Project opened in the **Dev Container** (recommended), or local Postgres with `DATABASE_URL` pointing at `localhost:5432`
-- **`backend/.env`** — copy from `backend/.env.example`
-- **`frontend/.env`** — copy from `frontend/.env.example`
+- **`backend/.env`**: copy from `backend/.env.example`
+- **`frontend/.env`**: copy from `frontend/.env.example`
 
 ### Required `backend/.env` values
 
@@ -31,9 +31,9 @@ VITE_API_URL=http://localhost:8000
 
 ---
 
-## Step 1 — Seed the database
+## Step 1: Seed the database
 
-**Option A — script (activates the venv and confirms before wiping):**
+**Option A: script (activates the venv and confirms before wiping):**
 
 ```bash
 ./scripts/seed.sh
@@ -41,7 +41,7 @@ VITE_API_URL=http://localhost:8000
 
 Pass `-y` to skip the confirmation prompt (e.g. in a task runner).
 
-**Option B — manual.** From inside the dev container:
+**Option B: manual.** From inside the dev container:
 
 ```bash
 cd /workspaces/backend
@@ -68,15 +68,15 @@ Dev login: testuser1@vantagepoint.dev (password from SEED_DEV_PASSWORD)
 
 ---
 
-## Step 2 — Start the backend and frontend
+## Step 2: Start the backend and frontend
 
-**Option A — both services (one terminal):**
+**Option A: both services (one terminal):**
 
 ```bash
 ./scripts/start.sh
 ```
 
-**Option B — separate terminals:**
+**Option B: separate terminals:**
 
 ```bash
 ./backend/start.sh
@@ -86,7 +86,7 @@ Dev login: testuser1@vantagepoint.dev (password from SEED_DEV_PASSWORD)
 ./frontend/start.sh
 ```
 
-**Option C — manual commands:**
+**Option C: manual commands:**
 
 ```bash
 cd backend
@@ -110,7 +110,7 @@ Inside the dev container, paths are `/workspaces/backend` and `/workspaces/front
 
 ---
 
-## Step 3 — Log in
+## Step 3: Log in
 
 | Field | Value |
 |--------|--------|
@@ -157,8 +157,8 @@ node scripts/generate-coverage-summary.js
 
 This runs `pytest --cov=app --cov-report=json` in `backend/` and Vitest's
 coverage run in `frontend/`, then writes a combined, timestamped report to
-`.github/docs/coverage-summary.md` — overall totals for each side, plus a
-table listing any individual file under 90% coverage. Pass `THRESHOLD=<n>` to
+`.github/docs/coverage-summary.md`, which holds overall totals for each
+side plus a table listing any individual file under 90% coverage. Pass `THRESHOLD=<n>` to
 change that cutoff for a single run, e.g. `THRESHOLD=80 node
 scripts/generate-coverage-summary.js`.
 
@@ -190,6 +190,6 @@ an area that was already under the threshold.
 
 ## Related docs
 
-- [Setup.md](./Setup.md) — Dev Container, database schema, verification
-- [Backend-Development-Guide.md](./Backend-Development-Guide.md) — API and backend development
-- [Frontend-Development-Guide.md](./Frontend-Development-Guide.md) — UI development
+- [Setup.md](./Setup.md): Dev Container, database schema, verification
+- [Backend-Development-Guide.md](./Backend-Development-Guide.md): API and backend development
+- [Frontend-Development-Guide.md](./Frontend-Development-Guide.md): UI development

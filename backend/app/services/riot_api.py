@@ -12,7 +12,7 @@ from app.services.riot_service import get_region
 
 load_dotenv()
 
-# Account API routing clusters (try in order — EU accounts need `europe`, not `americas`)
+# Account API routing clusters (try in order; EU accounts need `europe`, not `americas`)
 
 
 async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:
@@ -80,7 +80,7 @@ async def get_puuid_by_riot_id(
             puuid = response.json().get("puuid")
             pl = "Euw1"
             if puuid:
-                await _set_platform(cognito_sub, session, pl)
+                await _set_platform(cognito_sub, session, region)
                 return str(puuid) if puuid else None
             return None
 

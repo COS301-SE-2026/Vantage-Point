@@ -3,6 +3,17 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import Login from "../components/auth/Login";
 
+/**
+ * The auth screens used to be a light Figma frame with a `device-dark:` twin,
+ * and this suite pinned the hex values of both. They are now the same always
+ * dark surface the dashboard is built from, so it guards that contract instead:
+ * the `--color-vp-*` tokens are what every screen shares, and a stray
+ * `device-dark:` or raw hex is the regression to catch.
+ */
+const CANVAS = "bg-vp-canvas";
+const SURFACE = "bg-vp-surface";
+const RAISED = "bg-vp-raised";
+
 function renderLogin() {
   return render(
     <MemoryRouter>
@@ -19,57 +30,52 @@ function renderLogin() {
   );
 }
 
-describe("Auth screen dark mode (Figma 12:44)", () => {
-  it("carries device-theme variants on the panel and fields", () => {
+describe("Auth surface", () => {
+  it("paints the shell on the canvas in the brand face", () => {
     const { container } = renderLogin();
 
-    const panel = container.querySelector('[data-node-id="12:52"]');
-    expect(panel?.className).toContain("device-dark:bg-[#181818]");
+    const shell = container.querySelector('[data-name="auth-screen"]');
+    expect(shell?.className).toContain(CANVAS);
+    expect(shell?.className).toContain("font-beaufort");
 
-    const email = screen.getByLabelText("Username or Email");
-    // Dark fields are a filled #575757 pill with #929292 placeholder text.
-    expect(email.className).toContain("device-dark:bg-[#575757]");
-    expect(email.className).toContain("device-dark:placeholder:text-[#929292]");
-    // Chrome repaints autofilled inputs opaque white unless this is re-stated.
-    expect(email.className).toContain(
-      "device-dark:[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(87,87,87)]",
-    );
+    const panel = container.querySelector('[data-name="left-panel"]');
+    expect(panel?.className).toContain(CANVAS);
   });
 
-  it("uses the shared Supp text dark token for the account-switch line", () => {
+  it("puts the form card and its fields on the raised greys", () => {
     renderLogin();
 
-    const action = screen.getByRole("button", { name: "Sign Up" });
-    expect(action.className).toContain("device-dark:text-white");
-    // #929292 ("Supp text dark"), shared by Figma 12:64 and 13:490.
-    expect(action.parentElement?.className).toContain(
-      "device-dark:text-[#929292]",
+    const email = screen.getByLabelText("Username or Email");
+    expect(email.className).toContain(RAISED);
+    expect(email.className).toContain("border-vp-line");
+    expect(email.className).toContain("focus:border-vp-gold/60");
+    // Chrome repaints autofilled inputs with its own background unless the
+    // surface is re-stated as an inset shadow.
+    expect(email.className).toContain(
+      "[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#1b1e25]",
     );
+
+    const card = email.closest(`.${SURFACE}\\/85`);
+    expect(card).not.toBeNull();
   });
 
-  it("swaps the solid-silhouette marks for their white cuts on dark devices", () => {
+  it("carries no device-theme variants anywhere on the screen", () => {
     const { container } = renderLogin();
 
-    const darkSources = [...container.querySelectorAll("picture source")].map(
-      (s) => ({
-        media: s.getAttribute("media"),
-        srcset: s.getAttribute("srcset") ?? "",
-      }),
+    const withVariant = [...container.querySelectorAll("[class]")].filter(
+      (el) => el.className.toString().includes("device-dark:"),
     );
+    expect(withVariant).toHaveLength(0);
+  });
 
-    expect(darkSources.length).toBeGreaterThanOrEqual(2);
-    for (const source of darkSources) {
-      expect(source.media).toBe("(prefers-color-scheme: dark)");
-    }
-    expect(darkSources.some((s) => s.srcset.includes("logo-mark-white"))).toBe(
-      true,
-    );
-    expect(darkSources.some((s) => s.srcset.includes("apple-white"))).toBe(
-      true,
-    );
+  it("keeps gold for the primary action and the account-switch line", () => {
+    renderLogin();
 
-    // Google and Riot are full-colour marks and must not be swapped.
-    expect(darkSources.some((s) => s.srcset.includes("google"))).toBe(false);
-    expect(darkSources.some((s) => s.srcset.includes("riot"))).toBe(false);
+    const submit = screen.getByRole("button", { name: "Sign In" });
+    expect(submit.className).toContain("from-vp-gold");
+
+    const action = screen.getByRole("button", { name: "Sign Up" });
+    expect(action.className).toContain("text-vp-gold");
+    expect(action.parentElement?.className).toContain("text-vp-dim");
   });
 });

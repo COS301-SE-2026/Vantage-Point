@@ -1,7 +1,7 @@
 # End-to-end tests
 
 Playwright specs that drive the real frontend in Chromium. **No backend, database
-or Riot API key is required** — every request the app makes is intercepted and
+or Riot API key is required.** Every request the app makes is intercepted and
 answered from fixtures, so the suite is hermetic, offline and deterministic.
 
 ## Running
@@ -54,7 +54,7 @@ e2e/
 
 ## Writing a spec
 
-Import from `./fixtures/test`, never from `@playwright/test` directly — that is
+Import from `./fixtures/test`, never from `@playwright/test` directly. That is
 what wires in the mocked backend.
 
 ```ts
@@ -69,25 +69,25 @@ test("does the thing", async ({ app, page, api }) => {
 
 ### The `app` fixture
 
-- `app.signIn({ user })` — plant tokens in `localStorage` so the app boots
+- `app.signIn({ user })`: plant tokens in `localStorage` so the app boots
   authenticated. Call **before** the first `page.goto`. Pass `UNLINKED_USER` to
   simulate an account with no Riot ID attached.
-- `app.gotoDashboard(path?)` — `signIn` plus a navigation, waiting for the shell.
-- `app.consoleErrors` — console errors and page errors seen so far.
+- `app.gotoDashboard(path?)`: `signIn` plus a navigation, waiting for the shell.
+- `app.consoleErrors`: console errors and page errors seen so far.
 
 ### The `api` fixture
 
 Installed automatically for every test, so nothing escapes to a real network.
 
-- `api.state` — mutable server state: `user`, `profile`, `matches`,
+- `api.state`: mutable server state, `user`, `profile`, `matches`,
   `matchDetails`, `timelines`, `liveMetrics`, `revokedAccessTokens`,
   `unknownRiotIds`, `syncAdds`. Mutate it **before** navigating.
-- `api.fail(endpoint, status, detail)` — make one endpoint return an error.
-- `api.override(endpoint, handler)` — full control; returning `undefined` (after
+- `api.fail(endpoint, status, detail)`: make one endpoint return an error.
+- `api.override(endpoint, handler)`: full control; returning `undefined` (after
   a delay, say) falls through to the default handler.
-- `api.once(endpoint, handler)` — applies to the next call only. Used to force a
+- `api.once(endpoint, handler)`: applies to the next call only. Used to force a
   single 401 and assert the refresh-and-retry path.
-- `api.calls`, `api.callsTo(name)`, `api.countOf(name)`, `api.lastBody(name)` —
+- `api.calls`, `api.callsTo(name)`, `api.countOf(name)`, `api.lastBody(name)`:
   assert on what the app actually sent, including the `Authorization` header.
 
 Endpoint names are listed in `EndpointName` in `api-mock.ts` and map 1:1 to the
@@ -97,7 +97,7 @@ backend routes the frontend calls.
 
 | Spec                      | Area                                                                     |
 | ------------------------- | ------------------------------------------------------------------------ |
-| `landing.spec.ts`         | Marketing page and its two auth entry points                             |
+| `landing.spec.ts`         | Marketing page: hero, section coverage, anchors, auth entry points       |
 | `auth-login.spec.ts`      | Sign in: success, wrong password, API down, pending state, toggles       |
 | `auth-register.spec.ts`   | Sign up: client validation, duplicate email, FastAPI detail lists        |
 | `link-riot.spec.ts`       | Riot ID linking: format check, Riot 404, success, gating                 |
@@ -113,7 +113,7 @@ backend routes the frontend calls.
 ## Gotchas
 
 - Backend requests are matched on **origin** (`VITE_API_URL`, default
-  `http://localhost:8000`), not on a `/api/` path glob — the app's own source
+  `http://localhost:8000`), not on a `/api/` path glob, because the app's own source
   lives in `src/api/`, which a path glob would also intercept in dev.
 - `getByRole(..., { name })` matches substrings by default. `"Profile"` also
   matches `"Edit profile"`, and `"Sign In"` also matches `"Sign in with Google"`;

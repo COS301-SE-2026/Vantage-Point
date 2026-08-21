@@ -99,11 +99,17 @@ describe("Login Component", () => {
 
   it("renders social login buttons with images", () => {
     const form = buildForm();
-    renderLogin(form);
+    const { container } = renderLogin(form);
 
-    expect(screen.getByAltText("Sign in with Google")).toBeInTheDocument();
-    expect(screen.getByAltText("Sign in with Apple")).toBeInTheDocument();
-    expect(screen.getByAltText("Sign in with Riot Games")).toBeInTheDocument();
+    // The mark is decoration; the button carries the accessible name.
+    for (const provider of ["Google", "Apple", "Riot Games"]) {
+      expect(
+        screen.getByRole("button", { name: `Sign in with ${provider}` }),
+      ).toBeInTheDocument();
+    }
+    expect(
+      container.querySelectorAll('[data-name="Social login"] img'),
+    ).toHaveLength(3);
   });
 
   it("calls onSocialClick when a social button is clicked", () => {
@@ -111,33 +117,33 @@ describe("Login Component", () => {
     const form = buildForm({ onSocialClick });
     renderLogin(form);
 
-    fireEvent.click(screen.getByAltText("Sign in with Google"));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Sign in with Google" }),
+    );
     expect(onSocialClick).toHaveBeenCalledTimes(1);
   });
 
   it("renders background image slides and controls by default", () => {
     const form = buildForm();
-    renderLogin(form);
+    const { container } = renderLogin(form);
 
     const slidesDots = screen.getByRole("tablist", {
       name: "Background slides",
     });
     expect(slidesDots).toBeInTheDocument();
 
-    const allSlideImages = screen.getAllByAltText(
-      "League of Legends champion splash art",
-    );
-    expect(allSlideImages.length).toBeGreaterThan(0);
+    const slides = container.querySelectorAll('[data-name="splash"] img');
+    expect(slides.length).toBeGreaterThan(1);
   });
 
   it("uses a single static background image when backgroundImage prop is provided", () => {
     const form = buildForm();
     const staticBg = "/src/assets/images/wallpapers/test.jpg";
-    renderLogin(form, staticBg);
+    const { container } = renderLogin(form, staticBg);
 
-    expect(
-      screen.getByAltText("League of Legends champion splash art"),
-    ).toBeInTheDocument();
+    const slides = container.querySelectorAll('[data-name="splash"] img');
+    expect(slides).toHaveLength(1);
+    expect(slides[0].getAttribute("src")).toBe(staticBg);
 
     expect(
       screen.queryByRole("tablist", { name: "Background slides" }),
@@ -152,10 +158,11 @@ describe("Login Component", () => {
     expect(signUpButton).toBeInTheDocument();
   });
 
-  it("renders the logo with correct alt text", () => {
+  it("renders the wordmark as a way back to the marketing site", () => {
     const form = buildForm();
     renderLogin(form);
 
-    expect(screen.getByAltText("Vantage Point Logo")).toBeInTheDocument();
+    const home = screen.getByRole("link", { name: "Vantage Point home" });
+    expect(home).toHaveAttribute("href", "/");
   });
 });

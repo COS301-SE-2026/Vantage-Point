@@ -45,7 +45,7 @@ export default function LinkRiotPage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-white device-dark:bg-[#181818] overflow-hidden">
+    <div className="min-h-dvh w-full bg-vp-canvas">
       <RiotIdComponent form={formProps} />
     </div>
   );

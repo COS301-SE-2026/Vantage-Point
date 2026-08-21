@@ -138,15 +138,15 @@ export default function ProfileHeaderEditor({
                 className="object-cover"
               />
             ) : null}
-            <AvatarFallback className="bg-[#404040] font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white">
+            <AvatarFallback className="bg-vp-raised font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white">
               {profile.avatar_initials}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <h1 className="truncate font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold leading-tight text-[#1e1e1e] device-dark:text-white">
+            <h1 className="truncate font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold leading-tight text-vp-ink">
               {profile.display_name}
             </h1>
-            <p className="mt-1 font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
+            <p className="mt-1 text-[16px] text-vp-dim">
               {profile.riot_id_tag}
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function ProfileHeaderEditor({
             resetForm();
             setEditing(true);
           }}
-          className="flex shrink-0 items-center gap-2 rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-4 py-2 font-['Inter:Regular',sans-serif] text-[14px] text-[#525252] device-dark:text-[#929292] transition-colors hover:bg-[#f5f5f5]"
+          className="flex shrink-0 items-center gap-2 rounded-lg border border-vp-line px-4 py-2 text-[14px] text-vp-dim transition-colors hover:bg-[#f5f5f5]"
         >
           <Pencil className="size-4" aria-hidden />
           Edit profile
@@ -203,7 +203,7 @@ export default function ProfileHeaderEditor({
                   className="object-cover"
                 />
               ) : null}
-              <AvatarFallback className="bg-[#404040] font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white">
+              <AvatarFallback className="bg-vp-raised font-['Inter:Semi_Bold',sans-serif] text-[28px] font-semibold text-white">
                 {profile.avatar_initials}
               </AvatarFallback>
             </Avatar>
@@ -224,7 +224,7 @@ export default function ProfileHeaderEditor({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="font-['Inter:Regular',sans-serif] text-[12px] text-[#525252] device-dark:text-[#929292] underline hover:text-[#1e1e1e]"
+            className="text-[12px] text-vp-dim underline hover:text-vp-ink"
           >
             Change photo
           </button>
@@ -236,7 +236,7 @@ export default function ProfileHeaderEditor({
                 setRemoveAvatar(true);
                 setAvatarPreview(undefined);
               }}
-              className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575] device-dark:text-[#929292] underline hover:text-[#1e1e1e]"
+              className="text-[12px] text-vp-dim underline hover:text-vp-ink"
             >
               Remove photo
             </button>
@@ -245,19 +245,19 @@ export default function ProfileHeaderEditor({
 
         <div className="flex min-w-[240px] flex-1 flex-col gap-4">
           <label className="flex flex-col gap-1">
-            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#525252] device-dark:text-[#929292]">
+            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-vp-dim">
               Display name
             </span>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-3 py-2 font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e] device-dark:text-white outline-none focus:border-[#525252]"
+              className="rounded-lg border border-vp-line px-3 py-2 text-[16px] text-vp-ink outline-none focus:border-[#525252]"
               maxLength={64}
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-[#525252] device-dark:text-[#929292]">
+            <span className="font-['Inter:Semi_Bold',sans-serif] text-[12px] font-semibold text-vp-dim">
               Riot ID
             </span>
             <input
@@ -265,9 +265,9 @@ export default function ProfileHeaderEditor({
               value={riotId}
               onChange={(e) => setRiotId(e.target.value)}
               placeholder="Player#EUW"
-              className="rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-3 py-2 font-['Inter:Regular',sans-serif] text-[16px] text-[#1e1e1e] device-dark:text-white outline-none focus:border-[#525252]"
+              className="rounded-lg border border-vp-line px-3 py-2 text-[16px] text-vp-ink outline-none focus:border-[#525252]"
             />
-            <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#757575] device-dark:text-[#929292]">
+            <span className="text-[12px] text-vp-dim">
               Verified via Riot API. Match history follows the linked account.
             </span>
           </label>
@@ -275,10 +275,7 @@ export default function ProfileHeaderEditor({
       </div>
 
       {error ? (
-        <p
-          className="font-['Inter:Regular',sans-serif] text-[14px] text-red-600"
-          role="alert"
-        >
+        <p className="text-[14px] text-red-600" role="alert">
           {error}
         </p>
       ) : null}
@@ -296,7 +293,7 @@ export default function ProfileHeaderEditor({
           type="button"
           onClick={handleCancel}
           disabled={saving}
-          className="rounded-lg border border-[#d9d9d9] device-dark:border-[#181818] px-5 py-2 font-['Inter:Regular',sans-serif] text-[14px] text-[#525252] device-dark:text-[#929292] disabled:opacity-50"
+          className="rounded-lg border border-vp-line px-5 py-2 text-[14px] text-vp-dim disabled:opacity-50"
         >
           Cancel
         </button>

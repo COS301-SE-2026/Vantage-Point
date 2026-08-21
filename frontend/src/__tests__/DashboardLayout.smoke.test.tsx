@@ -74,7 +74,23 @@ const match: MatchDetail = {
 
 vi.mock("../api/match", () => ({ fetchMatchDetail: vi.fn(async () => match) }));
 vi.mock("../api/matches", () => ({
-  fetchMatchHistory: vi.fn(async () => [{ matchId: "EUW1_1" }]),
+  // The replay screen lists the recent games, so a history row has to carry the
+  // whole summary line the match menu draws.
+  fetchMatchHistory: vi.fn(async () => [
+    {
+      matchId: "EUW1_1",
+      champion_name: "Jinx",
+      outcome: "Defeat",
+      duration_minutes: 25,
+      map_label: "Summoner's Rift",
+      played_on: "2026-05-14",
+      kills: 4,
+      deaths: 8,
+      assists: 6,
+      cs: 165,
+      position: "BOTTOM",
+    },
+  ]),
 }));
 
 /**

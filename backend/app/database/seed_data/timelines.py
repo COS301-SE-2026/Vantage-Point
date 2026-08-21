@@ -3,7 +3,7 @@
 The seeded games do not exist on Riot's servers, so `timeline_ingest` can never fetch a
 real timeline for them. Without this the replay map and the per-frame rows of the map
 analysis table would only ever render for an account with a live Riot key and freshly
-imported matches — which makes the feature impossible to look at or review locally.
+imported matches, which makes the feature impossible to look at or review locally.
 
 What is produced here is plausible, deterministic and internally consistent with the
 seeded scoreboard: every player walks their own lane, kills land where the killer was
@@ -374,7 +374,7 @@ def _objective_events(
 def _ward_events(
     participants: list[dict[str, Any]], ids_by_puuid: dict[str, int], duration_ms: int
 ) -> list[dict[str, Any]]:
-    """Riot carries no position on WARD_PLACED, so neither do we — these drive counts."""
+    """Riot carries no position on WARD_PLACED, so neither do we; these drive counts."""
     events: list[dict[str, Any]] = []
     for participant in participants:
         wards = max(1, participant.get("vision_score", 0) // 8)

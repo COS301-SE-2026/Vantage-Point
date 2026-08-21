@@ -7,7 +7,7 @@ export default mergeConfig(
     test: {
       globals: true,
       environment: "jsdom",
-      setupFiles: [],
+      setupFiles: ["./src/__tests__/setup.ts"],
       // e2e/ holds the Playwright suite, which brings its own runner and a real
       // browser. Vitest would collect those specs and fail on `@playwright/test`.
       // Run them with `npm run e2e` instead.

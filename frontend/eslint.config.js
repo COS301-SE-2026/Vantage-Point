@@ -41,6 +41,25 @@ export default defineConfig([
     },
   },
   {
+    // Vendored Aceternity UI components (`npx shadcn add @aceternity/...`).
+    // These are upstream source kept close to verbatim so they can be re-pulled
+    // when the registry updates; adapting them to this repo's lint profile
+    // would mean rewriting them and losing that. The relaxations below cover
+    // what upstream actually does: `any` in generic wrappers, Math.random in
+    // decorative render paths, and effects that intentionally omit deps.
+    files: ["src/components/ui/aceternity/**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "prefer-const": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/refs": "off",
+      "react-refresh/only-export-components": "off",
+    },
+  },
+  {
     // The Playwright suite runs in Node, not React. Its fixtures take a callback
     // that Playwright names `use`, which the hooks rule reads as a React hook
     // called outside a component.

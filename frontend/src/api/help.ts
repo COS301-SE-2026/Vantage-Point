@@ -1,66 +1,103 @@
-import { apiFetch } from "./client";
+import type {
+  HelpArticle,
+  HelpArticleCreatePayload,
+  HelpArticleUpdatePayload,
+} from "../types/help";
 
-export interface HelpArticle {
-  id: number;
-  title: string;
-  content: string;
-  tags: string[];
-  upvotes: number;
-  downvotes: number;
-  created_at: string;
-  updated_at: string;
+// Re-export type for convenience in components
+export type { HelpArticle };
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const BASE_URL = `${API_BASE_URL}/api/help`;
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage =
+      typeof errorData.detail === "object"
+        ? JSON.stringify(errorData.detail)
+        : errorData.detail || `HTTP Error ${response.status}`;
+
+    throw new Error(errorMessage);
+  }
+  return response.json() as Promise<T>;
 }
 
-export interface CreateHelpArticlePayload {
-  title: string;
-  content: string;
-  tags: string[];
+/**
+ * Fetch all help articles ordered by updated_at descending.
+ */
+export async function fetchHelpArticles(): Promise<HelpArticle[]> {
+  const response = await fetch(BASE_URL, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  return handleResponse<HelpArticle[]>(response);
 }
 
-export interface UpdateHelpArticlePayload {
-  title?: string;
-  content?: string;
-  tags?: string[];
-}
-
-export async function fetchHelpArticles(
-  search?: string,
-): Promise<HelpArticle[]> {
-  const query = search ? `?search=${encodeURIComponent(search)}` : "";
-  return apiFetch<HelpArticle[]>(`/api/v1/help${query}`);
-}
-
+/**
+ * Create a new help article.
+ */
 export async function createHelpArticle(
-  payload: CreateHelpArticlePayload,
+  payload: HelpArticleCreatePayload,
 ): Promise<HelpArticle> {
-  return apiFetch<HelpArticle>("/api/v1/help", {
+  const response = await fetch(BASE_URL, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
     body: JSON.stringify(payload),
   });
+  return handleResponse<HelpArticle>(response);
 }
 
+/**
+ * Update an existing help article by ID.
+ */
 export async function updateHelpArticle(
-  id: number,
-  payload: UpdateHelpArticlePayload,
+  articleId: number,
+  payload: HelpArticleUpdatePayload,
 ): Promise<HelpArticle> {
-  return apiFetch<HelpArticle>(`/api/v1/help/${id}`, {
+  const response = await fetch(`${BASE_URL}/${articleId}`, {
     method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
     body: JSON.stringify(payload),
   });
+  return handleResponse<HelpArticle>(response);
 }
 
-export async function deleteHelpArticle(id: number): Promise<void> {
-  return apiFetch<void>(`/api/v1/help/${id}`, {
+/**
+ * Delete a help article by ID.
+ */
+export async function deleteHelpArticle(articleId: number): Promise<void> {
+  const response = await fetch(`${BASE_URL}/${articleId}`, {
     method: "DELETE",
   });
+  if (!response.ok) {
+    throw new Error(`Failed to delete article with ID ${articleId}`);
+  }
 }
 
+/**
+ * Cast an upvote or downvote on an article.
+ */
 export async function voteHelpArticle(
-  id: number,
+  articleId: number,
   voteType: "up" | "down",
 ): Promise<HelpArticle> {
-  return apiFetch<HelpArticle>(`/api/v1/help/${id}/vote`, {
+  const response = await fetch(`${BASE_URL}/${articleId}/vote`, {
     method: "POST",
-    body: JSON.stringify({ vote_type: voteType }),
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ type: voteType }),
   });
+  return handleResponse<HelpArticle>(response);
 }

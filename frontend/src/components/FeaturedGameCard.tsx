@@ -19,7 +19,7 @@ interface FeaturedGameCardProps {
   readonly onToggle?: () => void;
 }
 
-/** StatRow — Figma 14:538: 186×44, 20px icon at y=2, label 16px over value 15px. */
+/** StatRow from Figma 14:538: 186×44, 20px icon at y=2, label 16px over value 15px. */
 function StatRow({
   icon,
   iconDark,
@@ -27,7 +27,7 @@ function StatRow({
   value,
 }: Readonly<{
   icon: string;
-  /** Figma 14:738+ — the stroke is baked into the SVG, so dark needs its own file. */
+  /** Figma 14:738+: the stroke is baked into the SVG, so dark needs its own file. */
   iconDark: string;
   label: string;
   value: string | number;
@@ -40,10 +40,10 @@ function StatRow({
         className="absolute left-0 top-[2px] size-[20px]"
       />
       <div className="absolute left-[28px] top-0 flex h-[44px] flex-col gap-[4px]">
-        <span className="font-['Beaufort_for_LOL',serif] text-[16px] font-medium leading-[20px] whitespace-nowrap text-[#1e1e1e] device-dark:text-white">
+        <span className="text-[16px] font-medium leading-[20px] whitespace-nowrap text-vp-ink">
           {label}
         </span>
-        <span className="font-['Beaufort_for_LOL',serif] text-[15px] font-medium leading-[20px] whitespace-nowrap text-[#1e1e1e] device-dark:text-white">
+        <span className="text-[15px] font-medium leading-[20px] whitespace-nowrap text-vp-ink">
           {value}
         </span>
       </div>
@@ -51,7 +51,7 @@ function StatRow({
   );
 }
 
-/** Closed state — Figma node 139:837 (Product Info Card). */
+/** Closed state: Figma node 139:837 (Product Info Card). */
 function FeaturedGameCardClosed({
   slide,
   onToggle,
@@ -60,7 +60,7 @@ function FeaturedGameCardClosed({
     <button
       type="button"
       onClick={onToggle}
-      className="flex h-[314px] w-full min-w-0 max-w-[305px] cursor-pointer flex-col gap-4 rounded-[8px] border border-[#d9d9d9] device-dark:border-[#181818] bg-white device-dark:bg-[#3a3939] p-4 text-left transition-shadow hover:shadow-md"
+      className="flex h-[314px] w-full min-w-0 max-w-[305px] cursor-pointer flex-col gap-4 rounded-[8px] border border-vp-line bg-vp-surface p-4 text-left transition-shadow hover:shadow-md"
       aria-expanded={false}
     >
       <div className="relative h-[247px] w-full shrink-0 overflow-hidden rounded-[4px]">
@@ -70,7 +70,7 @@ function FeaturedGameCardClosed({
           className="absolute inset-0 size-full object-cover"
         />
       </div>
-      <p className="font-['Inter',sans-serif] text-[16px] font-normal leading-[1.4] text-[#1e1e1e] device-dark:text-white">
+      <p className="text-[16px] font-normal leading-[1.4] text-vp-ink">
         {slide.game_name}
       </p>
     </button>
@@ -78,7 +78,7 @@ function FeaturedGameCardClosed({
 }
 
 /**
- * Open state — Figma node 14:532 (FeaturedGameCardOpen), 446×314. Laid out as a
+ * Open state: Figma node 14:532 (FeaturedGameCardOpen), 446×314. Laid out as a
  * flex row rather than the absolute Figma offsets so the stat column can take
  * the extra width; at 446 the art still lands at x15 and the column at x219.
  */
@@ -100,7 +100,7 @@ function FeaturedGameCardOpen({
         data-node-id="14:534"
       >
         <h3
-          className="h-[22.4px] w-full pl-[12px] pt-[6px] font-['League_Spartan',sans-serif] text-[16px] font-bold uppercase leading-[22.4px] tracking-[0.56px] whitespace-nowrap text-[#1e1e1e] device-dark:text-white"
+          className="h-[22.4px] w-full pl-[12px] pt-[6px] font-['League_Spartan',sans-serif] text-[16px] font-bold uppercase leading-[22.4px] tracking-[0.56px] whitespace-nowrap text-vp-ink"
           data-name="Heading 3"
         >
           {slide.game_name}
@@ -147,7 +147,7 @@ export default function FeaturedGameCard({
 
   const card = (
     <div
-      className="relative h-[314px] w-full min-w-[446px] overflow-hidden rounded-[13px] bg-[#f0f0f0] device-dark:bg-[#3a3939] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.15)]"
+      className="relative h-[314px] w-full min-w-[446px] overflow-hidden rounded-[13px] bg-vp-surface shadow-[2px_2px_4px_0px_rgba(0,0,0,0.15)]"
       data-name="FeaturedGameCardOpen"
       data-node-id="14:532"
     >

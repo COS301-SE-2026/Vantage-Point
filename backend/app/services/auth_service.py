@@ -9,6 +9,7 @@ from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
+from app.services.admin_matches_service import admin_service
 
 # need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
 from app.utils.activity_logger import log_activity
@@ -59,6 +60,11 @@ def handle_cognito_error(e: ClientError) -> NoReturn:
 
 
 async def register_user(username: str, password: str, email: str):
+    if not await admin_service.is_registration_open():
+        raise HTTPException(
+            status_code=403,
+            detail="Public registration is currently closed.",
+        )
     if len(username) == 0:
         raise HTTPException(status_code=400, detail="Username is required")
     if "@" not in email:

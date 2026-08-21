@@ -28,6 +28,28 @@ class admin_service:
             users: list[UserResponse] = []
             pagination_token: Any = None
 
+            # Build username -> role map once from Cognito groups
+            user_role_map: dict[str, str] = {}
+            group_response = await asyncio.to_thread(
+                client.list_groups, UserPoolId=settings.cognito_user_pool_id
+            )
+            groups = group_response.get("Groups", [])
+
+            for group in groups:
+                group_name = group.get("GroupName")
+                if group_name not in ["Admin", "Player", "Super Admin"]:
+                    continue
+
+                members_response = await asyncio.to_thread(
+                    client.list_users_in_group,
+                    UserPoolId=settings.cognito_user_pool_id,
+                    GroupName=group_name,
+                )
+                for member in members_response.get("Users", []):
+                    username = member.get("Username")
+                    if username:
+                        user_role_map[username] = group_name
+
             while True:
                 params: Any = {"UserPoolId": settings.cognito_user_pool_id, "Limit": 60}
 
@@ -58,6 +80,7 @@ class admin_service:
                             ),
                             enabled=user.get("Enabled", True),
                             user_status=user.get("UserStatus", ""),
+                            role=user_role_map.get(user.get("Username", "")),
                         )
                     )
 
@@ -355,7 +378,7 @@ class admin_service:
             return_value = CreateGroupResponse(
                 group_name=group.get("GroupName", group_name),
                 user_pool_id=group.get("UserPoolId", ""),
-                descriptipn=group.get("Description", description),
+                description=group.get("Description", description),
                 precedence=group.get("Precedence", precedence),
                 last_modified_date=group.get(
                     "LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)

@@ -6,19 +6,19 @@ export default function AdminChampionAssetsPage() {
     <AssetManagerPage
       title="Champion Assets"
       idLabel="Champion ID"
-      idPlaceholder="ahri"
+      idPlaceholder="103"
       namePlaceholder="Ahri"
       load={async () =>
         (await listChampionAssets()).map((c) => ({
-          id: c.champion_id,
+          id: String(c.champion_id),
           displayName: c.display_name,
           imageUrl: c.image_url,
         }))
       }
       upload={async (id, name, file) => {
-        const created = await uploadChampionAsset(id, name, file);
+        const created = await uploadChampionAsset(Number(id), name, file);
         return {
-          id: created.champion_id,
+          id: String(created.champion_id),
           displayName: created.display_name,
           imageUrl: created.image_url,
         };
