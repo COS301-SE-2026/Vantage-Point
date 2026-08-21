@@ -28,7 +28,7 @@ const IDLE: SuggestedPathState = {
  *
  * While `SUGGESTED_PATH_ENDPOINT_LIVE` is false this returns a locally derived preview
  * route so the overlay can be built and reviewed. When the backend route ships, flip the
- * flag in `api/suggestedPath.ts` and delete the preview branch below — the overlay, the
+ * flag in `api/suggestedPath.ts` and delete the preview branch below. The overlay, the
  * toolbar toggle and the legend keep working untouched.
  */
 export function useSuggestedPath(

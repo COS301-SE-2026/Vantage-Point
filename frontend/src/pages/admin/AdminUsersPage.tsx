@@ -230,8 +230,8 @@ export default function AdminUsersPage() {
 
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
       <p className="mt-2 text-[11px] text-[#757575]">
-        Role shows "Unknown" until assigned this session — the backend doesn't
-        expose existing group membership yet.
+        Role shows "Unknown" until assigned this session, because the backend
+        does not expose existing group membership yet.
       </p>
 
       <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm">

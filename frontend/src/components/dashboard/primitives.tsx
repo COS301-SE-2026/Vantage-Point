@@ -154,7 +154,7 @@ export function StatTile({
   );
 }
 
-/** Shown when a tab has nothing to draw yet — never a bare blank column. */
+/** Shown when a tab has nothing to draw yet, never a bare blank column. */
 export function EmptyState({
   title,
   body,
@@ -204,7 +204,7 @@ export function ErrorNote({
 
 /**
  * Champion portrait from Data Dragon. That's a third-party CDN, so the initial
- * stands in whenever it is blocked, offline, or slow — an empty square in a
+ * stands in whenever it is blocked, offline, or slow. An empty square in a
  * table row reads as a bug rather than a missing image.
  */
 export function ChampionIcon({

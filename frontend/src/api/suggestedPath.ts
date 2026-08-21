@@ -7,7 +7,7 @@ import type { SuggestedPath } from "../types/suggestedPath";
  * NOT LIVE YET. The backend has the model (`pred_engine/ai_caller.get_knn_output`) and
  * the feature payload that feeds it (`/analytics/map_suggest_data/{match_id}`), but no
  * route joins the two. Until one exists, `SUGGESTED_PATH_ENDPOINT_LIVE` stays false and
- * callers fall back to locally derived preview data — see `lib/useSuggestedPath.ts`.
+ * callers fall back to locally derived preview data. See `lib/useSuggestedPath.ts`.
  *
  * To hook up the real thing: flip the flag below, correct the path and the response
  * shape in `types/suggestedPath.ts` if the backend named things differently, and delete

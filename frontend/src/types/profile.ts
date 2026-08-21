@@ -1,13 +1,13 @@
 /**
  * Player profile aggregates derived from Riot Match-v5 participant + challenges fields.
- * Normalized radar values are 0–100 for chart display.
+ * Normalized radar values are 0-100 for chart display.
  */
 
 /** One axis on the performance radar (averaged over recent matches). */
 export interface RadarMetric {
   readonly key: string;
   readonly label: string;
-  /** Display value 0–100 after normalization. */
+  /** Display value 0-100 after normalization. */
   readonly value: number;
   /** Raw average for tooltips / future API wiring. */
   readonly rawLabel: string;

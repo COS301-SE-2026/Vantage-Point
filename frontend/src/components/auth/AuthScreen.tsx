@@ -298,7 +298,7 @@ export default function AuthScreen({
     >
       {/* Champion splash: the whole page on mobile, the right column above lg.
           It is decoration, so it is hidden from assistive tech rather than
-          described — the form is what the screen is about. */}
+          described: the form is what the screen is about. */}
       <div
         className="absolute inset-0 lg:left-[46%]"
         aria-hidden

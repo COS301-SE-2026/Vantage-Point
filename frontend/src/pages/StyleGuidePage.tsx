@@ -1,8 +1,6 @@
 import { Link } from "react-router";
-import imgLogoMark from "../assets/images/logos/logo-mark.webp";
 import imgLogoMarkWhite from "../assets/images/logos/logo-mark-white.webp";
 import { AccessibilitySection } from "./style-guide/AccessibilitySection";
-import { ChangelogSection } from "./style-guide/ChangelogSection";
 import { ColourSection } from "./style-guide/ColourSection";
 import { ComponentsSection } from "./style-guide/ComponentsSection";
 import { NAV_ITEMS } from "./style-guide/GuideSection";
@@ -12,65 +10,68 @@ import { TokensSection } from "./style-guide/TokensSection";
 import { TypographySection } from "./style-guide/TypographySection";
 import { VoiceSection } from "./style-guide/VoiceSection";
 
+/**
+ * The live brand guide.
+ *
+ * It carries `dark` and `font-beaufort` for the same reasons the product does:
+ * the app is a single dark theme regardless of the device setting, and the
+ * shadcn primitives demonstrated further down are class-driven, so they only
+ * render the way the dashboard renders them inside a `dark` subtree. Setting
+ * the face once here means every section below reads in the display serif
+ * without repeating a family, which is how the rest of the app does it too.
+ */
 export default function StyleGuidePage() {
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f7f7f8_42%,#ffffff_100%)] text-[#1e1e1e] device-dark:bg-[linear-gradient(180deg,#181818_0%,#121212_50%,#181818_100%)] device-dark:text-[#f5f5f5]">
+    <div className="dark min-h-screen bg-vp-canvas font-beaufort text-vp-ink">
       <a
         href="#colour"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-vp-gold focus:px-3 focus:py-2 focus:text-black"
       >
         Skip to content
       </a>
 
-      <header className="relative overflow-hidden border-b border-border device-dark:border-[#2c2c2c]">
+      <header className="relative overflow-hidden border-b border-vp-line">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          className="pointer-events-none absolute inset-0"
           aria-hidden
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(74,127,212,0.12), transparent 42%), radial-gradient(circle at 80% 0%, rgba(30,126,52,0.08), transparent 35%), linear-gradient(135deg, transparent 40%, rgba(0,0,0,0.02) 100%)",
+              "radial-gradient(circle at 50% 0%, rgba(224,180,108,0.14), transparent 55%), radial-gradient(circle at 15% 90%, rgba(224,180,108,0.05), transparent 45%)",
           }}
         />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-14 pt-10 text-center md:px-8 md:pb-16 md:pt-14">
           <Link
             to="/"
-            className="mb-8 font-['Inter',sans-serif] text-xs font-medium text-[#525252] underline-offset-4 hover:text-[#1e1e1e] hover:underline device-dark:text-[#929292] device-dark:hover:text-white"
+            className="mb-8 text-[13px] text-vp-faint underline-offset-4 transition-colors hover:text-vp-ink hover:underline"
           >
-            ← Back to app
+            Back to app
           </Link>
           <img
-            src={imgLogoMark}
-            alt="Vantage Point"
-            className="mb-5 size-[clamp(72px,14vw,120px)] animate-vantage-breathe object-contain device-dark:hidden"
-          />
-          <img
             src={imgLogoMarkWhite}
-            alt=""
-            aria-hidden
-            className="mb-5 hidden size-[clamp(72px,14vw,120px)] animate-vantage-breathe object-contain device-dark:block"
+            alt="Vantage Point"
+            className="mb-5 size-[clamp(72px,14vw,116px)] animate-vantage-breathe object-contain"
           />
-          <h1 className="font-['League_Spartan',sans-serif] animate-vantage-pulse text-[clamp(28px,5vw,48px)] font-bold uppercase leading-tight tracking-[0.02em] device-dark:animate-none device-dark:text-white">
+          <h1 className="font-spartan text-[clamp(28px,5vw,48px)] font-bold uppercase leading-tight tracking-[0.06em] text-vp-ink">
             Vantage Point
           </h1>
-          <p className="mt-4 max-w-xl font-['Inter',sans-serif] text-base leading-relaxed text-[#525252] md:text-lg device-dark:text-[#b7b7b7]">
-            Live brand style guide and design system for Vantage Point.
-          </p>
-          <p className="mt-3 font-['Inter',sans-serif] text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground device-dark:text-[#929292]">
-            Demo 2 / Live guide
+          <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-vp-dim md:text-[18px]">
+            The live design system behind the app: the dark surface palette, the
+            two brand faces, and the primitives every dashboard tab is built
+            from.
           </p>
         </div>
       </header>
 
       <nav
         aria-label="Style guide sections"
-        className="sticky top-0 z-40 border-b border-border bg-white/90 backdrop-blur-md device-dark:border-[#2c2c2c] device-dark:bg-[#181818]/90"
+        className="sticky top-0 z-40 border-b border-vp-line bg-vp-canvas/85 backdrop-blur-md"
       >
         <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2 md:px-8">
           {NAV_ITEMS.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
-              className="shrink-0 rounded-md px-3 py-2 font-['Inter',sans-serif] text-xs font-medium text-[#525252] transition-colors hover:bg-muted hover:text-[#1e1e1e] focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] device-dark:text-[#b7b7b7] device-dark:hover:bg-[#2a2a2a] device-dark:hover:text-white"
+              className="shrink-0 rounded-lg px-3 py-2 text-[13px] text-vp-dim transition-colors hover:bg-vp-raised hover:text-vp-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vp-gold/50"
             >
               {item.label}
             </a>
@@ -87,7 +88,6 @@ export default function StyleGuidePage() {
         <LayoutSection />
         <AccessibilitySection />
         <VoiceSection />
-        <ChangelogSection />
       </main>
     </div>
   );

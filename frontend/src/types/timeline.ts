@@ -4,7 +4,7 @@
  * @see GET /api/v1/matches/{matchId}/timeline
  */
 
-/** A point in Riot's map coordinate space — not pixels. See `lib/timeline.ts`. */
+/** A point in Riot's map coordinate space, not pixels. See `lib/timeline.ts`. */
 export interface TimelinePosition {
   readonly x: number;
   readonly y: number;

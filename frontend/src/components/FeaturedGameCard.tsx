@@ -19,7 +19,7 @@ interface FeaturedGameCardProps {
   readonly onToggle?: () => void;
 }
 
-/** StatRow — Figma 14:538: 186×44, 20px icon at y=2, label 16px over value 15px. */
+/** StatRow from Figma 14:538: 186×44, 20px icon at y=2, label 16px over value 15px. */
 function StatRow({
   icon,
   iconDark,
@@ -27,7 +27,7 @@ function StatRow({
   value,
 }: Readonly<{
   icon: string;
-  /** Figma 14:738+ — the stroke is baked into the SVG, so dark needs its own file. */
+  /** Figma 14:738+: the stroke is baked into the SVG, so dark needs its own file. */
   iconDark: string;
   label: string;
   value: string | number;
@@ -51,7 +51,7 @@ function StatRow({
   );
 }
 
-/** Closed state — Figma node 139:837 (Product Info Card). */
+/** Closed state: Figma node 139:837 (Product Info Card). */
 function FeaturedGameCardClosed({
   slide,
   onToggle,
@@ -78,7 +78,7 @@ function FeaturedGameCardClosed({
 }
 
 /**
- * Open state — Figma node 14:532 (FeaturedGameCardOpen), 446×314. Laid out as a
+ * Open state: Figma node 14:532 (FeaturedGameCardOpen), 446×314. Laid out as a
  * flex row rather than the absolute Figma offsets so the stat column can take
  * the extra width; at 446 the art still lands at x15 and the column at x219.
  */

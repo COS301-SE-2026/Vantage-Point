@@ -37,7 +37,7 @@ function smoothed(values: readonly number[], index: number): number {
 /**
  * A placeholder recommended route, shaped from the player's own frames.
  *
- * This is NOT a prediction and must never be presented as one — it exists so the overlay,
+ * This is NOT a prediction and must never be presented as one. It exists so the overlay,
  * the toggle and the legend can be built and reviewed before the endpoint lands. Callers
  * surface it behind a "preview" label. It is deterministic: the same match always draws
  * the same line, so screenshots and tests are stable.

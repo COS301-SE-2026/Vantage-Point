@@ -71,7 +71,7 @@ export default function MetricsView() {
     let cancelled = false;
     setMetricsLoading(true);
     setMetricsError(null);
-    // One Riot call per match analysed, so keep the window small — a Riot dev key
+    // One Riot call per match analysed, so keep the window small: a Riot dev key
     // only allows 100 requests per two minutes across the whole app.
     fetchLiveMetrics(5)
       .then((metrics) => {

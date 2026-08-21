@@ -8,7 +8,7 @@
  *
  * Nothing here is load-bearing. A Data Dragon outage, an offline test run or a patch
  * that has dropped an id all resolve to `undefined`, and the caller falls back to the
- * slot letter or leaves the label out — the numbers behind them are still on screen.
+ * slot letter or leaves the label out. The numbers behind them are still on screen.
  */
 
 import { championDdragonKey, DDRAGON_BASE } from "./ddragon";

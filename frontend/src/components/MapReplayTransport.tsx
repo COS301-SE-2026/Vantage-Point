@@ -31,7 +31,7 @@ const BUTTON_CLASS =
  * Two glyphs in a table cell could not say which way the clock would move: the
  * rewind arrow was the only thing pointing anywhere, so the row read as a back
  * button and nothing else. The transport is its own bar now, with the four moves
- * named and in the order they run — restart, back, play, forward — and a scrub bar
+ * named and in the order they run (restart, back, play, forward) and a scrub bar
  * beside them. That also gives the Skills column back to the fifth row, which is
  * where the champion's ultimate had been dropping out of the table.
  */

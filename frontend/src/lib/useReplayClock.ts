@@ -26,8 +26,8 @@ export interface ReplayClock {
  * Drives replay playback for a match of `durationMs`.
  *
  * Playback stops at the final whistle rather than looping, and any change of match
- * rewinds to the start — carrying one match's clock into another would put the scrub
- * bar somewhere meaningless.
+ * rewinds to the start, because carrying one match's clock into another would put
+ * the scrub bar somewhere meaningless.
  */
 export function useReplayClock(
   durationMs: number,

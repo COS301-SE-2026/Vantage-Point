@@ -39,7 +39,7 @@ export default function AdminSettingsPage() {
         Settings
       </h1>
       <p className="mb-4 text-xs text-[#757575]">
-        No Figma frame exists for this section yet — styled to match
+        No Figma frame exists for this section yet, so this is styled to match
         Users/Dashboard in the meantime.
       </p>
 

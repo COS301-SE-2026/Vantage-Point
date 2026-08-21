@@ -11,7 +11,7 @@ import { CAPABILITIES, HERO_FLIP_WORDS, HERO_STATS } from "../content";
 /**
  * Figma 7:10 (light) and 12:104 (dark) are identical apart from the hero splash,
  * so the theme swap is just the art. <picture> resolves it from the device theme
- * in CSS — no JS, no first-paint flash, and only the matching file is fetched.
+ * in CSS: no JS, no first-paint flash, and only the matching file is fetched.
  */
 function BackgroundLayer() {
   return (
