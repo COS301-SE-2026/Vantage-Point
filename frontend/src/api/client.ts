@@ -1,9 +1,10 @@
 import {
   clearStoredTokens,
   getStoredTokens,
+  getStoredUsername,
   setStoredTokens,
 } from "../lib/tokens";
-import type { ApiErrorBody, TokenResponse } from "../types/auth";
+import type { ApiErrorBody, RefreshResponse } from "../types/auth";
 
 /**
  * Trailing slashes are trimmed in a single pass. The obvious `/\/+$/` costs
@@ -54,14 +55,20 @@ let refreshInFlight: Promise<boolean> | null = null;
 
 async function refreshAccessToken(): Promise<boolean> {
   const { refreshToken } = getStoredTokens();
-  if (!refreshToken) {
+  const username = getStoredUsername();
+  // Cognito derives a secret hash from the username, so a refresh needs both. We only
+  // get here because an access token was rejected, so anything we cannot refresh is a
+  // dead session: clear it rather than leave a token behind that keeps failing. That
+  // covers sessions stored before the username was kept, which sign in again once.
+  if (!refreshToken || !username) {
+    clearStoredTokens();
     return false;
   }
 
-  const response = await fetch(buildUrl("/api/auth/refresh"), {
+  const response = await fetch(buildUrl("/refresh-auth"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refreshToken }),
+    body: JSON.stringify({ username, refresh_token: refreshToken }),
   });
 
   if (!response.ok) {
@@ -69,8 +76,10 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 
-  const tokens = (await response.json()) as TokenResponse;
-  setStoredTokens(tokens.access_token, tokens.refresh_token);
+  const refreshed = (await response.json()) as RefreshResponse;
+  // A refresh exchange returns a new access token and nothing else: Cognito does not
+  // reissue the refresh token, so the one we already hold has to be carried forward.
+  setStoredTokens(refreshed.access_token, refreshToken);
   return true;
 }
 

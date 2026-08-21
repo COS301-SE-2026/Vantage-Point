@@ -1,5 +1,11 @@
+/**
+ * Every call here sends its secrets in the request body rather than the query string.
+ * A URL carrying a password, a verification code or a token is written to the server's
+ * access log, the browser's history and any Referer header the page emits.
+ */
+
 import { apiFetch, apiFetchPublic } from "./client";
-import { setStoredTokens } from "../lib/tokens";
+import { setStoredTokens, setStoredUsername } from "../lib/tokens";
 import type { TokenResponse } from "../types/auth";
 
 export interface RegisterPayload {
@@ -19,41 +25,39 @@ export interface ConfirmPayload {
 }
 
 export async function registerUser(payload: RegisterPayload): Promise<void> {
-  const params = new URLSearchParams({
-    username: payload.username,
-    email: payload.email,
-    password: payload.password,
-  });
-
-  await apiFetchPublic<void>(`/register?${params.toString()}`, {
+  await apiFetchPublic<void>("/register", {
     method: "POST",
+    body: JSON.stringify({
+      username: payload.username,
+      email: payload.email,
+      password: payload.password,
+    }),
   });
 }
 
 export async function loginUser(payload: LoginPayload): Promise<void> {
-  const params = new URLSearchParams({
-    username: payload.username,
-    password: payload.password,
+  const tokens = await apiFetchPublic<TokenResponse>("/login", {
+    method: "POST",
+    body: JSON.stringify({
+      username: payload.username,
+      password: payload.password,
+    }),
   });
 
-  const tokens = await apiFetchPublic<TokenResponse>(
-    `/login?${params.toString()}`,
-    {
-      method: "POST",
-    },
-  );
-
   setStoredTokens(tokens.access_token, tokens.refresh_token);
+  // Kept for the refresh exchange, which Cognito will not do on the token alone.
+  setStoredUsername(payload.username);
 }
 
 export async function confirmUser(payload: ConfirmPayload): Promise<void> {
-  const params = new URLSearchParams({
-    username: payload.username,
-    code: payload.code,
-  });
-
-  await apiFetchPublic<void>(`/confim-user?${params.toString()}`, {
+  // The path really is spelled `confim-user` on the API. Left alone deliberately:
+  // correcting it is a breaking change for anything else already calling it.
+  await apiFetchPublic<void>("/confim-user", {
     method: "POST",
+    body: JSON.stringify({
+      username: payload.username,
+      code: payload.code,
+    }),
   });
 }
 
@@ -64,7 +68,7 @@ export async function confirmUser(payload: ConfirmPayload): Promise<void> {
  */
 export async function logoutUser(): Promise<void> {
   try {
-    await apiFetch<{ message: string }>("/api/auth/logout", { method: "POST" });
+    await apiFetch<{ message: string }>("/logout", { method: "POST" });
   } catch {
     // already signed out, or the API is unreachable
   }

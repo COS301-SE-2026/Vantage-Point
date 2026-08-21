@@ -15,6 +15,8 @@ vi.mock("../../lib/tokens", () => ({
   getStoredTokens: vi.fn(),
   setStoredTokens: vi.fn(),
   clearStoredTokens: vi.fn(),
+  getStoredUsername: vi.fn(),
+  setStoredUsername: vi.fn(),
 }));
 
 //2. MOck global fetch
@@ -24,13 +26,20 @@ vi.stubGlobal("fetch", mockFetch);
 // A fake api URL via environmonent variable
 vi.stubEnv("VITE_API_URL", "https://fakeapi.com");
 
-const { getStoredTokens, setStoredTokens, clearStoredTokens } =
-  vi.mocked(tokens);
+const {
+  getStoredTokens,
+  setStoredTokens,
+  clearStoredTokens,
+  getStoredUsername,
+} = vi.mocked(tokens);
 
 beforeEach(() => {
   vi.resetAllMocks();
   // default token state should be : no tokens
   getStoredTokens.mockReturnValue({ accessToken: null, refreshToken: null });
+  // A refresh needs the username Cognito computes its secret hash from, and a
+  // signed-in session has one stored alongside the tokens.
+  getStoredUsername.mockReturnValue("tester@vantagepoint.dev");
 });
 
 // Helper function to mock fetch responses
@@ -251,6 +260,51 @@ describe("apiFetch", () => {
     await expect(apiFetch("/secure")).rejects.toMatchObject({ status: 401 });
     // Only the original request; the refresh endpoint is never called
     expect(mockFetch).toHaveBeenCalledTimes(1);
+    // The access token was already rejected, so leaving it behind would just fail
+    // on every later call.
+    expect(clearStoredTokens).toHaveBeenCalledOnce();
+  });
+
+  it("does not attempt refresh when no username is stored", async () => {
+    // Cognito cannot refresh without the username, so a session missing it is dead.
+    getStoredTokens.mockReturnValue({
+      accessToken: "tok",
+      refreshToken: "ref",
+    });
+    getStoredUsername.mockReturnValue(null);
+    mockFetch.mockResolvedValueOnce(
+      makeResponse(401, { detail: "Unauthorized" }),
+    );
+
+    await expect(apiFetch("/secure")).rejects.toMatchObject({ status: 401 });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(clearStoredTokens).toHaveBeenCalledOnce();
+  });
+
+  it("sends the username and refresh token to the refresh route", async () => {
+    getStoredTokens.mockReturnValue({
+      accessToken: "old",
+      refreshToken: "ref-tok",
+    });
+    mockFetch
+      .mockResolvedValueOnce(makeResponse(401, { detail: "Unauthorized" }))
+      .mockResolvedValueOnce(makeResponse(200, { access_token: "new-tok" }))
+      .mockResolvedValueOnce(makeResponse(200, { data: "ok" }));
+
+    await apiFetch("/secure");
+
+    const [refreshUrl, refreshInit] = mockFetch.mock.calls[1] as [
+      string,
+      RequestInit,
+    ];
+    // Only the path matters here; the base is fixed when the module is imported.
+    expect(refreshUrl).toMatch(/\/refresh-auth$/);
+    expect(JSON.parse(refreshInit.body as string)).toEqual({
+      username: "tester@vantagepoint.dev",
+      refresh_token: "ref-tok",
+    });
+    // Cognito does not reissue a refresh token, so the stored one is carried over.
+    expect(setStoredTokens).toHaveBeenCalledWith("new-tok", "ref-tok");
   });
 });
 

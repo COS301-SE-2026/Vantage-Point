@@ -24,12 +24,13 @@ test.describe("Sign in", () => {
       page.getByRole("navigation", { name: "Dashboard navigation" }),
     ).toBeVisible();
 
-    // The Cognito login endpoint takes query parameters, not a JSON body.
-    const search = new URLSearchParams(api.callsTo("login").at(-1)?.search);
-    expect(Object.fromEntries(search)).toEqual({
+    // Credentials go in the body. In the query string they would be written to the
+    // access log, the browser's history and any Referer header the page sends.
+    expect(api.callsTo("login").at(-1)?.body).toEqual({
       username: TEST_EMAIL,
       password: TEST_PASSWORD,
     });
+    expect(api.callsTo("login").at(-1)?.search).toBe("");
   });
 
   test("stores both tokens for later requests", async ({ page, api }) => {
@@ -41,9 +42,12 @@ test.describe("Sign in", () => {
     const stored = await page.evaluate(() => ({
       access: window.localStorage.getItem("vp_access_token"),
       refresh: window.localStorage.getItem("vp_refresh_token"),
+      username: window.localStorage.getItem("vp_username"),
     }));
     expect(stored.access).toBe(api.state.accessToken);
     expect(stored.refresh).toBe(api.state.refreshToken);
+    // Kept because a refresh exchange cannot happen without it.
+    expect(stored.username).toBe(TEST_EMAIL);
 
     // The dashboard requests must be authenticated with the stored token.
     expect(api.callsTo("matchHistory").at(-1)?.bearer).toBe(stored.access);
