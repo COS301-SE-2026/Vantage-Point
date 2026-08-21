@@ -13,6 +13,7 @@ import {
   Loader2,
   Tag as TagIcon,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -55,6 +56,11 @@ export default function HelpPage() {
     tags: "",
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Modal State for Deletion
+  const [articleToDelete, setArticleToDelete] = useState<HelpArticle | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const loadArticles = useCallback(async () => {
     try {
@@ -167,17 +173,32 @@ export default function HelpPage() {
     }
   };
 
-  const handleDeleteArticle = async (id: number, e: React.MouseEvent) => {
+  // Handlers for Delete Modal
+  const handleOpenDeleteModal = (article: HelpArticle, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!window.confirm("Are you sure you want to delete this article?"))
-      return;
+    setDeleteError(null);
+    setArticleToDelete(article);
+  };
+
+  const handleConfirmDelete = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!articleToDelete) return;
 
     try {
-      await deleteHelpArticle(id);
-      setArticles((prev) => prev.filter((a) => a.id !== id));
+      setIsDeleting(true);
+      setDeleteError(null);
+      await deleteHelpArticle(articleToDelete.id);
+      setArticles((prev) => prev.filter((a) => a.id !== articleToDelete.id));
+      setArticleToDelete(null);
     } catch (err) {
       console.error("Failed to delete article:", err);
+      setDeleteError("Failed to delete article. Check permissions or network.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -228,11 +249,8 @@ export default function HelpPage() {
       }
       data-name="help-page"
     >
-      {/* Scroll container with explicit side padding */}
       <div className="h-full w-full overflow-y-auto px-6 py-6">
-        {/* Full-width container with no max-width cap */}
         <div className="flex w-full max-w-none flex-col gap-6">
-          {/* Controls Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <Button
               onClick={handleOpenAddModal}
@@ -440,7 +458,7 @@ export default function HelpPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => handleDeleteArticle(article.id, e)}
+                          onClick={(e) => handleOpenDeleteModal(article, e)}
                           className="p-1.5 text-zinc-400 transition-colors hover:text-red-400"
                           title="Delete"
                         >
@@ -542,6 +560,59 @@ export default function HelpPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {articleToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-red-500/30 bg-vp-surface p-6 shadow-2xl shadow-black/80">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-zinc-100">
+                  Delete Help Article
+                </h3>
+                <p className="mt-2 text-sm text-zinc-400">
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold text-zinc-200">
+                    "{articleToDelete.title}"
+                  </span>
+                  ? This action cannot be undone.
+                </p>
+                {deleteError && (
+                  <p className="mt-2 text-xs font-semibold text-red-400">
+                    {deleteError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isDeleting}
+                onClick={() => setArticleToDelete(null)}
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="bg-red-600 font-semibold text-white transition-all hover:bg-red-500 active:bg-red-700"
+              >
+                {isDeleting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Delete Article
+              </Button>
+            </div>
           </div>
         </div>
       )}
