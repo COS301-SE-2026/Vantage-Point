@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 
 from app.api.router import (
     admin_routes,
+    admin_assets_routes,
     profile_routes,
     auth_routes,
     analytics_router,
@@ -33,7 +34,9 @@ from app.api.auth import require_group
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
+from app.services.asset_storage import ensure_asset_dirs
 from app.services.riot_api import get_puuid_by_riot_id
+from app.routers.admin_matches_routes import router as admin_router
 
 from loguru import logger
 import logging
@@ -200,6 +203,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(profile_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(admin_assets_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
@@ -207,10 +211,12 @@ app.include_router(dashboard_routes.router)
 app.include_router(help_routes.router)
 # This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
 
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
 # "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.
 ensure_avatar_dir()
+ensure_asset_dirs()
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 

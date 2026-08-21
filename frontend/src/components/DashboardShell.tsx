@@ -6,6 +6,7 @@ import {
   Clapperboard,
   LogOut,
   HelpCircle,
+  Shield,
 } from "lucide-react";
 import { Sidebar, DesktopSidebar, useSidebar } from "./ui/aceternity/sidebar";
 import { cn } from "./ui/utils";
@@ -39,6 +40,9 @@ interface DashboardShellProps {
   readonly accountName?: string;
   readonly accountTag?: string;
   readonly onEditProfileClick?: () => void;
+
+  readonly onAdminClick?: () => void;
+  readonly userRole?: string;
 }
 
 /** What the header calls each section, so the page always says where it is. */
@@ -115,6 +119,7 @@ function RailButton({
 
 function Wordmark() {
   const { open } = useSidebar();
+
   return (
     <div className="flex h-12 items-center gap-2.5 px-3">
       <img
@@ -151,7 +156,15 @@ export default function DashboardShell({
   accountName,
   accountTag,
   onEditProfileClick,
+
+  onAdminClick,
+  userRole,
 }: Readonly<DashboardShellProps>) {
+  const isAdmin =
+    userRole?.toLowerCase() === "admin" ||
+    userRole?.toLowerCase() === "super admin" ||
+    userRole?.toLowerCase() === "superadmin";
+
   return (
     <div className="flex min-h-screen w-full bg-vp-canvas font-beaufort text-vp-ink">
       <Sidebar open={sidebarOpen} setOpen={onSidebarToggle}>
@@ -186,6 +199,14 @@ export default function DashboardShell({
               active={activeSection === "replay"}
               onClick={onReplayClick}
             />
+
+            {isAdmin ? (
+              <RailButton
+                label="Admin Panel"
+                icon={<Shield className={RAIL_ICON} strokeWidth={1.7} />}
+                onClick={onAdminClick}
+              />
+            ) : null}
 
             {/* Log out sits in the same landmark as the destinations: it is how
                 you leave the dashboard, and the rail is where you look for it. */}
@@ -249,6 +270,7 @@ export default function DashboardShell({
                 ) : null}
               </div>
             ) : null}
+
             <UserAccountMenu
               onProfileClick={onProfileClick}
               onEditProfileClick={onEditProfileClick}

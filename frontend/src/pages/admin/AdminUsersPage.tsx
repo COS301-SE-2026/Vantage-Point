@@ -86,6 +86,7 @@ export default function AdminUsersPage() {
           role: roleFilter || undefined,
           status: statusFilter || undefined,
         });
+        console.log("Sample user:", res.items[0]);
         if (!cancelled) {
           setAllUsers(res.items);
           setPage(1);
@@ -178,16 +179,16 @@ export default function AdminUsersPage() {
 
   return (
     <AdminShell>
-      <h1 className="mb-4 font-['League',sans-serif] text-2xl font-bold uppercase text-black">
+      <h1 className="mb-4 font-['League',sans-serif] text-2xl font-bold uppercase text-black device-dark:text-white">
         User Management
       </h1>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2 device-dark:border-[#929292] device-dark:bg-[#2a2a2a]">
         <div className="flex flex-wrap gap-2">
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value as AppRole | "")}
-            className="rounded-full border border-[#a9b4be] bg-white px-2 py-1 text-xs text-[#2e4258]"
+            className="rounded-full border border-[#a9b4be] bg-white px-2 py-1 text-xs text-[#2e4258] device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-[#e5e5e5]"
           >
             <option value="">Role</option>
             {ROLES.map((r) => (
@@ -199,7 +200,7 @@ export default function AdminUsersPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as UserStatus | "")}
-            className="rounded-full border border-[#a9b4be] bg-white px-2 py-1 text-xs text-[#2e4258]"
+            className="rounded-full border border-[#a9b4be] bg-white px-2 py-1 text-xs text-[#2e4258] device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-[#e5e5e5]"
           >
             <option value="">Status</option>
             {STATUSES.map((s) => (
@@ -214,14 +215,14 @@ export default function AdminUsersPage() {
             type="button"
             onClick={handleExport}
             disabled={allUsers.length === 0}
-            className="flex items-center gap-1 rounded-full border border-[#a9b4be] bg-white px-3 py-1 text-xs text-[#2e4258] disabled:opacity-50"
+            className="flex items-center gap-1 rounded-full border border-[#a9b4be] bg-white px-3 py-1 text-xs text-[#2e4258] disabled:opacity-50 device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-[#e5e5e5]"
           >
             Export
           </button>
           <button
             type="button"
             onClick={() => setRegisterOpen(true)}
-            className="flex items-center gap-1 rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1 text-xs font-medium text-[#f3f8ff]"
+            className="flex items-center gap-1 rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1 text-xs font-medium text-[#f3f8ff] device-dark:border-[#929292] device-dark:bg-[#2c2c2c] device-dark:text-[#f5f5f5]"
           >
             + Register User
           </button>
@@ -229,15 +230,15 @@ export default function AdminUsersPage() {
       </div>
 
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
-      <p className="mt-2 text-[11px] text-[#757575]">
-        Role shows "Unknown" until assigned this session, because the backend
-        does not expose existing group membership yet.
+      <p className="mt-2 text-[11px] text-[#757575] device-dark:text-[#929292]">
+        Role shows "Unknown" until assigned this session — the backend doesn't
+        expose existing group membership yet.
       </p>
 
-      <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-b-lg bg-white shadow-sm device-dark:bg-[#2a2a2a]">
         <table className="w-full min-w-[800px] text-xs">
           <thead>
-            <tr className="border-b border-[#d9ebfe]">
+            <tr className="border-b border-[#d9ebfe] device-dark:border-[#3a3939]">
               {[
                 "Username",
                 "Email",
@@ -249,7 +250,7 @@ export default function AdminUsersPage() {
               ].map((col) => (
                 <th
                   key={col}
-                  className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575]"
+                  className="px-3 py-2 text-left text-[9px] font-medium uppercase text-[#757575] device-dark:text-[#929292]"
                 >
                   {col}
                 </th>
@@ -261,7 +262,7 @@ export default function AdminUsersPage() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-3 py-6 text-center text-[#757575]"
+                  className="px-3 py-6 text-center text-[#757575] device-dark:text-[#929292]"
                 >
                   Loading users…
                 </td>
@@ -271,7 +272,7 @@ export default function AdminUsersPage() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-3 py-6 text-center text-[#757575]"
+                  className="px-3 py-6 text-center text-[#757575] device-dark:text-[#929292]"
                 >
                   No users found.
                 </td>
@@ -285,10 +286,14 @@ export default function AdminUsersPage() {
               return (
                 <tr
                   key={u.username}
-                  className="border-b border-gray-200 hover:bg-gray-50"
+                  className="border-b border-gray-200 hover:bg-gray-50 device-dark:border-[#3a3939] device-dark:hover:bg-[#3a3939]"
                 >
-                  <td className="px-3 py-2.5 text-[#3b5571]">{u.username}</td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">{u.email}</td>
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
+                    {u.username}
+                  </td>
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
+                    {u.email}
+                  </td>
                   <td className="px-3 py-2.5">
                     <span
                       className={`inline-block rounded-full px-2 py-0.5 text-[9px] text-white ${STATUS_COLORS[status]}`}
@@ -296,7 +301,7 @@ export default function AdminUsersPage() {
                       {status}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {canEditRole ? (
                       <select
                         value={u.role ?? ""}
@@ -307,7 +312,7 @@ export default function AdminUsersPage() {
                             e.target.value as AppRole,
                           )
                         }
-                        className="rounded border border-gray-300 px-1 py-0.5 text-[10px]"
+                        className="rounded border border-gray-300 px-1 py-0.5 text-[10px] device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-[#e5e5e5]"
                       >
                         <option value="" disabled>
                           Unknown
@@ -322,10 +327,10 @@ export default function AdminUsersPage() {
                       (u.role ?? "Unknown")
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {formatDate(u.user_created_date)}
                   </td>
-                  <td className="px-3 py-2.5 text-[#3b5571]">
+                  <td className="px-3 py-2.5 text-[#3b5571] device-dark:text-[#e5e5e5]">
                     {timeAgo(u.user_last_modified_date)}
                   </td>
                   <td className="px-3 py-2.5">
@@ -334,7 +339,7 @@ export default function AdminUsersPage() {
                         type="button"
                         disabled={isBusy}
                         onClick={() => void handleToggleEnabled(u)}
-                        className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50"
+                        className="rounded-full border border-[#a9b4be] px-2 py-1 text-[10px] text-[#2e4258] disabled:opacity-50 device-dark:border-[#929292] device-dark:text-[#e5e5e5]"
                       >
                         {u.enabled ? "Disable" : "Enable"}
                       </button>
@@ -358,14 +363,16 @@ export default function AdminUsersPage() {
 
       <div className="mt-3 flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[#2e4258]">Rows per page</span>
+          <span className="font-medium text-[#2e4258] device-dark:text-[#e5e5e5]">
+            Rows per page
+          </span>
           <select
             value={pageSize}
             onChange={(e) => {
               setPage(1);
               setPageSize(Number(e.target.value));
             }}
-            className="flex items-center gap-1 rounded-full border border-[#ddd] bg-white px-2 py-1"
+            className="flex items-center gap-1 rounded-full border border-[#ddd] bg-white px-2 py-1 device-dark:border-[#929292] device-dark:bg-[#2a2a2a] device-dark:text-[#e5e5e5]"
           >
             {[10, 25, 50].map((n) => (
               <option key={n} value={n}>
@@ -373,14 +380,16 @@ export default function AdminUsersPage() {
               </option>
             ))}
           </select>
-          <span className="font-medium text-[#2e4258]">of {total} rows</span>
+          <span className="font-medium text-[#2e4258] device-dark:text-[#e5e5e5]">
+            of {total} rows
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <button
             type="button"
             disabled={page === 1}
             onClick={() => setPage(1)}
-            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30"
+            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30 device-dark:hover:bg-[#3a3939]"
           >
             <ChevronsLeft className="size-4" />
           </button>
@@ -388,18 +397,18 @@ export default function AdminUsersPage() {
             type="button"
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30"
+            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30 device-dark:hover:bg-[#3a3939]"
           >
             <ChevronLeft className="size-4" />
           </button>
-          <span className="px-2 font-bold text-[#2e4258]">
+          <span className="px-2 font-bold text-[#2e4258] device-dark:text-[#e5e5e5]">
             {page} / {totalPages}
           </span>
           <button
             type="button"
             disabled={page === totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30"
+            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30 device-dark:hover:bg-[#3a3939]"
           >
             <ChevronRight className="size-4" />
           </button>
@@ -407,7 +416,7 @@ export default function AdminUsersPage() {
             type="button"
             disabled={page === totalPages}
             onClick={() => setPage(totalPages)}
-            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30"
+            className="rounded-full p-1 hover:bg-gray-100 disabled:opacity-30 device-dark:hover:bg-[#3a3939]"
           >
             <ChevronsRight className="size-4" />
           </button>
@@ -459,13 +468,13 @@ function RegisterUserModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg device-dark:bg-[#2a2a2a]">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-['League',sans-serif] text-lg font-bold text-black">
+          <h2 className="font-['League',sans-serif] text-lg font-bold text-black device-dark:text-white">
             Register user
           </h2>
           <button type="button" onClick={onClose} aria-label="Close">
-            <X className="size-5 text-gray-500" />
+            <X className="size-5 text-gray-500 device-dark:text-[#929292]" />
           </button>
         </div>
         <div className="space-y-3 text-sm">
@@ -475,7 +484,7 @@ function RegisterUserModal({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 device-dark:border-[#929292] device-dark:bg-[#181818] device-dark:text-white"
             />
           </label>
           <label className="block">
@@ -483,7 +492,7 @@ function RegisterUserModal({
             <input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 device-dark:border-[#929292] device-dark:bg-[#181818] device-dark:text-white"
             />
           </label>
           <label className="block">
@@ -492,7 +501,7 @@ function RegisterUserModal({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 device-dark:border-[#929292] device-dark:bg-[#181818] device-dark:text-white"
             />
           </label>
           {error ? <p className="text-red-600">{error}</p> : null}
@@ -501,7 +510,7 @@ function RegisterUserModal({
           type="button"
           disabled={submitting}
           onClick={() => void handleSubmit()}
-          className="mt-5 w-full rounded-full bg-[#2e4258] px-3 py-2 text-sm font-medium text-[#f3f8ff] disabled:opacity-60"
+          className="mt-5 w-full rounded-full bg-[#2e4258] px-3 py-2 text-sm font-medium text-[#f3f8ff] disabled:opacity-60 device-dark:bg-[#2c2c2c] device-dark:text-[#f5f5f5]"
         >
           {submitting ? "Creating…" : "Create user"}
         </button>

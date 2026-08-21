@@ -93,6 +93,10 @@ export default function DashboardPage() {
     navigate("/login", { replace: true });
   };
 
+  const handleAdminClick = useCallback(() => {
+    navigate("/admin");
+  }, [navigate]);
+
   const outletContext: DashboardOutletContext = {
     sidebarOpen,
     profile,
@@ -119,6 +123,8 @@ export default function DashboardPage() {
         onEditProfileClick={
           profile ? () => setEditProfileOpen(true) : undefined
         }
+        userRole={user?.role}
+        onAdminClick={handleAdminClick}
       >
         <Outlet context={outletContext} />
       </DashboardShell>

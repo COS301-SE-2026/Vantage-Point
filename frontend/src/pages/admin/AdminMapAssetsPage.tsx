@@ -6,19 +6,19 @@ export default function AdminMapAssetsPage() {
     <AssetManagerPage
       title="Map Assets"
       idLabel="Map ID"
-      idPlaceholder="summoners_rift"
+      idPlaceholder="11"
       namePlaceholder="Summoner's Rift"
       load={async () =>
         (await listMapAssets()).map((m) => ({
-          id: m.map_id,
+          id: String(m.map_id),
           displayName: m.display_name,
           imageUrl: m.image_url,
         }))
       }
       upload={async (id, name, file) => {
-        const created = await uploadMapAsset(id, name, file);
+        const created = await uploadMapAsset(Number(id), name, file);
         return {
-          id: created.map_id,
+          id: String(created.map_id),
           displayName: created.display_name,
           imageUrl: created.image_url,
         };
