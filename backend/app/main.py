@@ -163,7 +163,7 @@ app = FastAPI(
 
 # Registered BEFORE the CORS middleware on purpose, and the order is load-bearing.
 # `add_middleware` inserts at the front of the stack, so whatever is added last ends up
-# outermost — this has to be added first to sit *inside* CORS.
+# outermost, so this has to be added first to sit *inside* CORS.
 #
 # Why it exists at all: an unhandled exception would otherwise be caught by Starlette's
 # ServerErrorMiddleware, which wraps the whole stack including CORS. Its 500 never passes
@@ -251,7 +251,7 @@ async def validation_exception_handler(
 
 
 # A backstop only. `log_errors_middleware` turns almost everything into a response before
-# it reaches here; this catches the rest — anything raised outside the middleware stack.
+# it reaches here; this catches the rest: anything raised outside the middleware stack.
 # Starlette installs it on ServerErrorMiddleware, above CORS, so a response it produces
 # reaches the browser without CORS headers.
 @app.exception_handler(Exception)

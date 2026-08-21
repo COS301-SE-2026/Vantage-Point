@@ -1,7 +1,7 @@
 """Pulls a player's recent matches from Riot and persists them locally.
 
 `/api/v1/matches`, the match-detail scoreboard and the profile radar all read the
-`Matches` / `Participants` tables — before this module existed only `scripts/seed.sh`
+`Matches` / `Participants` tables. Before this module existed only `scripts/seed.sh`
 ever wrote to them, so a real account that linked a Riot ID saw an empty dashboard.
 
 Rows are written in exactly the shape the seed produces so the read side needs no
@@ -9,7 +9,7 @@ special-casing:
 
 * one `Matches` row per match, with `detail_json` holding the full two-team scoreboard
   (`app.services.match_detail` reads that blob),
-* one `Participants` row for the linked player only — the other nine players live inside
+* one `Participants` row for the linked player only, since the other nine players live inside
   `detail_json`, which is what the seed does and what avoids inventing `GameAccounts`
   rows for strangers,
 * derived `UserAchievements` / `UserFeaturedGames` for the profile page.
@@ -470,7 +470,7 @@ def _efficiency_score(
     """Single headline number for the featured-game card.
 
     Weighted so a solid game (3.8 KDA, 60% KP, 7 CS/min) lands near 110, which is where
-    the design's sample sits — it is a composite of the three rates the radar already
+    the design's sample sits. It is a composite of the three rates the radar already
     tracks, not a Riot-supplied rating.
     """
     return round(avg_kda * 15 + kill_participation_pct * 0.4 + cs_per_minute * 4)

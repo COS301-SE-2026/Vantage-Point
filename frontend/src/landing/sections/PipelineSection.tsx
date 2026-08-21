@@ -40,7 +40,7 @@ export default function PipelineSection() {
             </span>
           </>
         }
-        description="FastAPI, PostgreSQL, scikit-learn and D3 — four stages between a finished match and a thing you can change."
+        description="FastAPI, PostgreSQL, scikit-learn and D3: four stages between a finished match and a thing you can change."
       />
     </section>
   );

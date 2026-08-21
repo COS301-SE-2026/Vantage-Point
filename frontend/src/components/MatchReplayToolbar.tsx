@@ -199,7 +199,7 @@ function ActionIcon({ kind }: Readonly<{ kind: ActionIconKind }>) {
 }
 
 /**
- * Figma 26:918 — Table Cell, 190×55, rounded 10, #DADADA (selected #DFE9FF);
+ * Figma 26:918: Table Cell, 190×55, rounded 10, #DADADA (selected #DFE9FF);
  * on the dark page (26:1088 / 26:1104) that reads #2a2a2a, selected #4b5e8b.
  */
 function PlayerRow({
@@ -260,8 +260,8 @@ export default function MatchReplayToolbar({
   const expanded = horizontal || mode === "expanded";
 
   /**
-   * Across the bar the label decides the floor — wide enough to read at 12px when it is
-   * shown, a comfortable target around the 20px glyph when it is not — and `flex-1`
+   * Across the bar the label decides the floor: wide enough to read at 12px when it is
+   * shown, a comfortable target around the 20px glyph when it is not. Then `flex-1`
    * grows every button from there so they divide the width between them. Down the rail
    * the widths are fixed, because there is no spare width to divide.
    */
@@ -274,7 +274,7 @@ export default function MatchReplayToolbar({
       }`;
   const buttonHeight = horizontal ? BAR_BUTTON_HEIGHT : ROW_HEIGHT;
 
-  /** Figma 55:799 vs 55:628 — the collapsed rail's buttons run one shade lighter. */
+  /** Figma 55:799 vs 55:628: the collapsed rail's buttons run one shade lighter. */
   const restClass = "bg-vp-raised";
   /** The dark page has no pressed state, so the active step is ours to pick. */
   const pressedClass = horizontal ? "bg-vp-gold/15" : "bg-vp-raised";
@@ -372,7 +372,7 @@ export default function MatchReplayToolbar({
       </aside>
 
       {playersOpen ? (
-        /* Figma "Player list" 26:1007 — floats beside the rail, over the map. From a top
+        /* Figma "Player list" 26:1007 floats beside the rail, over the map. From a top
            bar it drops out of the bar's left edge instead; anchoring it to the bar
            rather than to the button keeps it put when the row wraps. */
         <aside

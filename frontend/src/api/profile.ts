@@ -13,7 +13,7 @@ import type {
 import { apiFetch } from "./client";
 
 const PROFILE_IMAGE_KEYS: Record<string, string> = {
-  /** Figma 14:533 — the cover art on the profile's featured-game card. */
+  /** Figma 14:533: the cover art on the profile's featured-game card. */
   league_of_legends_cover: leagueOfLegendsCover,
   league_of_legends_card: leagueOfLegendsCover,
   league_wild_rift_cover: leagueWildRiftCover,

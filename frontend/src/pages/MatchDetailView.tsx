@@ -161,7 +161,7 @@ function ParticipantRow({ player }: Readonly<{ player: ParticipantDetail }>) {
     >
       <td className="py-0 pl-3 pr-2">
         <div className="flex items-center gap-2.5">
-          {/* The viewer's own line is marked with a gold rule, not a fill —
+          {/* The viewer's own line is marked with a gold rule, not a fill, so
               the row still reads as part of the same table. */}
           <span
             aria-hidden

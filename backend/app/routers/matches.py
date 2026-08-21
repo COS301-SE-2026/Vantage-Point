@@ -104,7 +104,7 @@ async def sync_matches(
 async def _assert_match_access(
     session: AsyncSession, cognito_sub: str, match_id: str
 ) -> None:
-    """404 rather than 403 — whether a match exists is itself not the caller's business."""
+    """404 rather than 403: whether a match exists is itself not the caller's business."""
     puuids = await get_linked_puuids(session, cognito_sub)
     if not await user_has_match_access(session, puuids, match_id):
         raise HTTPException(

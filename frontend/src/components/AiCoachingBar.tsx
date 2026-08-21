@@ -11,7 +11,7 @@ interface AiCoachingBarProps {
 }
 
 /**
- * Figma "AI Coaching bar" 32:690 — the rail of tips beside the Map Analysis minimap.
+ * Figma "AI Coaching bar" 32:690: the rail of tips beside the Map Analysis minimap.
  *
  * Figma drew it on the light frame, with a #DADADA rule and three 150x157.5 cards
  * on a fixed rhythm. The dashboard is always dark now, so the rule is the shared

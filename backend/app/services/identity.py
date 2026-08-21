@@ -90,7 +90,7 @@ async def ensure_user(
     """Fetch the `Users` row for an email, creating it if this is a first sign-in.
 
     The row is keyed by email rather than by the Cognito sub so that an account which
-    already exists locally keeps working after a Cognito pool is rebuilt — the local
+    already exists locally keeps working after a Cognito pool is rebuilt. The local
     primary key stays the token subject either way.
     """
     normalized = email.strip().lower()
@@ -154,7 +154,7 @@ async def _register_with_cognito(
 ) -> str | None:
     """Best-effort Cognito sign-up. Returns the Cognito sub when AWS hands one back.
 
-    A Cognito outage or a missing AWS credential must not block registration — the local
+    A Cognito outage or a missing AWS credential must not block registration: the local
     bcrypt hash is enough to sign in with, so failures here are logged and swallowed.
     """
     from app.services import auth_service

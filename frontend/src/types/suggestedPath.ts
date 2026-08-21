@@ -3,7 +3,7 @@
  * replay draws the route they actually walked.
  *
  * PROVISIONAL: the backend endpoint does not exist yet. This mirrors what the pieces
- * already in the backend can produce — `pred_engine/ai_caller.get_knn_output` returns a
+ * already in the backend can produce: `pred_engine/ai_caller.get_knn_output` returns a
  * list of `[x, y]` map coordinates, one per timeline frame, and the frames it is fed
  * come from `/analytics/map_suggest_data/{match_id}`, which carries their timestamps.
  * Confirm the field names with whoever builds the route before treating this as fixed.

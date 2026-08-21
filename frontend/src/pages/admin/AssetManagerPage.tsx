@@ -105,7 +105,7 @@ export default function AssetManagerPage({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1.5 text-xs font-medium text-[#f3f8ff] disabled:opacity-60 
+          className="rounded-full border border-[#c7c8c9] bg-[#2e4258] px-3 py-1.5 text-xs font-medium text-[#f3f8ff] disabled:opacity-60
           device-dark:border-[#929292] device-dark:bg-[#2c2c2c] device-dark:text-[#f5f5f5]"
         >
           {submitting ? "Uploading…" : "Upload"}

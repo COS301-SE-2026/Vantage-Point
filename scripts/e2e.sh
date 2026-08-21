@@ -19,7 +19,7 @@ Usage: ./scripts/e2e.sh [options] [-- <playwright args>]
 
 Runs the Playwright end-to-end suite against the frontend in Chromium. Every
 backend call is answered from fixtures in frontend/e2e/fixtures, so no backend,
-database or Riot API key is needed — and nothing you run here touches your dev
+database or Riot API key is needed, and nothing you run here touches your dev
 database.
 
   --ui        Open the interactive Playwright runner instead of a headless run.

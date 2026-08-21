@@ -35,7 +35,7 @@ LOGIN_RESPONSES: dict[int | str, dict[str, Any]] = {
 
 # The handlers below hold the implementation shared by `/api/auth/*` and `/api/v1/auth/*`
 # so the two prefixes can never drift apart. They deliberately stay free of routing
-# decorators — each router wraps them with its own path and documentation.
+# decorators, so each router wraps them with its own path and documentation.
 async def register_handler(body: RegisterRequest, session: AsyncSession) -> AuthTokens:
     if body.confirm_password is not None and body.confirm_password != body.password:
         raise HTTPException(

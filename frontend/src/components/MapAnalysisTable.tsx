@@ -3,7 +3,7 @@ import { bootsItemIcon } from "../assets/images/metrics";
 import { itemIconUrl } from "../lib/ddragon";
 
 /**
- * A cell pair inside one column — Figma "ParticipantRow" 32:669: a 102px label
+ * A cell pair inside one column, from Figma "ParticipantRow" 32:669: a 102px label
  * cell ruled on its left edge, then a 51px value cell. Kept as a 2:1 flex ratio
  * so the five columns share whatever width the region gives them.
  */
@@ -19,10 +19,10 @@ export interface MapAnalysisRow {
   readonly teamValue: string;
   readonly playerLabel: string;
   readonly playerValue: string;
-  /** The ability in this slot, named — "Q · Switcheroo!" rather than "SkillSlot_1". */
+  /** The ability in this slot, named "Q · Switcheroo!" rather than "SkillSlot_1". */
   readonly skillLabel: string;
   readonly skillValue: string;
-  /** The item in this slot, named — "Infinity Edge" rather than "Item_1". */
+  /** The item in this slot, named "Infinity Edge" rather than "Item_1". */
   readonly itemLabel: string;
   readonly itemId: number;
   readonly objectiveLabel: string;
@@ -77,7 +77,7 @@ function ValueCell({ children }: Readonly<{ children: ReactNode }>) {
   );
 }
 
-/** Figma "ItemImage" 32:824 — a 45×45 tile ruled #0056B9 inside the 51px cell. */
+/** Figma "ItemImage" 32:824: a 45×45 tile ruled #0056B9 inside the 51px cell. */
 function ItemCell({
   itemId,
   itemName,
@@ -106,11 +106,11 @@ function ItemCell({
 }
 
 /**
- * Figma "MapReplayStats" 32:426 — 785×345 panel on #F0F0F0 wrapping the
+ * Figma "MapReplayStats" 32:426: 785×345 panel on #F0F0F0 wrapping the
  * 765×325 "Table Body" (32:512): a 30px header rule then 55px rows on a 2px gap.
  *
  * The transport used to take over the Skills column of the last row, which cost
- * that row its ability. It is its own bar now — see `MapReplayTransport` — so all
+ * that row its ability. It is its own bar now (see `MapReplayTransport`), so all
  * five slots are on the table.
  */
 export default function MapAnalysisTable({

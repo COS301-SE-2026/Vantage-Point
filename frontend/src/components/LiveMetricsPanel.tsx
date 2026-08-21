@@ -31,7 +31,7 @@ function StatTile({
 
 /**
  * Averages over the account's most recent games, read live from Riot by
- * `GET /api/v1/users/me/live-metrics` rather than from the stored match copy —
+ * `GET /api/v1/users/me/live-metrics` rather than from the stored match copy,
  * so the numbers here can be fresher than the match list below them.
  */
 export default function LiveMetricsPanel({

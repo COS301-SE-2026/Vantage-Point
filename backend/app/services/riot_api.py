@@ -12,7 +12,7 @@ from app.services.riot_service import get_region
 
 load_dotenv()
 
-# Account API routing clusters (try in order — EU accounts need `europe`, not `americas`)
+# Account API routing clusters (try in order; EU accounts need `europe`, not `americas`)
 
 
 async def _get_platform(cognito_sub: str, session: AsyncSession) -> None | str:

@@ -1,8 +1,8 @@
 /**
  * Skip glyphs, drawn rather than exported: a bar and a triangle need no asset.
  *
- * Both replay transports use them — the row over the map on the replay screen and
- * the one under the analysis table — so the same step reads the same on both.
+ * Both replay transports use them (the row over the map on the replay screen and
+ * the one under the analysis table) so the same step reads the same on both.
  */
 export default function ReplayStepIcon({
   direction,

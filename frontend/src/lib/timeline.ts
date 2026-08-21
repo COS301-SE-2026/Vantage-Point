@@ -218,7 +218,7 @@ export interface ObjectiveTally {
 
 /**
  * Riot reports a `BUILDING_KILL` against the team that *lost* the building, and an
- * `ELITE_MONSTER_KILL` for the team that took it — so buildings count when the team id
+ * `ELITE_MONSTER_KILL` for the team that took it, so buildings count when the team id
  * is the other side's, monsters when it is this one's.
  */
 export function objectivesAt(

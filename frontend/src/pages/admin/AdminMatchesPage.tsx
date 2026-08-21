@@ -85,7 +85,8 @@ export default function AdminMatchesPage() {
       </h1>
       <p className="mb-4 text-xs text-[#757575] device-dark:text-[#929292]">
         No Figma frame exists for this section yet ("Data Ingestion" was still a
-        blank shell) — styled to match Users/Dashboard in the meantime.
+        blank shell), so this is styled to match Users/Dashboard in the
+        meantime.
       </p>
 
       <div className="mb-3 flex flex-wrap items-end gap-3 rounded-t-lg border-b border-[#b3b6bc] bg-[#f9fafb] px-3 py-2 device-dark:border-[#929292] device-dark:bg-[#2a2a2a]">

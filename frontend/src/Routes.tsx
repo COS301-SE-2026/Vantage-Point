@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
+import HelpPage from "./pages/HelpPage";
 import LinkRiotPage from "./pages/LinkRiotPage";
 import LoadingPage from "./pages/LoadingPage";
 import LoginPage from "./pages/LoginPage";
@@ -19,8 +20,8 @@ import AdminMatchesPage from "./pages/admin/AdminMatchesPage";
 import AdminMapAssetsPage from "./pages/admin/AdminMapAssetsPage";
 import AdminChampionAssetsPage from "./pages/admin/AdminChampionAssetsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
-import HelpPage from "./pages/HelpPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import StyleGuidePage from "./pages/StyleGuidePage";
 
 export const router = createBrowserRouter([
   {
@@ -39,7 +40,10 @@ export const router = createBrowserRouter([
     path: "/verify-email",
     Component: VerifyEmailPage,
   },
-
+  {
+    path: "/style-guide",
+    Component: StyleGuidePage,
+  },
   {
     element: <AdminRoute />,
     children: [

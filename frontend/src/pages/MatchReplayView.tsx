@@ -95,7 +95,7 @@ export default function MatchReplayView() {
         {error ? <p className="text-[16px] text-vp-loss">{error}</p> : null}
 
         {!loading && !error ? (
-          /* Figma "Map view" 26:1008 — 820×557, an 11px gutter under MatchMenu. */
+          /* Figma "Map view" 26:1008: 820×557, an 11px gutter under MatchMenu. */
           <div
             data-name="Map view"
             data-node-id="26:1008"

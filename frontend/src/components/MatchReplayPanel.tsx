@@ -18,7 +18,7 @@ import type { MatchDetail, ParticipantDetail } from "../types/match";
 import type { MatchTimeline } from "../types/timeline";
 
 /**
- * Figma "Map view" 26:1008 — 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel.
+ * Figma "Map view" 26:1008 is 820 wide: 40 toolbar, 10, 516 map, 24, 230 panel.
  * The toolbar is no longer part of that width: it runs across the top now, so the map
  * starts at the left edge and the whole 40 + 10 the rail used to hold goes back into
  * the square. 516 stays the floor, below which the coaching column wraps under the map
@@ -92,7 +92,7 @@ export default function MatchReplayPanel({
       setSelectedPuuids(viewer ? new Set([viewer.puuid]) : new Set());
 
       // The scoreboard is enough to render the screen, so the timeline loads after it
-      // and its absence only costs the map overlay — the backend has to reach Riot for
+      // and its absence only costs the map overlay. The backend has to reach Riot for
       // it the first time any match is opened.
       setTimeline(null);
       setTimelineError(null);

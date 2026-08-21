@@ -8,14 +8,14 @@ import type { AnalysisSnapshot } from "./timeline";
  *
  * Health, Armor, Movement Speed, Level and the skill slots describe per-frame champion
  * state that only the Riot match *timeline* carries. When a snapshot is passed they read
- * the frame at the replay clock; without one — an old match Riot has no timeline for, or
- * before it has loaded — they fall back to NO_VALUE rather than to invented numbers.
+ * the frame at the replay clock; without one (an old match Riot has no timeline for, or
+ * one that has not loaded yet) they fall back to NO_VALUE rather than to invented numbers.
  *
  * Damage, the item slots and the objectives work either way: a snapshot makes them track
  * the clock, and the scoreboard supplies the end-of-game figures otherwise.
  *
- * The Skills and Items columns name what they show. Riot's data carries neither name —
- * an ability is a slot number and an item is an id — so both come from Data Dragon via
+ * The Skills and Items columns name what they show. Riot's data carries neither name:
+ * an ability is a slot number and an item is an id, so both come from Data Dragon via
  * `names`, and fall back to the slot letter and to the bare id when it is unreachable.
  */
 export interface MapAnalysisNames {

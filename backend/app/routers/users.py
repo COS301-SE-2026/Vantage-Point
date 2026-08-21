@@ -211,7 +211,7 @@ async def _link_game_account_impl(
 
     # Pull a first page of matches straight away, otherwise the dashboard the user
     # lands on next has nothing to show. Kept short because each match is its own Riot
-    # round trip and the user is waiting on this response — the "Sync with Riot" button
+    # round trip and the user is waiting on this response. The "Sync with Riot" button
     # on the match list pulls a deeper window. A Riot outage must not undo a successful
     # link, so failures here only get logged.
     imported = await sync_matches_best_effort(
@@ -219,7 +219,7 @@ async def _link_game_account_impl(
     )
     message = f"Successfully linked {tag}"
     if imported and imported["imported"]:
-        message = f"{message} — imported {imported['imported']} recent matches"
+        message = f"{message}, imported {imported['imported']} recent matches"
 
     return LinkGameAccountResponse(
         puuid=puuid,
