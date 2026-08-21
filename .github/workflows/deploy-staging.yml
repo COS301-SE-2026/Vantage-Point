@@ -13,22 +13,19 @@ jobs:
       - name: Checkout repository (Trigger)
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Create Deployment Archive
-        run: |
-          # Package all repository files into a compressed tarball
-          tar -czf release.tar.gz --exclude='.git' --exclude='release.tar.gz' .
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+              # Navigate to the project directory
+              cd Vantage-Point-Staging || exit 1
 
-      - name: Send Package to Webhook
-        run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST \
-            -H "X-Deploy-Token: ${{ secrets.WEBHOOK_TOKEN }}" \
-            --data-binary "@release.tar.gz" \
-            "${{ secrets.WEBHOOK_URL }}")
+              # Pull the latest main branch onto the server
+              git pull origin staging
 
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "Successfully uploaded build payload and triggered deployment."
-          else
-            echo "Deployment webhook failed with HTTP status: $RESPONSE"
-            exit 1
-          fi
+              # Run the deployment script
+              chmod +x .github/workflows/deploy-staging.sh
+              .github/workflows/deploy-staging.sh
