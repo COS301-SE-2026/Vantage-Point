@@ -10,6 +10,13 @@ from typing import Any
 PRED_ENGINE_DIR = Path(__file__).resolve().parent
 DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
 
+# Module-level global declarations for mypy
+champ_rf: Any = None
+item_rf: Any = None
+role_rf: Any = None
+skill_rf: Any = None
+knn_model: Any = None
+
 # make models a global thing for this file or store in db
 
 

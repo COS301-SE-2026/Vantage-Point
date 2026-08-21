@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter
 from app.Models.auth_model import User
 from app.api.auth import require_group
 from typing import Any, Annotated
@@ -27,10 +27,10 @@ async def get_knn_output_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-        data: Any = await live_analytics.map_suggest_data(
-            match_id=match_id, puuid=puuid, session=session
-        )
-        return get_knn_output(data.convert_to_arr())
+    data: Any = await live_analytics.map_suggest_data(
+        match_id=match_id, puuid=puuid, session=session
+    )
+    return get_knn_output(data.convert_to_arr())
 
 
 @router.get(
@@ -43,8 +43,8 @@ async def get_champ_pred_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-        data: Any = await live_analytics.champion_data(match_id=match_id, puuid=puuid)
-        return get_champ_pred(data)
+    data: Any = await live_analytics.champion_data(match_id=match_id, puuid=puuid)
+    return get_champ_pred(data)
 
 
 @router.get(
@@ -73,9 +73,8 @@ async def get_role_pred_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-        data: Any = await live_analytics.role_data(match_id=match_id, puuid=puuid)
-        return get_role_pred(data)
-
+    data: Any = await live_analytics.role_data(match_id=match_id, puuid=puuid)
+    return get_role_pred(data)
 
 
 @router.get(
@@ -88,7 +87,7 @@ async def get_skill_pred_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-        data: Any = await live_analytics.skill_data(
-            match_id=match_id, puuid=puuid, session=session
-        )
-        return get_skill_pred(data.convert_to_arr())
+    data: Any = await live_analytics.skill_data(
+        match_id=match_id, puuid=puuid, session=session
+    )
+    return get_skill_pred(data.convert_to_arr())
