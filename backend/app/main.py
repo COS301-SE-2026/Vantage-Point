@@ -26,7 +26,7 @@ from app.api.router import (
     analytics_router,
     riot_api_routes,
     dashboard_routes,
-    ai_routes
+    ai_routes,
 )
 from app.routers import matches, users
 from app.Models.auth_model import User
@@ -130,7 +130,7 @@ def should_skip_startup_db_init() -> bool:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_models()
-    
+
     if should_skip_startup_db_init():
         print("Database initialization skipped: database host is unavailable here")
         yield

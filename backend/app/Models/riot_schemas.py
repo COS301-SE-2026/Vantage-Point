@@ -71,7 +71,6 @@ class MapSuggestData(BaseModel):
             pp_x = safe_idx(self.position_x, i - 2) if i > 1 else p_x
             pp_y = safe_idx(self.position_y, i - 2) if i > 1 else p_y
 
-            # Trajectory forecast window (x1, y1 through x9, y9 -> 18 features)
             trajectory_features = []
             for step in range(1, 10):
                 trajectory_features.append(safe_idx(self.position_x, i + step))
@@ -118,7 +117,7 @@ class MapSuggestData(BaseModel):
                 safe_idx(self.movementSpeed, i),
                 safe_idx(self.power, i),
                 safe_idx(self.powerMax, i),
-                *trajectory_features
+                *trajectory_features,
             ]
             out_arr.append(row)
 
@@ -404,12 +403,12 @@ class ItemData(BaseModel):
         FRAME_INTERVAL_MS = 60000
         out_arr = []
 
-        def safe_idx(lst: list, idx: int)-> int:
+        def safe_idx(lst: list, idx: int) -> int:
             return lst[max(0, min(idx, len(lst) - 1))]
 
         if not self.itemId:
             return [[0] * 42]
-   
+
         for i in range(0, len(self.itemId)):
             frame_idx: Any = int(self.timestamp[i]) // FRAME_INTERVAL_MS
 

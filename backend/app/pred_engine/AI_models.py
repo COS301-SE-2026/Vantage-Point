@@ -2,7 +2,6 @@ from pathlib import Path
 import json
 import math
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
 
 import app.pred_engine.knn_model as knn  # type: ignore
 import app.pred_engine.rf_model as rf  # type: ignore
@@ -51,6 +50,7 @@ def create_rf_models():
 def create_knn_model():
     knn_models = knn.get_knn(str(TRAINING_CSV_DIR / "knn_training.csv"))
     return knn_models
+
 
 # run functions will call error correctors
 def correct_knn(y_output, y_data):
@@ -157,9 +157,7 @@ def run_rf(rf_model, data, cat):
 
     # pad ragged feature rows to a same length
     max_len = max(len(row) for row in cleaned_x) if cleaned_x else 0
-    padded_x = [
-        row + [0.0] * (max_len - len(row)) for row in cleaned_x
-    ]
+    padded_x = [row + [0.0] * (max_len - len(row)) for row in cleaned_x]
     x_matrix = np.array(padded_x, dtype=np.float64)
 
     if x_matrix.ndim == 1:
@@ -174,7 +172,7 @@ def run_rf(rf_model, data, cat):
             x_matrix = np.pad(
                 x_matrix,
                 ((0, 0), (0, expected_features - x_matrix.shape[1])),
-                mode="constant"
+                mode="constant",
             )
 
     y_output = rf_model.predict(x_matrix)
@@ -188,5 +186,6 @@ def run_rf(rf_model, data, cat):
             y_output = corrected
 
     return y_output
+
 
 # knn models now runs on about 75-80%

@@ -15,17 +15,17 @@ DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
 
 # contains all funtions for frontend to access
 def create_models():
-    # c, i, r, s = ai.create_rf_models()
+    c, i, r, s = ai.create_rf_models()
     k = ai.create_knn_model()
 
-    # global champ_rf
-    # champ_rf = c
-    # global item_rf
-    # item_rf = i
-    # global role_rf
-    # role_rf = r
-    # global skill_rf
-    # skill_rf = s
+    global champ_rf
+    champ_rf = c
+    global item_rf
+    item_rf = i
+    global role_rf
+    role_rf = r
+    global skill_rf
+    skill_rf = s
     global knn_model
     knn_model = k
 
@@ -75,7 +75,7 @@ def get_item_pred(data) -> Any:
     global item_rf
     if not data.itemId:
         return None, None
-    
+
     y_output = ai.run_rf(item_rf, data=data, cat="item")
     item_id = None
     if y_output is None:
@@ -93,21 +93,11 @@ def get_item_pred(data) -> Any:
     return item_name, item_icon
     # name is for AI output, name + icon is for timeline analysis page
 
-POSITION_MAP = {
-    0: "TOP",
-    1: "JUNGLE",
-    2: "MIDDLE",
-    3: "BOTTOM",
-    4: "UTILITY"
-}
 
-LANE_MAP = {
-    0: "TOP",
-    1: "JUNGLE",
-    2:"MIDDLE",
-    3: "BOTTOM",
-    4: "NONE"
-}
+POSITION_MAP = {0: "TOP", 1: "JUNGLE", 2: "MIDDLE", 3: "BOTTOM", 4: "UTILITY"}
+
+LANE_MAP = {0: "TOP", 1: "JUNGLE", 2: "MIDDLE", 3: "BOTTOM", 4: "NONE"}
+
 
 def get_role_pred(data) -> tuple[str | None, str | None]:
     global role_rf
@@ -115,7 +105,7 @@ def get_role_pred(data) -> tuple[str | None, str | None]:
 
     if y_output is None or len(y_output) == 0:
         return None, None
-    
+
     if isinstance(y_output, np.ndarray) and y_output.ndim > 1:
         row = y_output[0]
         raw_pos = row[0].item() if len(row) > 0 and hasattr(row[0], "item") else row[0]
@@ -139,9 +129,7 @@ def get_champ_pred(data) -> Any:
         data_file = json.load(file)
 
     y_output = ai.run_rf(champ_rf, data, "champion")
-    # gives champId
 
-    # returns none if output is same as player champId or is invalid
     if y_output is None:
         return None
     else:
@@ -149,7 +137,6 @@ def get_champ_pred(data) -> Any:
         for i in data_file:
             if data_file[i]["id"] == y_output:
                 champName = i
-        # returns none if output is same as player champId
         return champName
 
 
@@ -157,7 +144,6 @@ def get_knn_output(data):
     global knn_model
     y_output, _ = ai.run_knn(knn_model, data)
 
-    # y_output is a list on np arrays right now
     y_list = []
     for i in y_output:
         coord = []
