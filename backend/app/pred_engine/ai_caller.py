@@ -3,6 +3,7 @@ from pathlib import Path
 
 import app.pred_engine.AI_models as ai  # type: ignore
 
+import numpy as np
 from typing import Any
 
 # Define directory constants relative to this file
@@ -92,18 +93,41 @@ def get_item_pred(data) -> Any:
     return item_name, item_icon
     # name is for AI output, name + icon is for timeline analysis page
 
+POSITION_MAP = {
+    0: "TOP",
+    1: "JUNGLE",
+    2: "MIDDLE",
+    3: "BOTTOM",
+    4: "UTILITY"
+}
 
-def get_role_pred(data) -> Any:
+LANE_MAP = {
+    0: "TOP",
+    1: "JUNGLE",
+    2:"MIDDLE",
+    3: "BOTTOM",
+    4: "NONE"
+}
+
+def get_role_pred(data) -> tuple[str | None, str | None]:
     global role_rf
     y_output = ai.run_rf(role_rf, data, "role")
-    # gives teampos, lane
 
-    pos, lane = None, None
-    if y_output is None:
+    if y_output is None or len(y_output) == 0:
         return None, None
+    
+    if isinstance(y_output, np.ndarray) and y_output.ndim > 1:
+        row = y_output[0]
+        raw_pos = row[0].item() if len(row) > 0 and hasattr(row[0], "item") else row[0]
+        raw_lane = row[1].item() if len(row) > 1 and hasattr(row[1], "item") else row[1]
+    elif len(y_output) > 2:
+        raw_pos = y_output[0].item() if hasattr(y_output[0], "item") else y_output[0]
+        raw_lane = y_output[1].item() if hasattr(y_output[1], "item") else y_output[1]
     else:
-        pos = y_output[0]
-        lane = y_output[1]
+        return None, None
+
+    pos = POSITION_MAP.get(int(raw_pos), str(raw_pos)) if raw_pos is not None else None
+    lane = LANE_MAP.get(int(raw_lane), str(raw_lane)) if raw_lane is not None else None
 
     return pos, lane
 

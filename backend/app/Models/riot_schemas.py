@@ -59,6 +59,12 @@ class MapSuggestData(BaseModel):
         # returns a 2D array of object contents
         out_arr = []
         p_x, p_y, pp_x, pp_y = 0, 0, 0, 0
+
+        def safe_idx(lst: list, idx: int):
+            if not isinstance(lst, list) or not lst:
+                return 0
+            return lst[max(0, min(idx, len(lst) - 1))]
+        
         for i in range(0, len(self.position_x)):
             row = [
                 self.position_x[i],
@@ -66,7 +72,7 @@ class MapSuggestData(BaseModel):
                 self.team_position,
                 self.lane,
                 self.role,
-                self.timestamp[i],
+                safe_idx(self.timestamp, i),
                 p_x,
                 p_y,
                 pp_x,
@@ -80,28 +86,28 @@ class MapSuggestData(BaseModel):
                 self.killingSprees,
                 self.kills,
                 self.visionScore,
-                self.jungleMinionsKilled[i],
-                self.level[i],
-                self.minionsKilled[i],
-                self.timeEnemySpentControlled[i],
-                self.xp[i],
-                self.totalDamageDone[i],
-                self.totalDamageDoneToChampions[i],
-                self.totalDamageTaken[i],
-                self.abilityHaste[i],
-                self.abilityPower[i],
-                self.armor[i],
-                self.attackDamage[i],
-                self.attackSpeed[i],
-                self.ccReduction[i],
-                self.cooldownReduction[i],
-                self.health[i],
-                self.health_max[i],
-                self.health_regen[i],
-                self.lifesteal[i],
-                self.movementSpeed[i],
-                self.power[i],
-                self.powerMax[i],
+                safe_idx(self.jungleMinionsKilled, i),
+                safe_idx(self.level, i),
+                safe_idx(self.minionsKilled, i),
+                safe_idx(self.timeEnemySpentControlled, i),
+                safe_idx(self.xp, i),
+                safe_idx(self.totalDamageDone, i),
+                safe_idx(self.totalDamageDoneToChampions, i),
+                safe_idx(self.totalDamageTaken, i),
+                safe_idx(self.abilityHaste, i),
+                safe_idx(self.abilityPower, i),
+                safe_idx(self.armor, i),
+                safe_idx(self.attackDamage, i),
+                safe_idx(self.attackSpeed, i),
+                safe_idx(self.ccReduction, i),
+                safe_idx(self.cooldownReduction, i),
+                safe_idx(self.health, i),
+                safe_idx(self.health_max, i),
+                safe_idx(self.health_regen, i),
+                safe_idx(self.lifesteal, i),
+                safe_idx(self.movementSpeed, i),
+                safe_idx(self.power, i),
+                safe_idx(self.powerMax, i),
             ]
             pp_x = p_x
             pp_y = p_y
@@ -394,7 +400,9 @@ class ItemData(BaseModel):
         def safe_idx(lst: list, idx: int)-> int:
             return lst[max(0, min(idx, len(lst) - 1))]
 
-        
+        if not self.itemId:
+            return [[0] * 42]
+   
         for i in range(0, len(self.itemId)):
             frame_idx: Any = int(self.timestamp[i]) // FRAME_INTERVAL_MS
 

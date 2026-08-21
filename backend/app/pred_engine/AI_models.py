@@ -1,10 +1,12 @@
-import app.pred_engine.knn_model as knn  # type: ignore
-import app.pred_engine.rf_model as rf  # type: ignore
-from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 from pathlib import Path
 import json
 import math
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+
+import app.pred_engine.knn_model as knn  # type: ignore
+import app.pred_engine.rf_model as rf  # type: ignore
+from app.pred_engine.Data_Converter.src import Converter_Main as converter  # type: ignore
 
 # Define directory constants relative to this file
 PRED_ENGINE_DIR = Path(__file__).resolve().parent
@@ -142,18 +144,49 @@ def run_knn(knn_model, data):
 
 
 def run_rf(rf_model, data, cat):
-    # data parameter comes from api
-    # cat is "champion", "item", "skill", "role"
     x_data, y_data = converter.format_api_data_rf(data, cat)
 
-    y_output = rf_model.predict(x_data)
-    match cat:
-        case "champion":
-            y_output = correct_champion_rf(y_output, y_data)
-        case "role":
-            y_output = correct_role_rf(y_output, y_data, x_data)
+    # Flatten nested elements and normalize list items
+    cleaned_x = []
+    for sample in x_data:
+        if isinstance(sample, (list, tuple, np.ndarray)):
+            flat_sample = np.array(sample, dtype=object).flatten().tolist()
+        else:
+            flat_sample = [sample]
+        cleaned_x.append(flat_sample)
+
+    # Pad ragged feature rows to a uniform width
+    max_len = max(len(row) for row in cleaned_x) if cleaned_x else 0
+    padded_x = [
+        row + [0.0] * (max_len - len(row)) for row in cleaned_x
+    ]
+    x_matrix = np.array(padded_x, dtype=np.float64)
+
+    if x_matrix.ndim == 1:
+        x_matrix = x_matrix.reshape(1, -1)
+
+    # Align input feature dimensions with the loaded Random Forest model
+    expected_features = getattr(rf_model, "n_features_in_", None)
+    if expected_features is not None:
+        if x_matrix.shape[1] > expected_features:
+            x_matrix = x_matrix[:, :expected_features]
+        elif x_matrix.shape[1] < expected_features:
+            x_matrix = np.pad(
+                x_matrix,
+                ((0, 0), (0, expected_features - x_matrix.shape[1])),
+                mode="constant"
+            )
+
+    y_output = rf_model.predict(x_matrix)
+
+    # Apply category-specific adjustments
+    if cat == "champion":
+        y_output = correct_champion_rf(y_output, y_data)
+    elif cat == "role":
+        corrected = correct_role_rf(y_output, y_data, x_matrix)
+        if corrected is not None:
+            y_output = corrected
 
     return y_output
-
 
 # knn models now runs on about 75-80%
