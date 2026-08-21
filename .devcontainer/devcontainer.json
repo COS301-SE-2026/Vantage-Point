@@ -2,7 +2,7 @@
   // ANCHOR - script must have LF line endings to work in the container, so make sure to configure your editor to use LF for this file. IT SHOULD NOT BE CRLF.
   "name": "Vantage Point",
   // dockerComposeFile tells VS Code to use Compose instead of building a single container.
-  // 'image' and 'dockerComposeFile' are mutually exclusive — don't use both.
+  // 'image' and 'dockerComposeFile' are mutually exclusive; don't use both.
   // @NeoMachabaUP  : i am still figuring out how this differs dockerfile to a focus on dev container, but for now we are using docker compose to build the dev container and run the app in it.
 
    // services (app + db). A standalone Dockerfile would only give you one container.

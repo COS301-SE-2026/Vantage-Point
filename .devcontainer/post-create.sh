@@ -4,12 +4,12 @@ set -e  # stop the script immediately if any command fails
 # Install postgres client tools so we can run pg_isready and psql from inside the container
 sudo apt-get update -qq && sudo apt-get install -y postgresql-client
  
-# Backend — install Python dependencies
+# Backend: install Python dependencies
 cd /workspaces/backend
 pip install -r requirements.txt
 pip install -r requirements-dev.txt 
  
-# Frontend — install Node dependencies
+# Frontend: install Node dependencies
 sudo chown -R 1000:1000 "/home/vscode/.npm" 2>/dev/null || true
 # rm -rf /workspaces/frontend/node_modules
 cd /workspaces/frontend
