@@ -85,7 +85,7 @@ export interface MockState {
   credentials: { email: string; password: string };
   accessToken: string;
   refreshToken: string;
-  /** Bearer values that answer 401 — drives the refresh-and-retry path. */
+  /** Bearer values that answer 401, driving the refresh-and-retry path. */
   revokedAccessTokens: Set<string>;
   /** Riot ids the fake Riot lookup refuses to resolve. */
   unknownRiotIds: Set<string>;
@@ -110,7 +110,7 @@ const ONE_PIXEL_PNG = Buffer.from(
  * Data Dragon's static name files, cut down to what the fixtures reference.
  *
  * The analysis table names the ability and item in every slot, and Riot's match
- * data carries neither — only the slot number and the item id — so a spec that
+ * data carries neither, only the slot number and the item id, so a spec that
  * asserts on those names needs the CDN to answer with JSON, not with a pixel.
  */
 const DDRAGON_ITEM_NAMES: Record<string, string> = {
@@ -361,7 +361,7 @@ export class ApiMock {
   private buildRoutes(): RouteEntry[] {
     return [
       // Cognito sign-up and sign-in take their arguments as query parameters on
-      // unversioned paths — see backend/app/api/router/auth_routes.py. The JSON
+      // unversioned paths. See backend/app/api/router/auth_routes.py. The JSON
       // /api/auth/* pair in backend/app/api/routes.py is not mounted, so the
       // client does not call it.
       {
