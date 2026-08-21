@@ -12,9 +12,12 @@ from app.schemas.match import (
     MatchHistorySummaryResponse,
     MatchSyncResponse,
 )
+from app.schemas.suggested_path import SuggestedPathResponse
 from app.schemas.timeline import MatchTimelineResponse
+from app.services.analytics import LiveAnalyticsServiceDep
 from app.services.match_detail import get_match_detail, user_has_match_access
 from app.services.match_history import list_match_history
+from app.services.suggested_path import suggested_path_points
 from app.services.match_ingest import (
     DEFAULT_SYNC_COUNT,
     MAX_SYNC_COUNT,
@@ -175,3 +178,51 @@ async def get_match_timeline(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(exc),
         ) from exc
+
+
+NO_SUGGESTED_PATH = "No recommended path for this match"
+
+
+@router.get(
+    "/{match_id}/suggested-path",
+    response_model=SuggestedPathResponse,
+    summary="The route the coaching model recommends for one player",
+    description=(
+        "Runs the match through the KNN route model and returns the path it would have "
+        "walked instead, a point per timeline frame, in the same map coordinate space "
+        "as `/timeline`. The first point is the player's own starting position, so the "
+        "recommended line and the walked one share an origin and diverge from there."
+    ),
+    responses={
+        404: {
+            "description": (
+                f"{MATCH_NOT_FOUND}, the player did not play in it, or the match is "
+                "too short for the model to read a route from"
+            )
+        },
+    },
+)
+async def get_match_suggested_path(
+    match_id: str,
+    puuid: Annotated[str, Query(description="The player the route is recommended for")],
+    current_user: Annotated[User, Depends(require_group(10))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    analytics: LiveAnalyticsServiceDep,
+):
+    await _assert_match_access(session, current_user.sub, match_id)
+
+    data = await analytics.map_suggest_data(
+        match_id=match_id, puuid=puuid, session=session
+    )
+    points = suggested_path_points(data)
+
+    # A match of one or two frames carries no stride for the model to correct against,
+    # and an empty line drawn under an "AI path" label reads as a broken screen rather
+    # than as an absent recommendation.
+    if not points:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=NO_SUGGESTED_PATH,
+        )
+
+    return SuggestedPathResponse(match_id=match_id, puuid=puuid, points=points)

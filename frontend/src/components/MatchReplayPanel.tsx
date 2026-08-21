@@ -154,7 +154,7 @@ export default function MatchReplayPanel({
 
   // The recommendation is about one player, and the replay is opened from that player's
   // own history, so it follows the viewer rather than the toolbar's selection.
-  const suggested = useSuggestedPath(matchId, viewer?.puuid, timeline);
+  const suggested = useSuggestedPath(matchId, viewer?.puuid);
   const showingSuggestedPath = activeActions.has("suggested-path");
 
   const coachingNotes = useMemo(
@@ -285,11 +285,6 @@ export default function MatchReplayPanel({
                 />
                 AI path
               </span>
-              {suggested.preview ? (
-                <span className="rounded-[6px] bg-black/55 px-[8px] py-[3px] text-right text-[11px] leading-[14px] text-vp-gold">
-                  Preview shape only, not a model prediction
-                </span>
-              ) : null}
               {suggested.loading ? (
                 <span className="rounded-[6px] bg-black/55 px-[8px] py-[3px] text-[11px] text-white/70">
                   Loading recommended path…
