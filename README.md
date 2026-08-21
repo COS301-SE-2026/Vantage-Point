@@ -181,3 +181,4 @@ To ensure a stable and collaborative development workflow, the following strateg
 - **[Coding Standards](.github/docs/Coding_Standards.pdf)** - Sonarqube, Black, and File Structure
 - **[Testing Policy](.github/docs/Testing_Policy.pdf)** - Testing Tools, Environments, and Policy
 - **[API Contracts](.github/docs/API_Contracts.pdf)** - All API endpoints
+- **[User Manual](.github/docs/User_Manual.pdf)** - User manual for Vantage Point website
