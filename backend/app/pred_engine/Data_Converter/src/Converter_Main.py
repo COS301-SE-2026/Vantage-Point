@@ -94,7 +94,10 @@ def format_data_univar(data, pos, role, lane):
                 y[r].append(i)
                 c = c + 1
             else:
-                data_arr[r].append(i)
+                if isinstance(i, (list, tuple)):
+                    data_arr[r].extend(i)
+                else:
+                    data_arr[r].append(i)
                 c = c + 1
         r = r + 1
         prev_row = row
@@ -201,14 +204,31 @@ def get_train_test_data_rf(file_name, category):
 def convert_to_rows(data):
     data_arr = []
 
-    if isinstance(data, list):
-        if not isinstance(data[0], list):  # check if 1D array
-            data_arr.append(data)
+    if not isinstance(data, list):
+        if hasattr(data, "convert_to_arr"):
+            data_arr = data.convert_to_arr()
+        elif hasattr(data, "__dict__") or hasattr(data, "model_dump"):
+            obj_dict = data.model_dump() if hasattr(data, "model_dump") else vars(data)
+            row = []
+            for key, val in obj_dict.items():
+                if isinstance(val, (list, tuple)):
+                    row.extend(val)
+                else:
+                    row.append(val)
+            data_arr.append(row)
+        else:
+            data_arr.append(list(data))
+    else:
+        if len(data) > 0 and not isinstance(data[0], list):
+            row = []
+            for item in data:
+                if isinstance(item, (list, tuple)):
+                    row.extend(item)
+                else:
+                    row.append(item)
+            data_arr.append(row)
         else:
             data_arr = data
-    else:
-        # dataframe
-        data_arr = data.convert_to_arr()
 
     return data_arr
 

@@ -252,7 +252,7 @@ class LiveAnalyticsService:
         frames = _data["info"]["frames"]
         timestamps: list[int] = [frame["timestamp"] for frame in frames]
 
-        for i in range(1, 10):
+        for i in range(1, 11):
             x_values[str(i)] = [
                 frame["participantFrames"][str(i)]["position"]["x"] for frame in frames
             ]
@@ -319,7 +319,7 @@ class LiveAnalyticsService:
             prev_x=map_replay.position_x[paritcipant_id],
             prev_y=map_replay.position_y[paritcipant_id],
             prev_prev_x=map_replay.position_x[paritcipant_id],
-            prev_prev_y=map_replay.position_x[paritcipant_id],
+            prev_prev_y=map_replay.position_y[paritcipant_id],
             champExperience=player["champExperience"],
             champLevel=player["champLevel"],
             championId=player["championId"],
@@ -775,11 +775,12 @@ class LiveAnalyticsService:
                 event
                 for frame in frames
                 for event in frame["events"]
-                if event.get("participantId") == (participant_id)
+                if event.get("participantId") == int(participant_id)
             ]
 
-            event_timestamp = [event["timestamp"] for event in item_events]
-            item_id = [event["itemId"] for event in item_events if "itemId" in event]
+            item_events_only = [e for e in item_events if "itemId" in e]
+            event_timestamp = [event["timestamp"] for event in item_events_only]
+            item_id = [event["itemId"] for event in item_events_only]
 
             damage_stats_data = LiveAnalyticsService.get_damage_stats(
                 frames, participant_id
@@ -806,7 +807,7 @@ class LiveAnalyticsService:
                 totalGold=participant_data.totalGold,
                 xp=participant_data.xp,
                 position_x=map_replay.position_x[participant_id],
-                position_y=map_replay.position_x[participant_id],
+                position_y=map_replay.position_y[participant_id],
                 magicDamageDone=damage_stats_data.magicDamageDone,
                 magicDamageDoneToChampions=damage_stats_data.magicDamageDoneToChampions,
                 magicDamageTaken=damage_stats_data.magicDamageTaken,

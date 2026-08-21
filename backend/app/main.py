@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
+from app.pred_engine.ai_caller import create_models
 
 from app.api.router import (
     admin_routes,
@@ -26,6 +27,7 @@ from app.api.router import (
     analytics_router,
     riot_api_routes,
     dashboard_routes,
+    ai_routes,
     help_routes,
 )
 from app.routers import matches, users
@@ -131,6 +133,8 @@ def should_skip_startup_db_init() -> bool:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    create_models()
+
     if should_skip_startup_db_init():
         print("Database initialization skipped: database host is unavailable here")
         yield
@@ -207,10 +211,11 @@ app.include_router(admin_assets_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
+app.include_router(users.router, prefix="/api/v1")
 app.include_router(dashboard_routes.router)
 app.include_router(help_routes.router)
 # This router declares only "/users"; the frontend calls the versioned path.
-app.include_router(users.router, prefix="/api/v1")
+app.include_router(ai_routes.router)
 app.include_router(admin_router, prefix="/api/v1")
 
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
