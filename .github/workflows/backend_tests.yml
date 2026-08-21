@@ -97,6 +97,9 @@ jobs:
           pip install -r requirements-dev.txt
           pip install -r requirements.txt
 
+      - name: Run tests
+        run: pytest -vv -s --durations=30
+
       - name: Run tests with coverage
         env:
           JWT_SECRET: test-ci-secret
