@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Sequence
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col, select, delete
+from sqlmodel import and_, col, select, delete
 
 from app.database.session import get_session
 
@@ -113,7 +113,7 @@ async def delete_help_article(
 
     # Delete child votes explicitly before deleting parent article
     vote_delete_stmt = delete(HelpArticleVoteModel).where(
-        HelpArticleVoteModel.article_id == article_id
+        col(HelpArticleVoteModel.article_id) == article_id
     )
     await session.execute(vote_delete_stmt)
 
@@ -146,10 +146,12 @@ async def vote_help_article(
     # Convert string literal from schema body to VoteType Enum
     vote_type = VoteType(body.vote_type)
 
-    # Check for existing vote by user identifier
+    # Check for existing vote by user identifier using explicit col() and and_()
     stmt = select(HelpArticleVoteModel).where(
-        HelpArticleVoteModel.article_id == article_id,
-        HelpArticleVoteModel.user_identifier == user_identifier,
+        and_(
+            col(HelpArticleVoteModel.article_id) == article_id,
+            col(HelpArticleVoteModel.user_identifier) == user_identifier,
+        )
     )
     result = await session.execute(stmt)
     existing_vote = result.scalar_one_or_none()
