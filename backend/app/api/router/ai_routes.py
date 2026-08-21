@@ -27,13 +27,10 @@ async def get_knn_output_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-    try:
         data: Any = await live_analytics.map_suggest_data(
             match_id=match_id, puuid=puuid, session=session
         )
         return get_knn_output(data.convert_to_arr())
-    except HTTPException as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -46,11 +43,8 @@ async def get_champ_pred_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-    try:
         data: Any = await live_analytics.champion_data(match_id=match_id, puuid=puuid)
         return get_champ_pred(data)
-    except HTTPException as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -79,11 +73,9 @@ async def get_role_pred_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-    try:
         data: Any = await live_analytics.role_data(match_id=match_id, puuid=puuid)
         return get_role_pred(data)
-    except HTTPException as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get(
@@ -96,10 +88,7 @@ async def get_skill_pred_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     live_analytics: LiveAnalyticsServiceDep,
 ) -> Any:
-    try:
         data: Any = await live_analytics.skill_data(
             match_id=match_id, puuid=puuid, session=session
         )
         return get_skill_pred(data.convert_to_arr())
-    except HTTPException as e:
-        raise HTTPException(status_code=500, detail=str(e))
