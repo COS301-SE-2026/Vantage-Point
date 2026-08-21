@@ -23,17 +23,6 @@ from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
-
-@pytest.fixture(autouse=True, scope="session")
-def mock_aws_credentials():
-    """Mock AWS Credentials globally for botocore/boto3 calls in tests."""
-    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-    os.environ["AWS_SECURITY_TOKEN"] = "testing"
-    os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
-
-
 fake_user = UserTest(
     sub="123456",
     username="testuser",
