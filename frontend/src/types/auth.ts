@@ -4,6 +4,15 @@ export interface TokenResponse {
   readonly token_type: string;
 }
 
+/**
+ * What a refresh exchange returns. Deliberately not a `TokenResponse`: Cognito does
+ * not reissue a refresh token here, so the caller keeps the one it already has.
+ */
+export interface RefreshResponse {
+  readonly access_token: string;
+  readonly id_token: string | null;
+}
+
 export interface UserMe {
   readonly cognito_sub: string;
   readonly email: string;

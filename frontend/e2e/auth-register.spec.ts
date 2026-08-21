@@ -42,13 +42,14 @@ test.describe("Registration", () => {
       page.getByText(`Enter the code sent to ${NEW_EMAIL}`),
     ).toBeVisible();
 
-    // The Cognito endpoints take query parameters, not a JSON body.
-    const search = new URLSearchParams(api.callsTo("register").at(-1)?.search);
-    expect(Object.fromEntries(search)).toEqual({
+    // Credentials go in the body. In the query string they would be written to the
+    // access log, the browser's history and any Referer header the page sends.
+    expect(api.callsTo("register").at(-1)?.body).toEqual({
       username: "Rookie",
       email: NEW_EMAIL,
       password: NEW_PASSWORD,
     });
+    expect(api.callsTo("register").at(-1)?.search).toBe("");
   });
 
   test("redeems the emailed code and sends the user to sign in", async ({
@@ -63,11 +64,10 @@ test.describe("Registration", () => {
     await page.getByRole("button", { name: "Verify Email" }).click();
 
     await expect(page).toHaveURL(/\/login$/);
-    expect(
-      new URLSearchParams(api.callsTo("confirmUser").at(-1)?.search).get(
-        "username",
-      ),
-    ).toBe("Rookie");
+    expect(api.callsTo("confirmUser").at(-1)?.body).toEqual({
+      username: "Rookie",
+      code: CONFIRMATION_CODE,
+    });
   });
 
   test("keeps the user on the code screen when the code is wrong", async ({

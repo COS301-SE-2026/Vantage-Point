@@ -6,7 +6,6 @@ import {
   MATCH_HISTORY,
   REFRESH_TOKEN,
   ROTATED_ACCESS_TOKEN,
-  ROTATED_REFRESH_TOKEN,
   TEST_EMAIL,
   TEST_PASSWORD,
   makeLiveMetrics,
@@ -360,17 +359,18 @@ export class ApiMock {
 
   private buildRoutes(): RouteEntry[] {
     return [
-      // Cognito sign-up and sign-in take their arguments as query parameters on
-      // unversioned paths. See backend/app/api/router/auth_routes.py. The JSON
-      // /api/auth/* pair in backend/app/api/routes.py is not mounted, so the
-      // client does not call it.
+      // Cognito sign-up and sign-in live on unversioned paths and take their
+      // arguments as JSON bodies, because each one carries a secret and a URL is
+      // written to access logs and browser history. See
+      // backend/app/api/router/auth_routes.py.
       {
         name: "register",
         method: "POST",
         pattern: /^\/register$/,
         handle: (request) => {
-          const email = request.search.get("email") ?? "";
-          const username = request.search.get("username") ?? "";
+          const body = request.json<{ email?: string; username?: string }>();
+          const email = body?.email ?? "";
+          const username = body?.username ?? "";
           if (email === this.state.credentials.email) {
             return {
               status: 400,
@@ -398,7 +398,7 @@ export class ApiMock {
         // The backend really does spell it "confim-user".
         pattern: /^\/confim-user$/,
         handle: (request) => {
-          const code = request.search.get("code") ?? "";
+          const code = request.json<{ code?: string }>()?.code ?? "";
           if (code !== CONFIRMATION_CODE) {
             return { status: 400, json: { detail: "Invalid code" } };
           }
@@ -410,9 +410,10 @@ export class ApiMock {
         method: "POST",
         pattern: /^\/login$/,
         handle: (request) => {
+          const body = request.json<{ username?: string; password?: string }>();
           const ok =
-            request.search.get("username") === this.state.credentials.email &&
-            request.search.get("password") === this.state.credentials.password;
+            body?.username === this.state.credentials.email &&
+            body?.password === this.state.credentials.password;
           if (!ok) {
             return {
               status: 401,
@@ -426,21 +427,35 @@ export class ApiMock {
       {
         name: "logout",
         method: "POST",
-        pattern: /^\/api\/auth\/logout$/,
+        pattern: /^\/logout$/,
         handle: () => ({ json: { message: "Signed out" } }),
       },
       {
         name: "refresh",
         method: "POST",
-        pattern: /^\/api\/auth\/refresh$/,
+        pattern: /^\/refresh-auth$/,
         handle: (request) => {
-          const body = request.json<{ refresh_token: string }>();
-          if (body?.refresh_token !== this.state.refreshToken) {
+          const body = request.json<{
+            username?: string;
+            refresh_token?: string;
+          }>();
+          // Cognito needs the username to compute the secret hash, so a refresh
+          // that omits it is rejected before the token is even looked at.
+          if (!body?.username) {
+            return { status: 422, json: { detail: "username is required" } };
+          }
+          if (body.refresh_token !== this.state.refreshToken) {
             return { status: 401, json: { detail: "Invalid refresh token" } };
           }
           this.state.accessToken = ROTATED_ACCESS_TOKEN;
-          this.state.refreshToken = ROTATED_REFRESH_TOKEN;
-          return this.tokens();
+          // Deliberately does not rotate the refresh token: a REFRESH_TOKEN_AUTH
+          // exchange returns a new access token and an id token, nothing else.
+          return {
+            json: {
+              access_token: this.state.accessToken,
+              id_token: null,
+            },
+          };
         },
       },
       {
