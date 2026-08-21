@@ -1,16 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 import MatchReplayMapOverlay from "../components/MatchReplayMapOverlay";
-import {
-  buildPreviewSuggestedPath,
-  suggestedPathUpTo,
-} from "../lib/suggestedPath";
-import {
-  SUGGESTED_PATH_ENDPOINT_LIVE,
-  suggestedPathUrl,
-} from "../api/suggestedPath";
+import { suggestedPathUpTo } from "../lib/suggestedPath";
+import { suggestedPathUrl } from "../api/suggestedPath";
 import type { ParticipantDetail } from "../types/match";
 import type { MatchTimeline } from "../types/timeline";
+import type { SuggestedPath } from "../types/suggestedPath";
 
 vi.mock("../lib/ddragon", () => ({
   championIconUrl: () => "champion.png",
@@ -102,57 +97,40 @@ function renderOverlay(
   );
 }
 
+/** What `/api/v1/matches/{id}/suggested-path` answers for the timeline above. */
+const modelPath: SuggestedPath = {
+  match_id: "EUW1_1",
+  puuid: "viewer",
+  points: [
+    // The model seeds its route with the player's own starting position.
+    { timestamp_ms: 0, position: { x: 1000, y: 1000 } },
+    { timestamp_ms: 60_000, position: { x: 4200, y: 5800 } },
+    { timestamp_ms: 120_000, position: { x: 8100, y: 9600 } },
+  ],
+};
+
 describe("suggested path contract", () => {
-  it("points the client at the route the backend is expected to add", () => {
-    // A reminder to correct both this and `types/suggestedPath.ts` if the backend dev
-    // names things differently. The flag stays false until that route exists.
-    expect(SUGGESTED_PATH_ENDPOINT_LIVE).toBe(false);
+  it("addresses the route the backend serves", () => {
     expect(suggestedPathUrl("EUW1_1", "viewer")).toBe(
       "/api/v1/matches/EUW1_1/suggested-path?puuid=viewer",
     );
   });
 
+  it("escapes match ids and puuids into the query", () => {
+    expect(suggestedPathUrl("EUW1/1", "a b")).toBe(
+      "/api/v1/matches/EUW1%2F1/suggested-path?puuid=a%20b",
+    );
+  });
+
   it("clips the recommended route to the replay clock", () => {
-    const path = buildPreviewSuggestedPath(timeline, "viewer");
-    expect(path.points).toHaveLength(3);
-    expect(suggestedPathUpTo(path, 60_000)).toHaveLength(2);
-    expect(suggestedPathUpTo(path, 0)).toHaveLength(1);
-  });
-});
-
-describe("preview suggested path", () => {
-  it("draws the same line every time for the same match", () => {
-    const first = buildPreviewSuggestedPath(timeline, "viewer");
-    const second = buildPreviewSuggestedPath(timeline, "viewer");
-    expect(first).toEqual(second);
-  });
-
-  it("stays inside the map and off the walked route", () => {
-    const { map_bounds: bounds } = timeline;
-    const path = buildPreviewSuggestedPath(timeline, "viewer");
-
-    for (const point of path.points) {
-      expect(point.position.x).toBeGreaterThanOrEqual(bounds.min_x);
-      expect(point.position.x).toBeLessThanOrEqual(bounds.max_x);
-      expect(point.position.y).toBeGreaterThanOrEqual(bounds.min_y);
-      expect(point.position.y).toBeLessThanOrEqual(bounds.max_y);
-    }
-
-    // Separated from the walked path, otherwise the two lines sit on top of each other
-    // and the comparison the screen exists for cannot be read.
-    expect(path.points[1].position).not.toEqual({ x: 5000, y: 5000 });
-  });
-
-  it("yields nothing for a player with no frames", () => {
-    expect(buildPreviewSuggestedPath(timeline, "absent").points).toEqual([]);
+    expect(suggestedPathUpTo(modelPath, 60_000)).toHaveLength(2);
+    expect(suggestedPathUpTo(modelPath, 0)).toHaveLength(1);
   });
 });
 
 describe("suggested path overlay", () => {
   it("draws the recommended route when the toggle is on", () => {
-    const { container } = renderOverlay(
-      buildPreviewSuggestedPath(timeline, "viewer"),
-    );
+    const { container } = renderOverlay(modelPath);
     const line = container.querySelector('[data-name="suggested-path"]');
     expect(line).not.toBeNull();
     // Dashed, so it is distinguishable from a walked route without relying on colour.
@@ -161,10 +139,10 @@ describe("suggested path overlay", () => {
   });
 
   it("draws nothing with the toggle off", () => {
-    const { container } = renderOverlay(
-      buildPreviewSuggestedPath(timeline, "viewer"),
-      { ...toggles, suggestedPath: false },
-    );
+    const { container } = renderOverlay(modelPath, {
+      ...toggles,
+      suggestedPath: false,
+    });
     expect(container.querySelector('[data-name="suggested-path"]')).toBeNull();
   });
 

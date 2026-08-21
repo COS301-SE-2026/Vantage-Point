@@ -15,7 +15,9 @@ TRAINING_CSV_DIR = PRED_ENGINE_DIR / "Training_csv"
 
 # stats function to get distances + deviation
 def avg_and_std(y_data):
-    if len(y_data) == 0:
+    # Fewer than two points leaves no pair to measure, so the distance list would be
+    # empty and the average a division by zero.
+    if len(y_data) < 2:
         return None, None
 
     dist = []
@@ -30,26 +32,39 @@ def avg_and_std(y_data):
     return avg, std
 
 
-def create_rf_models():
-    print(">>> Skill RF Started")
-    champ_rf = rf.final_train(
-        str(TRAINING_CSV_DIR / "champ_rf_training.csv"),
-        "champion",
-    )
-    item_rf = rf.final_train(str(TRAINING_CSV_DIR / "item_rf_training.csv"), "item")
-    role_rf = rf.final_train(str(TRAINING_CSV_DIR / "role_rf_training.csv"), "role")
-    skill_rf = rf.final_train(
-        str(TRAINING_CSV_DIR / "skill_rf_training.csv"),
-        "skill",
-    )
-    print(">>> Skill RF finished", flush=True)
+# The training set each model is fit on. `model_cache` fingerprints these to decide
+# whether what it has on disk was fit on the data currently in the tree.
+CHAMP_RF_CSV = TRAINING_CSV_DIR / "champ_rf_training.csv"
+ITEM_RF_CSV = TRAINING_CSV_DIR / "item_rf_training.csv"
+ROLE_RF_CSV = TRAINING_CSV_DIR / "role_rf_training.csv"
+SKILL_RF_CSV = TRAINING_CSV_DIR / "skill_rf_training.csv"
+KNN_CSV = TRAINING_CSV_DIR / "knn_training.csv"
 
-    return champ_rf, item_rf, role_rf, skill_rf
+
+# One builder per model, so a cache that holds four of the five can still fit the odd
+# one out rather than refitting the lot.
+def create_champ_rf():
+    return rf.final_train(str(CHAMP_RF_CSV), "champion")
+
+
+def create_item_rf():
+    return rf.final_train(str(ITEM_RF_CSV), "item")
+
+
+def create_role_rf():
+    return rf.final_train(str(ROLE_RF_CSV), "role")
+
+
+def create_skill_rf():
+    return rf.final_train(str(SKILL_RF_CSV), "skill")
+
+
+def create_rf_models():
+    return create_champ_rf(), create_item_rf(), create_role_rf(), create_skill_rf()
 
 
 def create_knn_model():
-    knn_models = knn.get_knn(str(TRAINING_CSV_DIR / "knn_training.csv"))
-    return knn_models
+    return knn.get_knn(str(KNN_CSV))
 
 
 # run functions will call error correctors

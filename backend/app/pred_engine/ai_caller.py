@@ -1,7 +1,9 @@
 import json
+import logging
 from pathlib import Path
 
 import app.pred_engine.AI_models as ai  # type: ignore
+import app.pred_engine.model_cache as model_cache  # type: ignore
 
 import numpy as np
 from typing import Any
@@ -9,6 +11,8 @@ from typing import Any
 # Define directory constants relative to this file
 PRED_ENGINE_DIR = Path(__file__).resolve().parent
 DATASETS_DIR = PRED_ENGINE_DIR / "datasets"
+
+logger = logging.getLogger(__name__)
 
 # Module-level global declarations for mypy
 champ_rf: Any = None
@@ -22,19 +26,23 @@ knn_model: Any = None
 
 # contains all funtions for frontend to access
 def create_models():
-    c, i, r, s = ai.create_rf_models()
-    k = ai.create_knn_model()
+    """Puts every model in place for the request handlers to use.
+
+    Most of these come off disk rather than out of a fit. See `model_cache`, which owns
+    that decision per model and is the thing to reach for if a boot is slow.
+    """
+    models = model_cache.load_models()
 
     global champ_rf
-    champ_rf = c
+    champ_rf = models["champ_rf"]
     global item_rf
-    item_rf = i
+    item_rf = models["item_rf"]
     global role_rf
-    role_rf = r
+    role_rf = models["role_rf"]
     global skill_rf
-    skill_rf = s
+    skill_rf = models["skill_rf"]
     global knn_model
-    knn_model = k
+    knn_model = models["knn"]
 
 
 def get_skill_pred(data) -> Any:
@@ -149,7 +157,21 @@ def get_champ_pred(data) -> Any:
 
 def get_knn_output(data):
     global knn_model
+    # An empty match has no rows to scale or predict on, and both steps raise on one.
+    if not data:
+        return []
+
+    # The model is fitted at startup. If that failed, callers get "no recommendation"
+    # rather than an AttributeError surfacing as a 500 on the replay screen.
+    if knn_model is None:
+        logger.warning("KNN model is not loaded; returning no recommended path")
+        return []
+
     y_output, _ = ai.run_knn(knn_model, data)
+
+    # correct_knn gives up on a match too short to measure a stride from.
+    if y_output is None:
+        return []
 
     y_list = []
     for i in y_output:

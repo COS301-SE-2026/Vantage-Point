@@ -1,7 +1,7 @@
 import {
   ACCESS_TOKEN,
+  REFRESH_TOKEN,
   ROTATED_ACCESS_TOKEN,
-  ROTATED_REFRESH_TOKEN,
 } from "./fixtures/data";
 import { expect, matchRows, test } from "./fixtures/test";
 
@@ -29,9 +29,11 @@ test.describe("Session handling", () => {
       access: window.localStorage.getItem("vp_access_token"),
       refresh: window.localStorage.getItem("vp_refresh_token"),
     }));
+    // The refresh token is carried forward, not replaced: Cognito returns a new
+    // access token from a refresh exchange and nothing else.
     expect(stored).toEqual({
       access: ROTATED_ACCESS_TOKEN,
-      refresh: ROTATED_REFRESH_TOKEN,
+      refresh: REFRESH_TOKEN,
     });
   });
 

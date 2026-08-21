@@ -13,6 +13,11 @@ from app.services.match_ingest import (
     _game_duration_seconds,
     build_detail_payload,
 )
+from app.services.riot_service import (
+    ROUTING_CLUSTERS,
+    clusters_to_probe,
+    macro_region_for_match_id,
+)
 
 VIEWER_PUUID = "viewer-puuid"
 
@@ -197,3 +202,50 @@ def test_efficiency_score_is_monotonic_in_each_input():
     assert _efficiency_score(4.8, 60.0, 7.0) > baseline
     assert _efficiency_score(3.8, 80.0, 7.0) > baseline
     assert _efficiency_score(3.8, 60.0, 9.0) > baseline
+
+
+# --------------------------------------------------------------------------------------
+# Which Riot cluster a match is asked for
+# --------------------------------------------------------------------------------------
+
+
+class TestMacroRegionForMatchId:
+    """A match id names the platform that played it, so it names its own cluster."""
+
+    def test_reads_the_cluster_off_a_platform_prefix(self):
+        assert macro_region_for_match_id("EUW1_7412345678") == "europe"
+        assert macro_region_for_match_id("KR_8347432922") == "asia"
+        assert macro_region_for_match_id("NA1_5000000000") == "americas"
+        assert macro_region_for_match_id("OC1_600000000") == "sea"
+
+    def test_is_case_insensitive(self):
+        assert macro_region_for_match_id("euw1_7412345678") == "europe"
+
+    def test_gives_up_on_an_id_it_cannot_read(self):
+        # The caller falls back to its own region rather than guessing a cluster.
+        assert macro_region_for_match_id("ZZ9_1") is None
+        assert macro_region_for_match_id("no-separator") is None
+        assert macro_region_for_match_id("") is None
+
+
+class TestClustersToProbe:
+    """A PUUID does not say where it plays, so listing matches asks each cluster."""
+
+    def test_puts_the_callers_guess_first(self):
+        assert clusters_to_probe("europe")[0] == "europe"
+        assert clusters_to_probe("asia")[0] == "asia"
+
+    def test_still_covers_every_cluster(self):
+        assert set(clusters_to_probe("asia")) == set(ROUTING_CLUSTERS)
+        assert len(clusters_to_probe("asia")) == len(ROUTING_CLUSTERS)
+
+    def test_names_each_cluster_once(self):
+        probed = clusters_to_probe("europe")
+        assert len(probed) == len(set(probed))
+
+    def test_an_unknown_or_missing_guess_still_probes_everything(self):
+        # A user with no region set, or one holding a platform like `euw1` rather than
+        # a cluster, must not end up with a probe list that skips or repeats one.
+        for guess in (None, "", "euw1", "nonsense"):
+            assert set(clusters_to_probe(guess)) == set(ROUTING_CLUSTERS)
+            assert len(clusters_to_probe(guess)) == len(ROUTING_CLUSTERS)

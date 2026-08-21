@@ -55,13 +55,15 @@ export const test = base.extend<Fixtures>({
         // Seeded once, on the first document load only: a later goto() must not
         // resurrect a session the test deliberately ended (e.g. after logout).
         await context.addInitScript(
-          ([accessToken, refreshToken]) => {
+          ([accessToken, refreshToken, username]) => {
             if (window.sessionStorage.getItem("vp_e2e_seeded")) return;
             window.sessionStorage.setItem("vp_e2e_seeded", "1");
             window.localStorage.setItem("vp_access_token", accessToken);
             window.localStorage.setItem("vp_refresh_token", refreshToken);
+            // A real login stores this too, and a refresh cannot happen without it.
+            window.localStorage.setItem("vp_username", username);
           },
-          [access, refresh],
+          [access, refresh, api.state.credentials.email],
         );
       },
       async gotoDashboard(path = "/dashboard/matches") {
