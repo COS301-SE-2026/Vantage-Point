@@ -26,6 +26,10 @@ async def get_primary_linked_account(
             col(UserGameAccounts.puuid) == col(GameAccounts.puuid),
         )
         .where(col(UserGameAccounts.user_id) == user_id)
+        # Oldest link wins. Without an order the row returned is whatever the planner
+        # hands back first, so a user with two linked accounts could see a different
+        # dashboard on each request.
+        .order_by(col(UserGameAccounts.id))
         .limit(1)
     )
     return result.scalar_one_or_none()

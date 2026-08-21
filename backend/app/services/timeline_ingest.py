@@ -36,7 +36,7 @@ from app.services.match_ingest import (
     raise_for_riot_status,
     riot_api_key,
 )
-from app.services.riot_service import get_region
+from app.services.riot_service import get_region, macro_region_for_match_id
 from app.services.spatial_service import map_bounds_for, path_distance
 
 logger = logging.getLogger("app.timeline")
@@ -65,12 +65,15 @@ class TimelineNotAvailableError(Exception):
     """Riot has no timeline for this match (too old, or it never existed)."""
 
 
-# error message if wrong region how would I tell them this.
 async def fetch_timeline(
     client: httpx.AsyncClient, region: str, headers: dict[str, str], match_id: str
 ) -> dict[str, Any]:
+    # The id names the cluster that played the match, so the timeline is asked for
+    # where it actually lives rather than wherever the viewer's profile points.
+    # `region` is only a fallback for an unrecognised platform prefix.
+    cluster = macro_region_for_match_id(match_id) or region
     url = (
-        f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
+        f"https://{cluster}.api.riotgames.com/lol/match/v5/matches/"
         f"{match_id}/timeline"
     )
 
@@ -82,7 +85,6 @@ async def fetch_timeline(
         raise TimelineNotAvailableError(
             f"Riot returned {response.status_code} for the {match_id} timeline."
         )
-    # add maybe region is wrong needs to be changed
     payload: dict[str, Any] = response.json()
     return payload
 

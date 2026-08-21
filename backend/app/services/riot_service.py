@@ -103,6 +103,31 @@ def get_macro_region(server_region: str) -> str:
     return MACRO_REGIONS.get(server_region.lower(), "americas")
 
 
+# Every cluster Match-V5 is served from. Account-V1 has no region and a PUUID does not
+# say where it plays, so listing a player's matches means asking each in turn.
+ROUTING_CLUSTERS: tuple[str, ...] = ("europe", "americas", "asia", "sea")
+
+
+def clusters_to_probe(preferred: str | None) -> list[str]:
+    """Every cluster, with the caller's best guess first so most lookups take one call."""
+    guess = (preferred or "").strip().lower()
+    rest = [cluster for cluster in ROUTING_CLUSTERS if cluster != guess]
+    return [guess, *rest] if guess in ROUTING_CLUSTERS else rest
+
+
+def macro_region_for_match_id(match_id: str) -> str | None:
+    """The cluster that hosts a match, read off the id.
+
+    Match ids carry the platform that played them, as in `EUW1_7412…` or `KR_8347…`,
+    so a match never has to be looked for on a cluster that cannot have it. Returns
+    None for an id that does not name a platform we know.
+    """
+    platform, separator, _ = match_id.partition("_")
+    if not separator or not platform:
+        return None
+    return MACRO_REGIONS.get(platform.lower())
+
+
 class RiotService:
     def __init__(self, region: str):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
@@ -112,6 +137,15 @@ class RiotService:
 
     def _get_macro_region(self, server_region: str) -> str:
         return get_macro_region(server_region)
+
+    def _cluster_for(self, match_id: str) -> str:
+        """Where a match lives, from its own id rather than from who is asking.
+
+        `server_region` comes from the viewer's profile, so a player in one region
+        looking at a match played in another would otherwise ask the wrong cluster
+        and get a 404.
+        """
+        return macro_region_for_match_id(match_id) or self.server_region
 
     async def get_puuid(self, game_name: str, tag_line: str) -> str:
         url = f"{self.account_url}/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
@@ -195,7 +229,7 @@ class RiotService:
             )
 
     async def get_match_detail(self, match_id: str) -> Any:
-        url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+        url = f"https://{self._cluster_for(match_id)}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
 
@@ -231,7 +265,7 @@ class RiotService:
             )
 
         safe_match_id = quote(match_id, safe="")
-        url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
+        url = f"https://{self._cluster_for(safe_match_id)}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
