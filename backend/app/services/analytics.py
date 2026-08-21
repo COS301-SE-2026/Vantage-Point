@@ -319,7 +319,7 @@ class LiveAnalyticsService:
             prev_x=map_replay.position_x[paritcipant_id],
             prev_y=map_replay.position_y[paritcipant_id],
             prev_prev_x=map_replay.position_x[paritcipant_id],
-            prev_prev_y=map_replay.position_x[paritcipant_id],
+            prev_prev_y=map_replay.position_y[paritcipant_id],
             champExperience=player["champExperience"],
             champLevel=player["champLevel"],
             championId=player["championId"],

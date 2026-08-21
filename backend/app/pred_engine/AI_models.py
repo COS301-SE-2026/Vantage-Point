@@ -146,7 +146,7 @@ def run_knn(knn_model, data):
 def run_rf(rf_model, data, cat):
     x_data, y_data = converter.format_api_data_rf(data, cat)
 
-    # Flatten nested elements and normalize list items
+    # flatten nested elements and normalize list items
     cleaned_x = []
     for sample in x_data:
         if isinstance(sample, (list, tuple, np.ndarray)):
@@ -155,7 +155,7 @@ def run_rf(rf_model, data, cat):
             flat_sample = [sample]
         cleaned_x.append(flat_sample)
 
-    # Pad ragged feature rows to a uniform width
+    # pad ragged feature rows to a same length
     max_len = max(len(row) for row in cleaned_x) if cleaned_x else 0
     padded_x = [
         row + [0.0] * (max_len - len(row)) for row in cleaned_x
@@ -165,7 +165,7 @@ def run_rf(rf_model, data, cat):
     if x_matrix.ndim == 1:
         x_matrix = x_matrix.reshape(1, -1)
 
-    # Align input feature dimensions with the loaded Random Forest model
+    # align input dimensions with the rf model
     expected_features = getattr(rf_model, "n_features_in_", None)
     if expected_features is not None:
         if x_matrix.shape[1] > expected_features:
@@ -179,7 +179,7 @@ def run_rf(rf_model, data, cat):
 
     y_output = rf_model.predict(x_matrix)
 
-    # Apply category-specific adjustments
+    # category-specific adjustments
     if cat == "champion":
         y_output = correct_champion_rf(y_output, y_data)
     elif cat == "role":

@@ -56,16 +56,27 @@ class MapSuggestData(BaseModel):
     powerMax: list[int]
 
     def convert_to_arr(self):
-        # returns a 2D array of object contents
         out_arr = []
-        p_x, p_y, pp_x, pp_y = 0, 0, 0, 0
+        num_samples = len(self.position_x)
 
-        def safe_idx(lst: list, idx: int):
+        def safe_idx(lst: Any, idx: int):
             if not isinstance(lst, list) or not lst:
                 return 0
             return lst[max(0, min(idx, len(lst) - 1))]
-        
-        for i in range(0, len(self.position_x)):
+
+        for i in range(num_samples):
+            # Dynamic lag calculation per index
+            p_x = safe_idx(self.position_x, i - 1) if i > 0 else self.position_x[i]
+            p_y = safe_idx(self.position_y, i - 1) if i > 0 else self.position_y[i]
+            pp_x = safe_idx(self.position_x, i - 2) if i > 1 else p_x
+            pp_y = safe_idx(self.position_y, i - 2) if i > 1 else p_y
+
+            # Trajectory forecast window (x1, y1 through x9, y9 -> 18 features)
+            trajectory_features = []
+            for step in range(1, 10):
+                trajectory_features.append(safe_idx(self.position_x, i + step))
+                trajectory_features.append(safe_idx(self.position_y, i + step))
+
             row = [
                 self.position_x[i],
                 self.position_y[i],
@@ -86,7 +97,6 @@ class MapSuggestData(BaseModel):
                 self.killingSprees,
                 self.kills,
                 self.visionScore,
-                safe_idx(self.jungleMinionsKilled, i),
                 safe_idx(self.level, i),
                 safe_idx(self.minionsKilled, i),
                 safe_idx(self.timeEnemySpentControlled, i),
@@ -108,13 +118,10 @@ class MapSuggestData(BaseModel):
                 safe_idx(self.movementSpeed, i),
                 safe_idx(self.power, i),
                 safe_idx(self.powerMax, i),
+                *trajectory_features
             ]
-            pp_x = p_x
-            pp_y = p_y
-            p_x = self.position_x[i]
-            p_y = self.position_y[i]
-
             out_arr.append(row)
+
         return out_arr
 
 
