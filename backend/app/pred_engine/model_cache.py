@@ -191,7 +191,9 @@ def load_or_build(spec: ModelSpec) -> Any:
             logger.info("Loaded %s from cache", spec.name)
             return model
 
-        logger.info("Fitting %s; this is slow and happens once per training set", spec.name)
+        logger.info(
+            "Fitting %s; this is slow and happens once per training set", spec.name
+        )
         model = spec.build()
         if model is not None:
             _write(model, path)
