@@ -48,10 +48,13 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Recharts takes its colours as JS strings, so the chart pair are ordinary
+     custom properties rather than @theme tokens. They mirror the palette by
+     hand: keep the label in step with --color-vp-dim. */
   --vp-chart-grid: #d4d4d4;
-  --vp-chart-label: #525252;
+  --vp-chart-label: #9ba0a9;
   --vp-layout-max: 1512px;
-  /* Cap for the fluid content columns — one knob for how wide pages run. */
+  /* Cap for the fluid content columns: one knob for how wide pages run. */
   --vp-content-max: 1180px;
   /* Header band. DashboardShell raises this on screens that show the 88px
      account avatar, which needs more room than the logo/48px avatar do. */
@@ -143,7 +146,7 @@
   --font-sarina: "Sarina", ui-sans-serif, system-ui, sans-serif;
 
   /* The two brand faces, as real utilities (`font-beaufort`, `font-spartan`)
-     rather than arbitrary values — Tailwind then knows they belong to the
+     rather than arbitrary values, so Tailwind knows they belong to the
      font-family group, so `cn()` can override a component's built-in
      `font-sans` instead of stacking with it. */
   --font-beaufort: "Beaufort for LOL", ui-serif, Georgia, serif;
@@ -356,7 +359,7 @@
     animation: vantage-dot-fill 2.7s ease-in-out infinite;
   }
 
-  /* Figma 14:1617 — 10px track (#f0f0f0) with a rounded #b7b7b7 thumb. */
+  /* Figma 14:1617: 10px track (#f0f0f0) with a rounded #b7b7b7 thumb. */
   .vp-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #b7b7b7 #f0f0f0;
@@ -386,7 +389,7 @@
     background-color: transparent;
   }
 
-  /* Figma 22:642 — the dark page keeps the #b7b7b7 thumb on a #181818 track. */
+  /* Figma 22:642: the dark page keeps the #b7b7b7 thumb on a #181818 track. */
   @media (prefers-color-scheme: dark) {
     .vp-scrollbar {
       scrollbar-color: #b7b7b7 #181818;
@@ -451,14 +454,5 @@
       color: #0f172a;
       opacity: 1;
     }
-  }
-}
-
-/* Recharts colours are passed as JS strings, so the device theme flips them here. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Figma 14:370 keeps the radar web light on the dark page; only labels dim. */
-    --vp-chart-grid: #d4d4d4;
-    --vp-chart-label: #929292;
   }
 }
