@@ -3,21 +3,27 @@ import { GuideSection } from "./GuideSection";
 const RULES = [
   {
     title: "Button labels",
-    good: "Sign in / Link Riot ID / View match",
+    good: "Sign in / Link Riot ID / View replay",
     bad: "Click here / Submit / OK",
-    note: "Lead with the verb that describes the outcome. Keep under ~3 words when possible.",
+    note: "Lead with the verb that names the outcome. Three words at most.",
   },
   {
     title: "Error messages",
-    good: "We couldn’t reach Riot. Check your connection and try again.",
+    good: "We could not reach Riot. Check your connection and try again.",
     bad: "Error 500 / Something went wrong!!!",
-    note: "Say what failed and what to do next. Avoid raw status codes in UI copy.",
+    note: "Say what failed, then what to do next. Status codes belong in the console.",
   },
   {
     title: "Empty states",
     good: "No ranked matches yet. Play a game, then refresh to see your timeline.",
     bad: "No data. / N/A",
-    note: "Say why the screen is empty and give one next step.",
+    note: "Say why the screen is empty and give exactly one next step.",
+  },
+  {
+    title: "Coaching notes",
+    good: "You warded the river at 8:20 but rotated bot without it.",
+    bad: "Bad map awareness. You need to improve warding.",
+    note: "Point at what happened in the match. The player already knows they lost.",
   },
 ];
 
@@ -27,41 +33,31 @@ export function VoiceSection() {
       id="voice"
       eyebrow="08. Voice"
       title="Voice & tone"
-      description="Rules for UI copy: short, clear, and direct. Help the player. Don't hype them."
+      description="Short, specific, and addressed to a player who is already frustrated. Vantage Point tells you what happened on the map. It does not congratulate you and it does not lecture you."
       delayMs={320}
     >
-      <div className="mb-6 rounded-lg border border-border bg-muted/40 p-5 font-['Inter',sans-serif] text-sm text-[#525252] device-dark:text-[#b7b7b7] device-dark:border-[#2c2c2c] device-dark:bg-[#2a2a2a]">
-        <p>
-          <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">
-            Tone:
-          </strong>{" "}
-          plain language, no slang dump. Do not blame the player. Say what
-          happened in the match and what to do next.
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2">
         {RULES.map((rule) => (
           <article
             key={rule.title}
-            className="rounded-lg border border-border p-5 font-['Inter',sans-serif] device-dark:border-[#2c2c2c]"
+            className="rounded-xl border border-vp-line bg-vp-surface p-5"
           >
-            <h3 className="mb-3 text-sm font-semibold text-[#1e1e1e] device-dark:text-white">
+            <h4 className="mb-4 text-[15px] font-bold text-vp-ink">
               {rule.title}
-            </h3>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#1e7e34]">
+            </h4>
+            <p className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-vp-win">
               Prefer
             </p>
-            <p className="mb-3 text-sm text-[#1e1e1e] device-dark:text-white">
+            <p className="mb-4 text-[14px] leading-relaxed text-vp-ink">
               {rule.good}
             </p>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#c44a4a]">
+            <p className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-vp-loss">
               Avoid
             </p>
-            <p className="mb-3 text-sm text-[#525252] line-through decoration-[#c44a4a]/40 device-dark:text-[#b7b7b7]">
+            <p className="mb-4 text-[14px] leading-relaxed text-vp-faint line-through decoration-vp-loss/40">
               {rule.bad}
             </p>
-            <p className="text-xs text-[#525252] device-dark:text-[#b7b7b7]">
+            <p className="border-t border-vp-line pt-3 text-[13px] leading-relaxed text-vp-dim">
               {rule.note}
             </p>
           </article>

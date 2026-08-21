@@ -1,30 +1,38 @@
 import {
-  Check,
-  ChevronRight,
-  Loader2,
-  Search,
-  Settings,
-  Trophy,
+  Clapperboard,
+  History,
+  LogOut,
+  PanelLeft,
+  Pause,
+  Play,
   X,
 } from "lucide-react";
 import imgLogoMark from "../../assets/images/logos/logo-mark.webp";
 import imgLogoMarkWhite from "../../assets/images/logos/logo-mark-white.webp";
-import imgLogo from "../../assets/images/logos/logo.webp";
-import { GuideSection } from "./GuideSection";
+import { Code, GuideSection, SubHeading } from "./GuideSection";
 
 const FORBIDDEN = [
-  "Do not stretch or distort proportions",
-  "Do not recolour outside approved light / white mark treatments",
-  "Do not add drop shadows, glows, or outlines to the mark",
-  "Do not place the mark on busy imagery without adequate contrast",
-  "Do not rotate, skew, or crop the mark into an incomplete shape",
-  "Do not pair with competing brand marks in the same clear space",
+  "Do not stretch, skew, or rotate the mark",
+  "Do not recolour it. The white cut is the only treatment the product ships",
+  "Do not add drop shadows, glows, or outlines",
+  "Do not set the wordmark in Beaufort. It is League Spartan, always",
+  "Do not place the mark on artwork without darkening the plate behind it",
+  "Do not crop the mark or pair it with a competing mark inside its clear space",
 ];
 
-const ICON_SIZES = [
-  { label: "sm", px: 16, className: "size-4" },
-  { label: "md", px: 20, className: "size-5" },
-  { label: "lg", px: 24, className: "size-6" },
+/**
+ * Functional glyphs only, drawn from what the shell and the replay transport
+ * actually render. Vantage Point does not use decorative pictograms: a lucide
+ * glyph sitting above a card title is not iconography, it is filler, and the
+ * feature grid dropped them for that reason.
+ */
+const FUNCTIONAL_ICONS = [
+  { Icon: PanelLeft, label: "Sidebar toggle" },
+  { Icon: History, label: "Matches" },
+  { Icon: Clapperboard, label: "Replay" },
+  { Icon: Play, label: "Play" },
+  { Icon: Pause, label: "Pause" },
+  { Icon: LogOut, label: "Log out" },
 ];
 
 export function LogoSection() {
@@ -33,102 +41,101 @@ export function LogoSection() {
       id="logo"
       eyebrow="03. Identity"
       title="Logo & iconography"
-      description="Logo marks, light and dark treatments, clear space, Lucide icons, and ThemedIcon for light/dark SVG pairs from Figma."
+      description="The mark, the lockup it sits in, and the rule that keeps icons functional. Every product surface is dark, so the white cut of the mark is the one the app ships."
       delayMs={120}
     >
-      <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <figure className="flex flex-col items-center gap-3 rounded-lg border border-border bg-white p-6 device-dark:border-[#2c2c2c]">
-          <img
-            src={imgLogoMark}
-            alt="Vantage Point mark, full colour"
-            className="size-24 object-contain"
-          />
-          <figcaption className="font-['Inter',sans-serif] text-xs font-semibold text-[#1e1e1e]">
-            Mark (logo-mark.webp)
-          </figcaption>
-        </figure>
-        <figure className="flex flex-col items-center gap-3 rounded-lg border border-border bg-[#181818] p-6 device-dark:border-[#2c2c2c]">
+      <div className="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <figure className="flex flex-col items-center gap-3 rounded-xl border border-vp-line bg-vp-surface p-6">
           <img
             src={imgLogoMarkWhite}
             alt="Vantage Point mark, white"
             className="size-24 object-contain"
           />
-          <figcaption className="font-['Inter',sans-serif] text-xs font-semibold text-[#f5f5f5]">
-            Mark white (device-dark)
+          <figcaption className="text-center">
+            <p className="text-[15px] font-bold text-vp-ink">Primary mark</p>
+            <p className="mt-1 font-mono text-[11px] text-vp-faint">
+              logo-mark-white.webp
+            </p>
           </figcaption>
         </figure>
-        <figure className="flex flex-col items-center gap-3 rounded-lg border border-border bg-white p-6 device-dark:border-[#2c2c2c]">
-          <div className="flex flex-col items-center gap-2">
+
+        <figure className="flex flex-col items-center justify-center gap-4 rounded-xl border border-vp-line bg-vp-surface p-6">
+          <div className="flex items-center gap-2.5">
             <img
-              src={imgLogoMark}
+              src={imgLogoMarkWhite}
               alt=""
               aria-hidden
-              className="size-14 object-contain"
+              className="h-8 w-8 object-contain"
             />
-            <p className="font-['League_Spartan',sans-serif] text-sm font-bold uppercase tracking-[0.06em] text-[#1e1e1e]">
-              Vantage Point
-            </p>
+            <span className="font-spartan text-[14px] font-bold uppercase tracking-[0.06em] text-vp-ink">
+              Vantage&nbsp;Point
+            </span>
           </div>
-          <figcaption className="font-['Inter',sans-serif] text-xs font-semibold text-[#1e1e1e]">
-            Mark + League Spartan wordmark
+          <figcaption className="text-center">
+            <p className="text-[15px] font-bold text-vp-ink">The lockup</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-vp-dim">
+              Mark at 32px, 10px gap, wordmark at 14px in League Spartan. The
+              sidebar, the auth header, and the landing nav all use this exact
+              build.
+            </p>
           </figcaption>
         </figure>
-        <figure className="flex flex-col items-center gap-3 rounded-lg border border-border bg-white p-6 device-dark:border-[#2c2c2c]">
+
+        <figure className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-vp-line-strong bg-vp-surface/60 p-6">
           <img
-            src={imgLogo}
-            alt="Legacy logo.webp asset"
-            className="size-24 object-contain"
+            src={imgLogoMark}
+            alt="Full colour mark on a light plate"
+            className="size-24 rounded-lg bg-white object-contain p-2"
           />
-          <figcaption className="font-['Inter',sans-serif] text-xs font-semibold text-[#1e1e1e]">
-            Legacy logo.webp
+          <figcaption className="text-center">
+            <p className="text-[15px] font-bold text-vp-ink">Light plate</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-vp-dim">
+              <Code>logo-mark.webp</Code> is the full colour cut for anything
+              printed or set on white. No product screen uses it;{" "}
+              <Code>logo.webp</Code> survives only in the admin shell.
+            </p>
           </figcaption>
         </figure>
       </div>
 
-      <div className="mb-8 grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border border-border p-5 device-dark:border-[#2c2c2c]">
-          <h3 className="mb-2 font-['Inter',sans-serif] text-sm font-semibold text-[#1e1e1e] device-dark:text-white">
-            Minimum size &amp; clear space
-          </h3>
-          <ul className="list-disc space-y-2 pl-5 font-['Inter',sans-serif] text-sm text-[#525252] device-dark:text-[#b7b7b7]">
+      <div className="mb-10 grid gap-5 lg:grid-cols-2">
+        <div className="rounded-xl border border-vp-line bg-vp-surface p-5">
+          <h4 className="mb-3 text-[15px] font-bold text-vp-ink">
+            Clear space & sizing
+          </h4>
+          <ul className="list-disc space-y-2 pl-5 text-[13px] leading-relaxed text-vp-dim">
             <li>
-              Auth / marketing mark: use responsive clamp sizing with the League
-              Spartan wordmark beside or below.
-            </li>
-            <li>
-              Dashboard header: mark + uppercase League Spartan title (
-              <code className="text-xs">DashboardShell</code>).
-            </li>
-            <li>
-              Clear space: keep empty margin of at least{" "}
-              <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">
-                1/4 of the mark height
+              Keep a margin of at least{" "}
+              <strong className="font-bold text-vp-ink">
+                a quarter of the mark height
               </strong>{" "}
-              on all sides.
+              clear on all sides.
             </li>
             <li>
-              Assets:{" "}
-              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs device-dark:bg-[#3a3939]">
-                logos/logo-mark.webp
-              </code>
-              ,{" "}
-              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs device-dark:bg-[#3a3939]">
-                logos/logo-mark-white.webp
-              </code>
+              Chrome lockup: 28px in the collapsed rail, 32px everywhere else.
+              The wordmark never grows with it.
+            </li>
+            <li>
+              Hero and loading screens size the mark with a clamp so it tracks
+              the viewport instead of stepping at a breakpoint.
+            </li>
+            <li>
+              Over champion art, the mark needs a plate:{" "}
+              <Code>bg-vp-canvas/80</Code> or a gradient down to the canvas.
             </li>
           </ul>
         </div>
 
-        <div className="rounded-lg border border-border p-5 device-dark:border-[#2c2c2c]">
-          <h3 className="mb-2 font-['Inter',sans-serif] text-sm font-semibold text-[#1e1e1e] device-dark:text-white">
+        <div className="rounded-xl border border-vp-line bg-vp-surface p-5">
+          <h4 className="mb-3 text-[15px] font-bold text-vp-ink">
             Forbidden treatments
-          </h3>
-          <ul className="space-y-2 font-['Inter',sans-serif] text-sm text-[#525252] device-dark:text-[#b7b7b7]">
+          </h4>
+          <ul className="space-y-2 text-[13px] leading-relaxed text-vp-dim">
             {FORBIDDEN.map((rule) => (
-              <li key={rule} className="flex gap-2">
+              <li key={rule} className="flex gap-2.5">
                 <X
-                  className="mt-0.5 size-4 shrink-0 text-destructive"
-                  strokeWidth={2}
+                  className="mt-0.5 size-4 shrink-0 text-vp-loss"
+                  strokeWidth={1.7}
                   aria-hidden
                 />
                 <span>{rule}</span>
@@ -138,54 +145,50 @@ export function LogoSection() {
         </div>
       </div>
 
-      <h3 className="mb-3 font-['Inter',sans-serif] text-sm font-semibold uppercase tracking-wide text-[#1e1e1e] device-dark:text-white">
-        Icon library: Lucide + ThemedIcon
-      </h3>
-      <p className="mb-4 max-w-2xl font-['Inter',sans-serif] text-sm text-[#525252] device-dark:text-[#b7b7b7]">
-        Product chrome uses{" "}
-        <strong className="font-semibold text-[#1e1e1e] device-dark:text-white">
-          lucide-react
-        </strong>{" "}
-        (stroke weight 2). Figma-exported light/dark SVG pairs use{" "}
-        <code className="text-xs">ThemedIcon</code>, which swaps via{" "}
-        <code className="text-xs">device-dark:</code> (not{" "}
-        <code className="text-xs">&lt;picture&gt;</code>) so inlined data URIs
-        stay intact.
+      <SubHeading>Icons are functional, never decorative</SubHeading>
+      <p className="mb-5 max-w-3xl text-[15px] leading-relaxed text-vp-dim">
+        An icon earns its place by being the control: a nav destination, a
+        toggle, a transport button. It does not sit above a card title as
+        decoration. Where a panel needs visual weight, it gets it from type,
+        spacing, or purpose-drawn artwork, not from a stock glyph set.
       </p>
-      <div className="mb-6 flex flex-wrap gap-6 rounded-lg border border-border bg-card p-5 device-dark:border-[#2c2c2c] device-dark:bg-[#1e1e1e]">
-        {(
-          [
-            { Icon: Search, label: "Search" },
-            { Icon: Settings, label: "Settings" },
-            { Icon: Trophy, label: "Trophy" },
-            { Icon: Check, label: "Check" },
-            { Icon: ChevronRight, label: "ChevronRight" },
-            { Icon: Loader2, label: "Loader2" },
-          ] as const
-        ).map(({ Icon, label }) => (
-          <div key={label} className="flex flex-col items-center gap-2">
-            <Icon
-              className="size-6 text-[#1e1e1e] device-dark:text-white"
-              strokeWidth={2}
-            />
-            <span className="font-['Inter',sans-serif] text-[11px] text-[#525252] device-dark:text-[#929292]">
-              {label}
-            </span>
+
+      <div className="mb-6 grid gap-5 lg:grid-cols-[1fr_320px]">
+        <div className="rounded-xl border border-vp-line bg-vp-surface p-5">
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.16em] text-vp-dim">
+            lucide-react, stroke 1.7
+          </p>
+          <div className="flex flex-wrap gap-x-8 gap-y-5">
+            {FUNCTIONAL_ICONS.map(({ Icon, label }) => (
+              <div key={label} className="flex flex-col items-center gap-2">
+                <Icon
+                  className="size-[18px] text-vp-dim"
+                  strokeWidth={1.7}
+                  aria-hidden
+                />
+                <span className="text-[11px] text-vp-faint">{label}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-end gap-8">
-        {ICON_SIZES.map((s) => (
-          <div key={s.label} className="flex flex-col items-center gap-2">
-            <Search
-              className={`${s.className} text-[#1e1e1e] device-dark:text-white`}
-              strokeWidth={2}
-            />
-            <span className="font-['Inter',sans-serif] text-xs text-[#525252] device-dark:text-[#929292]">
-              {s.label} / {s.px}px
-            </span>
-          </div>
-        ))}
+          <p className="mt-5 text-[13px] leading-relaxed text-vp-dim">
+            Chrome draws at 18px on a 20px box. Stroke 1.7 is the default: it
+            keeps the glyph as quiet as the hairlines around it. Heavier strokes
+            are reserved for the few places an icon has to read at 14px.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-vp-line bg-vp-surface p-5">
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-vp-dim">
+            ThemedIcon
+          </p>
+          <p className="text-[13px] leading-relaxed text-vp-dim">
+            Some glyphs ship from Figma as SVG with the stroke baked in, so an{" "}
+            <Code>img</Code> cannot recolour them. <Code>ThemedIcon</Code> keeps
+            the light and dark exports side by side, but since every surface is
+            now dark it renders only the dark one. It no longer swaps on the
+            device theme, and it no longer draws two elements per glyph.
+          </p>
+        </div>
       </div>
     </GuideSection>
   );
