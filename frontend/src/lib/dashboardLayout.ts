@@ -5,7 +5,7 @@
  * frame: every view computed its own `left`/`width` from the sidebar state and
  * pinned itself under a fixed header. That could not reflow, so wide screens
  * got a column of dead space and narrow ones got a scrollbar. The shell is now
- * an ordinary flex layout — sidebar beside a scrolling main column — and these
+ * an ordinary flex layout, a sidebar beside a scrolling main column, and these
  * are the only numbers it still needs.
  */
 

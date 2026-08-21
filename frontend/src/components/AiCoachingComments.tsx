@@ -6,7 +6,7 @@ interface AiCoachingCommentsProps {
 }
 
 /**
- * Figma "AI Coaching comments" 55:346 — the column beside the replay map.
+ * Figma "AI Coaching comments" 55:346: the column beside the replay map.
  *
  * Figma sized it 230x516 and filled it with fixed-height cards. It is captioned
  * like every other dashboard panel now (see PanelHeader in dashboard/primitives),

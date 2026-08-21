@@ -349,7 +349,7 @@ export async function unflagSessionForDeletion(
   );
 }
 
-/** Super Admin only — bypasses the 24h queue (FR-A13). */
+/** Super Admin only; bypasses the 24h queue (FR-A13). */
 export async function hardDeleteSession(sessionId: string): Promise<void> {
   if (USE_MOCKS) {
     console.log("[mock] hardDeleteSession", sessionId);

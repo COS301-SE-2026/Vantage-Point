@@ -1,6 +1,6 @@
 """Fetches, distills and stores the Match-V5 timeline for a match.
 
-The raw timeline is the largest payload Riot serves for a game — a frame per minute
+The raw timeline is the largest payload Riot serves for a game: a frame per minute
 carrying every stat of all ten players, plus every event that fired. We keep only what
 the replay map and the map-analysis table draw, which is roughly a tenth of the size,
 and re-key it from Riot's `participantId` to PUUID so the client can join it against

@@ -17,7 +17,7 @@ from sqlmodel import SQLModel, Field, Relationship
 class Champions(SQLModel, table=True):  # type: ignore[call-arg]
     champion_id: int = Field(primary_key=True)
     name: str
-    tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
+    tags: str  # e.g. "Marksman", "Mage". Riot returns this as a string
 
     participants: List["Participants"] = Relationship(back_populates="champion")
 
@@ -58,7 +58,7 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
         default="[]",
         # JSON array of PUUIDs linked to this account e.g. ["puuid1", "puuid2"].
         # Denormalized cache of UserGameAccounts for fast autocomplete lookups.
-        # Source of truth is still UserGameAccounts — update this whenever a
+        # Source of truth is still UserGameAccounts, so update this whenever a
         # link is added or removed, or invalidate and rebuild from UserGameAccounts.
     )
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")

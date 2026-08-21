@@ -21,7 +21,7 @@ export interface ReplayOverlayToggles {
 interface MatchReplayMapOverlayProps {
   readonly timeline: MatchTimeline;
   readonly players: readonly ParticipantDetail[];
-  /** Team per player, from the scoreboard — decides the colour of paths and markers. */
+  /** Team per player, from the scoreboard. Decides the colour of paths and markers. */
   readonly teamIdByPuuid: ReadonlyMap<string, number>;
   readonly selectedPuuids: ReadonlySet<string>;
   readonly elapsedMs: number;

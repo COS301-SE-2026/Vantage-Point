@@ -113,7 +113,7 @@ test.describe("Match detail", () => {
   });
 });
 
-test.describe("Match detail — failure modes", () => {
+test.describe("Match detail: failure modes", () => {
   test("reports a failed fetch", async ({ app, page, api }) => {
     api.fail("matchDetail", 500, "Match store unavailable");
     await app.signIn();

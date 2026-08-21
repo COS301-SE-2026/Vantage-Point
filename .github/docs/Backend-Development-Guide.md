@@ -242,7 +242,7 @@ node scripts/generate-coverage-summary.js
 
 This runs `pytest --cov=app --cov-report=json` here in `backend/`, runs the
 frontend's Vitest coverage, and writes the combined result to
-`.github/docs/coverage-summary.md` — including a table of any file below 90%
+`.github/docs/coverage-summary.md`, including a table of any file below 90%
 coverage (`## Files below 90%` under each side). Lower or raise that bar for a
 single run with:
 
@@ -251,14 +251,14 @@ THRESHOLD=80 node scripts/generate-coverage-summary.js
 ```
 
 Check `.github/docs/coverage-summary.md` before opening a PR if your change
-touches an area that was already under 90% — it's the fastest way to see
+touches an area that was already under 90%. It is the fastest way to see
 which files still need tests. See
 [Dev-Quickstart.md](./Dev-Quickstart.md) for the full script setup.
 
 ### Platform Notes
 
-- **Inside the dev container** – use the `.env` file as is (the database host is `db`).
-- **On the Windows host (outside Docker)** – the database is published to `127.0.0.1`.
+- **Inside the dev container**: use the `.env` file as is (the database host is `db`).
+- **On the Windows host (outside Docker)**: the database is published to `127.0.0.1`.
   1. Create a `.env.windows` file from the example and fill in your local credentials:
      ```powershell
      copy backend\.env.windows.example backend\.env.windows

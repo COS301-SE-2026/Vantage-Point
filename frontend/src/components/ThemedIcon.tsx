@@ -18,7 +18,7 @@ interface ThemedIconProps {
  * and an <img> can't be recoloured.
  *
  * Every surface that uses these is now dark, so only one file is rendered. It
- * used to ship both and let a `device-dark:` class pick — which meant two
+ * used to ship both and let a `device-dark:` class pick, which meant two
  * `<img>` elements per glyph and a dependency on the OS theme the dashboard no
  * longer follows.
  */

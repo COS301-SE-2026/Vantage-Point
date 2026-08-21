@@ -21,7 +21,7 @@ function roleShort(position: string): string {
 }
 
 /**
- * Figma "MatchMenu" 22:804 / "MatchHistoryListRow" 22:788 — 820×30 summary row.
+ * Figma "MatchMenu" 22:804 / "MatchHistoryListRow" 22:788: 820×30 summary row.
  * Columns land on the Figma x offsets 8 / 72 / 561 / 620 / 683 / 792, with CS and
  * duration sharing the last wide cell (duration right-aligned to x790).
  *

@@ -249,7 +249,7 @@ test.describe("Match replay", () => {
   });
 });
 
-test.describe("Match replay — degraded data", () => {
+test.describe("Match replay: degraded data", () => {
   test("keeps the map usable when no timeline is stored", async ({
     app,
     page,

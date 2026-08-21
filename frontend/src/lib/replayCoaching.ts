@@ -5,7 +5,7 @@ import type { MatchDetail, ParticipantDetail } from "../types/match";
  *
  * There is no coaching endpoint yet, so the notes are derived locally from the
  * match payload. Each note is a plain statistical read of the scoreboard, not a
- * model prediction — swap this module for the API call once one exists.
+ * model prediction. Swap this module for the API call once one exists.
  */
 export interface ReplayCoachingNote {
   readonly id: string;
@@ -51,7 +51,7 @@ function allParticipants(match: MatchDetail): readonly ParticipantDetail[] {
 }
 
 /**
- * "Champion choices" — names the opposing laner who won the matchup outright,
+ * "Champion choices" names the opposing laner who won the matchup outright,
  * so the suggestion points at a champion the viewer actually played against.
  */
 function championChoiceNote(
@@ -78,7 +78,7 @@ function championChoiceNote(
 }
 
 /**
- * "Player Roles" — flags a player whose farm and vision profile reads as a
+ * "Player Roles" flags a player whose farm and vision profile reads as a
  * different role from the one they were assigned.
  */
 function playerRoleNote(
@@ -127,7 +127,7 @@ export function buildReplayCoachingNotes(
 
 /**
  * The three fixed cards of the Map Analysis "AI Coaching bar" (32:690). Same
- * caveat as above — these read the scoreboard, they are not model output.
+ * caveat as above: these read the scoreboard, they are not model output.
  */
 export function buildMapAnalysisTips(
   match: MatchDetail,

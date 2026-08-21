@@ -85,7 +85,7 @@ function RailButton({
             : "text-vp-dim hover:bg-vp-raised/70 hover:text-vp-ink",
       )}
     >
-      {/* The active marker is a rule against the rail edge, not a filled pill —
+      {/* The active marker is a rule against the rail edge, not a filled pill, so
           it survives the collapse to icons without becoming a blob. */}
       <span
         aria-hidden

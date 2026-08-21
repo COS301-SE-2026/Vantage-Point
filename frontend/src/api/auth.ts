@@ -59,7 +59,7 @@ export async function confirmUser(payload: ConfirmPayload): Promise<void> {
 
 /**
  * Tells the API the session is over. Access tokens are stateless, so the local
- * clear-down is what actually signs the user out — this is best effort and must
+ * clear-down is what actually signs the user out. This is best effort and must
  * never keep the user on a screen they asked to leave.
  */
 export async function logoutUser(): Promise<void> {

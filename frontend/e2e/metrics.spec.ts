@@ -145,7 +145,7 @@ test.describe("Metrics / map analysis", () => {
   });
 });
 
-test.describe("Metrics — degraded data", () => {
+test.describe("Metrics: degraded data", () => {
   test("falls back when Riot returns no recent games", async ({
     app,
     page,

@@ -19,7 +19,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const IMAGES = join(__dirname, "../src/assets/images");
 const REPO_IMAGES = join(__dirname, "../../.github/images");
 
-const MAP = 900; // px, square — the rift renders 1:1
+const MAP = 900; // px, square; the rift renders 1:1
 
 /** Points are rift-relative (0..1) so they survive a change of MAP size. */
 const ENGAGEMENTS = [
@@ -114,7 +114,7 @@ function optimalOverlay() {
   }).join("");
 
   // The ghost has no counterpart in the overlay yet, so it borrows the tracked
-  // player's geometry — a 26px disc over a dark fill — ringed in the gold the
+  // player's geometry (a 26px disc over a dark fill) ringed in the gold the
   // rest of the page uses for the coach.
   const ghosts = ENGAGEMENTS.map((e) => {
     const [x, y] = px(e.optimal);

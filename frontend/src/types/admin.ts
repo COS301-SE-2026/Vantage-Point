@@ -14,7 +14,7 @@ export type UserStatus = "Active" | "Pending" | "Disabled";
 
 // adjusted the order and info based on Cognito side that Shaun shared so there is no mismatch when reading and easier for future reference
 export interface AdminUser {
-  readonly username: string; // primary key — Cognito has no separate `id`
+  readonly username: string; // primary key, since Cognito has no separate `id`
   readonly email: string;
   readonly sub: string;
   readonly user_created_date: string;

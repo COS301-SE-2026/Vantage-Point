@@ -28,8 +28,8 @@ interface Fixtures {
 }
 
 export const test = base.extend<Fixtures>({
-  // `auto` so interception is on even for tests that never name the fixture —
-  // otherwise a stray request escapes to a real backend and fails opaquely.
+  // `auto` so interception is on even for tests that never name the fixture.
+  // Otherwise a stray request escapes to a real backend and fails opaquely.
   api: [
     async ({ context }, use) => {
       const api = new ApiMock();

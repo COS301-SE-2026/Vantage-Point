@@ -16,7 +16,7 @@ interface ProfileViewProps {
   readonly profile?: PlayerProfile;
 }
 
-/** Champion tile — Figma 14:593: 88×88, r12, #404040, count badge bottom-right. */
+/** Champion tile from Figma 14:593: 88×88, r12, #404040, count badge bottom-right. */
 function ChampionTile({ champion }: Readonly<{ champion: RecentChampion }>) {
   const localIcon = localChampionIcon(champion.champion_name);
 

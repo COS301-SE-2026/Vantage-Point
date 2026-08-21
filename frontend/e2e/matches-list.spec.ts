@@ -154,7 +154,7 @@ test.describe("Match history list", () => {
   });
 });
 
-test.describe("Match history — sync and edge cases", () => {
+test.describe("Match history: sync and edge cases", () => {
   test("imports new games from Riot and reports the count", async ({
     app,
     page,

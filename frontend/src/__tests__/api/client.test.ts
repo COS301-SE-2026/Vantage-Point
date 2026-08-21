@@ -249,7 +249,7 @@ describe("apiFetch", () => {
     );
 
     await expect(apiFetch("/secure")).rejects.toMatchObject({ status: 401 });
-    // Only the original request — refresh endpoint never called
+    // Only the original request; the refresh endpoint is never called
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });

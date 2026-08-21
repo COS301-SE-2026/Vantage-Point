@@ -5,7 +5,7 @@
 - **Strong spots**: `models.py` 100%, `auth_service.py` 100%, `schemas` 100%
 - **Gaps**:
   - Routers (`routers/auth.py`, `routers/users.py`, `routers/matches.py`): 0%
-  - `seed.py`: 0% (no smoke test for DB seeding — **now added**)
+  - `seed.py`: 0% (no smoke test for DB seeding, **now added**)
   - `riot_service.py`: 21%, `analytics.py`: 24%
   - `profile_services.py`: 19%
 - **Duplicate tests** in `test_main.py` / `test_system.py` (cleanup opportunity)

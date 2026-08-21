@@ -25,6 +25,8 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 # column survives a restart without a full drop-and-reseed.
 ADDITIVE_MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS region VARCHAR",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS platform_id VARCHAR",
     "ALTER TABLE game_accounts ADD COLUMN IF NOT EXISTS profile_matches_sampled INTEGER",
 )
 

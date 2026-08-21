@@ -8,7 +8,7 @@ interface ProfileRadarChartProps {
 }
 
 /**
- * Figma 14:139 — 360×320 surface. The outer hexagon measures 193.3×223.2px,
+ * Figma 14:139: 360×320 surface. The outer hexagon measures 193.3×223.2px,
  * i.e. radius 111.6px against recharts' 160px half-height (111.6 / 160).
  */
 const RADAR_OUTER_RADIUS = "69.75%";
@@ -25,7 +25,7 @@ interface RadarTickProps {
 }
 
 /**
- * Figma anchors each axis label's text *box* to the tick end (14:157–14:174).
+ * Figma anchors each axis label's text *box* to the tick end (14:157-14:174).
  * Only the label straight below the chart needs the box offset added back.
  */
 function RadarAxisTick(props: RadarTickProps) {

@@ -69,7 +69,7 @@ function ProgressIndicator({
 }
 
 /**
- * Figma "Map" 55:314 — transport row drawn over the minimap: pause at x8/y483,
+ * Figma "Map" 55:314 draws the transport row over the minimap: pause at x8/y483,
  * the progress bar at x40/y489 and the zoom cluster at x424/y483. Those offsets
  * assume the 516px square, so the row is anchored to the map's bottom edge
  * instead and keeps the same insets at any map size.
