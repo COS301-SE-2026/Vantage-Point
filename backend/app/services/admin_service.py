@@ -72,8 +72,12 @@ class admin_service:
                             username=user.get("Username", ""),
                             email=attributes.get("email", ""),
                             sub=attributes.get("sub", ""),
-                            user_created_date=user.get("UserCreateDate", datetime.now()),
-                            user_last_modified_date=user.get("UserLastModifiedDate", datetime.now()),
+                            user_created_date=user.get(
+                                "UserCreateDate", datetime.now()
+                            ),
+                            user_last_modified_date=user.get(
+                                "UserLastModifiedDate", datetime.now()
+                            ),
                             enabled=user.get("Enabled", True),
                             user_status=user.get("UserStatus", ""),
                             role=user_role_map.get(user.get("Username", "")),
