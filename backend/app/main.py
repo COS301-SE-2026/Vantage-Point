@@ -25,6 +25,7 @@ from app.api.router import (
     analytics_router,
     riot_api_routes,
     dashboard_routes,
+    help_routes,
 )
 from app.routers import matches, users
 from app.Models.auth_model import User
@@ -203,6 +204,7 @@ app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
 app.include_router(dashboard_routes.router)
+app.include_router(help_routes.router)
 # This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
 
