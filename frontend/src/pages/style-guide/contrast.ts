@@ -51,17 +51,32 @@ export function parseCssColor(value: string): Rgb | null {
     };
   }
 
-  // Approximate oklch via canvas when available
+  /**
+   * Anything else (oklch, colour keywords, lab) is resolved by painting it.
+   * Reading `ctx.fillStyle` back is not enough: browsers now round-trip modern
+   * colour syntax unchanged, so the string that comes out is the string that
+   * went in. Sampling the pixel gives the sRGB the user actually sees.
+   */
   if (typeof document !== "undefined") {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = 1;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (ctx) {
-      ctx.fillStyle = "#000";
-      ctx.fillStyle = value;
-      const computed = ctx.fillStyle;
-      if (computed.startsWith("#")) return parseCssColor(computed);
-      if (computed.startsWith("rgb")) return parseCssColor(computed);
+      // Assigning an invalid colour is a no-op, so the canvas would keep
+      // whatever it held and report that as the answer. Priming from two
+      // opposite sentinels catches it: a value the canvas accepted lands on
+      // the same pixel from both, one it rejected does not.
+      const sample = (prime: string): [number, number, number] => {
+        ctx.fillStyle = prime;
+        ctx.fillStyle = value;
+        ctx.clearRect(0, 0, 1, 1);
+        ctx.fillRect(0, 0, 1, 1);
+        const d = ctx.getImageData(0, 0, 1, 1).data;
+        return [d[0], d[1], d[2]];
+      };
+      const [r, g, b] = sample("#000000");
+      const [r2, g2, b2] = sample("#ffffff");
+      if (r === r2 && g === g2 && b === b2) return { r, g, b };
     }
   }
 
