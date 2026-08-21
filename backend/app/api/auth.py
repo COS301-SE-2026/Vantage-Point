@@ -151,7 +151,7 @@ role_display_names = {"User": "Player", "Admin": "Admin", "SuperAdmin": "Super A
 
 def get_user_role(user: User) -> str | None:
     """Highest-privilege group, translated to the frontend's AppRole labels.
-    None if the user has no recognized group — Cognito returns nothing here
+    None if the user has no recognized group. Cognito returns nothing here
     for a plain user with no group assigned yet.
     """
     highest_group = max(

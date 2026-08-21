@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from jose import JWTError, jwt
 
 # This module is imported before anything else has a chance to read backend/.env,
-# so load it here the way database.session and services.riot_api already do —
-# otherwise `uvicorn app.main:app` refuses to start outside Docker.
+# so load it here the way database.session and services.riot_api already do.
+# Otherwise `uvicorn app.main:app` refuses to start outside Docker.
 load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET", "")

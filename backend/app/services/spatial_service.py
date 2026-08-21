@@ -5,7 +5,7 @@ That is enough to reconstruct a walking route and to say how much ground someone
 covered, which is what the replay map draws.
 
 Distances are in Riot map units. Summoner's Rift is roughly 14 870 units across, so a
-full lap of the map is about 21 000 units — useful as a relative measure between
+full lap of the map is about 21 000 units, useful as a relative measure between
 players in the same game rather than as an absolute.
 """
 
