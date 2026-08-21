@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
-import { PanelLeft, History, Clapperboard, LogOut, HelpCircle } from "lucide-react";
+import {
+  PanelLeft,
+  History,
+  Clapperboard,
+  LogOut,
+  HelpCircle,
+} from "lucide-react";
 import { Sidebar, DesktopSidebar, useSidebar } from "./ui/aceternity/sidebar";
 import { cn } from "./ui/utils";
 import UserAccountMenu from "./UserAccountMenu";
@@ -10,7 +16,12 @@ import {
 } from "../lib/dashboardLayout";
 import imgLogoWhite from "../assets/images/logos/logo-mark-white.webp";
 
-export type DashboardSection = "matches" | "replay" | "metrics" | "profile" | "help";
+export type DashboardSection =
+  | "matches"
+  | "replay"
+  | "metrics"
+  | "profile"
+  | "help";
 
 interface DashboardShellProps {
   readonly children: ReactNode;

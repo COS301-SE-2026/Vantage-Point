@@ -49,7 +49,9 @@ export default function HelpPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(null);
+  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(
+    null,
+  );
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -58,7 +60,9 @@ export default function HelpPage() {
   const [submitting, setSubmitting] = useState(false);
 
   // Modal State for Deletion
-  const [articleToDelete, setArticleToDelete] = useState<HelpArticle | null>(null);
+  const [articleToDelete, setArticleToDelete] = useState<HelpArticle | null>(
+    null,
+  );
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
