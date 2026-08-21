@@ -25,6 +25,8 @@ coverage.xml
 .nyc_output/
 htmlcov/
 backend/app/tests/fixtures/
+# Fitted models, rebuilt from the training csvs on demand
+backend/app/pred_engine/model_cache/
 backend/app/tests/integration/
 dist/
 build/

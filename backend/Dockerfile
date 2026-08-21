@@ -27,6 +27,12 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY app/ app/
 
+# Fit the slow models once here, so a container starts by reading them instead of
+# spending about two minutes fitting them on every boot, in every worker. Costs roughly
+# 1.1 GB of image. The KNN is deliberately left out; app/pred_engine/model_cache.py
+# explains why.
+RUN python -m app.pred_engine.model_cache
+
 # Change ownership of the app directory to pyrunner
 RUN chown -R pyrunner:pyrunner /app && \
     chown -R pyrunner:pyrunner /home/pyrunner

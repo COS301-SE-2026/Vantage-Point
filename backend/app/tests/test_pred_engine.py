@@ -259,6 +259,13 @@ class TestAvgStd:
         assert r1 is None
         assert r2 is None
 
+    def test_avg_std_single_point(self):
+        # One point leaves no pair to measure, so there is no average to divide out.
+        d = [[1, 2]]
+        r1, r2 = AI_models.avg_and_std(d)
+        assert r1 is None
+        assert r2 is None
+
     def test_avg_std(self):
         d = [[1, 2], [1, 2]]
         r1, r2 = AI_models.avg_and_std(d)
@@ -271,6 +278,11 @@ class TestCorrectKnn:
         d1 = []
         d2 = []
         result = AI_models.correct_knn(d1, d2)
+        assert result is None
+
+    def test_single_frame_knn(self):
+        # A one-frame match used to divide by zero on its way through avg_and_std.
+        result = AI_models.correct_knn([[1, 2]], [[1, 2]])
         assert result is None
 
     def test_no_fix_knn(self):
