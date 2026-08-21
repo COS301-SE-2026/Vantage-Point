@@ -40,7 +40,11 @@ from app.services.riot_api import (
     RiotApiNotConfiguredError,
     RiotApiUnauthorizedError,
 )
-from app.services.riot_service import get_region
+from app.services.riot_service import (
+    clusters_to_probe,
+    get_region,
+    macro_region_for_match_id,
+)
 
 logger = logging.getLogger("app.match_ingest")
 
@@ -82,20 +86,26 @@ async def fetch_recent_match_ids(
     puuid: str,
     count: int,
 ) -> list[str]:
-    """Recent Match-V5 ids for a PUUID, probing routing clusters until one answers."""
+    """Recent Match-V5 ids for a PUUID, probing routing clusters until one answers.
 
-    url = (
-        f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
-        f"by-puuid/{puuid}/ids?start=0&count={count}"
-    )
-    response = await client.get(url, headers=headers)
-    raise_for_riot_status(response)
+    `region` is only the first guess. It comes from the user's own profile, which says
+    nothing about where a linked account plays, so an account on another cluster would
+    otherwise look like an account with no matches at all.
+    """
+    for cluster in clusters_to_probe(region):
+        url = (
+            f"https://{cluster}.api.riotgames.com/lol/match/v5/matches/"
+            f"by-puuid/{puuid}/ids?start=0&count={count}"
+        )
+        response = await client.get(url, headers=headers)
+        raise_for_riot_status(response)
 
-    if response.status_code == 200:
-        ids = [str(match_id) for match_id in response.json()]
-        if ids:
-            return ids
-    # 404 or an empty list means this cluster does not host the account.
+        if response.status_code == 200:
+            ids = [str(match_id) for match_id in response.json()]
+            if ids:
+                logger.info("Found %d matches for the player on %s", len(ids), cluster)
+                return ids
+        # 404 or an empty list means this cluster does not host the account.
 
     return []
 
@@ -103,7 +113,10 @@ async def fetch_recent_match_ids(
 async def fetch_match(
     client: httpx.AsyncClient, region: str, headers: dict[str, str], match_id: str
 ) -> dict[str, Any] | None:
-    url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+    # The id says which cluster played the match, so `region` is only a fallback for
+    # an id whose platform prefix we do not recognise.
+    cluster = macro_region_for_match_id(match_id) or region
+    url = f"https://{cluster}.api.riotgames.com/lol/match/v5/matches/{match_id}"
 
     response = await client.get(url, headers=headers)
 
@@ -566,15 +579,17 @@ async def sync_matches_for_puuid(
 
         results = await asyncio.gather(*(_bounded_fetch(mid) for mid in match_ids))  # type: ignore
 
-    for match_id, match in zip(match_ids, results):
-        match = await fetch_match(client, region, headers, match_id)
-        if match is None:
-            continue
-        fetched_matches.append(match)
-        if await _persist_match(
-            session, match, puuid, match_exists=match_id in already_stored
-        ):
-            imported += 1
+        # Inside the client, and using what the gather above already fetched. Both
+        # matter: refetching here threw the concurrency away, and doing it after the
+        # `async with` had closed the client raised on the very first match.
+        for match_id, match in zip(match_ids, results):
+            if match is None:
+                continue
+            fetched_matches.append(match)
+            if await _persist_match(
+                session, match, puuid, match_exists=match_id in already_stored
+            ):
+                imported += 1
 
     if fetched_matches:
         await _rebuild_achievements(session, puuid, fetched_matches)
