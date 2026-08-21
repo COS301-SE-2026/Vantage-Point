@@ -97,7 +97,9 @@ class TestInvalidation:
         # Otherwise every edit to a training set leaves another 150 MB behind.
         assert len(list(cache.glob("stub-*.joblib"))) == 1
 
-    def test_a_different_sklearn_does_not_read_the_old_pickle(self, cache, spec, monkeypatch):
+    def test_a_different_sklearn_does_not_read_the_old_pickle(
+        self, cache, spec, monkeypatch
+    ):
         load_or_build(spec)
         monkeypatch.setattr(sklearn, "__version__", f"{sklearn.__version__}.99")
 
