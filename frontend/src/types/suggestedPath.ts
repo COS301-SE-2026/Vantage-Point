@@ -2,16 +2,15 @@
  * The route the coaching model thinks the player should have walked, against which the
  * replay draws the route they actually walked.
  *
- * PROVISIONAL: the backend endpoint does not exist yet. This mirrors what the pieces
- * already in the backend can produce: `pred_engine/ai_caller.get_knn_output` returns a
- * list of `[x, y]` map coordinates, one per timeline frame, and the frames it is fed
- * come from `/analytics/map_suggest_data/{match_id}`, which carries their timestamps.
- * Confirm the field names with whoever builds the route before treating this as fixed.
+ * Matches `SuggestedPathResponse` in the backend's `schemas/suggested_path.py`. The
+ * first point is the player's own starting position rather than a prediction: the model
+ * corrects a route from where the player actually began, so the two lines on the map
+ * share an origin and diverge from there.
  */
 
 import type { TimelinePosition } from "./timeline";
 
-/** One predicted position, keyed to the timeline frame it belongs to. */
+/** One recommended position, keyed to the timeline frame it belongs to. */
 export interface SuggestedPathPoint {
   /** Milliseconds from the start of the game, matching a frame in `MatchTimeline`. */
   readonly timestamp_ms: number;
