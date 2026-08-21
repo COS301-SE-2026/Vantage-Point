@@ -32,6 +32,7 @@ interface DashboardShellProps {
   readonly userRole?: string;
 }
 
+/** What the header calls each section, so the page always says where it is. */
 const SECTION_TITLES: Record<DashboardSection, string> = {
   matches: "Match history",
   replay: "Match replay",
@@ -39,6 +40,10 @@ const SECTION_TITLES: Record<DashboardSection, string> = {
   profile: "Profile",
 };
 
+/**
+ * A rail row. Aceternity's own `SidebarLink` is an anchor; these are buttons so
+ * they keep the router in charge of navigation and can carry `aria-current`.
+ */
 function RailButton({
   label,
   icon,
@@ -70,6 +75,8 @@ function RailButton({
             : "text-vp-dim hover:bg-vp-raised/70 hover:text-vp-ink",
       )}
     >
+      {/* The active marker is a rule against the rail edge, not a filled pill —
+          it survives the collapse to icons without becoming a blob. */}
       <span
         aria-hidden
         className={cn(
@@ -146,6 +153,9 @@ export default function DashboardShell({
   return (
     <div className="flex min-h-screen w-full bg-vp-canvas font-beaufort text-vp-ink">
       <Sidebar open={sidebarOpen} setOpen={onSidebarToggle}>
+        {/* Upstream expands the rail on hover. Here the toggle in the header is
+            the only thing that opens it, so the mouse handlers are cleared and
+            the widths come from the shell's own measurements. */}
         <DesktopSidebar
           id="dashboard-sidebar"
           onMouseEnter={undefined}
@@ -183,6 +193,8 @@ export default function DashboardShell({
               />
             ) : null}
 
+            {/* Log out sits in the same landmark as the destinations: it is how
+                you leave the dashboard, and the rail is where you look for it. */}
             <div className="mt-auto pt-4">
               <RailButton
                 label="Log out"

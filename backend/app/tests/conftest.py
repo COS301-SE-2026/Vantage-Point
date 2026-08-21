@@ -23,8 +23,6 @@ from app.tests.constants import TEST_JWT_SECRET, TEST_USER_PASSWORD
 
 os.environ.setdefault("JWT_SECRET", TEST_JWT_SECRET)
 
-pytest_plugins = ["app.tests.postgres_fixtures"]
-
 fake_user = UserTest(
     sub="123456",
     username="testuser",

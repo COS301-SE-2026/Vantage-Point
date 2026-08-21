@@ -11,18 +11,20 @@ interface AiCoachingBarProps {
 }
 
 /**
- * Figma "AI Coaching bar" 32:690 — 569×180 rail on #F0F0F0 with a #DADADA rule,
- * holding three 150×157.5 cards inset 22px from the left on a 38px rhythm.
+ * Figma "AI Coaching bar" 32:690 — the rail of tips beside the Map Analysis minimap.
  *
- * The rule is an inset shadow rather than a border so it stays out of the
- * content box; a border would push every card 1px down and right of Figma.
+ * Figma drew it on the light frame, with a #DADADA rule and three 150x157.5 cards
+ * on a fixed rhythm. The dashboard is always dark now, so the rule is the shared
+ * hairline token, and the cards divide the rail between them instead of sitting at
+ * a width their text has to be cut down to fit. The rail keeps no height of its own
+ * either: three one-line tips no longer hold open a 180px band.
  */
 export default function AiCoachingBar({ tips }: Readonly<AiCoachingBarProps>) {
   return (
     <aside
       data-name="AI Coaching bar"
       data-node-id="32:690"
-      className="flex h-[180px] min-w-0 flex-1 items-start justify-between gap-[24px] overflow-x-auto rounded-[5px] bg-[#f0f0f0] device-dark:bg-[#3a3939] px-[22px] pt-[12.6px] shadow-[inset_0_0_0_1px_#dadada] device-dark:shadow-[inset_0_0_0_1px_#2c2c2c]"
+      className="flex min-w-0 flex-1 gap-[12px] overflow-x-auto rounded-[5px] border border-vp-line bg-vp-surface p-[12px]"
       aria-label="AI coaching recommendations"
     >
       {tips.map((tip) => (
@@ -30,11 +32,7 @@ export default function AiCoachingBar({ tips }: Readonly<AiCoachingBarProps>) {
           key={tip.id}
           heading={tip.heading}
           body={tip.body}
-          width={150}
-          height={157.5}
-          bodyLines={2}
-          arrowBox={31.2305}
-          arrowTop={7.5}
+          className="min-w-[170px] flex-1"
         />
       ))}
     </aside>

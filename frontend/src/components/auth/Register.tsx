@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router";
 import AuthScreen, {
+  AuthFormError,
   AuthInputField,
+  AuthSubmitButton,
+  AuthSwitchPrompt,
   PasswordVisibilityToggle,
 } from "./AuthScreen";
 
@@ -37,6 +39,9 @@ export default function Register({
       onSocialClick={form.onSocialClick}
       socialVerb="Sign up"
       backgroundImage={backgroundImage}
+      eyebrow="Create an account"
+      title="Start reading the map"
+      subtitle="Link your Riot ID after sign-up and your last match is analysed in under a minute."
     >
       <form
         onSubmit={(e) => {
@@ -45,15 +50,12 @@ export default function Register({
         }}
         className="flex w-full flex-col gap-5"
       >
-        {form.error && (
-          <p className="text-[14px] text-red-600 text-center" role="alert">
-            {form.error}
-          </p>
-        )}
+        <AuthFormError message={form.error} />
 
         <AuthInputField
           label="Username"
-          placeholder="gameName#1234"
+          placeholder="Player123"
+          autoComplete="username"
           value={form.displayName}
           onChange={form.onDisplayNameChange}
         />
@@ -62,6 +64,7 @@ export default function Register({
           label="Email Address"
           placeholder="name@domain.com"
           type="email"
+          autoComplete="email"
           value={form.email}
           onChange={form.onEmailChange}
         />
@@ -70,6 +73,7 @@ export default function Register({
           label="Password"
           placeholder="••••••••"
           type={showPassword ? "text" : "password"}
+          autoComplete="new-password"
           value={form.password}
           onChange={form.onPasswordChange}
           trailing={
@@ -85,6 +89,7 @@ export default function Register({
           label="Confirm Password"
           placeholder="••••••••"
           type={showConfirmPassword ? "text" : "password"}
+          autoComplete="new-password"
           value={form.confirmPassword}
           onChange={form.onConfirmPasswordChange}
           trailing={
@@ -96,25 +101,19 @@ export default function Register({
           }
         />
 
-        <button
-          type="submit"
-          disabled={form.loading}
-          className="bg-[#2c2c2c] h-[58px] rounded-[8px] w-full text-white hover:bg-[#3c3c3c] transition-colors disabled:opacity-60"
-        >
-          {form.loading ? "Creating account..." : "Register"}
-        </button>
+        <AuthSubmitButton
+          label="Register"
+          loadingLabel="Creating account…"
+          loading={form.loading}
+        />
 
-        <div className="text-center mt-4">
-          <p className="text-[#b3b3b3] text-[16px]">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-black font-semibold hover:underline"
-            >
-              Login
-            </Link>
-          </p>
-        </div>
+        <AuthSwitchPrompt
+          prompt="Already have an account? "
+          actionLabel="Login"
+          to="/login"
+          dataName="Sign in option"
+          asLink
+        />
       </form>
     </AuthScreen>
   );

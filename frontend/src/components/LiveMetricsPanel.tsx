@@ -7,16 +7,15 @@ interface LiveMetricsPanelProps {
 }
 
 const PANEL_CLASS =
-  "flex w-full min-w-0 flex-col gap-[8px] rounded-[5px] bg-[#f0f0f0] px-[22px] py-[12px] shadow-[inset_0_0_0_1px_#dadada] device-dark:bg-[#3a3939] device-dark:shadow-[inset_0_0_0_1px_#2c2c2c]";
+  "flex w-full min-w-0 flex-col gap-[8px] rounded-[5px] bg-vp-surface px-[22px] py-[12px] shadow-[inset_0_0_0_1px_#dadada]";
 
 const HEADING_CLASS =
-  "font-['Beaufort_for_LOL',serif] text-[12px] font-bold uppercase tracking-[0.275px] text-[#757575] device-dark:text-[#929292]";
+  "text-[12px] font-bold uppercase tracking-[0.275px] text-vp-dim";
 
 const LABEL_CLASS =
-  "font-['Beaufort_for_LOL',serif] text-[10px] font-medium uppercase tracking-[0.275px] text-[#757575] device-dark:text-[#929292]";
+  "text-[10px] font-medium uppercase tracking-[0.275px] text-vp-dim";
 
-const VALUE_CLASS =
-  "font-['Beaufort_for_LOL',serif] text-[16px] font-bold text-[#1e1e1e] tabular-nums device-dark:text-white";
+const VALUE_CLASS = "text-[16px] font-bold text-vp-ink tabular-nums";
 
 function StatTile({
   label,
@@ -44,7 +43,7 @@ export default function LiveMetricsPanel({
     return (
       <aside className={PANEL_CLASS} aria-label="Live performance metrics">
         <span className={HEADING_CLASS}>Recent form</span>
-        <span className="font-['Beaufort_for_LOL',serif] text-[14px] text-[#757575] device-dark:text-[#929292]">
+        <span className="text-[14px] text-vp-dim">
           Reading your recent games from Riot…
         </span>
       </aside>
@@ -55,7 +54,7 @@ export default function LiveMetricsPanel({
     return (
       <aside className={PANEL_CLASS} aria-label="Live performance metrics">
         <span className={HEADING_CLASS}>Recent form</span>
-        <span className="font-['Beaufort_for_LOL',serif] text-[14px] text-[#757575] device-dark:text-[#929292]">
+        <span className="text-[14px] text-vp-dim">
           {error ?? "No recent games available from Riot for this account."}
         </span>
       </aside>

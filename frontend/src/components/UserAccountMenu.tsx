@@ -9,8 +9,8 @@ import {
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
-/** 48px header avatar, or the 88px ProfileAvatar from Figma 13:1166. */
-export type AccountAvatarSize = 48 | 88;
+/** Header avatar, or the large one the profile header used to show. */
+export type AccountAvatarSize = 36 | 48 | 88;
 
 interface UserAccountMenuProps {
   readonly onProfileClick?: () => void;
@@ -20,11 +20,6 @@ interface UserAccountMenuProps {
   readonly avatarUrl?: string | null;
   readonly size?: AccountAvatarSize;
 }
-
-const LARGE_INITIALS_CLASS =
-  "font-['Beaufort_for_LOL',serif] text-[24px] font-medium leading-[21px] tracking-[-0.28px] text-[#1e1e1e] device-dark:text-white";
-const SMALL_INITIALS_CLASS =
-  "font-['Sora',sans-serif] text-[14px] font-normal leading-normal tracking-[-0.28px] text-[#0a0a0a] device-dark:text-white";
 
 function ProfileAvatar({
   initials,
@@ -36,16 +31,18 @@ function ProfileAvatar({
   size: AccountAvatarSize;
 }>) {
   const src = resolveAvatarUrl(avatarUrl ?? undefined);
-  const isLarge = size === 88;
-  const initialsClass = isLarge ? LARGE_INITIALS_CLASS : SMALL_INITIALS_CLASS;
+  const initialsClass =
+    size >= 88
+      ? "text-[24px] font-medium"
+      : size >= 48
+        ? "text-[15px] font-medium"
+        : "text-[12px] font-medium";
 
   if (src) {
     return (
       <Avatar style={{ width: size, height: size }}>
         <AvatarImage src={src} alt="" className="object-cover" />
-        <AvatarFallback
-          className={`bg-[#dddddd] device-dark:bg-[#3a3939] ${initialsClass}`}
-        >
+        <AvatarFallback className={`bg-vp-raised text-vp-ink ${initialsClass}`}>
           {initials}
         </AvatarFallback>
       </Avatar>
@@ -58,36 +55,9 @@ function ProfileAvatar({
       style={{ width: size, height: size }}
       data-name="ProfileAvatar"
     >
-      {isLarge ? (
-        /**
-         * Figma 13:1167 — path lifted verbatim from the exported avatar-circle.svg
-         * (same 88 viewBox, same geometry) so the fill can follow the device theme;
-         * an <img> can't be recoloured, and dark needs #3a3939 (Figma 13:1202).
-         */
-        <svg
-          className="absolute block inset-0 size-full text-[#dddddd] device-dark:text-[#3a3939]"
-          fill="none"
-          viewBox="0 0 88 88"
-          aria-hidden
-        >
-          <path
-            d="M44 88C68.3005 88 88 68.3005 88 44C88 19.6995 68.3005 0 44 0C19.6995 0 0 19.6995 0 44C0 68.3005 19.6995 88 44 88Z"
-            fill="currentColor"
-          />
-        </svg>
-      ) : (
-        <svg
-          className="absolute block inset-0 size-full text-[#D9D9D9] device-dark:text-[#3a3939]"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 48 48"
-          aria-hidden
-        >
-          <circle cx="24" cy="24" fill="currentColor" r="24" />
-        </svg>
-      )}
+      <span className="absolute inset-0 rounded-full border border-vp-line-strong bg-vp-raised" />
       <span
-        className={`absolute inset-0 flex items-center justify-center ${initialsClass}`}
+        className={`absolute inset-0 flex items-center justify-center tracking-[0.02em] text-vp-ink ${initialsClass}`}
       >
         {initials}
       </span>
@@ -101,14 +71,14 @@ export default function UserAccountMenu({
   onLogout,
   initials = "UN",
   avatarUrl = null,
-  size = 48,
+  size = 36,
 }: Readonly<UserAccountMenuProps>) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="cursor-pointer rounded-full border-0 bg-transparent p-0 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#525252]"
+          className="cursor-pointer rounded-full border-0 bg-transparent p-0 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vp-gold"
           aria-label="Account menu"
         >
           <ProfileAvatar
@@ -118,10 +88,14 @@ export default function UserAccountMenu({
           />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" align="end" className="min-w-[10rem]">
+      <DropdownMenuContent
+        side="bottom"
+        align="end"
+        className="min-w-[11rem] border-vp-line bg-vp-surface text-vp-ink"
+      >
         <DropdownMenuItem
           onSelect={() => onProfileClick?.()}
-          className="font-['Inter',sans-serif] cursor-pointer"
+          className="cursor-pointer focus:bg-vp-raised focus:text-vp-ink"
         >
           <User className="size-4" aria-hidden />
           Profile
@@ -129,16 +103,16 @@ export default function UserAccountMenu({
         {onEditProfileClick ? (
           <DropdownMenuItem
             onSelect={() => onEditProfileClick()}
-            className="font-['Inter',sans-serif] cursor-pointer"
+            className="cursor-pointer focus:bg-vp-raised focus:text-vp-ink"
           >
             <Pencil className="size-4" aria-hidden />
             Edit profile
           </DropdownMenuItem>
         ) : null}
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-vp-line" />
         <DropdownMenuItem
           onSelect={() => onLogout?.()}
-          className="font-['Inter',sans-serif] cursor-pointer"
+          className="cursor-pointer focus:bg-vp-raised focus:text-vp-ink"
         >
           <LogOut className="size-4" aria-hidden />
           Log out

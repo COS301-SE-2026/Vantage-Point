@@ -22,7 +22,13 @@ export default function RiotId({
   backgroundImage,
 }: Readonly<RiotIdProps>) {
   return (
-    <AuthScreen showSocialLogins={false} backgroundImage={backgroundImage}>
+    <AuthScreen
+      showSocialLogins={false}
+      backgroundImage={backgroundImage}
+      eyebrow="One more step"
+      title="Link your Riot ID"
+      subtitle="Your match history is pulled straight from the Riot API. Nothing to install."
+    >
       <form
         onSubmit={(e) => {
           e.preventDefault();

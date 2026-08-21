@@ -1,19 +1,45 @@
 import os
 import re
 from typing import Annotated, Any
+from app.Models.auth_model import User
 from urllib.parse import quote
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 import httpx
 
+from sqlmodel import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database.models import Users
+from app.Enums.riot_enum import RegionPlatforms
+
+from app.api.auth import require_group
+from app.database.session import get_session
 from app.config import get_settings
 
 load_dotenv()
 
 API_KEY = os.getenv("RIOT_API_KEY")
-BASE_URL = "https://americas.api.riotgames.com"
 settings = get_settings()
+
+
+async def get_region(session: AsyncSession, cognito_sub: str) -> str:
+    try:
+        statement = select(Users).where(Users.cognito_sub == cognito_sub)
+        result: Any = await session.execute(statement)
+        user: Users | None = result.scalar_one_or_none()
+
+        if user is None:
+            # idea behind this is if not in our db does not exist in cognito. Hence can look for in our db. Due to need to get profile to updatye
+            raise HTTPException(status_code=400, detail="User does not exist.")
+
+        if user.region is None:
+            raise HTTPException(status_code=404, detail="User missing play region")
+
+        return user.region
+    except HTTPException as e:
+        print(str(e))
+        raise HTTPException(status_code=404, detail="Region not set")
 
 
 def filter_match_for_players(
@@ -78,10 +104,11 @@ def get_macro_region(server_region: str) -> str:
 
 
 class RiotService:
-    def __init__(self):
+    def __init__(self, region: str):
         self.headers = {"X-Riot-Token": settings.riot_api_key}
-        self.account_url = "https://europe.api.riotgames.com"
-        self.platform_url = "https://euw1.api.riotgames.com"
+        self.account_url = f"https://{region}.api.riotgames.com"
+        self.server_region: str = region
+        self.platform_url: str | None = None
 
     def _get_macro_region(self, server_region: str) -> str:
         return get_macro_region(server_region)
@@ -104,37 +131,44 @@ class RiotService:
             return puuid
 
     async def get_summoner_data(self, puuid: str):
-        url = f"{self.platform_url}/lol/summoner/v4/summoners/by-puuid/{puuid}"
+        possible_platforms: list[str] = RegionPlatforms[self.server_region]
+
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 404:
-                raise HTTPException(
-                    status_code=404, detail="Summoner data not found for this PUUID."
-                )
-            elif response.status_code == 429:
-                raise HTTPException(
-                    status_code=429,
-                    detail="Rate limit exceeded: Riot is throttling requests.",
-                )
-            elif response.status_code in (401, 403):
-                raise HTTPException(
-                    status_code=401, detail="Unauthorized: Check your Riot API Key."
-                )
-            else:
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=f"Riot API Error: {response.text}",
-                )
+            for server_region in possible_platforms:
+                self.platform_url = f"https://{server_region}.api.riotgames.com"
+
+                url = f"{self.platform_url}/lol/summoner/v4/summoners/by-puuid/{puuid}"
+                response = await client.get(url, headers=self.headers)
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 404:
+                    continue
+                elif response.status_code == 429:
+                    raise HTTPException(
+                        status_code=429,
+                        detail="Rate limit exceeded: Riot is throttling requests.",
+                    )
+                elif response.status_code in (401, 403):
+                    raise HTTPException(
+                        status_code=401, detail="Unauthorized: Check your Riot API Key."
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Riot API Error: {response.text}",
+                    )
+        raise HTTPException(
+            status_code=404,
+            detail=f"Summoner Puuid: {puuid} was not found in {self.server_region}",
+        )
 
     async def get_match_ids(
         self, server_region: str, puuid: str, count: int = 5
     ) -> list[str]:
-        macro_region = self._get_macro_region(server_region)
-        base_url = f"https://{macro_region}.api.riotgames.com"
+        server_region = self.server_region
+        self.account_url = f"https://{server_region}.api.riotgames.com"
         endpoint = f"/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
-        url = base_url + endpoint
+        url = self.account_url + endpoint
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -161,11 +195,7 @@ class RiotService:
             )
 
     async def get_match_detail(self, match_id: str) -> Any:
-        server_region = match_id.split("_")[0].lower()
-        macro_region = self._get_macro_region(server_region)
-        url = (
-            f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
-        )
+        url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
 
@@ -200,11 +230,8 @@ class RiotService:
                 status_code=400, detail="Invalid match ID format provided."
             )
 
-        server_region = match_id.split("_")[0].lower()
-        macro_region = self._get_macro_region(server_region)
-
         safe_match_id = quote(match_id, safe="")
-        url = f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
+        url = f"https://{self.server_region}.api.riotgames.com/lol/match/v5/matches/{safe_match_id}/timeline"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -232,11 +259,13 @@ class RiotService:
                 )
 
 
-riot_service = RiotService()
+async def get_riot_service(
+    _: Annotated[User, Depends(require_group(20))],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> RiotService:
+    region: str = await get_region(session, _.sub)
 
-
-def get_riot_service() -> RiotService:
-    return RiotService()
+    return RiotService(region)
 
 
 RiotServiceDep = Annotated[RiotService, Depends(get_riot_service)]

@@ -1,17 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronRight, RefreshCw } from "lucide-react";
-import { useNavigate, useOutletContext } from "react-router";
-import type { DashboardOutletContext } from "../context/dashboardLayoutContext";
-import {
-  DASHBOARD_CONTENT_HEIGHT,
-  getDashboardContentStyle,
-} from "../lib/dashboardLayout";
+import { useNavigate } from "react-router";
 import { fetchMatchHistory, syncMatchHistory } from "../api/matches";
 import {
   groupDashboardMatchesByDay,
@@ -30,67 +19,48 @@ import {
 } from "../lib/matchListControls";
 import type { MatchHistorySummary } from "../types/match";
 import MatchesListToolbar from "../components/MatchesListToolbar";
+import {
+  Button,
+  ChampionIcon,
+  EmptyState,
+  ErrorNote,
+  PageContainer,
+  StatTile,
+} from "../components/dashboard/primitives";
 
-interface MatchesListViewProps {
-  readonly sidebarOpen?: boolean;
-}
-
-function outcomeClass(outcome: "Victory" | "Defeat"): string {
-  return outcome === "Victory"
-    ? "text-[#1e7e34] device-dark:text-[#18c840]"
-    : "text-[#c44a4a] device-dark:text-[#e03b3b]";
-}
-
-interface MatchHistoryListRowProps {
-  readonly item: DashboardMatchListItem;
-  readonly onOpenMatch: (matchId: string) => void;
-}
-
+/**
+ * The row grid. Every column is a fixed track except the champion, so the
+ * numbers stay in the same place from row to row and can be read down a column
+ * rather than hunted for.
+ */
 const MATCH_ROW_GRID =
-  "grid h-[30px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 px-3";
+  "grid w-full grid-cols-[3px_28px_minmax(0,1fr)_46px_78px_56px_66px_16px] items-center gap-x-3 pl-0 pr-3";
 
-const STAT_LABEL_CLASS =
-  "font-['Beaufort_for_LOL',serif] text-[10px] font-medium uppercase tracking-[0.275px] text-[#757575] device-dark:text-[#929292]";
-
-const STAT_VALUE_CLASS =
-  "font-['Beaufort_for_LOL',serif] text-[12px] text-[#1e1e1e] device-dark:text-white tabular-nums";
+const COL_LABEL =
+  "text-[10px] font-medium uppercase tracking-[0.16em] text-vp-faint";
 
 function matchRowAriaLabel(item: DashboardMatchListItem): string {
   return `View match as ${item.champion_name}, ${item.outcome}, role ${item.roleLabel}, KDA ${item.kdaLabel}, ${item.cs} creep score, ${item.duration_minutes} minutes`;
 }
 
-function MatchStatCell({
-  children,
-  className = "",
-  align = "start",
-}: Readonly<{
-  children: ReactNode;
-  className?: string;
-  align?: "start" | "end";
-}>) {
-  const alignment = align === "end" ? "text-right" : "text-left";
-  return (
-    <div className={`block min-w-0 ${alignment} ${className}`}>{children}</div>
-  );
-}
-
 /**
- * Visual column captions only. Each row below is a button whose aria-label
- * already names every value (see matchRowAriaLabel), so repeating the captions
- * to assistive tech would just double up the announcement.
+ * Column captions only. Each row below is a button whose aria-label already
+ * names every value (see matchRowAriaLabel), so repeating the captions to
+ * assistive tech would just double up the announcement.
  */
 function MatchHistoryListHeader() {
   return (
     <div
-      className="grid h-[20px] w-full grid-cols-[56px_minmax(0,1fr)_52px_59px_60px_80px_20px] items-center gap-x-2 border-b border-[#eee] device-dark:border-[#929292] px-3"
+      className={`${MATCH_ROW_GRID} h-7 border-b border-vp-line`}
       aria-hidden
     >
-      <span className={STAT_LABEL_CLASS}>Result</span>
-      <span className={STAT_LABEL_CLASS}>Champion</span>
-      <span className={STAT_LABEL_CLASS}>Role</span>
-      <span className={STAT_LABEL_CLASS}>KDA</span>
-      <span className={STAT_LABEL_CLASS}>CS</span>
-      <span className={`${STAT_LABEL_CLASS} text-right`}>Duration</span>
+      <span />
+      <span />
+      <span className={COL_LABEL}>Champion</span>
+      <span className={COL_LABEL}>Role</span>
+      <span className={COL_LABEL}>KDA</span>
+      <span className={`${COL_LABEL} text-right`}>CS</span>
+      <span className={`${COL_LABEL} text-right`}>Duration</span>
       <span />
     </div>
   );
@@ -99,44 +69,50 @@ function MatchHistoryListHeader() {
 function MatchHistoryListRow({
   item,
   onOpenMatch,
-}: Readonly<MatchHistoryListRowProps>) {
+}: Readonly<{
+  item: DashboardMatchListItem;
+  onOpenMatch: (matchId: string) => void;
+}>) {
+  const won = item.outcome === "Victory";
+
   return (
     <button
       type="button"
       onClick={() => onOpenMatch(item.matchId)}
       aria-label={matchRowAriaLabel(item)}
-      className={`${MATCH_ROW_GRID} cursor-pointer rounded-[8px] border border-solid border-[#d9d9d9] bg-white text-left transition-colors hover:border-[#b3b3b3] hover:bg-[#fafafa] device-dark:border-[#181818] device-dark:bg-[#3a3939] device-dark:hover:border-[#5a5959] device-dark:hover:bg-[#454444] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4a7fd4]`}
+      className={`${MATCH_ROW_GRID} group h-12 cursor-pointer overflow-hidden rounded-lg border border-vp-line bg-vp-surface text-left transition-colors hover:border-vp-line-strong hover:bg-vp-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vp-gold`}
     >
-      <MatchStatCell>
+      {/* Result is a rule down the row's leading edge. It reads at a glance
+          scanning the column, and leaves the word "Victory" out of the grid. */}
+      <span
+        aria-hidden
+        className={`h-full w-[3px] ${won ? "bg-vp-win" : "bg-vp-loss"}`}
+      />
+      <ChampionIcon name={item.champion_name} />
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate text-[13px] font-medium text-vp-ink">
+          {item.champion_name}
+        </span>
         <span
-          className={`font-['Beaufort_for_LOL',serif] text-[13px] font-bold ${outcomeClass(item.outcome)}`}
+          className={`text-[11px] leading-tight ${won ? "text-vp-win" : "text-vp-loss"}`}
         >
           {item.outcome}
         </span>
-      </MatchStatCell>
-      <MatchStatCell>
-        <span className="truncate font-['Beaufort_for_LOL',serif] text-[12px] font-medium text-[#1e1e1e] device-dark:text-white">
-          {item.champion_name}
-        </span>
-      </MatchStatCell>
-      <MatchStatCell>
-        <span className={`${STAT_VALUE_CLASS} uppercase`}>
-          {item.roleLabel}
-        </span>
-      </MatchStatCell>
-      <MatchStatCell>
-        <span className="font-['Beaufort_for_LOL',serif] text-[12px] font-bold text-[#1e1e1e] device-dark:text-white tabular-nums">
-          {item.kdaLabel}
-        </span>
-      </MatchStatCell>
-      <MatchStatCell>
-        <span className={STAT_VALUE_CLASS}>{item.cs}</span>
-      </MatchStatCell>
-      <MatchStatCell align="end">
-        <span className={STAT_VALUE_CLASS}>{item.durationLabel}</span>
-      </MatchStatCell>
+      </span>
+      <span className="text-[11px] uppercase tracking-[0.08em] text-vp-dim">
+        {item.roleLabel}
+      </span>
+      <span className="text-[13px] font-medium tabular-nums text-vp-ink">
+        {item.kdaLabel}
+      </span>
+      <span className="text-right text-[13px] tabular-nums text-vp-dim">
+        {item.cs}
+      </span>
+      <span className="text-right text-[13px] tabular-nums text-vp-dim">
+        {item.durationLabel}
+      </span>
       <ChevronRight
-        className="size-4 shrink-0 justify-self-end text-[#757575] device-dark:text-white"
+        className="size-4 shrink-0 justify-self-end text-vp-faint transition-colors group-hover:text-vp-gold"
         strokeWidth={1.8}
         aria-hidden
       />
@@ -149,25 +125,22 @@ function SyncMatchesButton({
   syncing,
   onSync,
   label,
+  variant = "ghost",
 }: Readonly<{
   syncing: boolean;
   onSync: () => void;
   label: string;
+  variant?: "primary" | "ghost";
 }>) {
   return (
-    <button
-      type="button"
-      onClick={onSync}
-      disabled={syncing}
-      className="inline-flex shrink-0 items-center gap-2 rounded-[9999px] border border-solid border-[#d9d9d9] px-4 py-[6px] font-['Inter:Regular',sans-serif] text-[14px] text-[#1e1e1e] transition-colors hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60 device-dark:border-[#3a3939] device-dark:text-white device-dark:hover:bg-[#3a3939]"
-    >
+    <Button onClick={onSync} disabled={syncing} variant={variant}>
       <RefreshCw
         className={`size-4 shrink-0 ${syncing ? "animate-spin" : ""}`}
         strokeWidth={1.8}
         aria-hidden
       />
       {syncing ? "Syncing…" : label}
-    </button>
+    </Button>
   );
 }
 
@@ -180,33 +153,71 @@ function MatchHistoryDaySection({
 }>) {
   return (
     <section
-      className="flex flex-col gap-1.5"
+      className="flex flex-col gap-2"
       aria-label={`Matches on ${dayRow.dateLabel}`}
     >
-      <h2 className="font-['Beaufort_for_LOL',serif] text-[14px] font-medium leading-[22.4px] text-[#1e1e1e] device-dark:text-white">
-        {dayRow.dateLabel}
-      </h2>
-      <div className="flex flex-col gap-2">
-        <MatchHistoryListHeader />
-        <ul className="flex flex-col gap-2">
-          {dayRow.matches.map((item) => (
-            <li key={item.matchId}>
-              <MatchHistoryListRow item={item} onOpenMatch={onOpenMatch} />
-            </li>
-          ))}
-        </ul>
+      <div className="flex items-baseline gap-3">
+        <h2 className="text-[13px] font-medium text-vp-ink">
+          {dayRow.dateLabel}
+        </h2>
+        <span className="text-[11px] tabular-nums text-vp-faint">
+          {dayRow.matches.length} match
+          {dayRow.matches.length === 1 ? "" : "es"}
+        </span>
       </div>
+      <MatchHistoryListHeader />
+      <ul className="flex flex-col gap-1.5">
+        {dayRow.matches.map((item) => (
+          <li key={item.matchId}>
+            <MatchHistoryListRow item={item} onOpenMatch={onOpenMatch} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
-export default function MatchesListView(
-  props: Readonly<MatchesListViewProps> = {},
-) {
-  const { sidebarOpen: sidebarOpenProp } = props;
+/** Skeleton rows, so the first paint has the shape of the list to come. */
+function LoadingRows() {
+  return (
+    <div className="flex flex-col gap-1.5">
+      {/* The skeleton is decoration; this is what the load actually announces. */}
+      <p role="status" className="sr-only">
+        Loading matches…
+      </p>
+      {[0, 1, 2, 3, 4].map((row) => (
+        <div
+          key={row}
+          className="h-12 animate-pulse rounded-lg border border-vp-line bg-vp-surface"
+          style={{ animationDelay: `${String(row * 90)}ms` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** The headline numbers for whatever is currently in the list. */
+function summarise(matches: readonly MatchHistorySummary[]) {
+  if (matches.length === 0) return null;
+  const wins = matches.filter((m) => m.outcome === "Victory").length;
+  const kills = matches.reduce((sum, m) => sum + m.kills, 0);
+  const deaths = matches.reduce((sum, m) => sum + m.deaths, 0);
+  const assists = matches.reduce((sum, m) => sum + m.assists, 0);
+  const minutes = matches.reduce((sum, m) => sum + m.duration_minutes, 0);
+  const cs = matches.reduce((sum, m) => sum + m.cs, 0);
+
+  return {
+    played: matches.length,
+    wins,
+    losses: matches.length - wins,
+    winRate: Math.round((wins / matches.length) * 100),
+    kda: deaths === 0 ? "Perfect" : ((kills + assists) / deaths).toFixed(2),
+    csPerMin: minutes === 0 ? "0.0" : (cs / minutes).toFixed(1),
+  };
+}
+
+export default function MatchesListView() {
   const navigate = useNavigate();
-  const outlet = useOutletContext<DashboardOutletContext | undefined>();
-  const sidebarOpen = sidebarOpenProp ?? outlet?.sidebarOpen ?? true;
 
   const handleOpenMatch = (matchId: string) => {
     navigate(`/dashboard/matches/${encodeURIComponent(matchId)}`);
@@ -274,93 +285,105 @@ export default function MatchesListView(
     }
   }, []);
 
-  const dayRows = useMemo(
-    () =>
-      groupDashboardMatchesByDay(
-        applyMatchListControls(allMatches, { filterId, sortId, searchQuery }),
-        { oldestDaysFirst: matchListDaySortAscending(sortId) },
-      ),
+  const visibleMatches = useMemo(
+    () => applyMatchListControls(allMatches, { filterId, sortId, searchQuery }),
     [allMatches, filterId, searchQuery, sortId],
   );
+
+  const dayRows = useMemo(
+    () =>
+      groupDashboardMatchesByDay(visibleMatches, {
+        oldestDaysFirst: matchListDaySortAscending(sortId),
+      }),
+    [visibleMatches, sortId],
+  );
+
+  const stats = useMemo(() => summarise(visibleMatches), [visibleMatches]);
 
   const hasNoMatches = !loading && !error && allMatches.length === 0;
   const hasNoVisibleMatches =
     !loading && !error && allMatches.length > 0 && dayRows.length === 0;
 
-  const contentStyle = getDashboardContentStyle(sidebarOpen);
-
   return (
-    <div
-      className="absolute top-[var(--vp-dashboard-header)] min-w-0 transition-[left,width] duration-300 ease-out"
-      style={{ ...contentStyle, height: DASHBOARD_CONTENT_HEIGHT }}
-      data-name="matches-list-view"
-    >
-      <div className="vp-scrollbar relative h-full overflow-auto px-0 pb-5 pt-3">
-        {!loading ? (
-          <div className="mx-auto flex w-full max-w-[var(--vp-content-max)] items-center gap-3">
-            {/* mb-5 mirrors the toolbar's own bottom margin so the two align. */}
-            <div className="mb-5">
-              <SyncMatchesButton
-                syncing={syncing}
-                onSync={() => void handleSync()}
-                label="Sync with Riot"
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <MatchesListToolbar
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                filterId={filterId}
-                onFilterIdChange={setFilterId}
-                sortId={sortId}
-                onSortIdChange={setSortId}
-              />
-            </div>
+    <PageContainer className="max-w-[1180px]">
+      {stats ? (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile
+            label="Matches"
+            value={stats.played}
+            sub={`${String(stats.wins)}W · ${String(stats.losses)}L`}
+          />
+          <StatTile
+            label="Win rate"
+            value={`${String(stats.winRate)}%`}
+            tone={stats.winRate >= 50 ? "win" : "loss"}
+          />
+          <StatTile label="KDA" value={stats.kda} tone="gold" />
+          <StatTile label="CS / min" value={stats.csPerMin} />
+        </div>
+      ) : null}
+
+      {!loading ? (
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <SyncMatchesButton
+            syncing={syncing}
+            onSync={() => void handleSync()}
+            label="Sync with Riot"
+          />
+          <div className="min-w-0 flex-1">
+            <MatchesListToolbar
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              filterId={filterId}
+              onFilterIdChange={setFilterId}
+              sortId={sortId}
+              onSortIdChange={setSortId}
+            />
           </div>
-        ) : null}
-        {loading ? (
-          <p className="mx-auto w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-            Loading matches…
-          </p>
-        ) : null}
-        {error ? (
-          <p className="mx-auto w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[16px] text-[#c44a4a] device-dark:text-[#e03b3b]">
-            {error}
-          </p>
-        ) : null}
-        {syncMessage ? (
-          <p className="mx-auto mb-3 w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[14px] text-[#757575] device-dark:text-[#929292]">
-            {syncMessage}
-          </p>
-        ) : null}
-        {hasNoMatches ? (
-          <div className="mx-auto flex w-full max-w-[var(--vp-content-max)] flex-col items-start gap-3">
-            <p className="font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-              No matches stored yet. Pull your recent games from Riot to fill
-              the dashboard.
-            </p>
+        </div>
+      ) : null}
+
+      {error ? <ErrorNote className="mb-4">{error}</ErrorNote> : null}
+
+      {syncMessage ? (
+        <p className="mb-4 rounded-lg border border-vp-line bg-vp-surface px-4 py-2.5 text-[13px] text-vp-dim">
+          {syncMessage}
+        </p>
+      ) : null}
+
+      {loading ? <LoadingRows /> : null}
+
+      {hasNoMatches ? (
+        <EmptyState
+          title="No matches stored yet"
+          body="Pull your recent games from Riot to fill the dashboard. Everything after that happens automatically."
+          action={
             <SyncMatchesButton
               syncing={syncing}
               onSync={() => void handleSync()}
               label="Import my matches"
+              variant="primary"
             />
-          </div>
-        ) : null}
-        {hasNoVisibleMatches ? (
-          <p className="mx-auto w-full max-w-[var(--vp-content-max)] font-['Inter:Regular',sans-serif] text-[16px] text-[#757575] device-dark:text-[#929292]">
-            No matches match your search or filters.
-          </p>
-        ) : null}
-        <div className="mx-auto flex w-full max-w-[var(--vp-content-max)] flex-col gap-4">
-          {dayRows.map((dayRow) => (
-            <MatchHistoryDaySection
-              key={dayRow.dayKey}
-              dayRow={dayRow}
-              onOpenMatch={handleOpenMatch}
-            />
-          ))}
-        </div>
+          }
+        />
+      ) : null}
+
+      {hasNoVisibleMatches ? (
+        <EmptyState
+          title="No matches match your search or filters."
+          body="Clear the search box or switch the filter back to all matches."
+        />
+      ) : null}
+
+      <div className="flex flex-col gap-7">
+        {dayRows.map((dayRow) => (
+          <MatchHistoryDaySection
+            key={dayRow.dayKey}
+            dayRow={dayRow}
+            onOpenMatch={handleOpenMatch}
+          />
+        ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

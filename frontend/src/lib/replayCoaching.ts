@@ -105,15 +105,24 @@ function playerRoleNote(
   };
 }
 
-/** Builds the coaching notes shown in the replay's right-hand panel. */
+/**
+ * Builds the coaching notes shown in the replay's right-hand panel.
+ *
+ * The two reads above are conditional, so on a clean game they both come back
+ * empty. The panel is half the replay row now, and half a screen holding nothing
+ * is worse than no panel at all, so the three standing reads the Map Analysis bar
+ * shows follow them: same match, same scoreboard, and they are always there.
+ */
 export function buildReplayCoachingNotes(
   match: MatchDetail,
   viewer: ParticipantDetail,
 ): readonly ReplayCoachingNote[] {
-  return [
+  const conditional = [
     championChoiceNote(match, viewer),
     playerRoleNote(match, viewer),
   ].filter((note): note is ReplayCoachingNote => note !== null);
+
+  return [...conditional, ...buildMapAnalysisTips(match, viewer)];
 }
 
 /**
@@ -155,7 +164,7 @@ export function buildMapAnalysisTips(
       heading: headings[0],
       body:
         visionPerMin < 1
-          ? `Vision score ${viewer.vision_score} (${visionPerMin.toFixed(1)}/min) — ward more on rotations.`
+          ? `Vision score ${viewer.vision_score} (${visionPerMin.toFixed(1)}/min). Ward more on rotations.`
           : `Vision score ${viewer.vision_score} (${visionPerMin.toFixed(1)}/min) is holding up well.`,
     },
     {
@@ -163,7 +172,7 @@ export function buildMapAnalysisTips(
       heading: headings[1],
       body:
         damageShare < 20
-          ? `You dealt ${damageShare}% of team damage — look for more trades.`
+          ? `You dealt ${damageShare}% of team damage. Look for more trades.`
           : `You dealt ${damageShare}% of team damage.`,
     },
     {
@@ -171,7 +180,7 @@ export function buildMapAnalysisTips(
       heading: headings[2],
       body:
         filledSlots < 6
-          ? `${filledSlots}/6 item slots filled by the end — convert gold sooner.`
+          ? `${filledSlots}/6 item slots filled by the end. Convert gold sooner.`
           : `Full build completed with ${viewer.gold_earned.toLocaleString()} gold.`,
     },
   ];

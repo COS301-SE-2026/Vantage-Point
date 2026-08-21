@@ -103,6 +103,8 @@ export default function DashboardPage() {
   };
 
   return (
+    /* The shell is a flex app layout now, so the page no longer needs the
+       fixed-width frame and horizontal scroller the Figma import demanded. */
     <div className="vp-scrollbar min-h-screen w-full bg-vp-canvas">
       <DashboardShell
         sidebarOpen={sidebarOpen}

@@ -36,7 +36,7 @@ from app.services.match_ingest import (
     raise_for_riot_status,
     riot_api_key,
 )
-from app.services.riot_service import get_macro_region
+from app.services.riot_service import get_region
 from app.services.spatial_service import map_bounds_for, path_distance
 
 logger = logging.getLogger("app.timeline")
@@ -65,16 +65,16 @@ class TimelineNotAvailableError(Exception):
     """Riot has no timeline for this match (too old, or it never existed)."""
 
 
-async def fetch_timeline(match_id: str) -> dict[str, Any]:
-    macro_region = get_macro_region(match_id.split("_")[0].lower())
+# error message if wrong region how would I tell them this.
+async def fetch_timeline(
+    client: httpx.AsyncClient, region: str, headers: dict[str, str], match_id: str
+) -> dict[str, Any]:
     url = (
-        f"https://{macro_region}.api.riotgames.com/lol/match/v5/matches/"
+        f"https://{region}.api.riotgames.com/lol/match/v5/matches/"
         f"{match_id}/timeline"
     )
 
-    async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
-        response = await client.get(url, headers={"X-Riot-Token": riot_api_key()})
-
+    response = await client.get(url, headers=headers)
     raise_for_riot_status(response)
     if response.status_code == 404:
         raise TimelineNotAvailableError(f"Riot has no timeline for match {match_id}.")
@@ -82,7 +82,7 @@ async def fetch_timeline(match_id: str) -> dict[str, Any]:
         raise TimelineNotAvailableError(
             f"Riot returned {response.status_code} for the {match_id} timeline."
         )
-
+    # add maybe region is wrong needs to be changed
     payload: dict[str, Any] = response.json()
     return payload
 
@@ -340,7 +340,7 @@ async def store_timeline(
 
 
 async def get_or_fetch_timeline(
-    session: AsyncSession, match_id: str
+    session: AsyncSession, cognito_sub: str, match_id: str
 ) -> MatchTimelineResponse:
     """Return the stored timeline, pulling it from Riot the first time it is asked for."""
     stored = await _stored_timeline(session, match_id)
@@ -354,7 +354,10 @@ async def get_or_fetch_timeline(
     if not match:
         raise TimelineNotAvailableError(f"Match {match_id} is not stored locally.")
 
-    payload = await fetch_timeline(match_id)
+    headers = {"X-Riot-Token": riot_api_key()}
+    region = await get_region(session, cognito_sub)
+    async with httpx.AsyncClient(timeout=RIOT_TIMEOUT_SECONDS) as client:
+        payload = await fetch_timeline(client, region, headers, match_id)
     row = await store_timeline(
         session,
         match_id,

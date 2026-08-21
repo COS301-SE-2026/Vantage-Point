@@ -23,22 +23,13 @@ invalid_username: str = "Invalid username"
 
 class admin_service:
     @staticmethod
-    async def get_users(limit: int = 10) -> list[UserResponse]:
-        """
-        Fetch all Cognito users (paginated) and enrich each with their role from Cognito groups.
-        The 'limit' parameter is ignored; we fetch all users.
-        """
+    async def get_users(filter_expression: str | None = None) -> list[UserResponse]:
         try:
-            response = await asyncio.to_thread(
-                client.list_users, UserPoolId=settings.cognito_user_pool_id, Limit=limit
-            )
-            users_Data = response.get("Users", [])
+            users: list[UserResponse] = []
+            pagination_token: Any = None
 
-            # so we first get a map from username to role
-            # getting all groups and their members in 1 shot
-            user_role_map = {}
-
-            # alright so get all groups and only consider they fit into the 3 roles we Have Defined.
+            # Build username -> role map once from Cognito groups
+            user_role_map: dict[str, str] = {}
             group_response = await asyncio.to_thread(
                 client.list_groups, UserPoolId=settings.cognito_user_pool_id
             )
@@ -49,43 +40,49 @@ class admin_service:
                 if group_name not in ["Admin", "Player", "Super Admin"]:
                     continue
 
-                # whilst within the group, we getting the members of the group and mapping them to their role
                 members_response = await asyncio.to_thread(
                     client.list_users_in_group,
                     UserPoolId=settings.cognito_user_pool_id,
                     GroupName=group_name,
                 )
-                members = members_response.get("Users", [])
-
-                for member in members:
+                for member in members_response.get("Users", []):
                     username = member.get("Username")
-                    # If a user has multiple roles, it is chaai. Praying that isnt the case. I am too tired to think about that now but hjere is comment for reference.
-                    user_role_map[username] = group_name
+                    if username:
+                        user_role_map[username] = group_name
 
-            # Adjusting the existance response now to include the role of the user based on the mapping we created above
-            users: list[UserResponse] = []
+            while True:
+                params: Any = {"UserPoolId": settings.cognito_user_pool_id, "Limit": 60}
 
-            for user in users_Data:
-                username = user.get("Username", "")
-                attributes: Any = {
-                    attr["Name"]: attr.get("Value", "")
-                    for attr in user.get("Attributes", [])
-                }
+                if filter_expression:
+                    params["Filter"] = filter_expression
 
-                users.append(
-                    UserResponse(
-                        username=username,
-                        email=attributes.get("email", ""),
-                        sub=attributes.get("sub", ""),
-                        user_created_date=user.get("UserCreateDate", datetime.now()),
-                        user_last_modified_date=user.get(
-                            "UserLastModifiedDate", datetime.now()
-                        ),
-                        enabled=user.get("Enabled", True),
-                        user_status=user.get("UserStatus", ""),
-                        role=user_role_map.get(username),
+                if pagination_token:
+                    params["PaginationToken"] = pagination_token
+
+                response = await asyncio.to_thread(client.list_users, **params)
+
+                for user in response["Users"]:
+                    attributes: Any = {
+                        attr["Name"]: attr.get("Value", "")
+                        for attr in user.get("Attributes", [])
+                    }
+
+                    users.append(
+                        UserResponse(
+                            username=user.get("Username", ""),
+                            email=attributes.get("email", ""),
+                            sub=attributes.get("sub", ""),
+                            user_created_date=user.get("UserCreateDate", datetime.now()),
+                            user_last_modified_date=user.get("UserLastModifiedDate", datetime.now()),
+                            enabled=user.get("Enabled", True),
+                            user_status=user.get("UserStatus", ""),
+                            role=user_role_map.get(user.get("Username", "")),
+                        )
                     )
-                )
+
+                pagination_token = response.get("PaginationToken")
+                if not pagination_token:
+                    break
 
             return users
         except ClientError as e:
@@ -94,7 +91,10 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail=invalid_username)
+                raise HTTPException(
+                    status_code=422,
+                    detail=error.get("Message", "Invalid cognito paramater"),
+                )
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
@@ -341,7 +341,8 @@ class admin_service:
             logger.exception("Admin create user")
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
-            if error_code == "UserNameExistException":
+            error_message = error.get("Message", "An AWS error occurred")
+            if error_code == "UsernameExistsException":
                 raise HTTPException(
                     status_code=400, detail="Username or email already exist."
                 )
@@ -350,8 +351,12 @@ class admin_service:
                     status_code=400, detail="Password does not meet format"
                 )
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid username")
-            raise HTTPException(status_code=400, detail=error_code)
+                raise HTTPException(
+                    status_code=422, detail="Invalid parameter. Is name lowercase."
+                )
+            raise HTTPException(status_code=400, detail=error_message)
+        except HTTPException as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     @staticmethod
     async def create_group(
