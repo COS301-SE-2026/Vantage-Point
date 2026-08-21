@@ -15,6 +15,7 @@ from app.schemas.auth_schemas import (
 )
 from app.schemas.generic_schemas import ErrorResponse
 from app.services import identity
+from backend.app.services.admin_service import admin_service
 
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -34,12 +35,18 @@ LOGIN_RESPONSES: dict[int | str, dict[str, Any]] = {
 
 # The handlers below hold the implementation shared by `/api/auth/*` and `/api/v1/auth/*`
 # so the two prefixes can never drift apart. They deliberately stay free of routing
-# decorators — each router wraps them with its own path and documentation.
+# decorators, so each router wraps them with its own path and documentation.
 async def register_handler(body: RegisterRequest, session: AsyncSession) -> AuthTokens:
     if body.confirm_password is not None and body.confirm_password != body.password:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Passwords do not match.",
+        )
+
+    if not await admin_service.is_registration_open():
+        raise HTTPException(
+            status_code=403,
+            detail="Public registration is currently closed.",
         )
 
     return await identity.register_account(

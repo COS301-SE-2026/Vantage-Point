@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Dict
 
-from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func
+from sqlalchemy import BigInteger, Column, UniqueConstraint, DateTime, func, JSON
 from sqlmodel import SQLModel, Field, Relationship
 
 # @NeoMachabaUP :
@@ -14,12 +14,45 @@ from sqlmodel import SQLModel, Field, Relationship
 # Champions
 # Stores static champion data. champion_id matches Riot's own ID system so we won't change that.
 # we can cross reference api responses directly without a lookup step making it easier to confirm data integrity.
+# image_path is the admin-uploaded display asset for the Champion Assets admin page.
 class Champions(SQLModel, table=True):  # type: ignore[call-arg]
     champion_id: int = Field(primary_key=True)
     name: str
     tags: str  # e.g. "Marksman", "Mage" — Riot returns this as a string
+    image_path: Optional[str] = (
+        None  # admin-uploaded display asset, e.g. "/uploads/assets/champions/103.png"
+    )
 
     participants: List["Participants"] = Relationship(back_populates="champion")
+
+
+# MapAssets
+# Admin-uploaded display assets (icons/art) for the Map Assets admin page.
+# map_id is Riot's own numeric map ID (11 = Summoner's Rift, 12 = Howling Abyss, etc. —
+# see MAP_LABELS in app/utils/game_labels.py),
+# same id space as Matches.map_id, so we won't change that,
+# rather make it a fk similiar with how champion is working.
+# There's no foreign key to Matches currently:
+# Riot's map catalog is static
+# and external, so an admin can upload a map's display asset independently of any match
+# data existing;
+# Keeping the same id type avoids two competing identities for the
+# same map, even if We don't make the key a Foreign Key.
+class MapAssets(SQLModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "map_assets"
+
+    map_id: int = Field(primary_key=True)
+    name: str  # "Summoner's Rift", "Howling Abyss"
+    image_path: Optional[str] = None
+    updated_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+        default_factory=datetime.utcnow,
+    )
 
 
 # Users
@@ -48,12 +81,17 @@ class Users(SQLModel, table=True):  # type: ignore[call-arg]
         ),
         default_factory=datetime.utcnow,
     )
+    region: str | None = (
+        None  # this is added for dynamic purposes because matches of a player get saved on their region server
+    )
+    platform_id: str | None = None
+    # and unable to get on other region servers or won't be the same match
 
     linked_puuids_cache: Optional[str] = Field(
         default="[]",
         # JSON array of PUUIDs linked to this account e.g. ["puuid1", "puuid2"].
         # Denormalized cache of UserGameAccounts for fast autocomplete lookups.
-        # Source of truth is still UserGameAccounts — update this whenever a
+        # Source of truth is still UserGameAccounts, so update this whenever a
         # link is added or removed, or invalidate and rebuild from UserGameAccounts.
     )
     linked_game_accounts: List["UserGameAccounts"] = Relationship(back_populates="user")
@@ -117,9 +155,13 @@ class Matches(SQLModel, table=True):  # type: ignore[call-arg]
     game_duration: int  # in seconds;
     queue_id: int
     game_creation: int = Field(default=0, sa_column=Column(BigInteger()))  # epoch ms
-    map_id: int = 11
+    map_id: int = Field(default=11, foreign_key="map_assets.map_id")
     played_on: date = Field(default_factory=lambda: date.today())
     detail_json: Optional[str] = None  # JSON: MatchDetail teams payload for scoreboard
+
+    deletion_status: str = Field(default="active")
+    deletion_flagged_at: Optional[datetime] = None
+    # these 2 are for soft deletion of matches. we will use this to flag matches for deletion and then delete them in a batch process later. This is to avoid deleting matches that are still being processed or viewed by users.
 
     participants: List["Participants"] = Relationship(back_populates="match")
 
@@ -137,7 +179,7 @@ class MatchTimelines(SQLModel, table=True):  # type: ignore[call-arg]
     match_id: str = Field(primary_key=True, foreign_key="matches.match_id")
     frame_interval_ms: int
     game_duration_ms: int
-    map_id: int = 11
+    map_id: int = Field(default=11, foreign_key="map_assets.map_id")
     # JSON: {"frames": [...], "events": [...], "participants": [...]}
     # See app/schemas/timeline.py for the shape; app/services/timeline_ingest.py writes it.
     timeline_json: str
@@ -230,21 +272,24 @@ class UserFeaturedGames(SQLModel, table=True):  # type: ignore[call-arg]
     game_account: "GameAccounts" = Relationship(back_populates="featured_games")
 
 
-class MapReplayTable(SQLModel, Table=True):
+class MapReplayTable(SQLModel, table=True):
     __tablename__ = "map_replay_table"
 
-    puuid: list[str]
-    participant_id: list[int]
+    match_id: str = Field(primary_key=True, index=True)
+    puuid: str = Field(primary_key=True, index=True)
+    participant_id: int
     frame_interval: int
-    timestamp: list[int]
-    position_x: list[int]
-    position_y: list[int]
+    timestamp: list[int] = Field(sa_column=Column(JSON))
+    position_x: Dict[str, list[int]] = Field(sa_column=Column(JSON))
+    position_y: Dict[str, list[int]] = Field(sa_column=Column(JSON))
 
 
 # will do this later to ave top db. need to add a puuid or some finding entity. Primary key
-class MatchDataTable(SQLModel, Table=True):
+class MatchDataTable(SQLModel, table=True):
     __tablename__ = "match_data_table"
 
+    puuid: str = Field(primary_key=True, index=True)
+    matchId: str = Field(primary_key=True, index=True)
     end_of_game_result: str
     gameDuration: int
     gameMode: str
@@ -301,8 +346,8 @@ class MatchDataTable(SQLModel, Table=True):
     visionScorePerMinute: float
     wardTakedowns: int
     platformId: str
-    championId: list[int]
-    pickTurn: list[int]
+    championId: list[int] = Field(sa_column=Column(JSON))
+    pickTurn: list[int] = Field(sa_column=Column(JSON))
     baron_first: bool
     baron_kills: int
     champion_first: bool
@@ -321,12 +366,13 @@ class MatchDataTable(SQLModel, Table=True):
     teams_win: bool
 
 
-class ProfileDataTable(SQLModel, Table=True):
+class ProfileDataTable(SQLModel, table=True):
     __tablename__ = "profile_data_table"
 
     endOfGameResult: str
     gameDuration: float
-    puuid: str
+    puuid: str = Field(primary_key=True, index=True)
+    matchId: str = Field(primary_key=True, index=True)
     champExperience: int
     champLevel: int
     goldPerMinute: float

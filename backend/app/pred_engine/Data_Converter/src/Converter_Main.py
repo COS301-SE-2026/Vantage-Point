@@ -94,7 +94,10 @@ def format_data_univar(data, pos, role, lane):
                 y[r].append(i)
                 c = c + 1
             else:
-                data_arr[r].append(i)
+                if isinstance(i, (list, tuple)):
+                    data_arr[r].extend(i)
+                else:
+                    data_arr[r].append(i)
                 c = c + 1
         r = r + 1
         prev_row = row
@@ -151,34 +154,24 @@ def format_data_multivar(data, pos, role, lane):
 
 
 def get_train_test_data_knn(file_name):
-    # do file check
-    try:
-        f = open(file_name, "r")
-    except OSError:
-        print(file_error_text)
-        exit()
 
+    f = open(file_name, "r")
     with f:
-        data = csv.DictReader(f)
-        x_data, y_data = format_data_multivar(data, 2, 4, 3)
+        data = csv.DictReader(f)  # lane, role, pos
+        x_data, y_data = format_data_multivar(data, 3, 4, 2)
 
         scaler = StandardScaler()
         x_data = scaler.fit_transform(x_data)  # pyright: ignore[reportArgumentType]
     # Do train/test split
     x_train, x_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42
+        x_data, y_data, test_size=0.05, train_size=0.95, random_state=42
     )
     # x is given, y is target
     return x_train, x_test, y_train, y_test
 
 
 def get_train_test_data_rf(file_name, category):
-    # do file check
-    try:
-        f = open(file_name, "r")
-    except OSError:
-        print(file_error_text)
-        exit()
+    f = open(file_name, "r")
 
     x_data = []
     y_data = []
@@ -198,7 +191,7 @@ def get_train_test_data_rf(file_name, category):
                 x_data, y_data = format_data_multivar(data, 0, -1, 1)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        x_data, y_data, test_size=0.2, random_state=42, stratify=None
+        x_data, y_data, test_size=0.2, train_size=0.8, random_state=42, stratify=None
     )
 
     # X is given, y is target
@@ -211,13 +204,31 @@ def get_train_test_data_rf(file_name, category):
 def convert_to_rows(data):
     data_arr = []
 
-    if isinstance(data, list):
-        if not isinstance(data[0], list):  # check if 1D array
-            data_arr.append(data)
+    if not isinstance(data, list):
+        if hasattr(data, "convert_to_arr"):
+            data_arr = data.convert_to_arr()
+        elif hasattr(data, "__dict__") or hasattr(data, "model_dump"):
+            obj_dict = data.model_dump() if hasattr(data, "model_dump") else vars(data)
+            row = []
+            for key, val in obj_dict.items():
+                if isinstance(val, (list, tuple)):
+                    row.extend(val)
+                else:
+                    row.append(val)
+            data_arr.append(row)
+        else:
+            data_arr.append(list(data))
+    else:
+        if len(data) > 0 and not isinstance(data[0], list):
+            row = []
+            for item in data:
+                if isinstance(item, (list, tuple)):
+                    row.extend(item)
+                else:
+                    row.append(item)
+            data_arr.append(row)
         else:
             data_arr = data
-    else:
-        data_arr = data.convert_to_arr()
 
     return data_arr
 
@@ -231,7 +242,7 @@ def format_api_data_knn(obj_data):
     data = convert_to_rows(data)
 
     # run thru format function
-    x_data_rows, y_data_rows = format_data_multivar(data, 2, 4, 3)
+    x_data_rows, y_data_rows = format_data_multivar(data, 3, 4, 2)
 
     scaler = StandardScaler()
     x_data_rows = scaler.fit_transform(

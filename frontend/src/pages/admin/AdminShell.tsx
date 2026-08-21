@@ -42,11 +42,17 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white">
+    <div className="min-h-screen w-full bg-white device-dark:bg-[#181818]">
       <div className="flex items-center justify-between px-6 pt-6">
         <div className="flex items-center gap-2">
-          <img src={imgLogo} alt="" className="h-10 w-10 object-cover" />
-          <span className="font-sarina text-[clamp(18px,1.6vw,24px)] not-italic text-black">
+          <picture>
+            <source
+              srcSet="/src/assets/images/logos/logo-mark-white.webp"
+              media="(prefers-color-scheme: dark)"
+            />
+            <img src={imgLogo} alt="" className="h-10 w-10 object-cover" />
+          </picture>
+          <span className="font-sarina text-[clamp(18px,1.6vw,24px)] not-italic text-black device-dark:text-white">
             Vantage Point
           </span>
         </div>
@@ -60,9 +66,8 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
 
       <div className="flex gap-6 p-6">
         <aside
-          className={`flex flex-col rounded-[15px] bg-[rgba(117,117,117,0.12)] p-5 transition-[width] duration-200 ${
-            sidebarOpen ? "w-64" : "w-16 px-2"
-          }`}
+          className={`flex flex-col rounded-[15px] bg-[rgba(117,117,117,0.12)] device-dark:bg-[#2a2a2a] p-5 transition-[width] duration-200 
+            ${sidebarOpen ? "w-64" : "w-16 px-2"}`}
         >
           <button
             type="button"
@@ -70,7 +75,7 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
             aria-label={
               sidebarOpen ? "Collapse navigation" : "Expand navigation"
             }
-            className="mb-4 flex self-end rounded border border-[#c7c8c9] p-1"
+            className="mb-4 flex self-end rounded border border-[#c7c8c9] device-dark:border-[#929292] p-1"
           >
             <ChevronLeft
               className={`size-3 transition-transform ${sidebarOpen ? "" : "rotate-180"}`}
@@ -83,22 +88,35 @@ export default function AdminShell({ children }: Readonly<AdminShellProps>) {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `rounded-[10px] bg-white px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
+                  `rounded-[10px] bg-white device-dark:bg-[#2a2a2a] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
                     isActive
-                      ? "font-bold text-[#1e1e1e]"
-                      : "text-[#1e1e1e] hover:opacity-80"
+                      ? "font-bold text-[#1e1e1e] device-dark:text-white"
+                      : "text-[#1e1e1e] device-dark:text-[#e5e5e5] hover:opacity-80"
                   } ${sidebarOpen ? "" : "hidden"}`
                 }
               >
                 {item.label}
               </NavLink>
             ))}
+
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `rounded-[10px] bg-white device-dark:bg-[#2a2a2a] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] transition-opacity ${
+                  isActive
+                    ? "font-bold text-[#1e1e1e] device-dark:text-white"
+                    : "text-[#1e1e1e] device-dark:text-[#e5e5e5] hover:opacity-80"
+                } ${sidebarOpen ? "" : "hidden"}`
+              }
+            >
+              Player Dashboard
+            </NavLink>
           </nav>
 
           <button
             type="button"
             onClick={handleLogout}
-            className={`mt-auto rounded-[10px] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] text-[#1e1e1e] hover:opacity-80 ${
+            className={`mt-auto rounded-[10px] px-3 py-3 text-left font-['Inter:Regular',sans-serif] text-[14px] text-[#1e1e1e] device-dark:text-[#e5e5e5] hover:opacity-80 ${
               sidebarOpen ? "" : "hidden"
             }`}
           >

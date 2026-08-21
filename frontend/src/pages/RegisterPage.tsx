@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import RegisterComponent, {
   type RegisterFormProps,
@@ -22,8 +23,13 @@ export default function RegisterPage() {
     const trimmedUsername = displayName.trim();
 
     // 1. Basic empty check
-    if (!trimmedEmail || !trimmedUsername) {
-      setError("Please fill in both Email and Username.");
+    if (!trimmedUsername) {
+      setError("Please enter a username.");
+      return;
+    }
+
+    if (!trimmedEmail) {
+      setError("Please enter your email address.");
       return;
     }
 
@@ -68,8 +74,12 @@ export default function RegisterPage() {
       });
     } catch (err) {
       console.error("Registration failed:", err);
-      let message = "Registration failed. Please try again.";
-      if (err instanceof Error) message = err.message;
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Registration failed. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -92,7 +102,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-white device-dark:bg-[#181818] overflow-hidden">
+    <div className="min-h-dvh w-full bg-vp-canvas">
       <RegisterComponent form={formProps} />
     </div>
   );

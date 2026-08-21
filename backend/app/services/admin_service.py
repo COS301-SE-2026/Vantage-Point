@@ -23,32 +23,70 @@ invalid_username: str = "Invalid username"
 
 class admin_service:
     @staticmethod
-    async def get_users(limit: int = 10) -> list[UserResponse]:
+    async def get_users(filter_expression: str | None = None) -> list[UserResponse]:
         try:
-            response = await asyncio.to_thread(
-                client.list_users, UserPoolId=settings.cognito_user_pool_id, Limit=limit
-            )
             users: list[UserResponse] = []
+            pagination_token: Any = None
 
-            for user in response["Users"]:
-                attributes: Any = {
-                    attr["Name"]: attr.get("Value", "")
-                    for attr in user.get("Attributes", [])
-                }
+            # Build username -> role map once from Cognito groups
+            user_role_map: dict[str, str] = {}
+            group_response = await asyncio.to_thread(
+                client.list_groups, UserPoolId=settings.cognito_user_pool_id
+            )
+            groups = group_response.get("Groups", [])
 
-                users.append(
-                    UserResponse(
-                        username=user.get("Username", ""),
-                        email=attributes.get("email", ""),
-                        sub=attributes.get("sub", ""),
-                        user_created_date=user.get("UserCreateDate", datetime.now()),
-                        user_last_modified_date=user.get(
-                            "UserLastModifiedDate", datetime.now()
-                        ),
-                        enabled=user.get("Enabled", True),
-                        user_status=user.get("UserStatus", ""),
-                    )
+            for group in groups:
+                group_name = group.get("GroupName")
+                if group_name not in ["Admin", "Player", "Super Admin"]:
+                    continue
+
+                members_response = await asyncio.to_thread(
+                    client.list_users_in_group,
+                    UserPoolId=settings.cognito_user_pool_id,
+                    GroupName=group_name,
                 )
+                for member in members_response.get("Users", []):
+                    username = member.get("Username")
+                    if username:
+                        user_role_map[username] = group_name
+
+            while True:
+                params: Any = {"UserPoolId": settings.cognito_user_pool_id, "Limit": 60}
+
+                if filter_expression:
+                    params["Filter"] = filter_expression
+
+                if pagination_token:
+                    params["PaginationToken"] = pagination_token
+
+                response = await asyncio.to_thread(client.list_users, **params)
+
+                for user in response["Users"]:
+                    attributes: Any = {
+                        attr["Name"]: attr.get("Value", "")
+                        for attr in user.get("Attributes", [])
+                    }
+
+                    users.append(
+                        UserResponse(
+                            username=user.get("Username", ""),
+                            email=attributes.get("email", ""),
+                            sub=attributes.get("sub", ""),
+                            user_created_date=user.get(
+                                "UserCreateDate", datetime.now()
+                            ),
+                            user_last_modified_date=user.get(
+                                "UserLastModifiedDate", datetime.now()
+                            ),
+                            enabled=user.get("Enabled", True),
+                            user_status=user.get("UserStatus", ""),
+                            role=user_role_map.get(user.get("Username", "")),
+                        )
+                    )
+
+                pagination_token = response.get("PaginationToken")
+                if not pagination_token:
+                    break
 
             return users
         except ClientError as e:
@@ -57,7 +95,10 @@ class admin_service:
             if error_code == "UserNotFoundException":
                 raise HTTPException(status_code=404, detail=user_not_found)
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail=invalid_username)
+                raise HTTPException(
+                    status_code=422,
+                    detail=error.get("Message", "Invalid cognito paramater"),
+                )
             raise HTTPException(status_code=400, detail=error_code)
 
     @staticmethod
@@ -304,7 +345,8 @@ class admin_service:
             logger.exception("Admin create user")
             error = e.response.get("Error", {})
             error_code = error.get("Code", "ClientError")
-            if error_code == "UserNameExistException":
+            error_message = error.get("Message", "An AWS error occurred")
+            if error_code == "UsernameExistsException":
                 raise HTTPException(
                     status_code=400, detail="Username or email already exist."
                 )
@@ -313,8 +355,12 @@ class admin_service:
                     status_code=400, detail="Password does not meet format"
                 )
             if error_code == "InvalidParameterException":
-                raise HTTPException(status_code=422, detail="Invalid username")
-            raise HTTPException(status_code=400, detail=error_code)
+                raise HTTPException(
+                    status_code=422, detail="Invalid parameter. Is name lowercase."
+                )
+            raise HTTPException(status_code=400, detail=error_message)
+        except HTTPException as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     @staticmethod
     async def create_group(
@@ -332,7 +378,7 @@ class admin_service:
             return_value = CreateGroupResponse(
                 group_name=group.get("GroupName", group_name),
                 user_pool_id=group.get("UserPoolId", ""),
-                descriptipn=group.get("Description", description),
+                description=group.get("Description", description),
                 precedence=group.get("Precedence", precedence),
                 last_modified_date=group.get(
                     "LastModifiedDate", datetime.now(timezone.utc).replace(tzinfo=None)

@@ -17,19 +17,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
+from app.pred_engine.ai_caller import create_models
 
 from app.api.router import (
     admin_routes,
+    admin_assets_routes,
     profile_routes,
     auth_routes,
     analytics_router,
     riot_api_routes,
+    dashboard_routes,
+    ai_routes,
+    help_routes,
 )
 from app.routers import matches, users
+from app.Models.auth_model import User
+from app.api.auth import require_group
 from app.database.models import GameAccounts
 from app.database.session import DATABASE_URL, get_session, init_db
 from app.services.avatar_storage import UPLOADS_DIR, ensure_avatar_dir
+from app.services.asset_storage import ensure_asset_dirs
 from app.services.riot_api import get_puuid_by_riot_id
+from app.routers.admin_matches_routes import router as admin_router
 
 from loguru import logger
 import logging
@@ -47,14 +56,18 @@ load_dotenv()
 # (Neo: Database  models are now in a separate file to keep main.py cleaner. See models.py for details and comments on the database structure.)
 
 
-logger.remove(0)
-# logger.add(
-#     db_error_sink,
-#     enqueue=True,
-#     diagnose=False,
-#     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-# )
+logger.remove()
 
+logger.add(
+    sink=lambda message: print(message, end=""),
+    level="INFO",
+    enqueue=True,
+    backtrace=True,
+    diagnose=False,
+)
+
+# only to be used in development. Remove when going to production. Writing to a txt is unsafe behaviour
+# and can expose sensitive information
 logger.add(
     "logs/fastapi_logs",
     level="ERROR",
@@ -65,8 +78,6 @@ logger.add(
     backtrace=True,
     diagnose=True,
 )
-
-# logger.add(db_error_sink, level="INFO", enqueue=True, diagnose=False)
 
 
 def get_error_reason(status_code: int) -> str:
@@ -122,6 +133,8 @@ def should_skip_startup_db_init() -> bool:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    create_models()
+
     if should_skip_startup_db_init():
         print("Database initialization skipped: database host is unavailable here")
         yield
@@ -150,6 +163,34 @@ app = FastAPI(
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 # app.add_middleware(SlowAPIMiddleware)
+
+
+# Registered BEFORE the CORS middleware on purpose, and the order is load-bearing.
+# `add_middleware` inserts at the front of the stack, so whatever is added last ends up
+# outermost, so this has to be added first to sit *inside* CORS.
+#
+# Why it exists at all: an unhandled exception would otherwise be caught by Starlette's
+# ServerErrorMiddleware, which wraps the whole stack including CORS. Its 500 never passes
+# back through the CORS layer, so it carries no Access-Control-Allow-Origin header, and a
+# browser reports "CORS header missing" instead of the error that actually occurred. The
+# same goes for the `@app.exception_handler(Exception)` below, which is installed *as*
+# that outermost handler. Turning the exception into a response here, inside CORS, means
+# the client sees a real 500 with a readable body and the true cause is one log away.
+@app.middleware("http")
+async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
+    try:
+        return await call_next(request)
+    except Exception:
+        logger.bind(url=str(request.url), method=request.method).exception(
+            f"Bug detected in {request.method}{request.url.path}"
+        )
+        # The detail stays generic: the traceback above is for us, not for the caller.
+        return JSONResponse(
+            status_code=500,
+            content=error_response(500, "Unexpected server error"),
+        )
+
+
 # CORS for frontend
 # 3000 = React default, 5173 = Vite default.
 app.add_middleware(
@@ -166,15 +207,21 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(profile_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(admin_assets_routes.router)
 app.include_router(analytics_router.router)
 app.include_router(riot_api_routes.router)
 app.include_router(matches.router)
-# This router declares only "/users"; the frontend calls the versioned path.
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(dashboard_routes.router)
+app.include_router(help_routes.router)
+# This router declares only "/users"; the frontend calls the versioned path.
+app.include_router(ai_routes.router)
+app.include_router(admin_router, prefix="/api/v1")
 
 # Avatar uploads are written to backend/uploads/avatars and referenced by the profile as
 # "/uploads/avatars/<sub>.png", so that directory has to be reachable over HTTP.
 ensure_avatar_dir()
+ensure_asset_dirs()
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 
@@ -208,6 +255,10 @@ async def validation_exception_handler(
     )
 
 
+# A backstop only. `log_errors_middleware` turns almost everything into a response before
+# it reaches here; this catches the rest: anything raised outside the middleware stack.
+# Starlette installs it on ServerErrorMiddleware, above CORS, so a response it produces
+# reaches the browser without CORS headers.
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
@@ -271,9 +322,12 @@ async def register_summoner(
     game_name: str,
     tag_line: str,
     session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_group(20))],
 ) -> dict[str, str]:
     # 1. Get PUUID from Riot Service; Gets name + tag
-    puuid = await get_puuid_by_riot_id(game_name, tag_line)
+    puuid = await get_puuid_by_riot_id(
+        game_name, tag_line, session=session, cognito_sub=current_user.sub
+    )
     if not puuid:
         return {"error": "Could not find player on Riot servers."}
 
@@ -300,14 +354,3 @@ async def register_summoner(
         "message": f"Successfully registered {game_name}#{tag_line}",
         "puuid": puuid,
     }
-
-
-@app.middleware("http")
-async def log_errors_middleware(request: Request, call_next: RequestResponseEndpoint):
-    try:
-        return await call_next(request)
-    except Exception as e:
-        logger.bind(url=str(request.url), method=request.method).exception(
-            f"Bug detected in {request.method}{request.url.path}"
-        )
-        raise e

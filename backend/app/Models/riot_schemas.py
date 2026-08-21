@@ -1,14 +1,15 @@
-from typing import List, Any
+from typing import Any
 from pydantic import BaseModel
 
 
 class MapReplay(BaseModel):
-    puuid: List[str]
-    participant_id: List[int]
+    match_id: str
+    puuid: str
+    participant_id: int
     frame_interval: int
     timestamp: list[int]
-    position_x: Any
-    position_y: Any
+    position_x: dict[str, list[int]]
+    position_y: dict[str, list[int]]
 
 
 class MapSuggestData(BaseModel):
@@ -55,17 +56,33 @@ class MapSuggestData(BaseModel):
     powerMax: list[int]
 
     def convert_to_arr(self):
-        # returns a 2D array of object contents
         out_arr = []
-        p_x, p_y, pp_x, pp_y = 0, 0, 0, 0
-        for i in range(0, len(self.position_x)):
+        num_samples = len(self.position_x)
+
+        def safe_idx(lst: Any, idx: int):
+            if not isinstance(lst, list) or not lst:
+                return 0
+            return lst[max(0, min(idx, len(lst) - 1))]
+
+        for i in range(num_samples):
+            # Dynamic lag calculation per index
+            p_x = safe_idx(self.position_x, i - 1) if i > 0 else self.position_x[i]
+            p_y = safe_idx(self.position_y, i - 1) if i > 0 else self.position_y[i]
+            pp_x = safe_idx(self.position_x, i - 2) if i > 1 else p_x
+            pp_y = safe_idx(self.position_y, i - 2) if i > 1 else p_y
+
+            trajectory_features = []
+            for step in range(1, 10):
+                trajectory_features.append(safe_idx(self.position_x, i + step))
+                trajectory_features.append(safe_idx(self.position_y, i + step))
+
             row = [
                 self.position_x[i],
                 self.position_y[i],
                 self.team_position,
                 self.lane,
                 self.role,
-                self.timestamp[i],
+                safe_idx(self.timestamp, i),
                 p_x,
                 p_y,
                 pp_x,
@@ -79,35 +96,31 @@ class MapSuggestData(BaseModel):
                 self.killingSprees,
                 self.kills,
                 self.visionScore,
-                self.jungleMinionsKilled[i],
-                self.level[i],
-                self.minionsKilled[i],
-                self.timeEnemySpentControlled[i],
-                self.xp[i],
-                self.totalDamageDone[i],
-                self.totalDamageDoneToChampions[i],
-                self.totalDamageTaken[i],
-                self.abilityHaste[i],
-                self.abilityPower[i],
-                self.armor[i],
-                self.attackDamage[i],
-                self.attackSpeed[i],
-                self.ccReduction[i],
-                self.cooldownReduction[i],
-                self.health[i],
-                self.health_max[i],
-                self.health_regen[i],
-                self.lifesteal[i],
-                self.movementSpeed[i],
-                self.power[i],
-                self.powerMax[i],
+                safe_idx(self.level, i),
+                safe_idx(self.minionsKilled, i),
+                safe_idx(self.timeEnemySpentControlled, i),
+                safe_idx(self.xp, i),
+                safe_idx(self.totalDamageDone, i),
+                safe_idx(self.totalDamageDoneToChampions, i),
+                safe_idx(self.totalDamageTaken, i),
+                safe_idx(self.abilityHaste, i),
+                safe_idx(self.abilityPower, i),
+                safe_idx(self.armor, i),
+                safe_idx(self.attackDamage, i),
+                safe_idx(self.attackSpeed, i),
+                safe_idx(self.ccReduction, i),
+                safe_idx(self.cooldownReduction, i),
+                safe_idx(self.health, i),
+                safe_idx(self.health_max, i),
+                safe_idx(self.health_regen, i),
+                safe_idx(self.lifesteal, i),
+                safe_idx(self.movementSpeed, i),
+                safe_idx(self.power, i),
+                safe_idx(self.powerMax, i),
+                *trajectory_features,
             ]
-            pp_x = p_x
-            pp_y = p_y
-            p_x = self.position_x[i]
-            p_y = self.position_y[i]
-
             out_arr.append(row)
+
         return out_arr
 
 
@@ -262,8 +275,8 @@ class ChampionData(BaseModel):
     ccReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -376,8 +389,8 @@ class ItemData(BaseModel):
     ccReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -387,8 +400,18 @@ class ItemData(BaseModel):
     powerMax: list[int]
 
     def convert_to_arr(self):
+        FRAME_INTERVAL_MS = 60000
         out_arr = []
+
+        def safe_idx(lst: list, idx: int) -> int:
+            return lst[max(0, min(idx, len(lst) - 1))]
+
+        if not self.itemId:
+            return [[0] * 42]
+
         for i in range(0, len(self.itemId)):
+            frame_idx: Any = int(self.timestamp[i]) // FRAME_INTERVAL_MS
+
             row = [
                 self.itemId[i],
                 self.timestamp[i],
@@ -396,43 +419,43 @@ class ItemData(BaseModel):
                 self.champExperience,
                 self.champLevel,
                 self.championId,
-                self.currentGold[i],
-                self.level[i],
-                self.minionsKilled[i],
-                self.timeEnemySpentControlled[i],
-                self.totalGold[i],
-                self.position_x[i],
-                self.position_y[i],
-                self.xp[i],
-                self.magicDamageDone[i],
-                self.magicDamageDoneToChampions[i],
-                self.magicDamageTaken[i],
-                self.physicalDamageDone[i],
-                self.physicalDamageDoneToChampions[i],
-                self.physicalDamageTaken[i],
-                self.totalDamageDone[i],
-                self.totalDamageDoneToChampions[i],
-                self.totalDamageTaken[i],
-                self.trueDamageDone[i],
-                self.trueDamageDoneToChampions[i],
-                self.trueDamageTaken[i],
-                self.abilityPower[i],
-                self.armor[i],
-                self.armorPenPercent[i],
-                self.attackDamage[i],
-                self.attackSpeed[i],
-                self.ccReduction[i],
-                self.health[i],
-                self.healthMax[i],
-                self.healthRegen[i],
-                self.lifesteal[i],
-                self.magicPen[i],
-                self.magicPenPercent[i],
-                self.magicResist[i],
-                self.movementSpeed[i],
-                self.omnivamp[i],
-                self.power[i],
-                self.powerMax[i],
+                safe_idx(self.currentGold, frame_idx),
+                safe_idx(self.level, frame_idx),
+                safe_idx(self.minionsKilled, frame_idx),
+                safe_idx(self.timeEnemySpentControlled, frame_idx),
+                safe_idx(self.totalGold, frame_idx),
+                safe_idx(self.xp, frame_idx),
+                safe_idx(self.position_x, frame_idx),
+                safe_idx(self.position_y, frame_idx),
+                safe_idx(self.magicDamageDone, frame_idx),
+                safe_idx(self.magicDamageDoneToChampions, frame_idx),
+                safe_idx(self.magicDamageTaken, frame_idx),
+                safe_idx(self.physicalDamageDone, frame_idx),
+                safe_idx(self.physicalDamageDoneToChampions, frame_idx),
+                safe_idx(self.physicalDamageTaken, frame_idx),
+                safe_idx(self.totalDamageDone, frame_idx),
+                safe_idx(self.totalDamageDoneToChampions, frame_idx),
+                safe_idx(self.totalDamageTaken, frame_idx),
+                safe_idx(self.trueDamageDone, frame_idx),
+                safe_idx(self.trueDamageDoneToChampions, frame_idx),
+                safe_idx(self.trueDamageTaken, frame_idx),
+                safe_idx(self.abilityPower, frame_idx),
+                safe_idx(self.armor, frame_idx),
+                safe_idx(self.armorPenPercent, frame_idx),
+                safe_idx(self.attackDamage, frame_idx),
+                safe_idx(self.attackSpeed, frame_idx),
+                safe_idx(self.ccReduction, frame_idx),
+                safe_idx(self.health, frame_idx),
+                safe_idx(self.healthMax, frame_idx),
+                safe_idx(self.healthRegen, frame_idx),
+                safe_idx(self.lifesteal, frame_idx),
+                safe_idx(self.magicPen, frame_idx),
+                safe_idx(self.magicPenPercent, frame_idx),
+                safe_idx(self.magicResist, frame_idx),
+                safe_idx(self.movementSpeed, frame_idx),
+                safe_idx(self.omnivamp, frame_idx),
+                safe_idx(self.power, frame_idx),
+                safe_idx(self.powerMax, frame_idx),
             ]
             out_arr.append(row)
         return out_arr
@@ -473,7 +496,6 @@ class SkillData(BaseModel):
             row = [
                 self.skillslot[i],
                 self.levelUpType[i],
-                self.timestamp[i],
                 self.championId,
                 self.damageSelfMitigated,
                 self.deaths,
@@ -562,16 +584,18 @@ class RoleData(BaseModel):
 
 
 class ChampionStats(BaseModel):
+    abilityHaste: list[int]
     abilityPower: list[int]
     armor: list[int]
     armorPenPercent: list[int]
     attackDamage: list[int]
     attackSpeed: list[int]
     ccReduction: list[int]
+    cooldownReduction: list[int]
     health: list[int]
     healthMax: list[int]
-    healthRegen: list[float]
-    lifesteal: list[float]
+    healthRegen: list[int]
+    lifesteal: list[int]
     magicPen: list[int]
     magicPenPercent: list[int]
     magicResist: list[int]
@@ -604,7 +628,7 @@ class Participant(BaseModel):
     jungleMinionsKilled: list[int]
     level: list[int]
     minionsKilled: list[int]
-    participantId: str
+    participantId: int
     timeEnemySpentControlled: list[int]
     totalGold: list[int]
     xp: list[int]

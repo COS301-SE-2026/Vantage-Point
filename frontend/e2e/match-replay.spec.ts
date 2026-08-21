@@ -17,6 +17,11 @@ function progressSlider(page: Page) {
   return page.getByRole("slider", { name: "Replay progress" });
 }
 
+/** The list row for one match: its summary button and, when open, its panel. */
+function matchRow(page: Page, matchId: string) {
+  return page.locator(`[data-match-id="${matchId}"]`);
+}
+
 /** Range inputs ignore fill(); End/Home move them and fire React's onChange. */
 async function scrubToEnd(page: Page) {
   await progressSlider(page).focus();
@@ -38,13 +43,51 @@ test.describe("Match replay", () => {
   });
 
   test("shows the viewer's scoreline above the map", async ({ page }) => {
-    const menu = page.locator('[data-name="MatchMenu"]');
+    const menu = matchRow(page, PRIMARY_MATCH_ID).locator(
+      '[data-name="MatchMenu"]',
+    );
 
     await expect(menu).toContainText("Victory");
     await expect(menu).toContainText("Jinx");
     await expect(menu).toContainText("BOT");
     await expect(menu).toContainText("12/2/8");
     await expect(menu).toContainText("32 min");
+  });
+
+  test("lists the five most recent matches, with the routed one open", async ({
+    page,
+  }) => {
+    await expect(page.locator('[data-name="MatchMenu"]')).toHaveCount(5);
+
+    // Only the match in the URL draws a map; the other four are collapsed.
+    await expect(page.getByAltText("Summoner's Rift map")).toHaveCount(1);
+    await expect(
+      matchRow(page, PRIMARY_MATCH_ID).getByAltText("Summoner's Rift map"),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Hide replay for Jinx" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("each row's dropdown opens and closes its own replay", async ({
+    page,
+  }) => {
+    const leeSin = matchRow(page, "EUW1_1002");
+    const open = page.getByRole("button", { name: "Show replay for Lee Sin" });
+
+    await expect(open).toHaveAttribute("aria-expanded", "false");
+    await open.click();
+
+    // Both replays are now on the page, each with its own map and clock.
+    await expect(leeSin.getByAltText("Summoner's Rift map")).toBeVisible();
+    await expect(page.getByAltText("Summoner's Rift map")).toHaveCount(2);
+    await expect(
+      matchRow(page, PRIMARY_MATCH_ID).getByAltText("Summoner's Rift map"),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Hide replay for Lee Sin" }).click();
+    await expect(leeSin.getByAltText("Summoner's Rift map")).toHaveCount(0);
+    await expect(page.getByAltText("Summoner's Rift map")).toHaveCount(1);
   });
 
   test("starts paused at 0:00 with the timeline loaded", async ({ page }) => {
@@ -206,7 +249,7 @@ test.describe("Match replay", () => {
   });
 });
 
-test.describe("Match replay — degraded data", () => {
+test.describe("Match replay: degraded data", () => {
   test("keeps the map usable when no timeline is stored", async ({
     app,
     page,

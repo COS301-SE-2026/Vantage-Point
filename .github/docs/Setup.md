@@ -3,8 +3,8 @@ This will cover the the dev container environment, the database setup how to ver
 
 # Dev Container Setup (VS Code)
 Vantage Point uses VS Code Dev Containers backed by Docker Compose. There are two containers:
-- `app` — Python 3.11 environment where the FastAPI backend runs
-- `db` — PostgreSQL 15, persistent via a named Docker volume
+- `app`: Python 3.11 environment where the FastAPI backend runs
+- `db`: PostgreSQL 15, persistent via a named Docker volume
 
 1. Install Docker Desktop and make sure it is running
 2. Install "Dev Containers" extension
@@ -13,12 +13,12 @@ Vantage Point uses VS Code Dev Containers backed by Docker Compose. There are tw
 5. VS Code will build the containers and run post-create.sh, which installs Python and Node dependencies automatically
 >The .devcontainer/ folder must be at the root of the project. VS Code will not find it if it's named .devcontainers (plural).
 
-`post-create.sh` installs all Python dependencies (`requirements.txt`) and Node dependencies (`npm install`) automatically. Watch the build log for any errors — click **Show Log** in the bottom-right notification while it builds.
+`post-create.sh` installs all Python dependencies (`requirements.txt`) and Node dependencies (`npm install`) automatically. Watch the build log for any errors. Click **Show Log** in the bottom-right notification while it builds.
 
 ### Important notes
  
-- The `.devcontainer` folder must be named exactly that — singular, no 's'. VS Code will not find it otherwise.
-- Your project files are mounted into the container at `/workspaces`. There is no subfolder — `backend` and `frontend` sit directly at `/workspaces/backend` and `/workspaces/frontend`.
+- The `.devcontainer` folder must be named exactly that: singular, no 's'. VS Code will not find it otherwise.
+- Your project files are mounted into the container at `/workspaces`. There is no subfolder. `backend` and `frontend` sit directly at `/workspaces/backend` and `/workspaces/frontend`.
 - The `db` hostname only resolves inside the container. If you try to run the backend outside the container, point `DATABASE_URL` at `localhost:5432` instead.
 - `post-create.sh` must have LF line endings, not CRLF. If you edit it on Windows or whatever OS you use, change the line ending to LF in VS Code (click the `CRLF` indicator in the bottom-right status bar before saving). CRLF causes exit code 127 on rebuild.
 
@@ -66,7 +66,7 @@ The connection string is passed in as an environment variable by Docker Compose 
 ```bash
 DATABASE_URL=postgresql+asyncpg://riot_user:riot_password@db:5432/riot_db
 ```
-Note the host is `db`, not `localhost` — that's the service name from `docker-compose.yml`. This only resolves correctly from inside the container.
+Note the host is `db`, not `localhost`. That's the service name from `docker-compose.yml`. This only resolves correctly from inside the container.
 
 
 ### Schema and ER Diagram
@@ -189,7 +189,7 @@ The `ckolkman.vscode-postgres` extension is installed automatically when you ope
 
 ### First-time setup
 
-**Backend** — from the repo root:
+**Backend**, from the repo root:
 
 ```sh
 cd backend
@@ -215,7 +215,7 @@ cd backend
 python -m app.database.seed
 ```
 
-### Quick start — run dev servers
+### Quick start: run dev servers
 
 Start scripts live in each package and at the repo root. They activate the backend venv and load nvm when available.
 
@@ -236,12 +236,12 @@ Or run each service in its own terminal:
 **Manual alternative** (same result without the scripts):
 
 ```sh
-# Terminal 1 — backend
+# Terminal 1: backend
 cd backend
 source venv/bin/activate
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Terminal 2 — frontend
+# Terminal 2: frontend
 cd frontend
 npm run dev
 ```

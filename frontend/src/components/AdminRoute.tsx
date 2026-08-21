@@ -10,7 +10,7 @@ export default function AdminRoute({
 }: Readonly<AdminRouteProps>) {
   const { user, loading } = useAuth();
 
-  // STUB — remove once the backend returns UserMe.role
+  // STUB: remove once the backend returns UserMe.role
   // if (import.meta.env.DEV) {
   //   return <Outlet />;
   // }

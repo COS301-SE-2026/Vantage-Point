@@ -1,23 +1,26 @@
 interface ThemedIconProps {
-  /** Exported light-page asset. */
+  /** Exported light-page asset. Kept in the API for the callers that still
+   *  pass both, and used if a surface ever needs the dark-on-light glyph. */
   readonly light: string;
   /** The same glyph exported from the dark page. */
   readonly dark: string;
   readonly width?: number;
   readonly height?: number;
   readonly className?: string;
-  /** Figma layer name, mirrored onto both files. */
+  /** Figma layer name, mirrored onto the file. */
   readonly name?: string;
+  /** Render the light export instead. Nothing in the dashboard does. */
+  readonly onLight?: boolean;
 }
 
 /**
  * An icon Figma ships once per theme, because the stroke is baked into the SVG
  * and an <img> can't be recoloured.
  *
- * Swapped by CSS rather than <picture>/srcset (as the logo in DashboardShell
- * does): Vite inlines these SVGs as data: URIs, and srcset splits candidates on
- * commas, so a re-export with comma-separated path data would silently blank
- * the dark glyph. Both files are inlined, so there is no extra request.
+ * Every surface that uses these is now dark, so only one file is rendered. It
+ * used to ship both and let a `device-dark:` class pick, which meant two
+ * `<img>` elements per glyph and a dependency on the OS theme the dashboard no
+ * longer follows.
  */
 export default function ThemedIcon({
   light,
@@ -26,25 +29,16 @@ export default function ThemedIcon({
   height,
   className = "",
   name,
+  onLight = false,
 }: Readonly<ThemedIconProps>) {
   return (
-    <>
-      <img
-        src={light}
-        alt=""
-        width={width}
-        height={height}
-        className={`${className} device-dark:hidden`}
-        data-name={name}
-      />
-      <img
-        src={dark}
-        alt=""
-        width={width}
-        height={height}
-        className={`hidden ${className} device-dark:block`}
-        data-name={name}
-      />
-    </>
+    <img
+      src={onLight ? light : dark}
+      alt=""
+      width={width}
+      height={height}
+      className={className}
+      data-name={name}
+    />
   );
 }

@@ -25,7 +25,42 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 # column survives a restart without a full drop-and-reseed.
 ADDITIVE_MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS region VARCHAR",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS platform_id VARCHAR",
     "ALTER TABLE game_accounts ADD COLUMN IF NOT EXISTS profile_matches_sampled INTEGER",
+    "ALTER TABLE matches ADD COLUMN IF NOT EXISTS deletion_status VARCHAR NOT NULL DEFAULT 'active'",
+    "ALTER TABLE matches ADD COLUMN IF NOT EXISTS deletion_flagged_at TIMESTAMP",
+    "ALTER TABLE champions ADD COLUMN IF NOT EXISTS image_path VARCHAR",
+    # Seed map_assets (it's now the FK target for Matches/MatchTimelines.map_id)
+    # before adding the constraints below: this runs top to bottom in one transaction.
+    "INSERT INTO map_assets (map_id, name) VALUES (11, 'Summoner''s Rift') ON CONFLICT (map_id) DO NOTHING",
+    "INSERT INTO map_assets (map_id, name) VALUES (12, 'Howling Abyss') ON CONFLICT (map_id) DO NOTHING",
+    # Postgres has no "ADD CONSTRAINT IF NOT EXISTS", so will manually guard
+    # these migrations re-run on every startup.
+    """
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints
+            WHERE constraint_name = 'fk_matches_map_id' AND table_name = 'matches'
+        ) THEN
+            ALTER TABLE matches ADD CONSTRAINT fk_matches_map_id
+                FOREIGN KEY (map_id) REFERENCES map_assets(map_id);
+        END IF;
+    END $$;
+    """,
+    """
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints
+            WHERE constraint_name = 'fk_match_timelines_map_id' AND table_name = 'match_timelines'
+        ) THEN
+            ALTER TABLE match_timelines ADD CONSTRAINT fk_match_timelines_map_id
+                FOREIGN KEY (map_id) REFERENCES map_assets(map_id);
+        END IF;
+    END $$;
+    """,
 )
 
 

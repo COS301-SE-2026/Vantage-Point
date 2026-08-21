@@ -2,7 +2,7 @@
 
 These are the inputs and outputs of `app.services.spatial_service`, kept separate from
 `app.schemas.timeline` because the timeline schemas describe what Riot sends whereas
-these describe what we derive from it — routes, ground covered, and a heatmap.
+these describe what we derive from it: routes, ground covered, and a heatmap.
 
 Coordinates are in Riot map units throughout, never pixels; projecting onto a minimap
 image is the client's job and needs `MapBounds` from the timeline response.

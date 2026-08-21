@@ -1,0 +1,1 @@
+pytest_plugins = ["app.tests.postgres_fixtures"]

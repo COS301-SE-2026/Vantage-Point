@@ -52,21 +52,37 @@ test.describe("Dashboard shell", () => {
     await expect(page).toHaveURL(/\/dashboard\/matches$/);
   });
 
-  test("collapses and re-expands the navigation panel", async ({ page }) => {
+  /**
+   * Collapsing used to unmount the panel. It now narrows to an icon rail, so
+   * the destinations stay clickable and only the labels go.
+   */
+  test("collapses the navigation panel to an icon rail", async ({ page }) => {
+    const rail = page.locator("#dashboard-sidebar");
     const collapse = page.getByRole("button", {
       name: "Collapse navigation panel",
     });
     await expect(collapse).toHaveAttribute("aria-expanded", "true");
 
-    await collapse.click();
-    await expect(sidebar(page)).toBeHidden();
+    const expandedWidth = (await rail.boundingBox())?.width ?? 0;
+    expect(expandedWidth).toBeGreaterThan(200);
 
+    await collapse.click();
     const expand = page.getByRole("button", {
       name: "Expand navigation panel",
     });
     await expect(expand).toHaveAttribute("aria-expanded", "false");
+    await expect
+      .poll(async () => (await rail.boundingBox())?.width ?? 0)
+      .toBeLessThan(100);
+    // Still navigable while collapsed.
+    await expect(
+      sidebar(page).getByRole("button", { name: "Matches" }),
+    ).toBeVisible();
+
     await expand.click();
-    await expect(sidebar(page)).toBeVisible();
+    await expect
+      .poll(async () => (await rail.boundingBox())?.width ?? 0)
+      .toBeGreaterThan(200);
   });
 
   test("account menu links through to the profile section", async ({

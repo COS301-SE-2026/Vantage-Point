@@ -9,6 +9,10 @@ from app.config import get_settings
 from botocore.exceptions import ClientError
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 from collections.abc import Mapping
+from app.services.admin_matches_service import admin_service
+
+# need to add fallback if aws is down, maybe add to queue and then push through do not want to fallback to .txt
+from app.utils.activity_logger import log_activity
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
@@ -56,6 +60,11 @@ def handle_cognito_error(e: ClientError) -> NoReturn:
 
 
 async def register_user(username: str, password: str, email: str):
+    if not await admin_service.is_registration_open():
+        raise HTTPException(
+            status_code=403,
+            detail="Public registration is currently closed.",
+        )
     if len(username) == 0:
         raise HTTPException(status_code=400, detail="Username is required")
     if "@" not in email:
@@ -66,6 +75,18 @@ async def register_user(username: str, password: str, email: str):
         )
 
     try:
+        _email_check: Any = await asyncio.to_thread(
+            client.list_users,
+            UserPoolId=settings.cognito_user_pool_id,
+            Filter=f'email = "{email}"',
+            Limit=1,
+        )
+
+        if _email_check["Users"]:
+            raise HTTPException(
+                status_code=409, detail="An account with this email already exists."
+            )
+
         response = await asyncio.to_thread(
             client.sign_up,
             ClientId=settings.cognito_client_id,
@@ -96,6 +117,7 @@ async def login_user(username: str, password: str) -> Mapping[str, Any]:
             },
         )
         auth_result = cast(dict[str, Any], response["AuthenticationResult"])
+        log_activity("LOGIN", "User successfully logged in", username=username)
         return {
             "access_token": auth_result["AccessToken"],
             "id_token": auth_result["IdToken"],
@@ -147,5 +169,33 @@ async def revoke_refresh_token(refresh_token: str) -> dict[str, str]:
             ClientSecret=settings.cognito_client_secret,
         )
         return {"status": "success", "message": "Refresh token revoked."}
+    except ClientError as e:
+        handle_cognito_error(e)
+
+
+async def refresh_access_token(
+    username: str, refresh_token: str
+) -> dict[str, str | None]:
+    try:
+        response = await asyncio.to_thread(
+            client.initiate_auth,
+            ClientId=settings.cognito_client_id,
+            AuthFlow="REFRESH_TOKEN_AUTH",
+            AuthParameters={
+                "REFRESH_TOKEN": refresh_token,
+                "SECRET_HASH": get_secret_hash(username),
+            },
+        )
+
+        auth_result = cast(dict[str, Any], response["AuthenticationResult"])
+
+        access_token = cast(str, auth_result["AccessToken"])
+        id_token = cast(str | None, auth_result.get("IdToken"))
+
+        return {
+            "access_token": access_token,
+            "id_token": id_token,
+        }
+
     except ClientError as e:
         handle_cognito_error(e)

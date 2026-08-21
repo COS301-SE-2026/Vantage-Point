@@ -76,6 +76,32 @@ describe('Dashboard', () => {
 })
 ```
 
+### Combined Coverage Summary
+
+The repo has a script that runs both frontend and backend coverage and merges
+them into a single dated report, so anyone can check test coverage without
+running both suites separately.
+
+```sh
+# from repo root
+node scripts/generate-coverage-summary.js
+```
+
+`npm run test:coverage` here uses Vitest's `run` mode (no watch), writes
+`frontend/coverage/coverage-summary.json`, and the script combines it with
+the backend's pytest coverage into `.github/docs/coverage-summary.md`,
+including a table of any file below 90% line coverage
+(`### Files below 90%`). Lower or raise that bar for a single run with:
+
+```sh
+THRESHOLD=80 node scripts/generate-coverage-summary.js
+```
+
+Check `.github/docs/coverage-summary.md` before opening a PR if your change
+touches a component that was already under 90%. It is the fastest way to see
+which files still need tests. See
+[Dev-Quickstart.md](./Dev-Quickstart.md) for the full script setup.
+
 ## Code Quality & Formatting
 ```sh
 # Check for issues
@@ -104,8 +130,8 @@ const apiUrl = import.meta.env.VITE_API_URL
 ```
 
 ### Asset Organization
-- **`public/`** – Static files served as-is (favicon, robots.txt, manifest.json). No processing or minification.
-- **`src/assets/`** – Images and fonts bundled with code. Vite optimizes them. Import directly: `import logo from '@/assets/logo.png'`
+- **`public/`**: Static files served as-is (favicon, robots.txt, manifest.json). No processing or minification.
+- **`src/assets/`**: Images and fonts bundled with code. Vite optimizes them. Import directly: `import logo from '@/assets/logo.png'`
 
 ## Debugging
 **Browser DevTools:**

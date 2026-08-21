@@ -176,7 +176,7 @@ To ensure a stable and collaborative development workflow, the following strateg
 - **[Backend Development Guide](.github/docs/Backend-Development-Guide.md)** - Backend setup, testing, API development, code quality
 - **[Frontend Development Guide](.github/docs/Frontend-Development-Guide.md)** - Frontend setup, components, styling, testing
 - **[SCRUM & Sprint Planning](.github/docs/Scrum-Setup.md)** - Sprint roadmap, ceremonies, backlog, velocity tracking
-- **[Brand Style Guide](.github/docs/Brand-Style.md)** - Brand style guide for consistent UI/UX across the application
+- **[Brand Style Guide](.github/docs/Brand-Style.md)** - Brand style guide (live page: `/style-guide` in the frontend)
 - **[Wireframes](https://www.figma.com/design/UZerOrkQTck4k6iu552r0L/Vantage-Point?t=1a7DF0iSTmef7bFL-0)** - Wireframes for the application UI
 - **[Coding Standards](.github/docs/Coding_Standards.pdf)** - Sonarqube, Black, and File Structure
 - **[Testing Policy](.github/docs/Testing_Policy.pdf)** - Testing Tools, Environments, and Policy

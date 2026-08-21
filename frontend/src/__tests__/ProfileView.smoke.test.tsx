@@ -47,7 +47,7 @@ const profile: PlayerProfile = {
 };
 
 describe("ProfileView", () => {
-  it("renders the Figma sections with profile data", () => {
+  it("renders each profile section with its data", () => {
     render(<ProfileView profile={profile} />);
 
     expect(screen.getByText("Last 20 matches")).toBeDefined();
@@ -58,20 +58,17 @@ describe("ProfileView", () => {
     expect(screen.getAllByRole("img").length).toBeGreaterThanOrEqual(5);
   });
 
-  it("centers the content column only while the sidebar is collapsed", () => {
-    const column = '[data-node-id="14:474"]';
+  /**
+   * The page used to compute its own left offset from the sidebar state. The
+   * shell is a flex layout now, so the view just fills the column it is given.
+   */
+  it("renders every radar metric as a stat tile", () => {
+    render(<ProfileView profile={profile} />);
 
-    const open = render(<ProfileView profile={profile} sidebarOpen />);
-    expect(open.container.querySelector(column)?.className).not.toContain(
-      "mx-auto",
-    );
-    open.unmount();
-
-    const collapsed = render(
-      <ProfileView profile={profile} sidebarOpen={false} />,
-    );
-    expect(collapsed.container.querySelector(column)?.className).toContain(
-      "mx-auto",
-    );
+    // The radar draws the same axis names, so match on "at least one".
+    for (const metric of profile.radar_metrics) {
+      expect(screen.getAllByText(metric.label).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(metric.rawLabel).length).toBeGreaterThan(0);
+    }
   });
 });

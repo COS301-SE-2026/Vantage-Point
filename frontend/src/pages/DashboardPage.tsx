@@ -25,6 +25,7 @@ function sectionFromPathname(pathname: string): DashboardSection {
   if (pathname.includes("/dashboard/profile")) return "profile";
   if (pathname.includes("/dashboard/replay")) return "replay";
   if (pathname.includes("/dashboard/metrics")) return "metrics";
+  if (pathname.includes("/dashboard/help")) return "help";
   return "matches";
 }
 
@@ -92,6 +93,10 @@ export default function DashboardPage() {
     navigate("/login", { replace: true });
   };
 
+  const handleAdminClick = useCallback(() => {
+    navigate("/admin");
+  }, [navigate]);
+
   const outletContext: DashboardOutletContext = {
     sidebarOpen,
     profile,
@@ -99,36 +104,37 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="vp-scrollbar min-h-screen w-full overflow-x-auto bg-white device-dark:bg-[#181818]">
-      <div className="relative mx-auto w-full min-w-0 max-w-[var(--vp-layout-max)]">
-        <DashboardShell
-          sidebarOpen={sidebarOpen}
-          onSidebarToggle={() => setSidebarOpen((open) => !open)}
-          activeSection={activeSection}
-          onMatchesClick={() => navigate("/dashboard/matches")}
-          onReplayClick={() => navigate("/dashboard/replay")}
-          onProfileClick={() => navigate("/dashboard/profile")}
-          onLogout={handleLogout}
-          accountInitials={accountInitials}
-          accountAvatarUrl={accountAvatarUrl}
-          accountName={isProfileSection ? profile?.display_name : undefined}
-          accountTag={isProfileSection ? profile?.riot_id_tag : undefined}
-          onEditProfileClick={
-            profile ? () => setEditProfileOpen(true) : undefined
-          }
-        >
-          <Outlet context={outletContext} />
-        </DashboardShell>
-      </div>
+    /* The shell is a flex app layout now, so the page no longer needs the
+       fixed-width frame and horizontal scroller the Figma import demanded. */
+    <div className="vp-scrollbar min-h-screen w-full bg-vp-canvas">
+      <DashboardShell
+        sidebarOpen={sidebarOpen}
+        onSidebarToggle={() => setSidebarOpen((open) => !open)}
+        activeSection={activeSection}
+        onMatchesClick={() => navigate("/dashboard/matches")}
+        onReplayClick={() => navigate("/dashboard/replay")}
+        onProfileClick={() => navigate("/dashboard/profile")}
+        onHelpClick={() => navigate("/dashboard/help")}
+        onLogout={handleLogout}
+        accountInitials={accountInitials}
+        accountAvatarUrl={accountAvatarUrl}
+        accountName={isProfileSection ? profile?.display_name : undefined}
+        accountTag={isProfileSection ? profile?.riot_id_tag : undefined}
+        onEditProfileClick={
+          profile ? () => setEditProfileOpen(true) : undefined
+        }
+        userRole={user?.role}
+        onAdminClick={handleAdminClick}
+      >
+        <Outlet context={outletContext} />
+      </DashboardShell>
 
       {profile ? (
         <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
-          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[560px]">
+          <DialogContent className="max-h-[85vh] overflow-y-auto border-vp-line bg-vp-surface font-beaufort text-vp-ink sm:max-w-[560px]">
             <DialogHeader>
-              <DialogTitle className="font-['Inter',sans-serif]">
-                Edit profile
-              </DialogTitle>
-              <DialogDescription className="font-['Inter',sans-serif]">
+              <DialogTitle>Edit profile</DialogTitle>
+              <DialogDescription className="text-vp-dim">
                 Update your display name, Riot ID and profile photo.
               </DialogDescription>
             </DialogHeader>

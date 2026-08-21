@@ -3,7 +3,7 @@ from socket import socket
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
 
-# Models now live in database/models.py — import from there, not from main.
+# Models now live in database/models.py: import from there, not from main.
 
 # TODO: add more models to this import as we add them to the database. We will need them for testing relationships and constraints.
 
@@ -68,7 +68,7 @@ def engine():
 #     async with AsyncSession(engine) as session:
 #         # Inserts a Mock Data
 #         print("Inserting Mock Data...")
-#         # Jhin's actual Riot champion_id is 202 — using a real value here
+#         # Jhin's actual Riot champion_id is 202, so using a real value here
 #         # means this mock data would be valid if imported alongside real API data.
 #         # @NeoMachabaUP : There is no Jhin that we know of
 #         test_champ = Champions(champion_id=202, name="Jhin", tags="Marksman")

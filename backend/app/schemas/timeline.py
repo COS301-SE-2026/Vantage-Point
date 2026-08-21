@@ -19,7 +19,7 @@ class MapBounds(BaseModel):
     """Extent of the playable map, so the client can project positions onto its image.
 
     Riot's Y axis points up and a screen's points down, which is the client's job to
-    flip — these are the raw game bounds.
+    flip. These are the raw game bounds.
     """
 
     min_x: int

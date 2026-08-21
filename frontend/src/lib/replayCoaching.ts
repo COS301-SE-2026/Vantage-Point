@@ -5,7 +5,7 @@ import type { MatchDetail, ParticipantDetail } from "../types/match";
  *
  * There is no coaching endpoint yet, so the notes are derived locally from the
  * match payload. Each note is a plain statistical read of the scoreboard, not a
- * model prediction — swap this module for the API call once one exists.
+ * model prediction. Swap this module for the API call once one exists.
  */
 export interface ReplayCoachingNote {
   readonly id: string;
@@ -51,7 +51,7 @@ function allParticipants(match: MatchDetail): readonly ParticipantDetail[] {
 }
 
 /**
- * "Champion choices" — names the opposing laner who won the matchup outright,
+ * "Champion choices" names the opposing laner who won the matchup outright,
  * so the suggestion points at a champion the viewer actually played against.
  */
 function championChoiceNote(
@@ -78,7 +78,7 @@ function championChoiceNote(
 }
 
 /**
- * "Player Roles" — flags a player whose farm and vision profile reads as a
+ * "Player Roles" flags a player whose farm and vision profile reads as a
  * different role from the one they were assigned.
  */
 function playerRoleNote(
@@ -105,20 +105,29 @@ function playerRoleNote(
   };
 }
 
-/** Builds the coaching notes shown in the replay's right-hand panel. */
+/**
+ * Builds the coaching notes shown in the replay's right-hand panel.
+ *
+ * The two reads above are conditional, so on a clean game they both come back
+ * empty. The panel is half the replay row now, and half a screen holding nothing
+ * is worse than no panel at all, so the three standing reads the Map Analysis bar
+ * shows follow them: same match, same scoreboard, and they are always there.
+ */
 export function buildReplayCoachingNotes(
   match: MatchDetail,
   viewer: ParticipantDetail,
 ): readonly ReplayCoachingNote[] {
-  return [
+  const conditional = [
     championChoiceNote(match, viewer),
     playerRoleNote(match, viewer),
   ].filter((note): note is ReplayCoachingNote => note !== null);
+
+  return [...conditional, ...buildMapAnalysisTips(match, viewer)];
 }
 
 /**
  * The three fixed cards of the Map Analysis "AI Coaching bar" (32:690). Same
- * caveat as above — these read the scoreboard, they are not model output.
+ * caveat as above: these read the scoreboard, they are not model output.
  */
 export function buildMapAnalysisTips(
   match: MatchDetail,
@@ -155,7 +164,7 @@ export function buildMapAnalysisTips(
       heading: headings[0],
       body:
         visionPerMin < 1
-          ? `Vision score ${viewer.vision_score} (${visionPerMin.toFixed(1)}/min) — ward more on rotations.`
+          ? `Vision score ${viewer.vision_score} (${visionPerMin.toFixed(1)}/min). Ward more on rotations.`
           : `Vision score ${viewer.vision_score} (${visionPerMin.toFixed(1)}/min) is holding up well.`,
     },
     {
@@ -163,7 +172,7 @@ export function buildMapAnalysisTips(
       heading: headings[1],
       body:
         damageShare < 20
-          ? `You dealt ${damageShare}% of team damage — look for more trades.`
+          ? `You dealt ${damageShare}% of team damage. Look for more trades.`
           : `You dealt ${damageShare}% of team damage.`,
     },
     {
@@ -171,7 +180,7 @@ export function buildMapAnalysisTips(
       heading: headings[2],
       body:
         filledSlots < 6
-          ? `${filledSlots}/6 item slots filled by the end — convert gold sooner.`
+          ? `${filledSlots}/6 item slots filled by the end. Convert gold sooner.`
           : `Full build completed with ${viewer.gold_earned.toLocaleString()} gold.`,
     },
   ];

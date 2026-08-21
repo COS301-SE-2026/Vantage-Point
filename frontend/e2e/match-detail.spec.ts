@@ -10,6 +10,13 @@ test.describe("Match detail", () => {
     ).toBeVisible();
   });
 
+  test("opens the replay of the match being read about", async ({ page }) => {
+    await page.getByRole("button", { name: "View match replay" }).click();
+    await expect(page).toHaveURL(
+      new RegExp(`/dashboard/replay/${PRIMARY_MATCH_ID}$`),
+    );
+  });
+
   test("headlines the viewer's own result and line score", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Victory" })).toBeVisible();
     await expect(page.getByText("Jinx · 12/2/8 KDA")).toBeVisible();
@@ -106,7 +113,7 @@ test.describe("Match detail", () => {
   });
 });
 
-test.describe("Match detail — failure modes", () => {
+test.describe("Match detail: failure modes", () => {
   test("reports a failed fetch", async ({ app, page, api }) => {
     api.fail("matchDetail", 500, "Match store unavailable");
     await app.signIn();
