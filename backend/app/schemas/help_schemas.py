@@ -1,7 +1,6 @@
-# app/schemas/help.py
 from datetime import datetime
 from typing import Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class HelpArticleBase(BaseModel):
@@ -23,8 +22,7 @@ class HelpArticleUpdate(BaseModel):
 class HelpArticleVote(BaseModel):
     vote_type: Literal["up", "down"] = Field(..., alias="type")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class HelpArticleResponse(HelpArticleBase):
